@@ -219,7 +219,7 @@ Screens:
                     Items: =colAsmtGaps
                 Children:
                     - rec_AdGapCard:
-                        Control: Rectangle@2.3.0
+                        Control: Classic/Button@2.2.0
                         Properties:
                             X: =0
                             Y: =0
@@ -229,6 +229,14 @@ Screens:
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
                             BorderRadius: =4
+                            Text: =""
+                            OnSelect: =false
+                            HoverFill: =Self.Fill
+                            PressedFill: =Self.Fill
+                            HoverBorderColor: =Self.BorderColor
+                            PressedBorderColor: =Self.BorderColor
+                            FocusedBorderThickness: =0
+                            TabIndex: =-1
                     - rec_AdGapAccent:
                         Control: Rectangle@2.3.0
                         Properties:

@@ -24,6 +24,44 @@ From the [pa.yaml v3.0 schema](https://raw.githubusercontent.com/microsoft/Power
 If you edit a component, keep it comment-free. `tools/build_mockup.py` strips
 comments on the way out anyway, but the source should paste cleanly too.
 
+## Control property rules
+
+**`Rectangle@2.3.0` has no `BorderRadius`.** The classic Rectangle shape
+supports `Fill`, `BorderColor`, `BorderStyle`, `BorderThickness`, their
+hover/pressed variants, `OnSelect`, geometry, and `Visible` — nothing else.
+Adding `BorderRadius` raises **PA2108**.
+
+Rounded cards and pills therefore use `Classic/Button@2.2.0`, which does carry
+`BorderRadius`, made inert:
+
+```yaml
+Control: Classic/Button@2.2.0
+Properties:
+    Fill: =...
+    BorderRadius: =4
+    Text: =""
+    OnSelect: =false
+    HoverFill: =Self.Fill
+    PressedFill: =Self.Fill
+    HoverBorderColor: =Self.BorderColor
+    PressedBorderColor: =Self.BorderColor
+    FocusedBorderThickness: =0
+    TabIndex: =-1
+```
+
+`Self.Fill` rather than a repeated literal, so retuning `Fill` keeps the static
+appearance automatically. `TabIndex: =-1` keeps a decorative element out of the
+tab order. Every card already carries a separate transparent overlay button for
+its click target, so these backgrounds stay non-interactive.
+
+Use a plain `Rectangle` wherever square corners are fine — accent bars, rules,
+scrims. It is the lighter control.
+
+**`AllowCustomization` raises PA1017 ("ignored in this context").** That warning
+is expected and is left in place deliberately: the v3.0 schema lists it as
+required on a `CanvasComponent`, so removing it to silence a Studio warning
+risks failing `pac canvas pack`. A warning that says "ignored" costs nothing.
+
 ## Pasting these into Studio
 
 Paste the **whole file**, first line included, into the Components tab

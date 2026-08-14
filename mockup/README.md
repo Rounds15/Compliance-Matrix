@@ -92,6 +92,22 @@ If you edit a component while tuning, re-run `python3 tools/build_mockup.py`
 before re-pasting; it strips comments and keeps the four files in step with the
 production source.
 
+**Two control rules worth knowing before you retune anything:**
+
+- **`Rectangle@2.3.0` has no `BorderRadius`** — it raises **PA2108**. Every
+  rounded card and pill is a `Classic/Button@2.2.0` made inert (`Text: =""`,
+  `OnSelect: =false`, hover and pressed fills pinned to `Self.Fill`, out of the
+  tab order). If you add a rounded surface, copy that pattern; if square corners
+  are fine, a plain `Rectangle` is the lighter control.
+- **`AllowCustomization` raises PA1017**, "ignored in this context". Expected
+  and harmless — the v3.0 schema requires the property on a `CanvasComponent`,
+  so it stays. Warnings do not block the paste.
+
+**Fastest way to find remaining property errors:** paste
+`ComplianceMatrix.pa.yaml` rather than one file at a time. PA2108 is reported
+per property with a line number, so the whole app surfaces every one in a single
+pass instead of one component per round trip.
+
 ### 2. App OnStart
 
 Open `App.fx.yaml`, copy everything under `OnStart:` (the `=Set(gblTheme…`
