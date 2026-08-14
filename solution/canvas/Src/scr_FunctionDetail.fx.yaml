@@ -1,0 +1,1718 @@
+# =============================================================================
+# Function Detail - the full record
+# =============================================================================
+# Read and edit modes on one screen, plus three write actions that the
+# prototype carried: flag for review, log a gap, and manage the ownership
+# chain. Layout is a main column with a sticky right rail (record status,
+# take action, counsel of record, related functions).
+#
+# Saving an owner change also rewrites the copied owner field on every child
+# deadline row. That denormalization is deliberate and is what the save
+# confirmation reports back to the user.
+# =============================================================================
+
+Screens:
+
+    scr_FunctionDetail:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblFdMode, "read");
+                Set(gblFdPanel, "");
+                Set(gblFdToast, "");
+                // Working copy so Cancel can discard without touching Dataverse.
+                Set(gblFdDraft, gblSelectedFunction);
+                Set(
+                    gblFdFlag,
+                    LookUp(
+                        'Function Flags',
+                        su_function.su_compliancefunctionid
+                            = gblSelectedFunction.su_compliancefunctionid
+                            && su_status = 'Flag Status'.Active
+                    )
+                );
+                // Counsel of record for this topic, falling back to the single
+                // default escalation row (the General Counsel).
+                Set(
+                    gblFdCounsel,
+                    Coalesce(
+                        LookUp(
+                            colCounsel,
+                            su_topic.su_compliancetopicid
+                                = gblSelectedFunction.su_topic.su_compliancetopicid
+                        ),
+                        gblDefaultCounsel
+                    )
+                );
+                ClearCollect(
+                    colFdDeadlines,
+                    SortByColumns(
+                        Filter(
+                            'Compliance Deadlines',
+                            su_function.su_compliancefunctionid
+                                = gblSelectedFunction.su_compliancefunctionid
+                        ),
+                        "su_duedate",
+                        SortOrder.Ascending
+                    )
+                );
+                ClearCollect(
+                    colFdGaps,
+                    SortByColumns(
+                        Filter(
+                            'Compliance Gaps',
+                            su_function.su_compliancefunctionid
+                                = gblSelectedFunction.su_compliancefunctionid
+                        ),
+                        "su_openeddate",
+                        SortOrder.Descending
+                    )
+                );
+                ClearCollect(
+                    colFdOwnership,
+                    Filter(
+                        'Function Ownership',
+                        su_function.su_compliancefunctionid
+                            = gblSelectedFunction.su_compliancefunctionid
+                    )
+                )
+
+        Children:
+
+            - cmp_HeaderFd:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Functions"
+                    OpenGapCount: =gblOpenGapCount
+
+            # ---- breadcrumb -------------------------------------------------
+            - btn_FdBack:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =116
+                    Width: =130
+                    Height: =32
+                    Text: ="All functions"
+                    OnSelect: =Back()
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    BorderThickness: =0
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - lbl_FdCrumb:
+                Control: Label@2.5.1
+                Properties:
+                    X: =200
+                    Y: =116
+                    Width: =700
+                    Height: =32
+                    Text: |
+                        ="/  " & gblSelectedFunction.su_topic.su_name & "  /  " &
+                         gblSelectedFunction.su_name
+                    Color: =gblTheme.GrayMid
+                    Size: =10
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            # ---- navy record header ----------------------------------------
+            - rec_FdHead:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =156
+                    Width: =Parent.Width
+                    Height: =150
+                    Fill: =gblTheme.Navy
+                    BorderThickness: =0
+            - rec_FdHeadRule:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =303
+                    Width: =Parent.Width
+                    Height: =3
+                    Fill: =gblTheme.Orange
+                    BorderThickness: =0
+            - lbl_FdEyebrow:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =174
+                    Width: =800
+                    Height: =20
+                    Text: |
+                        =Upper(gblSelectedFunction.su_topic.su_name & "  |  " &
+                               gblSelectedFunction.su_area)
+                    Color: =gblTheme.OrangeLight
+                    Size: =8
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - lbl_FdTitle:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =198
+                    Width: =Parent.Width - 460
+                    Height: =56
+                    Text: |
+                        =If(gblFdMode = "edit", "Editing - ", "") & gblSelectedFunction.su_name
+                    Color: =gblTheme.White
+                    Size: =22
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontDisplay
+            - cmp_FdRisk:
+                Control: Component
+                ComponentName: cmp_RiskPill
+                Properties:
+                    X: =64
+                    Y: =262
+                    Width: =74
+                    Height: =24
+                    Risk: |
+                        =Switch(
+                            gblSelectedFunction.su_risk,
+                            'Risk Level'.Critical, "Critical",
+                            'Risk Level'.High,     "High",
+                            'Risk Level'.Medium,   "Medium",
+                            "Low"
+                        )
+            - lbl_FdCode:
+                Control: Label@2.5.1
+                Properties:
+                    X: =148
+                    Y: =262
+                    Width: =90
+                    Height: =24
+                    Text: =gblSelectedFunction.su_functioncode
+                    Fill: =RGBA(255, 255, 255, 0.1)
+                    Color: =RGBA(199, 210, 234, 1)
+                    Size: =9
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+            - lbl_FdGapCount:
+                Control: Label@2.5.1
+                Properties:
+                    X: =248
+                    Y: =262
+                    Width: =104
+                    Height: =24
+                    Text: |
+                        =gblSelectedFunction.su_opengapcount & " open " &
+                         If(gblSelectedFunction.su_opengapcount = 1, "gap", "gaps")
+                    Visible: =gblSelectedFunction.su_opengapcount > 0
+                    Fill: =gblTheme.High
+                    Color: =gblTheme.White
+                    Size: =8
+                    FontWeight: =FontWeight.Bold
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+            - lbl_FdFlagged:
+                Control: Label@2.5.1
+                Properties:
+                    X: =362
+                    Y: =262
+                    Width: =140
+                    Height: =24
+                    Text: ="Flagged for review"
+                    Visible: =!IsBlank(gblFdFlag)
+                    Fill: =gblTheme.Orange
+                    Color: =gblTheme.White
+                    Size: =8
+                    FontWeight: =FontWeight.Bold
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            # ---- edit-mode save / cancel ------------------------------------
+            - btn_FdSave:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 360
+                    Y: =252
+                    Width: =150
+                    Height: =40
+                    Text: ="Save changes"
+                    Visible: =gblFdMode = "edit"
+                    # Patch the function, then rewrite the copied owner and risk
+                    # fields on every child deadline so list views stay consistent.
+                    OnSelect: |
+                        =Patch(
+                            'Compliance Functions',
+                            gblSelectedFunction,
+                            {
+                                su_name: txt_FdName.Text,
+                                su_area: txt_FdArea.Text,
+                                su_statute: txt_FdStatute.Text,
+                                su_citation: txt_FdCitation.Text,
+                                su_statuteurl: txt_FdStatuteUrl.Text,
+                                su_description: txt_FdDescription.Text,
+                                su_reporting: txt_FdReporting.Text,
+                                su_deadlinenarrative: txt_FdDeadlineNarrative.Text,
+                                su_resourcelabel: txt_FdResourceLabel.Text,
+                                su_resourceurl: txt_FdResourceUrl.Text,
+                                su_risk: Switch(
+                                    drp_FdRisk.Selected.Value,
+                                    "Critical", 'Risk Level'.Critical,
+                                    "High",     'Risk Level'.High,
+                                    "Medium",   'Risk Level'.Medium,
+                                    'Risk Level'.Low
+                                ),
+                                su_lastreviewed: gblToday
+                            }
+                        );
+                        ForAll(
+                            colFdDeadlines As dl,
+                            Patch(
+                                'Compliance Deadlines',
+                                dl,
+                                {
+                                    su_owner: gblSelectedFunction.su_complianceowner,
+                                    su_risk: Switch(
+                                        drp_FdRisk.Selected.Value,
+                                        "Critical", 'Risk Level'.Critical,
+                                        "High",     'Risk Level'.High,
+                                        "Medium",   'Risk Level'.Medium,
+                                        'Risk Level'.Low
+                                    )
+                                }
+                            )
+                        );
+                        Set(
+                            gblSelectedFunction,
+                            LookUp(
+                                'Compliance Functions',
+                                su_compliancefunctionid
+                                    = gblSelectedFunction.su_compliancefunctionid
+                            )
+                        );
+                        Set(gblFdMode, "read");
+                        Set(
+                            gblFdToast,
+                            "Saved. Owner fields on " & CountRows(colFdDeadlines) &
+                            " deadline record(s) updated."
+                        )
+                    Fill: =gblTheme.Orange
+                    HoverFill: =gblTheme.OrangeMedium
+                    Color: =gblTheme.White
+                    BorderThickness: =0
+                    Size: =10
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - btn_FdCancel:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 198
+                    Y: =252
+                    Width: =110
+                    Height: =40
+                    Text: ="Cancel"
+                    Visible: =gblFdMode = "edit"
+                    OnSelect: =Set(gblFdMode, "read")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.White
+                    BorderColor: =RGBA(255, 255, 255, 0.5)
+                    BorderThickness: =1
+                    HoverFill: =RGBA(255, 255, 255, 0.1)
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            # =================================================================
+            # ACTION PANELS
+            # =================================================================
+            - cnt_FlagPanel:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                    X: =0
+                    Y: =306
+                    Width: =Parent.Width
+                    Height: =222
+                    Fill: =ColorFade(gblTheme.Orange, 0.94)
+                    Visible: =gblFdPanel = "flag"
+                Children:
+                    - lbl_FlagPanelTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =18
+                            Width: =600
+                            Height: =26
+                            Text: ="Flag this function for review"
+                            Color: =gblTheme.Navy
+                            Size: =13
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_FlagPanelLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =50
+                            Width: =600
+                            Height: =20
+                            Text: ="Why does this need review?"
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - txt_FlagReason:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =64
+                            Y: =72
+                            Width: =Parent.Width - 460
+                            Height: =70
+                            Default: =""
+                            HintText: ="e.g. Citation may be superseded by the 2026 final rule."
+                            Mode: =TextMode.MultiLine
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.Orange
+                            Size: =11
+                            Font: =gblTheme.FontBody
+                    - lbl_FlagPanelNote:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =148
+                            Width: =Parent.Width - 460
+                            Height: =20
+                            Text: |
+                                ="Flagging notifies the compliance office and adds this function to the administrator review queue. The office responds within five business days."
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - btn_FlagSubmit:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =64
+                            Y: =174
+                            Width: =130
+                            Height: =38
+                            Text: ="Submit flag"
+                            DisplayMode: |
+                                =If(
+                                    IsBlank(Trim(txt_FlagReason.Text)),
+                                    DisplayMode.Disabled,
+                                    DisplayMode.Edit
+                                )
+                            OnSelect: |
+                                =Patch(
+                                    'Function Flags',
+                                    Defaults('Function Flags'),
+                                    {
+                                        su_name: "Review requested - " &
+                                                 gblSelectedFunction.su_functioncode,
+                                        su_function: gblSelectedFunction,
+                                        su_reason: txt_FlagReason.Text,
+                                        su_status: 'Flag Status'.Active,
+                                        su_flaggedby: gblMe,
+                                        su_flaggedon: gblToday
+                                    }
+                                );
+                                Patch(
+                                    'Compliance Functions',
+                                    gblSelectedFunction,
+                                    {su_isflagged: true}
+                                );
+                                Set(
+                                    gblFdFlag,
+                                    LookUp(
+                                        'Function Flags',
+                                        su_function.su_compliancefunctionid
+                                            = gblSelectedFunction.su_compliancefunctionid
+                                            && su_status = 'Flag Status'.Active
+                                    )
+                                );
+                                Reset(txt_FlagReason);
+                                Set(gblFdPanel, "");
+                                Set(gblFdToast, "Flag submitted to the compliance office.")
+                            Fill: =gblTheme.Orange
+                            HoverFill: =gblTheme.OrangeMedium
+                            DisabledFill: =gblTheme.GrayLight
+                            Color: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =10
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - btn_FlagCancel:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =206
+                            Y: =174
+                            Width: =100
+                            Height: =38
+                            Text: ="Cancel"
+                            OnSelect: =Set(gblFdPanel, "")
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+
+            - cnt_GapPanel:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                    X: =0
+                    Y: =306
+                    Width: =Parent.Width
+                    Height: =270
+                    Fill: =ColorFade(gblTheme.High, 0.95)
+                    Visible: =gblFdPanel = "gap"
+                Children:
+                    - lbl_GapPanelTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =18
+                            Width: =600
+                            Height: =26
+                            Text: ="Log a compliance gap"
+                            Color: =gblTheme.Navy
+                            Size: =13
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_GapSummaryLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =50
+                            Width: =400
+                            Height: =20
+                            Text: ="Gap summary"
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - txt_GapTitle:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =64
+                            Y: =72
+                            Width: =Parent.Width - 640
+                            Height: =42
+                            Default: =""
+                            HintText: ="What is out of compliance?"
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.High
+                            Size: =11
+                            Font: =gblTheme.FontBody
+                    - lbl_GapSeverityLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.Width - 560
+                            Y: =50
+                            Width: =180
+                            Height: =20
+                            Text: ="Severity"
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - drp_GapSeverity:
+                        Control: Classic/DropDown@2.3.1
+                        Properties:
+                            X: =Parent.Width - 560
+                            Y: =72
+                            Width: =180
+                            Height: =42
+                            Items: |
+                                =Table(
+                                    {Value: "Critical"},
+                                    {Value: "High"},
+                                    {Value: "Medium"},
+                                    {Value: "Low"}
+                                )
+                            Default: ="Medium"
+                            BorderColor: =gblTheme.Border
+                            Size: =11
+                            Font: =gblTheme.FontBody
+                    - lbl_GapDetailLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =122
+                            Width: =400
+                            Height: =20
+                            Text: ="Detail and remediation plan"
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - txt_GapNote:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =64
+                            Y: =144
+                            Width: =Parent.Width - 460
+                            Height: =62
+                            Default: =""
+                            HintText: ="What was found, how it was identified, and what happens next."
+                            Mode: =TextMode.MultiLine
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.High
+                            Size: =11
+                            Font: =gblTheme.FontBody
+                    - lbl_GapPanelNote:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =212
+                            Width: =Parent.Width - 460
+                            Height: =18
+                            Text: |
+                                ="Opens a gap record against " & gblSelectedFunction.su_functioncode &
+                                 " and notifies " & gblSelectedFunction.su_complianceowner.su_name &
+                                 " and the compliance office."
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - btn_GapSubmit:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =64
+                            Y: =236
+                            Width: =120
+                            Height: =38
+                            Text: ="Log gap"
+                            DisplayMode: |
+                                =If(
+                                    IsBlank(Trim(txt_GapTitle.Text)),
+                                    DisplayMode.Disabled,
+                                    DisplayMode.Edit
+                                )
+                            OnSelect: |
+                                =Patch(
+                                    'Compliance Gaps',
+                                    Defaults('Compliance Gaps'),
+                                    {
+                                        su_name: txt_GapTitle.Text,
+                                        su_gapcode: "GAP-" &
+                                            Text(CountRows('Compliance Gaps') + 201, "000"),
+                                        su_function: gblSelectedFunction,
+                                        su_severity: Switch(
+                                            drp_GapSeverity.Selected.Value,
+                                            "Critical", 'Risk Level'.Critical,
+                                            "High",     'Risk Level'.High,
+                                            "Medium",   'Risk Level'.Medium,
+                                            'Risk Level'.Low
+                                        ),
+                                        su_status: 'Gap Status'.Open,
+                                        su_openeddate: gblToday,
+                                        su_note: txt_GapNote.Text,
+                                        su_owner: gblSelectedFunction.su_complianceowner
+                                    }
+                                );
+                                ClearCollect(
+                                    colFdGaps,
+                                    SortByColumns(
+                                        Filter(
+                                            'Compliance Gaps',
+                                            su_function.su_compliancefunctionid
+                                                = gblSelectedFunction.su_compliancefunctionid
+                                        ),
+                                        "su_openeddate",
+                                        SortOrder.Descending
+                                    )
+                                );
+                                Set(
+                                    gblOpenGapCount,
+                                    CountRows(
+                                        Filter('Compliance Gaps', su_status = 'Gap Status'.Open)
+                                    )
+                                );
+                                Reset(txt_GapTitle);
+                                Reset(txt_GapNote);
+                                Set(gblFdPanel, "");
+                                Set(gblFdToast, "Gap logged and routed to the gap tracker.")
+                            Fill: =gblTheme.High
+                            HoverFill: =gblTheme.Critical
+                            DisabledFill: =gblTheme.GrayLight
+                            Color: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =10
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - btn_GapCancel:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =196
+                            Y: =236
+                            Width: =100
+                            Height: =38
+                            Text: ="Cancel"
+                            OnSelect: =Set(gblFdPanel, "")
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+
+            # =================================================================
+            # MAIN COLUMN
+            # =================================================================
+            - cnt_FdMain:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                    X: =64
+                    Y: |
+                        =306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, 0) + 24
+                    Width: =Parent.Width - 480
+                    Height: =Parent.Height - 400
+                    Fill: =RGBA(0, 0, 0, 0)
+                Children:
+
+                    # ---- flag banner ------------------------------------
+                    - rec_FdFlagBanner:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.Width
+                            Height: =78
+                            Fill: =ColorFade(gblTheme.Orange, 0.92)
+                            BorderThickness: =0
+                            Visible: =!IsBlank(gblFdFlag)
+                    - lbl_FdFlagBannerText:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =10
+                            Width: =Parent.Width - 180
+                            Height: =58
+                            Visible: =!IsBlank(gblFdFlag)
+                            Text: |
+                                ="Flagged for review by " & gblFdFlag.su_flaggedby.su_name &
+                                 " on " & Text(gblFdFlag.su_flaggedon, "mmm d, yyyy") &
+                                 Char(10) & gblFdFlag.su_reason
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - btn_FdClearFlag:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =Parent.Width - 150
+                            Y: =22
+                            Width: =134
+                            Height: =34
+                            Text: ="Clear flag"
+                            Visible: =!IsBlank(gblFdFlag) && gblIsAdmin
+                            OnSelect: |
+                                =Patch(
+                                    'Function Flags',
+                                    gblFdFlag,
+                                    {
+                                        su_status: 'Flag Status'.Cleared,
+                                        su_clearedby: gblMe,
+                                        su_clearedon: gblToday
+                                    }
+                                );
+                                Patch(
+                                    'Compliance Functions',
+                                    gblSelectedFunction,
+                                    {su_isflagged: false}
+                                );
+                                Set(gblFdFlag, Blank());
+                                Set(gblFdToast, "Flag cleared.")
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+
+                    # =========================================================
+                    # READ MODE
+                    # =========================================================
+                    - cnt_FdRead:
+                        Control: GroupContainer@1.5.0
+                        Variant: AutoLayout
+                        Properties:
+                            X: =0
+                            Y: =If(IsBlank(gblFdFlag), 0, 94)
+                            Width: =Parent.Width
+                            Height: =Parent.Height - If(IsBlank(gblFdFlag), 0, 94)
+                            Fill: =RGBA(0, 0, 0, 0)
+                            LayoutDirection: =LayoutDirection.Vertical
+                            LayoutGap: =22
+                            LayoutOverflowY: =LayoutOverflow.Scroll
+                            Visible: =gblFdMode = "read"
+                        Children:
+                            - lbl_FdStatuteHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =26
+                                    Width: =Parent.Width
+                                    Text: ="GOVERNING STATUTE"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdStatuteBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =74
+                                    Width: =Parent.Width
+                                    Text: |
+                                        ="Statute       " & gblSelectedFunction.su_statute & Char(10) &
+                                         "Citation      " & gblSelectedFunction.su_citation & Char(10) &
+                                         "Reference   " & gblSelectedFunction.su_statuteurl
+                                    Color: =gblTheme.GrayDark
+                                    Size: =10
+                                    Font: =gblTheme.FontBody
+                            - btn_FdStatuteLink:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    Height: =32
+                                    Width: =200
+                                    Text: ="Open the statute"
+                                    OnSelect: =Launch(gblSelectedFunction.su_statuteurl)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                                    BorderThickness: =0
+                                    Align: =Align.Left
+                                    Size: =10
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdObligationHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =26
+                                    Width: =Parent.Width
+                                    Text: ="WHAT THE OBLIGATION IS"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdObligationBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =96
+                                    Width: =Parent.Width
+                                    Text: =gblSelectedFunction.su_description
+                                    Color: =gblTheme.GrayDark
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdReportingHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =26
+                                    Width: =Parent.Width
+                                    Text: ="REPORTING REQUIREMENT"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdReportingBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =64
+                                    Width: =Parent.Width
+                                    Text: =gblSelectedFunction.su_reporting
+                                    Color: =gblTheme.GrayDark
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdCadenceHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =26
+                                    Width: =Parent.Width
+                                    Text: ="DEADLINE AND CADENCE"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdCadenceBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =44
+                                    Width: =Parent.Width
+                                    Text: =gblSelectedFunction.su_deadlinenarrative
+                                    Color: =gblTheme.GrayDark
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - gal_FdDeadlines:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    Height: =Min(CountRows(colFdDeadlines) * 54, 216)
+                                    Width: =Parent.Width
+                                    TemplateSize: =54
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Items: =colFdDeadlines
+                                Children:
+                                    - rec_FdDlBox:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =48
+                                            Fill: |
+                                                =If(
+                                                    !ThisItem.su_complete
+                                                        && ThisItem.su_duedate < gblToday,
+                                                    RGBA(255, 247, 247, 1),
+                                                    gblTheme.White
+                                                )
+                                            BorderColor: =gblTheme.Border
+                                            BorderThickness: =1
+                                            BorderRadius: =4
+                                    - lbl_FdDlTitle:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =5
+                                            Width: =Parent.TemplateWidth - 140
+                                            Height: =20
+                                            Text: =ThisItem.su_name
+                                            Color: =gblTheme.Navy
+                                            Size: =10
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_FdDlSub:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =25
+                                            Width: =Parent.TemplateWidth - 140
+                                            Height: =18
+                                            Text: |
+                                                =Text(ThisItem.su_duedate, "mmm d, yyyy") & "  |  " &
+                                                 ThisItem.su_cadence
+                                            Color: =gblTheme.GrayMid
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                                    - cmp_FdDlPill:
+                                        Control: Component
+                                        ComponentName: cmp_DuePill
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 118
+                                            Y: =12
+                                            Width: =104
+                                            Height: =24
+                                            DueDate: =ThisItem.su_duedate
+                                            IsComplete: =ThisItem.su_complete
+
+                            # ---- ownership chain --------------------------
+                            - lbl_FdOwnershipHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =26
+                                    Width: =Parent.Width
+                                    Text: ="OWNERSHIP CHAIN"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_FdOwnership:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    Height: =230
+                                    Width: =Parent.Width
+                                    TemplateSize: =Parent.Width / 3 - 8
+                                    TemplatePadding: =12
+                                    ShowScrollbar: =false
+                                    # One container per role tier; the inner gallery
+                                    # lists every person holding that role.
+                                    Items: |
+                                        =Table(
+                                            {
+                                                RoleKey: 'Ownership Role'.'Executive Owner',
+                                                RoleLabel: "Executive Owner",
+                                                RoleNote: "Accountable at the cabinet level."
+                                            },
+                                            {
+                                                RoleKey: 'Ownership Role'.'Unit Owner',
+                                                RoleLabel: "Unit Owner",
+                                                RoleNote: "Runs the obligation inside the unit."
+                                            },
+                                            {
+                                                RoleKey: 'Ownership Role'.'Compliance Owner',
+                                                RoleLabel: "Compliance Owner",
+                                                RoleNote: "Does the work and files the record."
+                                            }
+                                        )
+                                Children:
+                                    - rec_FdRoleCard:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =220
+                                            Fill: =gblTheme.Surface
+                                            BorderColor: =gblTheme.Border
+                                            BorderThickness: =1
+                                            BorderRadius: =5
+                                    - lbl_FdRoleLabel:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =12
+                                            Width: =Parent.TemplateWidth - 28
+                                            Height: =22
+                                            Text: =ThisItem.RoleLabel
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_FdRoleNote:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =34
+                                            Width: =Parent.TemplateWidth - 28
+                                            Height: =20
+                                            Text: =ThisItem.RoleNote
+                                            Color: =gblTheme.GrayMid
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                                    - gal_FdRolePeople:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                            X: =10
+                                            Y: =58
+                                            Width: =Parent.TemplateWidth - 20
+                                            Height: =154
+                                            TemplateSize: =52
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =true
+                                            Items: |
+                                                =Filter(colFdOwnership, su_role = ThisItem.RoleKey)
+                                        Children:
+                                            - lbl_FdPersonName:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =4
+                                                    Y: =4
+                                                    Width: =Parent.TemplateWidth - 78
+                                                    Height: =18
+                                                    Text: =ThisItem.su_person.su_name
+                                                    Color: =gblTheme.Navy
+                                                    Size: =10
+                                                    FontWeight: =FontWeight.Semibold
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_FdPersonTitle:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =4
+                                                    Y: =22
+                                                    Width: =Parent.TemplateWidth - 78
+                                                    Height: =26
+                                                    Text: =ThisItem.su_person.su_jobtitle
+                                                    Color: =gblTheme.GrayMid
+                                                    Size: =8
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_FdPersonSubrole:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 72
+                                                    Y: =12
+                                                    Width: =68
+                                                    Height: =22
+                                                    Text: |
+                                                        =Switch(
+                                                            ThisItem.su_subrole,
+                                                            'Ownership Sub-role'.Primary,  "Primary",
+                                                            'Ownership Sub-role'.Advisory, "Advisory",
+                                                            "Support"
+                                                        )
+                                                    Fill: |
+                                                        =If(
+                                                            ThisItem.su_subrole
+                                                                = 'Ownership Sub-role'.Primary,
+                                                            ColorFade(gblTheme.Navy, 0.88),
+                                                            ColorFade(gblTheme.GrayMid, 0.88)
+                                                        )
+                                                    Color: |
+                                                        =If(
+                                                            ThisItem.su_subrole
+                                                                = 'Ownership Sub-role'.Primary,
+                                                            gblTheme.Navy,
+                                                            gblTheme.GrayMid
+                                                        )
+                                                    Size: =8
+                                                    FontWeight: =FontWeight.Bold
+                                                    Align: =Align.Center
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                    - lbl_FdRoleEmpty:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =100
+                                            Width: =Parent.TemplateWidth - 28
+                                            Height: =40
+                                            Text: ="No one assigned to this role."
+                                            Color: =gblTheme.GrayLight
+                                            Size: =10
+                                            Align: =Align.Center
+                                            Font: =gblTheme.FontBody
+                                            Visible: |
+                                                =CountRows(
+                                                    Filter(colFdOwnership, su_role = ThisItem.RoleKey)
+                                                ) = 0
+
+                            # ---- gap history ------------------------------
+                            - lbl_FdGapHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =26
+                                    Width: =Parent.Width
+                                    Text: ="GAP HISTORY (" & CountRows(colFdGaps) & ")"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_FdGaps:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    Height: =Min(Max(CountRows(colFdGaps), 1) * 96, 300)
+                                    Width: =Parent.Width
+                                    TemplateSize: =96
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Items: =colFdGaps
+                                Children:
+                                    - rec_FdGapBox:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =88
+                                            Fill: =gblTheme.White
+                                            BorderColor: =gblTheme.Border
+                                            BorderThickness: =1
+                                            BorderRadius: =4
+                                    - rec_FdGapAccent:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =3
+                                            Height: =88
+                                            Fill: |
+                                                =If(
+                                                    ThisItem.su_status = 'Gap Status'.Open,
+                                                    Switch(
+                                                        ThisItem.su_severity,
+                                                        'Risk Level'.Critical, gblTheme.Critical,
+                                                        'Risk Level'.High,     gblTheme.High,
+                                                        'Risk Level'.Medium,   gblTheme.Medium,
+                                                        gblTheme.Low
+                                                    ),
+                                                    gblTheme.Low
+                                                )
+                                            BorderThickness: =0
+                                    - lbl_FdGapStatus:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =8
+                                            Width: =70
+                                            Height: =20
+                                            Text: |
+                                                =If(
+                                                    ThisItem.su_status = 'Gap Status'.Open,
+                                                    "Open",
+                                                    "Closed"
+                                                )
+                                            Fill: |
+                                                =If(
+                                                    ThisItem.su_status = 'Gap Status'.Open,
+                                                    ColorFade(gblTheme.High, 0.88),
+                                                    ColorFade(gblTheme.Low, 0.88)
+                                                )
+                                            Color: |
+                                                =If(
+                                                    ThisItem.su_status = 'Gap Status'.Open,
+                                                    gblTheme.High,
+                                                    gblTheme.Low
+                                                )
+                                            Size: =8
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_FdGapMeta:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =92
+                                            Y: =8
+                                            Width: =Parent.TemplateWidth - 110
+                                            Height: =20
+                                            Text: |
+                                                =ThisItem.su_gapcode & "  |  opened " &
+                                                 Text(ThisItem.su_openeddate, "mmm d, yyyy") &
+                                                 "  |  " & ThisItem.su_daysopen & " days open"
+                                            Color: =gblTheme.GrayMid
+                                            Size: =8
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_FdGapTitle:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =30
+                                            Width: =Parent.TemplateWidth - 28
+                                            Height: =20
+                                            Text: =ThisItem.su_name
+                                            Color: =gblTheme.Navy
+                                            Size: =10
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_FdGapNote:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =50
+                                            Width: =Parent.TemplateWidth - 28
+                                            Height: =34
+                                            Text: |
+                                                =If(
+                                                    ThisItem.su_status = 'Gap Status'.Closed,
+                                                    ThisItem.su_closenote,
+                                                    ThisItem.su_note
+                                                )
+                                            Color: =gblTheme.GrayMid
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                            - lbl_FdGapEmpty:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =60
+                                    Width: =Parent.Width
+                                    Text: |
+                                        ="No gaps recorded" & Char(10) &
+                                         "Nothing has been logged against this function."
+                                    Color: =gblTheme.GrayMid
+                                    Size: =10
+                                    Align: =Align.Center
+                                    Font: =gblTheme.FontBody
+                                    Visible: =CountRows(colFdGaps) = 0
+                            - lbl_FdResourceHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =26
+                                    Width: =Parent.Width
+                                    Text: ="SYRACUSE UNIVERSITY RESOURCE"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - btn_FdResourceLink:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    Height: =34
+                                    Width: =Parent.Width
+                                    Text: =gblSelectedFunction.su_resourcelabel
+                                    OnSelect: =Launch(gblSelectedFunction.su_resourceurl)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                                    BorderThickness: =0
+                                    Align: =Align.Left
+                                    Size: =11
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+
+                    # =========================================================
+                    # EDIT MODE
+                    # =========================================================
+                    - cnt_FdEdit:
+                        Control: GroupContainer@1.5.0
+                        Variant: AutoLayout
+                        Properties:
+                            X: =0
+                            Y: =If(IsBlank(gblFdFlag), 0, 94)
+                            Width: =Parent.Width
+                            Height: =Parent.Height - If(IsBlank(gblFdFlag), 0, 94)
+                            Fill: =RGBA(0, 0, 0, 0)
+                            LayoutDirection: =LayoutDirection.Vertical
+                            LayoutGap: =14
+                            LayoutOverflowY: =LayoutOverflow.Scroll
+                            Visible: =gblFdMode = "edit"
+                        Children:
+                            - lbl_FdEditNote:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =44
+                                    Width: =Parent.Width
+                                    Text: |
+                                        ="Editing. Changing the risk rating also updates the copied fields on this function's deadline records when you save. People and sub-roles are managed from the ownership chain in read mode."
+                                    Fill: =gblTheme.Surface
+                                    Color: =gblTheme.GrayDark
+                                    Size: =9
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdNameLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Compliance function"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdName:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =42
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_name
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdRiskLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Risk rating"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - drp_FdRisk:
+                                Control: Classic/DropDown@2.3.1
+                                Properties:
+                                    Height: =42
+                                    Width: =260
+                                    Items: |
+                                        =Table(
+                                            {Value: "Critical"},
+                                            {Value: "High"},
+                                            {Value: "Medium"},
+                                            {Value: "Low"}
+                                        )
+                                    Default: |
+                                        =Switch(
+                                            gblSelectedFunction.su_risk,
+                                            'Risk Level'.Critical, "Critical",
+                                            'Risk Level'.High,     "High",
+                                            'Risk Level'.Medium,   "Medium",
+                                            "Low"
+                                        )
+                                    BorderColor: =gblTheme.Border
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdAreaLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Compliance area"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdArea:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =42
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_area
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdStatuteLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Statute"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdStatute:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =42
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_statute
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdCitationLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Citation"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdCitation:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =42
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_citation
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdStatuteUrlLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Statute URL"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdStatuteUrl:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =42
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_statuteurl
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdDescLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="What the obligation is"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdDescription:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =110
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_description
+                                    Mode: =TextMode.MultiLine
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdReportingLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Reporting requirement"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdReporting:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =90
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_reporting
+                                    Mode: =TextMode.MultiLine
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdCadenceLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Deadline and cadence"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdDeadlineNarrative:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =70
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_deadlinenarrative
+                                    Mode: =TextMode.MultiLine
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdResourceLabelLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Resource label"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdResourceLabel:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =42
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_resourcelabel
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdResourceUrlLabel:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =20
+                                    Width: =Parent.Width
+                                    Text: ="Resource URL"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - txt_FdResourceUrl:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    Height: =42
+                                    Width: =Parent.Width
+                                    Default: =gblSelectedFunction.su_resourceurl
+                                    BorderColor: =gblTheme.Border
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+
+            # =================================================================
+            # RIGHT RAIL
+            # =================================================================
+            - cnt_FdRail:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                    X: =Parent.Width - 396
+                    Y: |
+                        =306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, 0) + 24
+                    Width: =332
+                    Height: =Parent.Height - 400
+                    Fill: =RGBA(0, 0, 0, 0)
+                    LayoutDirection: =LayoutDirection.Vertical
+                    LayoutGap: =16
+                    LayoutOverflowY: =LayoutOverflow.Scroll
+                Children:
+                    - lbl_RailStatusHead:
+                        Control: Label@2.5.1
+                        Properties:
+                            Height: =24
+                            Width: =Parent.Width
+                            Text: ="RECORD STATUS"
+                            Color: =gblTheme.OrangeDark
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_RailStatusBody:
+                        Control: Label@2.5.1
+                        Properties:
+                            Height: =126
+                            Width: =Parent.Width
+                            Text: |
+                                ="Open gaps          " &
+                                 If(gblSelectedFunction.su_opengapcount > 0,
+                                    Text(gblSelectedFunction.su_opengapcount),
+                                    "None") & Char(10) &
+                                 "Next deadline    " &
+                                 If(IsBlank(gblSelectedFunction.su_nextduedate),
+                                    "None scheduled",
+                                    Text(gblSelectedFunction.su_nextduedate, "mmm d, yyyy")) & Char(10) &
+                                 "Under review     " &
+                                 If(IsBlank(gblFdFlag), "No", "Yes") & Char(10) &
+                                 "Last reviewed    " &
+                                 If(IsBlank(gblSelectedFunction.su_lastreviewed),
+                                    "Not recorded",
+                                    Text(gblSelectedFunction.su_lastreviewed, "mmm d, yyyy"))
+                            Fill: =gblTheme.Surface
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_RailActionHead:
+                        Control: Label@2.5.1
+                        Properties:
+                            Height: =24
+                            Width: =Parent.Width
+                            Text: ="TAKE ACTION"
+                            Color: =gblTheme.OrangeDark
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - btn_RailEdit:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            Height: =38
+                            Width: =Parent.Width
+                            Text: ="Edit this record"
+                            Visible: =gblIsAdmin && gblFdMode = "read"
+                            OnSelect: =Set(gblFdMode, "edit"); Set(gblFdPanel, "")
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - btn_RailFlag:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            Height: =38
+                            Width: =Parent.Width
+                            Text: ="Flag for review"
+                            Visible: =IsBlank(gblFdFlag) && gblFdMode = "read"
+                            OnSelect: =Set(gblFdPanel, "flag")
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - btn_RailLogGap:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            Height: =38
+                            Width: =Parent.Width
+                            Text: ="Log a gap"
+                            Visible: =gblFdMode = "read"
+                            OnSelect: =Set(gblFdPanel, "gap")
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.High
+                            BorderColor: =gblTheme.High
+                            BorderThickness: =1
+                            HoverFill: =RGBA(220, 38, 38, 0.06)
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_RailCounselHead:
+                        Control: Label@2.5.1
+                        Properties:
+                            Height: =24
+                            Width: =Parent.Width
+                            Text: ="LEGAL QUESTIONS"
+                            Color: =gblTheme.OrangeDark
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_RailCounselBody:
+                        Control: Label@2.5.1
+                        Properties:
+                            Height: =134
+                            Width: =Parent.Width
+                            Text: |
+                                ="Counsel of record for " & gblSelectedFunction.su_topic.su_name &
+                                 ". Reach out before responding to a regulator, signing an agreement, or interpreting the statute." &
+                                 Char(10) & Char(10) &
+                                 gblFdCounsel.su_attorney.su_name & Char(10) &
+                                 gblFdCounsel.su_attorney.su_jobtitle
+                            Fill: =gblTheme.Surface
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - btn_RailCounselEmail:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            Height: =38
+                            Width: =Parent.Width
+                            Text: ="Email a question"
+                            OnSelect: |
+                                =Launch(
+                                    "mailto:" & gblFdCounsel.su_attorney.su_email &
+                                    "?subject=" & EncodeUrl(
+                                        "Legal question - " &
+                                        gblSelectedFunction.su_functioncode & " " &
+                                        gblSelectedFunction.su_name
+                                    )
+                                )
+                            Fill: =gblTheme.Navy
+                            HoverFill: =gblTheme.BlueMedium
+                            Color: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+
+            # ---- toast ------------------------------------------------------
+            - rec_FdToast:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =(Parent.Width - 560) / 2
+                    Y: =Parent.Height - 84
+                    Width: =560
+                    Height: =52
+                    Fill: =gblTheme.Navy
+                    BorderThickness: =0
+                    BorderRadius: =5
+                    Visible: =!IsBlank(gblFdToast)
+            - rec_FdToastAccent:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =(Parent.Width - 560) / 2
+                    Y: =Parent.Height - 84
+                    Width: =4
+                    Height: =52
+                    Fill: =gblTheme.Orange
+                    BorderThickness: =0
+                    Visible: =!IsBlank(gblFdToast)
+            - lbl_FdToast:
+                Control: Label@2.5.1
+                Properties:
+                    X: =(Parent.Width - 560) / 2 + 18
+                    Y: =Parent.Height - 84
+                    Width: =500
+                    Height: =52
+                    Text: =gblFdToast
+                    Color: =gblTheme.White
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+                    Visible: =!IsBlank(gblFdToast)
+            - btn_FdToastDismiss:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =(Parent.Width - 560) / 2 + 510
+                    Y: =Parent.Height - 84
+                    Width: =46
+                    Height: =52
+                    Text: ="X"
+                    OnSelect: =Set(gblFdToast, "")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =RGBA(199, 210, 234, 1)
+                    HoverFill: =RGBA(255, 255, 255, 0.1)
+                    BorderThickness: =0
+                    Size: =10
+                    Font: =gblTheme.FontBody
+                    Visible: =!IsBlank(gblFdToast)

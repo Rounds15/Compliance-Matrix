@@ -1,0 +1,736 @@
+# su_compliancefunction - the core matrix record, one row per obligation.
+# Owner fields hold directory emails; the importer resolves them to lookups.
+# unitOwner is intentionally null on CF-9082 to exercise the unassigned
+# unit-owner state that the Risk Dashboard reports as an exposure signal.
+
+functions:
+- code: CF-1041
+  name: Clock-to-Credit Hour Conversion
+  topic: Academic and Faculty Affairs
+  area: Academic Programs
+  statute: Higher Education Act
+  citation: 34 CFR § 668.8 — Eligible program
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-668.8
+  executiveOwner: lpagnew@syr.edu
+  unitOwner: kmnieder@syr.edu
+  complianceOwner: kmrupert@syr.edu
+  description: >-
+    For programs measured in clock hours and converted to credit hours for Title IV purposes, the institution
+    must apply the federal conversion formula and document that the program meets minimum length and eligibility
+    requirements.
+  reporting: Conversion ratios must be documented and certified. State licensing approval required where
+    applicable.
+  deadlineNarrative: At program creation or modification. Recertified during PPA renewal.
+  resourceLabel: Credit Hours Policy
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-1042
+  name: FERPA Annual Notification
+  topic: Academic and Faculty Affairs
+  area: Student Records
+  statute: Family Educational Rights and Privacy Act
+  citation: 34 CFR § 99.7
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-99.7
+  executiveOwner: lpagnew@syr.edu
+  unitOwner: kmnieder@syr.edu
+  complianceOwner: amonroe@syr.edu
+  description: >-
+    Institutions must annually notify students of their rights under FERPA, including the right to inspect
+    records, request amendment, and file a complaint with the Department of Education.
+  reporting: Annual notice published to all enrolled students; directory information categories disclosed.
+  deadlineNarrative: Annually, published before the start of the fall term.
+  resourceLabel: Student Records Policy
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-1043
+  name: Middle States Periodic Review Report
+  topic: Academic and Faculty Affairs
+  area: Accreditation
+  statute: MSCHE Standards for Accreditation
+  citation: MSCHE Standard VII
+  statuteUrl: https://www.msche.org
+  executiveOwner: lpagnew@syr.edu
+  unitOwner: kmnieder@syr.edu
+  complianceOwner: kmrupert@syr.edu
+  description: >-
+    The university must submit periodic self-study and review documentation demonstrating continued compliance
+    with the Commission's standards and requirements of affiliation.
+  reporting: Periodic Review Report submitted to MSCHE with supporting evidence inventory.
+  deadlineNarrative: Every 8 years, with a mid-point peer review at year 4.
+  resourceLabel: Accreditation Overview
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-1044
+  name: Faculty Credentialing Documentation
+  topic: Academic and Faculty Affairs
+  area: Faculty Affairs
+  statute: MSCHE Standards for Accreditation
+  citation: MSCHE Standard III.2
+  statuteUrl: https://www.msche.org
+  executiveOwner: lpagnew@syr.edu
+  unitOwner: kmnieder@syr.edu
+  complianceOwner: kmrupert@syr.edu
+  description: Official transcripts and credential verification must be on file for all instructors of
+    record prior to the start of instruction.
+  reporting: Credential file audit reported to the Provost each term.
+  deadlineNarrative: Each term, before the start of instruction.
+  resourceLabel: Faculty Manual
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-1045
+  name: State Authorization for Distance Education
+  topic: Academic and Faculty Affairs
+  area: Distance Education
+  statute: Higher Education Act
+  citation: 34 CFR § 600.9(c)
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-600.9
+  executiveOwner: lpagnew@syr.edu
+  unitOwner: kmnieder@syr.edu
+  complianceOwner: kmrupert@syr.edu
+  description: >-
+    The institution must be authorized, or exempt from authorization, in every state where it enrolls
+    distance-education students, and must disclose that status to students.
+  reporting: SARA annual renewal and enrollment reporting by state.
+  deadlineNarrative: Annually, SARA renewal each spring.
+  resourceLabel: Distance Education Authorization
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-2010
+  name: ACA Employer Reporting (Forms 1094-C / 1095-C)
+  topic: Human Resources
+  area: Benefits
+  statute: Affordable Care Act
+  citation: 26 U.S.C. § 6056
+  statuteUrl: https://www.irs.gov/affordable-care-act
+  executiveOwner: awhitaker@syr.edu
+  unitOwner: mhollis@syr.edu
+  complianceOwner: asundberg@syr.edu
+  description: Applicable large employers must report health coverage offered to full-time employees to
+    the IRS and furnish statements to employees.
+  reporting: Forms 1095-C furnished to employees; 1094-C transmittal filed with the IRS.
+  deadlineNarrative: Employee statements by March 2; IRS e-filing by March 31.
+  resourceLabel: Benefits Administration
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-2011
+  name: ERISA Form 5500 Filing
+  topic: Human Resources
+  area: Benefits
+  statute: Employee Retirement Income Security Act
+  citation: 29 U.S.C. § 1023
+  statuteUrl: https://www.dol.gov/agencies/ebsa
+  executiveOwner: awhitaker@syr.edu
+  unitOwner: mhollis@syr.edu
+  complianceOwner: mhollis@syr.edu
+  description: Annual report of employee benefit plan financial condition, investments, and operations
+    must be filed for each covered plan.
+  reporting: Form 5500 with schedules and independent auditor's report filed via EFAST2.
+  deadlineNarrative: Last day of the 7th month after plan year end; extension to October 15.
+  resourceLabel: Retirement Plan Governance
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-2012
+  name: Form I-9 Employment Verification
+  topic: Human Resources
+  area: Employment Eligibility
+  statute: Immigration Reform and Control Act
+  citation: 8 CFR § 274a.2
+  statuteUrl: https://www.uscis.gov/i-9
+  executiveOwner: awhitaker@syr.edu
+  unitOwner: dferrell@syr.edu
+  complianceOwner: dferrell@syr.edu
+  description: Employers must verify the identity and employment authorization of every new hire and retain
+    the completed Form I-9 for the required period.
+  reporting: Internal I-9 audit sample reported to HR leadership annually.
+  deadlineNarrative: Section 1 by first day of work; Section 2 within 3 business days.
+  resourceLabel: Hiring Procedures
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-2013
+  name: FLSA Exemption Classification Review
+  topic: Human Resources
+  area: Wage and Hour
+  statute: Fair Labor Standards Act
+  citation: 29 CFR Part 541
+  statuteUrl: https://www.dol.gov/agencies/whd/flsa
+  executiveOwner: awhitaker@syr.edu
+  unitOwner: dferrell@syr.edu
+  complianceOwner: asundberg@syr.edu
+  description: Positions must be reviewed against the duties and salary-basis tests to confirm exempt
+    or non-exempt classification, and reclassified when thresholds change.
+  reporting: Classification review summary to HR leadership and the CFO.
+  deadlineNarrative: Annually, and upon any change to the federal salary threshold.
+  resourceLabel: Compensation Policy
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-2014
+  name: FMLA Eligibility and Designation Notices
+  topic: Human Resources
+  area: Leave Administration
+  statute: Family and Medical Leave Act
+  citation: 29 CFR § 825.300
+  statuteUrl: https://www.dol.gov/agencies/whd/fmla
+  executiveOwner: awhitaker@syr.edu
+  unitOwner: mhollis@syr.edu
+  complianceOwner: mhollis@syr.edu
+  description: >-
+    Employers must provide eligibility, rights and responsibilities, and designation notices within five
+    business days of a leave request or knowledge of a qualifying reason.
+  reporting: Leave tracking log retained 3 years; no external filing.
+  deadlineNarrative: Within 5 business days of each qualifying leave event.
+  resourceLabel: Leave of Absence Policy
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-2015
+  name: EEO-1 Component 1 Data Filing
+  topic: Human Resources
+  area: Affirmative Action
+  statute: Title VII / Executive Order 11246
+  citation: 29 CFR Part 1602
+  statuteUrl: https://www.eeoc.gov/employers/eeo-1-data-collection
+  executiveOwner: awhitaker@syr.edu
+  unitOwner: dferrell@syr.edu
+  complianceOwner: dferrell@syr.edu
+  description: Employers with 100 or more employees must submit demographic workforce data by job category,
+    race, ethnicity, and sex.
+  reporting: EEO-1 Component 1 report filed through the EEOC collection portal.
+  deadlineNarrative: Annually, filing window typically opens in the spring.
+  resourceLabel: Equal Opportunity Statement
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-2016
+  name: OSHA Form 300A Posting
+  topic: Human Resources
+  area: Workplace Safety
+  statute: Occupational Safety and Health Act
+  citation: 29 CFR § 1904.32
+  statuteUrl: https://www.osha.gov/recordkeeping
+  executiveOwner: awhitaker@syr.edu
+  unitOwner: pnovak@syr.edu
+  complianceOwner: pnovak@syr.edu
+  description: The annual summary of work-related injuries and illnesses must be certified by a company
+    executive and posted in a conspicuous location.
+  reporting: Form 300A posted February 1 through April 30 and retained 5 years.
+  deadlineNarrative: Post by February 1 each year.
+  resourceLabel: Workplace Safety Program
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-3020
+  name: Clery Act Annual Security Report
+  topic: Safety and Security
+  area: Campus Crime Reporting
+  statute: Jeanne Clery Act
+  citation: 20 U.S.C. § 1092(f)
+  statuteUrl: https://www.ed.gov/campus-safety
+  executiveOwner: mdelgado@syr.edu
+  unitOwner: cruiz@syr.edu
+  complianceOwner: cruiz@syr.edu
+  description: >-
+    The institution must publish an annual security report containing three years of crime statistics,
+    security policy statements, and required disclosures, and distribute it to all students and employees.
+  reporting: ASR published and crime statistics submitted to the Department of Education.
+  deadlineNarrative: Annually by October 1.
+  resourceLabel: Clery Compliance
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-3021
+  name: Emergency Response and Evacuation Testing
+  topic: Safety and Security
+  area: Emergency Management
+  statute: Jeanne Clery Act
+  citation: 34 CFR § 668.46(g)
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-668.46
+  executiveOwner: mdelgado@syr.edu
+  unitOwner: cruiz@syr.edu
+  complianceOwner: cruiz@syr.edu
+  description: >-
+    The institution must test emergency response and evacuation procedures at least annually and publicize
+    its procedures in conjunction with at least one test per year.
+  reporting: Test date, description, and whether announced or unannounced documented in the ASR.
+  deadlineNarrative: At least annually; documented each test.
+  resourceLabel: Emergency Management Plan
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-3022
+  name: Hazardous Waste Generator Reporting
+  topic: Safety and Security
+  area: Environmental Health
+  statute: Resource Conservation and Recovery Act
+  citation: 40 CFR Part 262
+  statuteUrl: https://www.epa.gov/hw
+  executiveOwner: mdelgado@syr.edu
+  unitOwner: pnovak@syr.edu
+  complianceOwner: pnovak@syr.edu
+  description: Large quantity generators must characterize, label, store, and manifest hazardous waste
+    and file a biennial report of waste generated and managed.
+  reporting: Biennial Report filed with NYSDEC; manifests retained 3 years.
+  deadlineNarrative: Biennial report due March 1 of even-numbered years.
+  resourceLabel: Hazardous Materials Handling
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-3023
+  name: Annual Fire Safety Report for On-Campus Housing
+  topic: Safety and Security
+  area: Fire Safety
+  statute: Higher Education Opportunity Act
+  citation: 34 CFR § 668.49
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-668.49
+  executiveOwner: mdelgado@syr.edu
+  unitOwner: lmarch@syr.edu
+  complianceOwner: lmarch@syr.edu
+  description: >-
+    Institutions with on-campus student housing must publish an annual fire safety report including fire
+    statistics, systems in each facility, and evacuation procedures.
+  reporting: Fire statistics submitted with the ASR; fire log maintained and open to inspection.
+  deadlineNarrative: Annually by October 1, published with the ASR.
+  resourceLabel: Fire Safety Program
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-4030
+  name: IRS Form 990 Return of Organization Exempt from Income Tax
+  topic: Finance, CFO Office
+  area: Tax
+  statute: Internal Revenue Code
+  citation: 26 U.S.C. § 6033
+  statuteUrl: https://www.irs.gov/forms-pubs/about-form-990
+  executiveOwner: bpadgett@syr.edu
+  unitOwner: mduval@syr.edu
+  complianceOwner: mduval@syr.edu
+  description: Tax-exempt organizations must file an annual information return reporting finances, governance,
+    compensation, and program activities.
+  reporting: Form 990 and Schedules filed with the IRS and made publicly available.
+  deadlineNarrative: 15th day of the 5th month after fiscal year end; extensions available.
+  resourceLabel: Tax Compliance
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-4031
+  name: Uniform Guidance Single Audit
+  topic: Finance, CFO Office
+  area: Financial Reporting
+  statute: OMB Uniform Guidance
+  citation: 2 CFR § 200.512
+  statuteUrl: https://www.ecfr.gov/current/title-2/part-200
+  executiveOwner: bpadgett@syr.edu
+  unitOwner: mduval@syr.edu
+  complianceOwner: mduval@syr.edu
+  description: >-
+    Entities expending $1,000,000 or more in federal awards in a fiscal year must have a single or program-specific
+    audit and submit the reporting package to the Federal Audit Clearinghouse.
+  reporting: Data Collection Form and reporting package submitted to the FAC.
+  deadlineNarrative: Within 9 months of fiscal year end (March 31 for a June 30 year end).
+  resourceLabel: Sponsored Accounting
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-4032
+  name: Title IV Return of Funds (R2T4)
+  topic: Finance, CFO Office
+  area: Student Financial Services
+  statute: Higher Education Act
+  citation: 34 CFR § 668.22
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-668.22
+  executiveOwner: bpadgett@syr.edu
+  unitOwner: tgreaves@syr.edu
+  complianceOwner: tgreaves@syr.edu
+  description: >-
+    When a recipient of Title IV aid withdraws, the institution must calculate the amount of unearned
+    aid and return it to the appropriate program within the required window.
+  reporting: R2T4 calculations retained; returns reported through COD.
+  deadlineNarrative: Funds returned within 45 days of the date of determination.
+  resourceLabel: Financial Aid Policies
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-4033
+  name: Composite Score and Financial Statement Submission
+  topic: Finance, CFO Office
+  area: Financial Responsibility
+  statute: Higher Education Act
+  citation: 34 CFR § 668.23
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-668.23
+  executiveOwner: bpadgett@syr.edu
+  unitOwner: mduval@syr.edu
+  complianceOwner: mduval@syr.edu
+  description: Institutions must annually submit audited financial statements and a compliance audit used
+    to calculate the financial responsibility composite score.
+  reporting: Audited financials and compliance audit submitted through eZ-Audit.
+  deadlineNarrative: Within 6 months of fiscal year end (December 31 for a June 30 year end).
+  resourceLabel: Financial Statements
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-4034
+  name: Federal Procurement Standards for Sponsored Purchases
+  topic: Finance, CFO Office
+  area: Procurement
+  statute: OMB Uniform Guidance
+  citation: 2 CFR §§ 200.317–200.327
+  statuteUrl: https://www.ecfr.gov/current/title-2/part-200
+  executiveOwner: bpadgett@syr.edu
+  unitOwner: mduval@syr.edu
+  complianceOwner: sboyle@syr.edu
+  description: Purchases charged to federal awards must follow documented procurement methods, competition
+    requirements, and cost or price analysis thresholds.
+  reporting: Procurement files retained for audit; sole-source justifications documented.
+  deadlineNarrative: Continuous; reviewed at each purchase above the micro-purchase threshold.
+  resourceLabel: Purchasing Policy
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-5040
+  name: IRB Review and Continuing Review
+  topic: Research
+  area: Human Subjects
+  statute: Common Rule
+  citation: 45 CFR § 46.109
+  statuteUrl: https://www.hhs.gov/ohrp
+  executiveOwner: praman@syr.edu
+  unitOwner: iolsen@syr.edu
+  complianceOwner: iolsen@syr.edu
+  description: Research involving human subjects must receive IRB approval before initiation and be reviewed
+    at intervals appropriate to the degree of risk.
+  reporting: Approval and continuing-review determinations recorded in the IRB system of record.
+  deadlineNarrative: Before initiation; continuing review at least annually where required.
+  resourceLabel: Human Research Protections
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-5041
+  name: Financial Conflict of Interest Disclosure (PHS)
+  topic: Research
+  area: Research Integrity
+  statute: PHS FCOI Regulation
+  citation: 42 CFR Part 50 Subpart F
+  statuteUrl: https://grants.nih.gov/grants/policy/coi
+  executiveOwner: praman@syr.edu
+  unitOwner: rbhatt@syr.edu
+  complianceOwner: iolsen@syr.edu
+  description: Investigators on PHS-funded research must disclose significant financial interests, and
+    the institution must review, manage, and report identified conflicts.
+  reporting: FCOI reports submitted to the PHS awarding component before expenditure of funds.
+  deadlineNarrative: At time of application, annually thereafter, and within 30 days of a new interest.
+  resourceLabel: Conflict of Interest Policy
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-5042
+  name: Export Controlled Research Screening
+  topic: Research
+  area: Export Control
+  statute: Export Administration Regulations
+  citation: 15 CFR Parts 730–774
+  statuteUrl: https://www.bis.doc.gov
+  executiveOwner: praman@syr.edu
+  unitOwner: rbhatt@syr.edu
+  complianceOwner: rbhatt@syr.edu
+  description: Research involving controlled technology, foreign nationals, or restricted destinations
+    must be screened and, where required, licensed before access is granted.
+  reporting: Restricted party screening records and technology control plans retained.
+  deadlineNarrative: Continuous; screening at project setup and personnel change.
+  resourceLabel: Export Control Program
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-5043
+  name: IACUC Protocol Review and Facility Inspection
+  topic: Research
+  area: Animal Care
+  statute: Animal Welfare Act
+  citation: 9 CFR § 2.31
+  statuteUrl: https://www.aphis.usda.gov/animal-welfare
+  executiveOwner: praman@syr.edu
+  unitOwner: iolsen@syr.edu
+  complianceOwner: iolsen@syr.edu
+  description: The IACUC must review and approve activities involving animals and inspect animal facilities
+    and study areas at least once every six months.
+  reporting: Semiannual report to the Institutional Official; annual report filed with USDA APHIS.
+  deadlineNarrative: Semiannual inspections; USDA annual report due December 1.
+  resourceLabel: Animal Care and Use
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-6050
+  name: Federal Lobbying Disclosure Reports
+  topic: Government and Community Relations
+  area: Lobbying
+  statute: Lobbying Disclosure Act
+  citation: 2 U.S.C. § 1604
+  statuteUrl: https://lda.congress.gov
+  executiveOwner: tbrennan@syr.edu
+  unitOwner: kosei@syr.edu
+  complianceOwner: kosei@syr.edu
+  description: Registrants must file quarterly reports of lobbying activities, issues, and expenses, and
+    semiannual contribution reports.
+  reporting: LD-2 quarterly reports and LD-203 semiannual reports filed with Congress.
+  deadlineNarrative: 'Quarterly: Jan 20, Apr 20, Jul 20, Oct 20. LD-203: Jan 30 and Jul 30.'
+  resourceLabel: Government Relations
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-6051
+  name: NYS Charities Bureau Annual Filing (CHAR500)
+  topic: Government and Community Relations
+  area: State Reporting
+  statute: NY Executive Law Article 7-A
+  citation: N.Y. Exec. Law § 172-b
+  statuteUrl: https://www.charitiesnys.com
+  executiveOwner: tbrennan@syr.edu
+  unitOwner: mduval@syr.edu
+  complianceOwner: ypetrov@syr.edu
+  description: Charitable organizations registered in New York must file an annual financial report with
+    the Attorney General's Charities Bureau.
+  reporting: CHAR500 with audited financial statements filed online.
+  deadlineNarrative: 4.5 months after fiscal year end; extensions available.
+  resourceLabel: Charitable Registration
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-6052
+  name: SEVIS Reporting for F and J Visa Holders
+  topic: Government and Community Relations
+  area: Immigration
+  statute: Immigration and Nationality Act
+  citation: 8 CFR § 214.3(g)
+  statuteUrl: https://www.ice.gov/sevis
+  executiveOwner: tbrennan@syr.edu
+  unitOwner: rachebe@syr.edu
+  complianceOwner: rachebe@syr.edu
+  description: Designated school officials must report student status events, address changes, and program
+    information in SEVIS within the required timeframes.
+  reporting: Event reporting in SEVIS; recertification petition every two years.
+  deadlineNarrative: Within 21 days of a reportable event; recertification every 2 years.
+  resourceLabel: International Student Services
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-7060
+  name: GLBA Safeguards Rule Information Security Program
+  topic: IT and Cyber Security
+  area: Data Security
+  statute: Gramm-Leach-Bliley Act
+  citation: 16 CFR Part 314
+  statuteUrl: https://www.ftc.gov/business-guidance/privacy-security
+  executiveOwner: dokafor@syr.edu
+  unitOwner: siyer@syr.edu
+  complianceOwner: siyer@syr.edu
+  description: >-
+    The institution must maintain a written information security program with a qualified individual,
+    risk assessments, access controls, encryption, and vendor oversight.
+  reporting: Annual written report to the Board or governing body by the qualified individual.
+  deadlineNarrative: Annual program report; risk assessment refreshed annually.
+  resourceLabel: Information Security Policy
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-7061
+  name: NY SHIELD Act Breach Notification Readiness
+  topic: IT and Cyber Security
+  area: Data Security
+  statute: NY General Business Law
+  citation: N.Y. Gen. Bus. Law § 899-aa
+  statuteUrl: https://ag.ny.gov/internet/data-breach
+  executiveOwner: dokafor@syr.edu
+  unitOwner: siyer@syr.edu
+  complianceOwner: amonroe@syr.edu
+  description: >-
+    The institution must maintain reasonable safeguards for private information of New York residents
+    and notify affected individuals and regulators in the event of a breach.
+  reporting: Notification to affected residents, NY AG, DOS, and State Police when triggered.
+  deadlineNarrative: Notification without unreasonable delay upon determination of a breach.
+  resourceLabel: Data Breach Response Plan
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-7062
+  name: Digital Accessibility Conformance (WCAG 2.1 AA)
+  topic: IT and Cyber Security
+  area: Accessibility
+  statute: Americans with Disabilities Act
+  citation: 28 CFR § 35.200
+  statuteUrl: https://www.ada.gov/resources/web-guidance
+  executiveOwner: dokafor@syr.edu
+  unitOwner: olang@syr.edu
+  complianceOwner: olang@syr.edu
+  description: Web content and mobile apps used by the public must conform to WCAG 2.1 Level AA, with
+    documented remediation for non-conforming content.
+  reporting: Accessibility audit results and remediation plan reported to ITS leadership.
+  deadlineNarrative: Continuous; full audit cycle annually.
+  resourceLabel: Digital Accessibility Policy
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-8070
+  name: NCAA Academic Progress Rate Reporting
+  topic: Athletics
+  area: NCAA Compliance
+  statute: NCAA Division I Manual
+  citation: NCAA Bylaw 14.8
+  statuteUrl: https://www.ncaa.org
+  executiveOwner: evasquez@syr.edu
+  unitOwner: jkowalski@syr.edu
+  complianceOwner: jkowalski@syr.edu
+  description: Institutions must submit term-by-term academic eligibility and retention data for all student-athletes
+    on athletically related aid.
+  reporting: APR data submitted through the NCAA Academic Portal.
+  deadlineNarrative: Annually, submission window in the spring.
+  resourceLabel: Athletics Compliance
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-8071
+  name: Equity in Athletics Disclosure Act Report
+  topic: Athletics
+  area: Gender Equity
+  statute: Equity in Athletics Disclosure Act
+  citation: 20 U.S.C. § 1092(g)
+  statuteUrl: https://ope.ed.gov/athletics
+  executiveOwner: evasquez@syr.edu
+  unitOwner: jkowalski@syr.edu
+  complianceOwner: jkowalski@syr.edu
+  description: Co-educational institutions with intercollegiate athletics must annually report participation,
+    staffing, revenues, and expenses by team and sex.
+  reporting: EADA survey submitted through the Department of Education portal.
+  deadlineNarrative: Annually by October 15.
+  resourceLabel: Athletics Reporting
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-9080
+  name: HIPAA Security Rule Risk Analysis
+  topic: Privacy
+  area: Health Information
+  statute: Health Insurance Portability and Accountability Act
+  citation: 45 CFR § 164.308(a)(1)
+  statuteUrl: https://www.hhs.gov/hipaa
+  executiveOwner: hambrose@syr.edu
+  unitOwner: amonroe@syr.edu
+  complianceOwner: amonroe@syr.edu
+  description: Covered components must conduct an accurate and thorough assessment of risks to electronic
+    protected health information and implement measures to reduce risk.
+  reporting: Risk analysis and risk management plan documented and retained 6 years.
+  deadlineNarrative: Annually and upon significant environmental or operational change.
+  resourceLabel: HIPAA Program
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-9081
+  name: Website Privacy Notice and Consent Management
+  topic: Privacy
+  area: Consumer Privacy
+  statute: NY General Business Law
+  citation: N.Y. Gen. Bus. Law § 899-bb
+  statuteUrl: https://ag.ny.gov
+  executiveOwner: hambrose@syr.edu
+  unitOwner: amonroe@syr.edu
+  complianceOwner: olang@syr.edu
+  description: Public-facing digital properties must publish an accurate privacy notice and honor consent
+    and opt-out preferences for tracking technologies.
+  reporting: Annual notice review documented by the Privacy Officer.
+  deadlineNarrative: Reviewed annually and upon material change to data practices.
+  resourceLabel: Privacy Notice
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-9082
+  name: Records Retention Schedule Adherence
+  topic: Privacy
+  area: Records Management
+  statute: Institutional policy / multiple statutes
+  citation: SU Records Management Policy
+  statuteUrl: https://policies.syr.edu
+  executiveOwner: hambrose@syr.edu
+  unitOwner: null
+  complianceOwner: amonroe@syr.edu
+  description: University records must be retained and disposed of in accordance with the approved retention
+    schedule and applicable legal-hold obligations.
+  reporting: Annual attestation from records liaisons in each unit.
+  deadlineNarrative: Annual attestation each fiscal year.
+  resourceLabel: Records Management
+  resourceUrl: https://policies.syr.edu
+  risk: Low
+- code: CF-9090
+  name: Title IX Grievance Procedures and Training
+  topic: Student Experience
+  area: Civil Rights
+  statute: Title IX of the Education Amendments
+  citation: 34 CFR Part 106
+  statuteUrl: https://www.ed.gov/laws-and-policy/civil-rights-laws/title-ix
+  executiveOwner: ncaruso@syr.edu
+  unitOwner: gellsworth@syr.edu
+  complianceOwner: gellsworth@syr.edu
+  description: The institution must publish grievance procedures, designate a Title IX Coordinator, and
+    train all Title IX personnel on the required topics.
+  reporting: Training materials posted publicly; coordinator contact published.
+  deadlineNarrative: Training annually; materials posted continuously.
+  resourceLabel: Title IX Policy
+  resourceUrl: https://policies.syr.edu
+  risk: Critical
+- code: CF-9091
+  name: Drug-Free Schools and Communities Act Biennial Review
+  topic: Student Experience
+  area: Health and Wellness
+  statute: Drug-Free Schools and Communities Act
+  citation: 34 CFR Part 86
+  statuteUrl: https://www.ecfr.gov/current/title-34/part-86
+  executiveOwner: ncaruso@syr.edu
+  unitOwner: dfreeman@syr.edu
+  complianceOwner: dfreeman@syr.edu
+  description: >-
+    Institutions must annually distribute standards of conduct and health-risk information and conduct
+    a biennial review of program effectiveness and sanction consistency.
+  reporting: Biennial review report retained and available to the Department on request.
+  deadlineNarrative: Annual distribution; biennial review by December 31 of even years.
+  resourceLabel: Alcohol and Other Drug Policy
+  resourceUrl: https://policies.syr.edu
+  risk: High
+- code: CF-9100
+  name: Charitable Contribution Substantiation
+  topic: Advancement
+  area: Gift Administration
+  statute: Internal Revenue Code
+  citation: 26 U.S.C. § 170(f)(8)
+  statuteUrl: https://www.irs.gov/charities-non-profits
+  executiveOwner: glindstrom@syr.edu
+  unitOwner: ypetrov@syr.edu
+  complianceOwner: ypetrov@syr.edu
+  description: Contemporaneous written acknowledgment must be provided for contributions of $250 or more,
+    including a statement of goods or services provided.
+  reporting: Acknowledgment letters issued and retained; Form 8282 filed on disposition of gifted property.
+  deadlineNarrative: Acknowledgment before the donor files their return; Form 8282 within 125 days.
+  resourceLabel: Gift Acceptance Policy
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-9110
+  name: Truth in Advertising for Educational Programs
+  topic: Communications
+  area: Marketing
+  statute: Federal Trade Commission Act
+  citation: 15 U.S.C. § 45
+  statuteUrl: https://www.ftc.gov
+  executiveOwner: rchin@syr.edu
+  unitOwner: olang@syr.edu
+  complianceOwner: olang@syr.edu
+  description: Recruitment and marketing materials must be truthful, substantiated, and free of misrepresentation
+    regarding cost, outcomes, accreditation, or employment.
+  reporting: Substantiation files retained for outcome and placement claims.
+  deadlineNarrative: Continuous; review at each campaign launch.
+  resourceLabel: Marketing Standards
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-9120
+  name: Clery Geography for Non-Campus Study Abroad Locations
+  topic: Off Campus Activities
+  area: Study Abroad
+  statute: Jeanne Clery Act
+  citation: 34 CFR § 668.46(a)
+  statuteUrl: https://www.ecfr.gov/current/title-34/section-668.46
+  executiveOwner: ncaruso@syr.edu
+  unitOwner: htanaka@syr.edu
+  complianceOwner: cruiz@syr.edu
+  description: >-
+    Crime statistics must be collected for non-campus locations controlled by the institution for educational
+    purposes, including short-term and semester study abroad sites.
+  reporting: Statistics from local law enforcement incorporated into the ASR.
+  deadlineNarrative: Annually, in advance of the October 1 ASR publication.
+  resourceLabel: Study Abroad Health and Safety
+  resourceUrl: https://policies.syr.edu
+  risk: Medium
+- code: CF-9121
+  name: Protection of Minors Program Registration
+  topic: Off Campus Activities
+  area: Minors on Campus
+  statute: NY Social Services Law
+  citation: N.Y. Soc. Serv. Law § 413
+  statuteUrl: https://ocfs.ny.gov
+  executiveOwner: ncaruso@syr.edu
+  unitOwner: sboyle@syr.edu
+  complianceOwner: dfreeman@syr.edu
+  description: Programs serving participants under 18 must register, complete background checks, and ensure
+    staff are trained as mandated reporters.
+  reporting: Program registration and background-check completion tracked centrally.
+  deadlineNarrative: Registration at least 30 days before each program start.
+  resourceLabel: Minors on Campus Policy
+  resourceUrl: https://policies.syr.edu
+  risk: High

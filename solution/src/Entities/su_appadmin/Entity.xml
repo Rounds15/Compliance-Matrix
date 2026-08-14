@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity>
+  <Name LocalizedName="App Role Assignment" OriginalName="App Role Assignment">su_appadmin</Name>
+  <EntityInfo>
+    <entity Name="su_appadmin">
+      <LocalizedNames>
+        <LocalizedName description="App Role Assignment" languagecode="1033"/>
+      </LocalizedNames>
+      <LocalizedCollectionNames>
+        <LocalizedCollectionName description="App Role Assignments" languagecode="1033"/>
+      </LocalizedCollectionNames>
+      <Descriptions>
+        <Description description="Role gate for the canvas app. Absence of a row means the signed-in user gets the Compliance Owner experience; Administrator unlocks Gap Tracker, Risk Dashboard, and Reporting." languagecode="1033"/>
+      </Descriptions>
+      <attributes>
+        <attribute PhysicalName="su_name">
+          <Type>nvarchar</Type>
+          <Name>su_name</Name>
+          <LogicalName>su_name</LogicalName>
+          <RequiredLevel>systemrequired</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>300</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Assignment" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_person">
+          <Type>lookup</Type>
+          <Name>su_person</Name>
+          <LogicalName>su_person</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Person" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_role">
+          <Type>picklist</Type>
+          <Name>su_role</Name>
+          <LogicalName>su_role</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_approle">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Role" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_active">
+          <Type>bit</Type>
+          <Name>su_active</Name>
+          <LogicalName>su_active</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_active_optionset">
+            <displaynames>
+              <displayname description="Active" languagecode="1033"/>
+            </displaynames>
+            <IsGlobal>0</IsGlobal>
+            <OptionSetType>boolean</OptionSetType>
+            <option value="0">
+              <labels>
+                <label description="No" languagecode="1033"/>
+              </labels>
+            </option>
+            <option value="1">
+              <labels>
+                <label description="Yes" languagecode="1033"/>
+              </labels>
+            </option>
+          </optionset>
+          <DefaultValue>1</DefaultValue>
+          <displaynames>
+            <displayname description="Active" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+      </attributes>
+      <EntitySetName>su_appadmins</EntitySetName>
+      <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
+      <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
+      <IsRenameable>1</IsRenameable>
+      <IsCustomizable>1</IsCustomizable>
+      <IsMappable>1</IsMappable>
+      <IsAuditEnabled>1</IsAuditEnabled>
+      <IsActivity>0</IsActivity>
+      <IsAvailableOffline>1</IsAvailableOffline>
+      <IsVisibleInMobile>1</IsVisibleInMobile>
+      <IsVisibleInMobileClient>1</IsVisibleInMobileClient>
+      <IsConnectionsEnabled>0</IsConnectionsEnabled>
+      <IsDocumentManagementEnabled>0</IsDocumentManagementEnabled>
+      <IsMailMergeEnabled>0</IsMailMergeEnabled>
+      <IsCustomEntity>1</IsCustomEntity>
+      <IsQuickCreateEnabled>1</IsQuickCreateEnabled>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <OwnershipTypeMask>OrganizationOwned</OwnershipTypeMask>
+      <PrimaryNameAttribute>su_name</PrimaryNameAttribute>
+      <HasNotes>0</HasNotes>
+      <HasActivities>0</HasActivities>
+      <IsChildEntity>0</IsChildEntity>
+    </entity>
+  </EntityInfo>
+</Entity>

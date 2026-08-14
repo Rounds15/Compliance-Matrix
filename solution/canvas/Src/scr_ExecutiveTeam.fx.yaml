@@ -1,0 +1,436 @@
+# =============================================================================
+# Executive Team - portfolio view
+# =============================================================================
+# Executive owners sit at the top of every ownership chain. Sorted by last
+# name. Selecting a member opens their portfolio with the critical and high
+# risk count that leadership reviews first.
+# =============================================================================
+
+Screens:
+
+    scr_ExecutiveTeam:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblExecSel, Blank());
+                ClearCollect(
+                    colExecutives,
+                    SortByColumns(
+                        Filter('Compliance Directory', su_isexecutive = true),
+                        "su_name",
+                        SortOrder.Ascending
+                    )
+                );
+                ClearCollect(colAllFunctions, 'Compliance Functions')
+
+        Children:
+
+            - cmp_HeaderExec:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="ExecutiveTeam"
+                    OpenGapCount: =gblOpenGapCount
+
+            - cmp_ExecHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =128
+                    Width: =Parent.Width - 128
+                    Height: =124
+                    Eyebrow: ="Portfolio view"
+                    Title: ="Executive Team"
+                    Subtitle: |
+                        ="Executive owners sit at the top of every ownership chain. Select a member to see the obligations their portfolio carries."
+
+            - gal_Executives:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =272
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 316
+                    TemplateSize: =(Parent.Width - 128) / 4 - 4
+                    TemplatePadding: =16
+                    WrapCount: =4
+                    ShowScrollbar: =true
+                    Items: =colExecutives
+                Children:
+                    - rec_ExecCard:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =188
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - rec_ExecCardBar:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =5
+                            Fill: =gblTheme.Navy
+                            BorderThickness: =0
+                    - lbl_ExecInitials:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =22
+                            Width: =52
+                            Height: =52
+                            Text: |
+                                =Left(ThisItem.su_name, 1) &
+                                 Left(Last(Split(ThisItem.su_name, " ")).Value, 1)
+                            Fill: =gblTheme.Navy
+                            Color: =gblTheme.White
+                            Size: =15
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_ExecName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =78
+                            Y: =22
+                            Width: =Parent.TemplateWidth - 94
+                            Height: =24
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =12
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_ExecTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =78
+                            Y: =46
+                            Width: =Parent.TemplateWidth - 94
+                            Height: =44
+                            Text: =ThisItem.su_jobtitle
+                            Color: =gblTheme.GrayDark
+                            Size: =8
+                            Font: =gblTheme.FontBody
+                    - lbl_ExecUnit:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =100
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =20
+                            Text: =ThisItem.su_unit
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_ExecCritical:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =140
+                            Width: =110
+                            Height: =28
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Filter(
+                                                colAllFunctions,
+                                                su_executiveowner.su_compliancedirectoryid
+                                                    = ThisItem.su_compliancedirectoryid,
+                                                su_risk = 'Risk Level'.Critical
+                                            )
+                                        )
+                                    },
+                                    If(n = 0, "", n & " critical")
+                                )
+                            Fill: =ColorFade(gblTheme.Critical, 0.88)
+                            Color: =gblTheme.Critical
+                            Size: =9
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                            Visible: |
+                                =CountRows(
+                                    Filter(
+                                        colAllFunctions,
+                                        su_executiveowner.su_compliancedirectoryid
+                                            = ThisItem.su_compliancedirectoryid,
+                                        su_risk = 'Risk Level'.Critical
+                                    )
+                                ) > 0
+                    - lbl_ExecPortfolio:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 146
+                            Y: =140
+                            Width: =130
+                            Height: =28
+                            Text: |
+                                =CountRows(
+                                    Filter(
+                                        colAllFunctions,
+                                        su_executiveowner.su_compliancedirectoryid
+                                            = ThisItem.su_compliancedirectoryid
+                                    )
+                                ) & " in portfolio"
+                            Fill: =gblTheme.Surface
+                            Color: =gblTheme.Navy
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - btn_ExecOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =188
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblExecSel, ThisItem)
+
+            # =================================================================
+            # PORTFOLIO DETAIL
+            # =================================================================
+            - rec_ExecScrim:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =Parent.Height
+                    Fill: =RGBA(0, 14, 84, 0.55)
+                    BorderThickness: =0
+                    Visible: =!IsBlank(gblExecSel)
+            - cnt_ExecDialog:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                    X: =(Parent.Width - 800) / 2
+                    Y: =(Parent.Height - 600) / 2
+                    Width: =800
+                    Height: =600
+                    Fill: =gblTheme.White
+                    Visible: =!IsBlank(gblExecSel)
+                Children:
+                    - rec_ExecDialogHead:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =800
+                            Height: =112
+                            Fill: =gblTheme.Navy
+                            BorderThickness: =0
+                    - lbl_ExecDialogEyebrow:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =18
+                            Width: =600
+                            Height: =18
+                            Text: ="EXECUTIVE OWNER"
+                            Color: =gblTheme.OrangeLight
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_ExecDialogName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =38
+                            Width: =680
+                            Height: =32
+                            Text: =gblExecSel.su_name
+                            Color: =gblTheme.White
+                            Size: =18
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_ExecDialogTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =72
+                            Width: =680
+                            Height: =30
+                            Text: =gblExecSel.su_jobtitle
+                            Color: =RGBA(199, 210, 234, 1)
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_ExecStats:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =132
+                            Width: =744
+                            Height: =74
+                            Text: |
+                                =With(
+                                    {
+                                        port: Filter(
+                                            colAllFunctions,
+                                            su_executiveowner.su_compliancedirectoryid
+                                                = gblExecSel.su_compliancedirectoryid
+                                        )
+                                    },
+                                    "Functions in portfolio       " & CountRows(port) & Char(10) &
+                                    "Critical or high risk           " &
+                                        CountRows(
+                                            Filter(
+                                                port,
+                                                su_risk = 'Risk Level'.Critical
+                                                    || su_risk = 'Risk Level'.High
+                                            )
+                                        ) & Char(10) &
+                                    "Topics touched                  " &
+                                        CountRows(Distinct(port, su_topic.su_name))
+                                )
+                            Fill: =gblTheme.Surface
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_ExecPortfolioHead:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =218
+                            Width: =744
+                            Height: =24
+                            Text: ="PORTFOLIO"
+                            Color: =gblTheme.OrangeDark
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - gal_ExecPortfolio:
+                        Control: Gallery@2.15.0
+                        Variant: Vertical
+                        Properties:
+                            X: =28
+                            Y: =246
+                            Width: =744
+                            Height: =282
+                            TemplateSize: =58
+                            TemplatePadding: =0
+                            ShowScrollbar: =true
+                            Items: |
+                                =Filter(
+                                    colAllFunctions,
+                                    su_executiveowner.su_compliancedirectoryid
+                                        = gblExecSel.su_compliancedirectoryid
+                                )
+                        Children:
+                            - lbl_EpName:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =8
+                                    Y: =8
+                                    Width: =Parent.TemplateWidth - 110
+                                    Height: =22
+                                    Text: =ThisItem.su_name
+                                    Color: =gblTheme.Navy
+                                    Size: =11
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_EpSub:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =8
+                                    Y: =30
+                                    Width: =Parent.TemplateWidth - 110
+                                    Height: =18
+                                    Text: |
+                                        =ThisItem.su_area & "  |  " &
+                                         ThisItem.su_complianceowner.su_name
+                                    Color: =gblTheme.GrayMid
+                                    Size: =9
+                                    Font: =gblTheme.FontBody
+                            - cmp_EpRisk:
+                                Control: Component
+                                ComponentName: cmp_RiskPill
+                                Properties:
+                                    X: =Parent.TemplateWidth - 92
+                                    Y: =17
+                                    Width: =74
+                                    Height: =24
+                                    Risk: |
+                                        =Switch(
+                                            ThisItem.su_risk,
+                                            'Risk Level'.Critical, "Critical",
+                                            'Risk Level'.High,     "High",
+                                            'Risk Level'.Medium,   "Medium",
+                                            "Low"
+                                        )
+                            - rec_EpRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =0
+                                    Y: =57
+                                    Width: =Parent.TemplateWidth
+                                    Height: =1
+                                    Fill: =gblTheme.BorderSoft
+                                    BorderThickness: =0
+                            - btn_EpOverlay:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.TemplateWidth
+                                    Height: =58
+                                    Text: =""
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                                    BorderThickness: =0
+                                    OnSelect: |
+                                        =Set(gblSelectedFunction, ThisItem);
+                                        Set(gblExecSel, Blank());
+                                        Navigate(scr_FunctionDetail, ScreenTransition.None)
+                    - btn_ExecEmail:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =28
+                            Y: =542
+                            Width: =140
+                            Height: =40
+                            Text: ="Email"
+                            OnSelect: =Launch("mailto:" & gblExecSel.su_email)
+                            Fill: =gblTheme.Orange
+                            HoverFill: =gblTheme.OrangeMedium
+                            Color: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =11
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - btn_ExecDialogClose:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =662
+                            Y: =542
+                            Width: =110
+                            Height: =40
+                            Text: ="Close"
+                            OnSelect: =Set(gblExecSel, Blank())
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody

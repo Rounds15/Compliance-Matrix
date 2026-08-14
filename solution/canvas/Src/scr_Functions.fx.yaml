@@ -1,0 +1,462 @@
+# =============================================================================
+# Compliance Functions - the searchable register
+# =============================================================================
+# Search by name, statute, or owner; filter by topic and risk; page through in
+# table or card view. Selecting a row opens the full record.
+#
+# Delegation note: Dataverse does not delegate `in` (substring) across an Or()
+# of several columns. The search box therefore uses StartsWith on the indexed
+# columns, which IS delegable, and the topic/risk filters are plain equality.
+# At 404 rows the whole set is well inside the 2,000-row limit either way, but
+# keeping the query delegable means the screen still behaves if the matrix
+# grows past that.
+# =============================================================================
+
+Screens:
+
+    scr_Functions:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblFnPage, 1);
+                Set(gblFnPageSize, 15);
+                Set(gblFnView, "table");
+                // Restore any filter handed over from Home's hero search.
+                Reset(txt_FnSearch)
+
+        Children:
+
+            - cmp_HeaderFn:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Functions"
+                    OpenGapCount: =gblOpenGapCount
+
+            - cmp_FnHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =128
+                    Width: =Parent.Width - 128
+                    Height: =124
+                    Eyebrow: ="Browse"
+                    Title: ="Compliance Functions"
+                    Subtitle: |
+                        ="Every obligation in the matrix. Search by name, statute, or owner; filter by topic and risk. Select a function to view or edit the full record."
+
+            # ---- filter bar ------------------------------------------------
+            - txt_FnSearch:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                    X: =64
+                    Y: =262
+                    Width: =380
+                    Height: =44
+                    Default: =gblFilter.Query
+                    HintText: ="Search functions, statutes, citations, owners"
+                    OnChange: =Set(gblFnPage, 1)
+                    BorderColor: =gblTheme.Border
+                    FocusedBorderColor: =gblTheme.Orange
+                    FocusedBorderThickness: =2
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - drp_FnTopic:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                    X: =456
+                    Y: =262
+                    Width: =250
+                    Height: =44
+                    Items: |
+                        =Ungroup(
+                            Table(
+                                {Opt: Table({Value: "All topics"})},
+                                {Opt: ShowColumns(RenameColumns(colTopics, "su_name", "Value"), "Value")}
+                            ),
+                            "Opt"
+                        )
+                    Default: ="All topics"
+                    OnChange: =Set(gblFnPage, 1)
+                    BorderColor: =gblTheme.Border
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - drp_FnRisk:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                    X: =718
+                    Y: =262
+                    Width: =190
+                    Height: =44
+                    Items: |
+                        =Table(
+                            {Value: "All risk"},
+                            {Value: "Critical"},
+                            {Value: "High"},
+                            {Value: "Medium"},
+                            {Value: "Low"}
+                        )
+                    Default: ="All risk"
+                    OnChange: =Set(gblFnPage, 1)
+                    BorderColor: =gblTheme.Border
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - btn_FnViewTable:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 244
+                    Y: =262
+                    Width: =88
+                    Height: =44
+                    Text: ="Table"
+                    OnSelect: =Set(gblFnView, "table")
+                    Fill: =If(gblFnView = "table", gblTheme.Navy, RGBA(0, 0, 0, 0))
+                    Color: =If(gblFnView = "table", gblTheme.White, gblTheme.GrayDark)
+                    HoverFill: =If(gblFnView = "table", gblTheme.BlueMedium, RGBA(0, 14, 84, 0.05))
+                    BorderColor: =gblTheme.Border
+                    BorderThickness: =1
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - btn_FnViewCards:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 152
+                    Y: =262
+                    Width: =88
+                    Height: =44
+                    Text: ="Cards"
+                    OnSelect: =Set(gblFnView, "cards")
+                    Fill: =If(gblFnView = "cards", gblTheme.Navy, RGBA(0, 0, 0, 0))
+                    Color: =If(gblFnView = "cards", gblTheme.White, gblTheme.GrayDark)
+                    HoverFill: =If(gblFnView = "cards", gblTheme.BlueMedium, RGBA(0, 14, 84, 0.05))
+                    BorderColor: =gblTheme.Border
+                    BorderThickness: =1
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            # ---- table header ----------------------------------------------
+            - rec_FnTableHead:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =64
+                    Y: =326
+                    Width: =Parent.Width - 128
+                    Height: =40
+                    Fill: =gblTheme.Surface
+                    BorderThickness: =0
+                    Visible: =gblFnView = "table"
+            - gal_FnHeadCells:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =326
+                    Width: =Parent.Width - 128
+                    Height: =40
+                    TemplateSize: =(Parent.Width - 128) / 5
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Visible: =gblFnView = "table"
+                    Items: |
+                        =Table(
+                            {ColLabel: "Compliance function"},
+                            {ColLabel: "Topic / area"},
+                            {ColLabel: "Statute / citation"},
+                            {ColLabel: "Compliance owner"},
+                            {ColLabel: "Risk"}
+                        )
+                Children:
+                    - lbl_FnHeadCell:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =0
+                            Width: =Parent.TemplateWidth - 20
+                            Height: =40
+                            Text: =Upper(ThisItem.ColLabel)
+                            Color: =gblTheme.GrayMid
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+
+            # ---- results ---------------------------------------------------
+            - gal_Functions:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =366
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 440
+                    TemplateSize: =If(gblFnView = "table", 62, 190)
+                    TemplatePadding: =If(gblFnView = "table", 0, 16)
+                    WrapCount: =If(gblFnView = "table", 1, 3)
+                    ShowScrollbar: =true
+                    # Filter first, then page. Sorting on the public function code
+                    # keeps paging stable as records are edited.
+                    Items: |
+                        =With(
+                            {
+                                filtered:
+                                    Filter(
+                                        'Compliance Functions',
+                                        (IsBlank(txt_FnSearch.Text)
+                                            || StartsWith(su_name, txt_FnSearch.Text)
+                                            || StartsWith(su_statute, txt_FnSearch.Text)
+                                            || StartsWith(su_citation, txt_FnSearch.Text)
+                                            || StartsWith(su_area, txt_FnSearch.Text)),
+                                        (drp_FnTopic.Selected.Value = "All topics"
+                                            || su_topic.su_name = drp_FnTopic.Selected.Value),
+                                        (drp_FnRisk.Selected.Value = "All risk"
+                                            || su_risk = Switch(
+                                                   drp_FnRisk.Selected.Value,
+                                                   "Critical", 'Risk Level'.Critical,
+                                                   "High",     'Risk Level'.High,
+                                                   "Medium",   'Risk Level'.Medium,
+                                                   'Risk Level'.Low
+                                               ))
+                                    )
+                            },
+                            LastN(
+                                FirstN(
+                                    SortByColumns(filtered, "su_functioncode", SortOrder.Ascending),
+                                    gblFnPage * gblFnPageSize
+                                ),
+                                gblFnPageSize
+                            )
+                        )
+                Children:
+                    - lbl_FnName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =10
+                            Width: |
+                                =If(gblFnView = "table",
+                                    Parent.TemplateWidth / 5 - 24,
+                                    Parent.TemplateWidth - 110)
+                            Height: =22
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_FnCode:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =32
+                            Width: =90
+                            Height: =18
+                            Text: =ThisItem.su_functioncode
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_FnGapBadge:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =78
+                            Y: =32
+                            Width: =52
+                            Height: =18
+                            Text: =ThisItem.su_opengapcount & " gap"
+                            Visible: =ThisItem.su_opengapcount > 0
+                            Fill: =gblTheme.High
+                            Color: =gblTheme.White
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_FnFlagged:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =136
+                            Y: =32
+                            Width: =62
+                            Height: =18
+                            Text: ="Flagged"
+                            Visible: =ThisItem.su_isflagged
+                            Fill: =ColorFade(gblTheme.Orange, 0.85)
+                            Color: =gblTheme.OrangeDark
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_FnTopic:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth / 5 + 14
+                            Y: =10
+                            Width: =Parent.TemplateWidth / 5 - 24
+                            Height: =42
+                            Visible: =gblFnView = "table"
+                            Text: |
+                                =ThisItem.su_topic.su_name & Char(10) & ThisItem.su_area
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_FnStatute:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth * 2 / 5 + 14
+                            Y: =10
+                            Width: =Parent.TemplateWidth / 5 - 24
+                            Height: =42
+                            Visible: =gblFnView = "table"
+                            Text: |
+                                =ThisItem.su_statute & Char(10) & ThisItem.su_citation
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_FnOwner:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth * 3 / 5 + 14
+                            Y: =10
+                            Width: =Parent.TemplateWidth / 5 - 24
+                            Height: =42
+                            Text: |
+                                =ThisItem.su_complianceowner.su_name & Char(10) &
+                                 ThisItem.su_complianceowner.su_unit
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - cmp_FnRisk:
+                        Control: Component
+                        ComponentName: cmp_RiskPill
+                        Properties:
+                            X: |
+                                =If(gblFnView = "table",
+                                    Parent.TemplateWidth * 4 / 5 + 14,
+                                    Parent.TemplateWidth - 92)
+                            Y: =18
+                            Width: =74
+                            Height: =24
+                            Risk: |
+                                =Switch(
+                                    ThisItem.su_risk,
+                                    'Risk Level'.Critical, "Critical",
+                                    'Risk Level'.High,     "High",
+                                    'Risk Level'.Medium,   "Medium",
+                                    "Low"
+                                )
+                    - rec_FnRowRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =61
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                            Visible: =gblFnView = "table"
+                    - rec_FnCardBorder:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =174
+                            Fill: =RGBA(0, 0, 0, 0)
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                            Visible: =gblFnView = "cards"
+                    - btn_FnOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =If(gblFnView = "table", 62, 174)
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            PressedFill: =RGBA(0, 14, 84, 0.07)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedFunction, ThisItem);
+                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+
+            # ---- empty state -----------------------------------------------
+            - lbl_FnEmpty:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =440
+                    Width: =Parent.Width - 128
+                    Height: =80
+                    Text: |
+                        ="No matching functions" & Char(10) &
+                         "Try a broader search or clear the topic and risk filters."
+                    Color: =gblTheme.GrayMid
+                    Size: =12
+                    Align: =Align.Center
+                    Font: =gblTheme.FontBody
+                    Visible: =CountRows(gal_Functions.AllItems) = 0
+
+            # ---- pager -----------------------------------------------------
+            - btn_FnPrev:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =Parent.Height - 64
+                    Width: =110
+                    Height: =40
+                    Text: ="Previous"
+                    OnSelect: =Set(gblFnPage, Max(1, gblFnPage - 1))
+                    DisplayMode: =If(gblFnPage <= 1, DisplayMode.Disabled, DisplayMode.Edit)
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.Navy
+                    BorderColor: =gblTheme.Navy
+                    BorderThickness: =1
+                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - lbl_FnPageCount:
+                Control: Label@2.5.1
+                Properties:
+                    X: =186
+                    Y: =Parent.Height - 64
+                    Width: =340
+                    Height: =40
+                    Text: ="Page " & gblFnPage
+                    Color: =gblTheme.GrayMid
+                    Size: =10
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+            - btn_FnNext:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =538
+                    Y: =Parent.Height - 64
+                    Width: =110
+                    Height: =40
+                    Text: ="Next"
+                    # Disabled once a short page proves the result set is exhausted.
+                    OnSelect: =Set(gblFnPage, gblFnPage + 1)
+                    DisplayMode: |
+                        =If(
+                            CountRows(gal_Functions.AllItems) < gblFnPageSize,
+                            DisplayMode.Disabled,
+                            DisplayMode.Edit
+                        )
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.Navy
+                    BorderColor: =gblTheme.Navy
+                    BorderThickness: =1
+                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody

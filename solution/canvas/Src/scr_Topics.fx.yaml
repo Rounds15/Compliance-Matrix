@@ -1,0 +1,412 @@
+# =============================================================================
+# Topics - two-level drill: topic, then compliance area, then function
+# =============================================================================
+# Thirteen top-level topics organize the matrix. The tile count shows the
+# published figure from su_functioncount (the full 404-function matrix), while
+# the area breakdown below is derived from the rows actually present.
+# =============================================================================
+
+Screens:
+
+    scr_Topics:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblTopicSel, Blank());
+                Set(gblAreaSel, "");
+                ClearCollect(colAllFunctions, 'Compliance Functions')
+
+        Children:
+
+            - cmp_HeaderTopics:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Topics"
+                    OpenGapCount: =gblOpenGapCount
+
+            # ---- breadcrumb (drill levels) ----------------------------------
+            - btn_TopicCrumbRoot:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =116
+                    Width: =80
+                    Height: =30
+                    Text: ="Topics"
+                    Visible: =!IsBlank(gblTopicSel)
+                    OnSelect: =Set(gblTopicSel, Blank()); Set(gblAreaSel, "")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    BorderThickness: =0
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    Align: =Align.Left
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - btn_TopicCrumbTopic:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =150
+                    Y: =116
+                    Width: =280
+                    Height: =30
+                    Text: =">  " & gblTopicSel.su_name
+                    Visible: =!IsBlank(gblTopicSel) && !IsBlank(gblAreaSel)
+                    OnSelect: =Set(gblAreaSel, "")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    BorderThickness: =0
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    Align: =Align.Left
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            - cmp_TopicsHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =152
+                    Width: =Parent.Width - 128
+                    Height: =124
+                    Eyebrow: |
+                        =If(
+                            IsBlank(gblTopicSel), "Browse",
+                            IsBlank(gblAreaSel),  "Topic",
+                            "Compliance area"
+                        )
+                    Title: |
+                        =If(
+                            IsBlank(gblTopicSel), "Topics",
+                            IsBlank(gblAreaSel),  gblTopicSel.su_name,
+                            gblAreaSel
+                        )
+                    Subtitle: |
+                        =If(
+                            IsBlank(gblTopicSel),
+                            "Thirteen top-level topics organize the matrix. Drill into a topic to see its compliance areas, then the functions inside.",
+                            IsBlank(gblAreaSel),
+                            gblTopicSel.su_functioncount & " functions across " &
+                                CountRows(
+                                    Distinct(
+                                        Filter(
+                                            colAllFunctions,
+                                            su_topic.su_compliancetopicid
+                                                = gblTopicSel.su_compliancetopicid
+                                        ),
+                                        su_area
+                                    )
+                                ) & " compliance areas.",
+                            CountRows(
+                                Filter(
+                                    colAllFunctions,
+                                    su_topic.su_compliancetopicid
+                                        = gblTopicSel.su_compliancetopicid,
+                                    su_area = gblAreaSel
+                                )
+                            ) & " functions in this area."
+                        )
+
+            # ---- level 1: topic tiles ---------------------------------------
+            - gal_TopicTiles:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 330
+                    TemplateSize: =(Parent.Width - 128) / 4 - 4
+                    TemplatePadding: =16
+                    WrapCount: =4
+                    ShowScrollbar: =true
+                    Visible: =IsBlank(gblTopicSel)
+                    Items: =colTopics
+                Children:
+                    - rec_TopicTile:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =148
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - rec_TopicTileBar:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            # Bar width encodes relative volume, as in the prototype.
+                            Width: |
+                                =Max(
+                                    Parent.TemplateWidth * 0.18,
+                                    Parent.TemplateWidth *
+                                        (ThisItem.su_functioncount /
+                                         Max(First(colTopics).su_functioncount, 1))
+                                )
+                            Height: =5
+                            Fill: =gblTheme.BlueMedium
+                            BorderThickness: =0
+                    - lbl_TopicTileName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =22
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =58
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =13
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_TopicTileAreas:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =104
+                            Width: =Parent.TemplateWidth - 100
+                            Height: =28
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Distinct(
+                                                Filter(
+                                                    colAllFunctions,
+                                                    su_topic.su_compliancetopicid
+                                                        = ThisItem.su_compliancetopicid
+                                                ),
+                                                su_area
+                                            )
+                                        )
+                                    },
+                                    n & If(n = 1, " compliance area", " compliance areas")
+                                )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_TopicTileCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 84
+                            Y: =98
+                            Width: =68
+                            Height: =38
+                            Text: =ThisItem.su_functioncount
+                            Color: =gblTheme.Orange
+                            Size: =20
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Right
+                            Font: =gblTheme.FontDisplay
+                    - btn_TopicTileOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =148
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblTopicSel, ThisItem); Set(gblAreaSel, "")
+
+            # ---- level 2: area tiles ----------------------------------------
+            - gal_TopicAreas:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 330
+                    TemplateSize: =(Parent.Width - 128) / 4 - 4
+                    TemplatePadding: =16
+                    WrapCount: =4
+                    ShowScrollbar: =true
+                    Visible: =!IsBlank(gblTopicSel) && IsBlank(gblAreaSel)
+                    Items: |
+                        =Distinct(
+                            Filter(
+                                colAllFunctions,
+                                su_topic.su_compliancetopicid
+                                    = gblTopicSel.su_compliancetopicid
+                            ),
+                            su_area
+                        )
+                Children:
+                    - rec_AreaTile:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =128
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - rec_AreaTileBar:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =5
+                            Fill: =gblTheme.BlueMedium
+                            BorderThickness: =0
+                    - lbl_AreaTileName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =22
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =56
+                            Text: =ThisItem.Value
+                            Color: =gblTheme.Navy
+                            Size: =12
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_AreaTileCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =88
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =26
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Filter(
+                                                colAllFunctions,
+                                                su_topic.su_compliancetopicid
+                                                    = gblTopicSel.su_compliancetopicid,
+                                                su_area = ThisItem.Value
+                                            )
+                                        )
+                                    },
+                                    n & If(n = 1, " function", " functions")
+                                )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - btn_AreaTileOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =128
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblAreaSel, ThisItem.Value)
+
+            # ---- level 3: functions in the area ------------------------------
+            - gal_TopicFunctions:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 330
+                    TemplateSize: =62
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: =!IsBlank(gblTopicSel) && !IsBlank(gblAreaSel)
+                    Items: |
+                        =Filter(
+                            colAllFunctions,
+                            su_topic.su_compliancetopicid = gblTopicSel.su_compliancetopicid,
+                            su_area = gblAreaSel
+                        )
+                Children:
+                    - lbl_TfName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =10
+                            Width: =Parent.TemplateWidth - 320
+                            Height: =22
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_TfSub:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =32
+                            Width: =Parent.TemplateWidth - 320
+                            Height: =18
+                            Text: |
+                                =ThisItem.su_functioncode & "  |  " & ThisItem.su_statute
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_TfOwner:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 290
+                            Y: =10
+                            Width: =180
+                            Height: =40
+                            Text: |
+                                =ThisItem.su_complianceowner.su_name & Char(10) &
+                                 ThisItem.su_complianceowner.su_unit
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - cmp_TfRisk:
+                        Control: Component
+                        ComponentName: cmp_RiskPill
+                        Properties:
+                            X: =Parent.TemplateWidth - 96
+                            Y: =19
+                            Width: =74
+                            Height: =24
+                            Risk: |
+                                =Switch(
+                                    ThisItem.su_risk,
+                                    'Risk Level'.Critical, "Critical",
+                                    'Risk Level'.High,     "High",
+                                    'Risk Level'.Medium,   "Medium",
+                                    "Low"
+                                )
+                    - rec_TfRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =61
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                    - btn_TfOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =62
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedFunction, ThisItem);
+                                Navigate(scr_FunctionDetail, ScreenTransition.None)

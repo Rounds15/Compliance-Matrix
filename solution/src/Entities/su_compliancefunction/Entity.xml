@@ -1,0 +1,686 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity>
+  <Name LocalizedName="Compliance Function" OriginalName="Compliance Function">su_compliancefunction</Name>
+  <EntityInfo>
+    <entity Name="su_compliancefunction">
+      <LocalizedNames>
+        <LocalizedName description="Compliance Function" languagecode="1033"/>
+      </LocalizedNames>
+      <LocalizedCollectionNames>
+        <LocalizedCollectionName description="Compliance Functions" languagecode="1033"/>
+      </LocalizedCollectionNames>
+      <Descriptions>
+        <Description description="One row per obligation the university carries, with the full ownership chain, governing statute, what the obligation requires, when it is due, and the risk it carries. The system of record for the matrix." languagecode="1033"/>
+      </Descriptions>
+      <attributes>
+        <attribute PhysicalName="su_name">
+          <Type>nvarchar</Type>
+          <Name>su_name</Name>
+          <LogicalName>su_name</LogicalName>
+          <RequiredLevel>systemrequired</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>300</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Compliance Function" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_functioncode">
+          <Type>nvarchar</Type>
+          <Name>su_functioncode</Name>
+          <LogicalName>su_functioncode</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>20</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Function ID" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Stable public identifier, e.g. CF-1041." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_topic">
+          <Type>lookup</Type>
+          <Name>su_topic</Name>
+          <LogicalName>su_topic</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancetopic"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Topic" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_area">
+          <Type>nvarchar</Type>
+          <Name>su_area</Name>
+          <LogicalName>su_area</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>200</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Compliance Area" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Free text rather than a lookup: areas are a grouping users think in, not a governed list, and the Areas screen derives its tiles from the distinct values present." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_statute">
+          <Type>nvarchar</Type>
+          <Name>su_statute</Name>
+          <LogicalName>su_statute</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>300</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Statute" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_citation">
+          <Type>nvarchar</Type>
+          <Name>su_citation</Name>
+          <LogicalName>su_citation</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>300</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Citation" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_statuteurl">
+          <Type>nvarchar</Type>
+          <Name>su_statuteurl</Name>
+          <LogicalName>su_statuteurl</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>500</MaxLength>
+          <Format>url</Format>
+          <displaynames>
+            <displayname description="Statute URL" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_executiveowner">
+          <Type>lookup</Type>
+          <Name>su_executiveowner</Name>
+          <LogicalName>su_executiveowner</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Executive Owner" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Accountable at the cabinet level." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_unitowner">
+          <Type>lookup</Type>
+          <Name>su_unitowner</Name>
+          <LogicalName>su_unitowner</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Unit Owner" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Runs the obligation inside the unit. Nullable on purpose: the Risk Dashboard reports unassigned unit-owner roles as an exposure signal." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_complianceowner">
+          <Type>lookup</Type>
+          <Name>su_complianceowner</Name>
+          <LogicalName>su_complianceowner</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Compliance Owner" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Does the work and files the record." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_description">
+          <Type>ntext</Type>
+          <Name>su_description</Name>
+          <LogicalName>su_description</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="What The Obligation Is" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_reporting">
+          <Type>ntext</Type>
+          <Name>su_reporting</Name>
+          <LogicalName>su_reporting</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="Reporting Requirement" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_deadlinenarrative">
+          <Type>ntext</Type>
+          <Name>su_deadlinenarrative</Name>
+          <LogicalName>su_deadlinenarrative</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>2000</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="Deadline And Cadence" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Prose statement of timing, distinct from the dated deadline rows." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_resourcelabel">
+          <Type>nvarchar</Type>
+          <Name>su_resourcelabel</Name>
+          <LogicalName>su_resourcelabel</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>200</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Resource Label" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_resourceurl">
+          <Type>nvarchar</Type>
+          <Name>su_resourceurl</Name>
+          <LogicalName>su_resourceurl</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>500</MaxLength>
+          <Format>url</Format>
+          <displaynames>
+            <displayname description="Resource URL" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_risk">
+          <Type>picklist</Type>
+          <Name>su_risk</Name>
+          <LogicalName>su_risk</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_risklevel">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Risk Rating" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_lastreviewed">
+          <Type>datetime</Type>
+          <Name>su_lastreviewed</Name>
+          <LogicalName>su_lastreviewed</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <Format>dateonly</Format>
+          <Behavior>1</Behavior>
+          <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
+          <displaynames>
+            <displayname description="Last Reviewed" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_opengapcount">
+          <Type>int</Type>
+          <Name>su_opengapcount</Name>
+          <LogicalName>su_opengapcount</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>0</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <IsRollupAttribute>1</IsRollupAttribute>
+          <RollupAggregate>COUNT</RollupAggregate>
+          <RollupRelatedEntity>su_compliancegap</RollupRelatedEntity>
+          <RollupRelationship>su_compliancefunction_su_compliancegap</RollupRelationship>
+          <MinValue>-2147483648</MinValue>
+          <MaxValue>2147483647</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Open Gaps" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Rollup over related gaps where status is Open. Drives the count badge shown everywhere a function appears." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_nextduedate">
+          <Type>int</Type>
+          <Name>su_nextduedate</Name>
+          <LogicalName>su_nextduedate</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>0</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <IsRollupAttribute>1</IsRollupAttribute>
+          <RollupAggregate>MIN</RollupAggregate>
+          <RollupRelatedEntity>su_compliancedeadline</RollupRelatedEntity>
+          <RollupRelationship>su_compliancefunction_su_compliancedeadline</RollupRelationship>
+          <RollupAggregateAttribute>su_duedate</RollupAggregateAttribute>
+          <MinValue>-2147483648</MinValue>
+          <MaxValue>2147483647</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Next Due Date" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Rollup MIN over incomplete related deadlines." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_isflagged">
+          <Type>bit</Type>
+          <Name>su_isflagged</Name>
+          <LogicalName>su_isflagged</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_isflagged_optionset">
+            <displaynames>
+              <displayname description="Flagged For Review" languagecode="1033"/>
+            </displaynames>
+            <IsGlobal>0</IsGlobal>
+            <OptionSetType>boolean</OptionSetType>
+            <option value="0">
+              <labels>
+                <label description="No" languagecode="1033"/>
+              </labels>
+            </option>
+            <option value="1">
+              <labels>
+                <label description="Yes" languagecode="1033"/>
+              </labels>
+            </option>
+          </optionset>
+          <DefaultValue>0</DefaultValue>
+          <displaynames>
+            <displayname description="Flagged For Review" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Maintained by the Flag / Clear flag actions so list screens can show the flag pill without a related-table query per row." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+      </attributes>
+      <EntitySetName>su_compliancefunctions</EntitySetName>
+      <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
+      <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
+      <IsRenameable>1</IsRenameable>
+      <IsCustomizable>1</IsCustomizable>
+      <IsMappable>1</IsMappable>
+      <IsAuditEnabled>1</IsAuditEnabled>
+      <IsActivity>0</IsActivity>
+      <IsAvailableOffline>1</IsAvailableOffline>
+      <IsVisibleInMobile>1</IsVisibleInMobile>
+      <IsVisibleInMobileClient>1</IsVisibleInMobileClient>
+      <IsConnectionsEnabled>0</IsConnectionsEnabled>
+      <IsDocumentManagementEnabled>0</IsDocumentManagementEnabled>
+      <IsMailMergeEnabled>0</IsMailMergeEnabled>
+      <IsCustomEntity>1</IsCustomEntity>
+      <IsQuickCreateEnabled>1</IsQuickCreateEnabled>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <OwnershipTypeMask>UserOwned</OwnershipTypeMask>
+      <PrimaryNameAttribute>su_name</PrimaryNameAttribute>
+      <HasNotes>1</HasNotes>
+      <HasActivities>1</HasActivities>
+      <IsChildEntity>0</IsChildEntity>
+    </entity>
+  </EntityInfo>
+</Entity>

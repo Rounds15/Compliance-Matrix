@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity>
+  <Name LocalizedName="Compliance Gap" OriginalName="Compliance Gap">su_compliancegap</Name>
+  <EntityInfo>
+    <entity Name="su_compliancegap">
+      <LocalizedNames>
+        <LocalizedName description="Compliance Gap" languagecode="1033"/>
+      </LocalizedNames>
+      <LocalizedCollectionNames>
+        <LocalizedCollectionName description="Compliance Gaps" languagecode="1033"/>
+      </LocalizedCollectionNames>
+      <Descriptions>
+        <Description description="Open and closed gaps with severity, opened and closed dates, and closure notes. A gap is always raised against the function it came from." languagecode="1033"/>
+      </Descriptions>
+      <attributes>
+        <attribute PhysicalName="su_name">
+          <Type>nvarchar</Type>
+          <Name>su_name</Name>
+          <LogicalName>su_name</LogicalName>
+          <RequiredLevel>systemrequired</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>400</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Gap Summary" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_gapcode">
+          <Type>nvarchar</Type>
+          <Name>su_gapcode</Name>
+          <LogicalName>su_gapcode</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>20</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Gap ID" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_function">
+          <Type>lookup</Type>
+          <Name>su_function</Name>
+          <LogicalName>su_function</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancefunction"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Compliance Function" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_severity">
+          <Type>picklist</Type>
+          <Name>su_severity</Name>
+          <LogicalName>su_severity</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_risklevel">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Severity" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_status">
+          <Type>picklist</Type>
+          <Name>su_status</Name>
+          <LogicalName>su_status</LogicalName>
+          <RequiredLevel>systemrequired</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_gapstatus">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Status" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_openeddate">
+          <Type>datetime</Type>
+          <Name>su_openeddate</Name>
+          <LogicalName>su_openeddate</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <Format>dateonly</Format>
+          <Behavior>1</Behavior>
+          <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
+          <displaynames>
+            <displayname description="Opened" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_closeddate">
+          <Type>datetime</Type>
+          <Name>su_closeddate</Name>
+          <LogicalName>su_closeddate</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <Format>dateonly</Format>
+          <Behavior>1</Behavior>
+          <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
+          <displaynames>
+            <displayname description="Closed" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_note">
+          <Type>ntext</Type>
+          <Name>su_note</Name>
+          <LogicalName>su_note</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="Detail And Remediation Plan" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_closenote">
+          <Type>ntext</Type>
+          <Name>su_closenote</Name>
+          <LogicalName>su_closenote</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="Closure Notes" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Required by the close-gap action. What was remediated, and what prevents recurrence." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_owner">
+          <Type>lookup</Type>
+          <Name>su_owner</Name>
+          <LogicalName>su_owner</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Owner" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_closedby">
+          <Type>lookup</Type>
+          <Name>su_closedby</Name>
+          <LogicalName>su_closedby</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Closed By" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_daysopen">
+          <Type>int</Type>
+          <Name>su_daysopen</Name>
+          <LogicalName>su_daysopen</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>0</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <IsCalculatedAttribute>1</IsCalculatedAttribute>
+          <CalculatedFieldFormula>IF(ISNULL(su_closeddate), DIFFINDAYS(su_openeddate, NOW()), DIFFINDAYS(su_openeddate, su_closeddate))</CalculatedFieldFormula>
+          <MinValue>-2147483648</MinValue>
+          <MaxValue>2147483647</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Days Open" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Whole-day difference between opened and closed, or opened and today while still open. Feeds gap-aging reporting." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+      </attributes>
+      <EntitySetName>su_compliancegaps</EntitySetName>
+      <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
+      <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
+      <IsRenameable>1</IsRenameable>
+      <IsCustomizable>1</IsCustomizable>
+      <IsMappable>1</IsMappable>
+      <IsAuditEnabled>1</IsAuditEnabled>
+      <IsActivity>0</IsActivity>
+      <IsAvailableOffline>1</IsAvailableOffline>
+      <IsVisibleInMobile>1</IsVisibleInMobile>
+      <IsVisibleInMobileClient>1</IsVisibleInMobileClient>
+      <IsConnectionsEnabled>0</IsConnectionsEnabled>
+      <IsDocumentManagementEnabled>0</IsDocumentManagementEnabled>
+      <IsMailMergeEnabled>0</IsMailMergeEnabled>
+      <IsCustomEntity>1</IsCustomEntity>
+      <IsQuickCreateEnabled>1</IsQuickCreateEnabled>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <OwnershipTypeMask>UserOwned</OwnershipTypeMask>
+      <PrimaryNameAttribute>su_name</PrimaryNameAttribute>
+      <HasNotes>1</HasNotes>
+      <HasActivities>1</HasActivities>
+      <IsChildEntity>0</IsChildEntity>
+    </entity>
+  </EntityInfo>
+</Entity>

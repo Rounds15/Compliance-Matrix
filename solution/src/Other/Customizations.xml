@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="1.0.0.0" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="ComplianceMatrix build_solution.py">
+  <Entities/>
+  <Roles/>
+  <Workflows/>
+  <FieldSecurityProfiles/>
+  <Templates/>
+  <EntityMaps/>
+  <optionsets>
+    <optionset Name="su_risklevel" localizedName="Risk Level" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Risk Level" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="Risk rating applied to functions, deadlines, and gap severity." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000000" Color="#B91C1C">
+          <labels>
+            <label description="Critical" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000001" Color="#DC2626">
+          <labels>
+            <label description="High" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000002" Color="#D97706">
+          <labels>
+            <label description="Medium" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000003" Color="#16A34A">
+          <labels>
+            <label description="Low" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_cadence" localizedName="Cadence" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Cadence" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="Recurrence pattern for a compliance deadline." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000010">
+          <labels>
+            <label description="Annual" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000011">
+          <labels>
+            <label description="Semiannual" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000012">
+          <labels>
+            <label description="Quarterly" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000013">
+          <labels>
+            <label description="Biennial" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000014">
+          <labels>
+            <label description="Continuous" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000015">
+          <labels>
+            <label description="One-time" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_gapstatus" localizedName="Gap Status" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Gap Status" languagecode="1033"/>
+      </displaynames>
+      <options>
+        <option value="100000020">
+          <labels>
+            <label description="Open" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000021">
+          <labels>
+            <label description="Closed" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_ownershiprole" localizedName="Ownership Role" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Ownership Role" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="The three tiers of the ownership chain. Every obligation has an executive owner accountable at cabinet level, a unit owner who runs it inside the unit, and a compliance owner who does the work and files the record." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000030">
+          <labels>
+            <label description="Executive Owner" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000031">
+          <labels>
+            <label description="Unit Owner" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000032">
+          <labels>
+            <label description="Compliance Owner" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_ownershipsubrole" localizedName="Ownership Sub-role" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Ownership Sub-role" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="Weight of a person's involvement within a single ownership role." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000040">
+          <labels>
+            <label description="Primary" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000041">
+          <labels>
+            <label description="Advisory" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000042">
+          <labels>
+            <label description="Support" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_flagstatus" localizedName="Flag Status" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Flag Status" languagecode="1033"/>
+      </displaynames>
+      <options>
+        <option value="100000050">
+          <labels>
+            <label description="Active" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000051">
+          <labels>
+            <label description="Cleared" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_approle" localizedName="Application Role" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Application Role" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="Drives screen-level access gating in the canvas app. Administrator unlocks Gap Tracker, Risk Dashboard, and Reporting." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000060">
+          <labels>
+            <label description="Administrator" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000061">
+          <labels>
+            <label description="Compliance Owner" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000062">
+          <labels>
+            <label description="Executive" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+  </optionsets>
+  <EntityRelationships>
+    <EntityRelationship Name="su_compliancetopic_su_compliancefunction_su_topic">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancefunction</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancetopic</ReferencedEntityName>
+      <ReferencingAttributeName>su_topic</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_compliancefunction_su_executiveowner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancefunction</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_executiveowner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_compliancefunction_su_unitowner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancefunction</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_unitowner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_compliancefunction_su_complianceowner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancefunction</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_complianceowner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancefunction_su_compliancedeadline">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancedeadline</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancefunction</ReferencedEntityName>
+      <ReferencingAttributeName>su_function</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>Cascade</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_compliancedeadline_su_owner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancedeadline</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_owner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancefunction_su_compliancegap">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancegap</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancefunction</ReferencedEntityName>
+      <ReferencingAttributeName>su_function</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>Cascade</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_compliancegap_su_owner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancegap</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_owner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_compliancegap_su_closedby">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancegap</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_closedby</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancefunction_su_functionownership">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_functionownership</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancefunction</ReferencedEntityName>
+      <ReferencingAttributeName>su_function</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>Cascade</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_functionownership_su_person">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_functionownership</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_person</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancefunction_su_functionflag">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_functionflag</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancefunction</ReferencedEntityName>
+      <ReferencingAttributeName>su_function</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>Cascade</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_functionflag_su_flaggedby">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_functionflag</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_flaggedby</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_functionflag_su_clearedby">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_functionflag</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_clearedby</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancetopic_su_counselassignment_su_topic">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_counselassignment</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancetopic</ReferencedEntityName>
+      <ReferencingAttributeName>su_topic</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_counselassignment_su_attorney">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_counselassignment</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_attorney</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_appadmin_su_person">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_appadmin</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_person</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+  </EntityRelationships>
+  <Languages>
+    <Language code="1033"/>
+  </Languages>
+</ImportExportXml>

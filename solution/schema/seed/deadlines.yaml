@@ -1,0 +1,201 @@
+# su_compliancedeadline. dueOffsetDays is relative to the import date so
+# the seeded calendar always straddles today: negative is overdue.
+# owner and risk are copied from the parent function by design.
+
+deadlines:
+- function: CF-3020
+  title: Publish Annual Security Report
+  dueOffsetDays: 59
+  cadence: Annual
+  complete: false
+  owner: cruiz@syr.edu
+  risk: Critical
+- function: CF-3023
+  title: Publish Annual Fire Safety Report
+  dueOffsetDays: 59
+  cadence: Annual
+  complete: false
+  owner: lmarch@syr.edu
+  risk: High
+- function: CF-4031
+  title: Submit Single Audit reporting package to FAC
+  dueOffsetDays: -12
+  cadence: Annual
+  complete: false
+  owner: mduval@syr.edu
+  risk: Critical
+- function: CF-6050
+  title: LD-2 Q3 lobbying disclosure
+  dueOffsetDays: 78
+  cadence: Quarterly
+  complete: false
+  owner: kosei@syr.edu
+  risk: High
+- function: CF-6050
+  title: LD-203 semiannual contribution report
+  dueOffsetDays: -4
+  cadence: Semiannual
+  complete: false
+  owner: kosei@syr.edu
+  risk: High
+- function: CF-4030
+  title: File IRS Form 990 (extended)
+  dueOffsetDays: 103
+  cadence: Annual
+  complete: false
+  owner: mduval@syr.edu
+  risk: Critical
+- function: CF-5043
+  title: USDA APHIS annual animal report
+  dueOffsetDays: 120
+  cadence: Annual
+  complete: false
+  owner: iolsen@syr.edu
+  risk: High
+- function: CF-5043
+  title: Semiannual facility inspection
+  dueOffsetDays: 21
+  cadence: Semiannual
+  complete: false
+  owner: iolsen@syr.edu
+  risk: High
+- function: CF-2011
+  title: Form 5500 filing (extended)
+  dueOffsetDays: 73
+  cadence: Annual
+  complete: false
+  owner: mhollis@syr.edu
+  risk: High
+- function: CF-8071
+  title: EADA survey submission
+  dueOffsetDays: 73
+  cadence: Annual
+  complete: false
+  owner: jkowalski@syr.edu
+  risk: Medium
+- function: CF-1042
+  title: FERPA annual notification to students
+  dueOffsetDays: 25
+  cadence: Annual
+  complete: false
+  owner: amonroe@syr.edu
+  risk: High
+- function: CF-1045
+  title: SARA institutional renewal
+  dueOffsetDays: 216
+  cadence: Annual
+  complete: false
+  owner: kmrupert@syr.edu
+  risk: High
+- function: CF-7060
+  title: GLBA annual report to the Board
+  dueOffsetDays: 145
+  cadence: Annual
+  complete: false
+  owner: siyer@syr.edu
+  risk: Critical
+- function: CF-9080
+  title: HIPAA security risk analysis refresh
+  dueOffsetDays: -27
+  cadence: Annual
+  complete: false
+  owner: amonroe@syr.edu
+  risk: Critical
+- function: CF-9091
+  title: DFSCA biennial review report
+  dueOffsetDays: 150
+  cadence: Biennial
+  complete: false
+  owner: dfreeman@syr.edu
+  risk: High
+- function: CF-2013
+  title: FLSA exemption classification review
+  dueOffsetDays: 41
+  cadence: Annual
+  complete: false
+  owner: asundberg@syr.edu
+  risk: High
+- function: CF-9090
+  title: Title IX personnel training cycle
+  dueOffsetDays: 13
+  cadence: Annual
+  complete: false
+  owner: gellsworth@syr.edu
+  risk: Critical
+- function: CF-2012
+  title: I-9 internal audit sample
+  dueOffsetDays: -40
+  cadence: Annual
+  complete: false
+  owner: dferrell@syr.edu
+  risk: Critical
+- function: CF-3022
+  title: RCRA biennial hazardous waste report
+  dueOffsetDays: 211
+  cadence: Biennial
+  complete: false
+  owner: pnovak@syr.edu
+  risk: High
+- function: CF-8070
+  title: NCAA APR data submission
+  dueOffsetDays: -96
+  cadence: Annual
+  complete: true
+  owner: jkowalski@syr.edu
+  risk: High
+- function: CF-2010
+  title: Furnish Forms 1095-C to employees
+  dueOffsetDays: -154
+  cadence: Annual
+  complete: true
+  owner: asundberg@syr.edu
+  risk: High
+- function: CF-4033
+  title: eZ-Audit financial statement submission
+  dueOffsetDays: 150
+  cadence: Annual
+  complete: false
+  owner: mduval@syr.edu
+  risk: High
+- function: CF-9121
+  title: Summer minors program registrations
+  dueOffsetDays: -63
+  cadence: Annual
+  complete: true
+  owner: dfreeman@syr.edu
+  risk: High
+- function: CF-6052
+  title: SEVIS recertification petition
+  dueOffsetDays: 34
+  cadence: Biennial
+  complete: false
+  owner: rachebe@syr.edu
+  risk: High
+- function: CF-5041
+  title: Annual FCOI disclosure campaign
+  dueOffsetDays: 6
+  cadence: Annual
+  complete: false
+  owner: iolsen@syr.edu
+  risk: High
+- function: CF-9082
+  title: Records retention attestation cycle
+  dueOffsetDays: 95
+  cadence: Annual
+  complete: false
+  owner: amonroe@syr.edu
+  risk: Low
+- function: CF-3021
+  title: Emergency evacuation drill (fall)
+  dueOffsetDays: 47
+  cadence: Annual
+  complete: false
+  owner: cruiz@syr.edu
+  risk: High
+- function: CF-9120
+  title: Collect study abroad crime statistics
+  dueOffsetDays: 31
+  cadence: Annual
+  complete: false
+  owner: cruiz@syr.edu
+  risk: Medium

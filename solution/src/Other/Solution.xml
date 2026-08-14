@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="1.0.0.0" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="ComplianceMatrix build_solution.py">
+  <SolutionManifest>
+    <UniqueName>ComplianceMatrix</UniqueName>
+    <LocalizedNames>
+      <LocalizedName description="Compliance Matrix" languagecode="1033"/>
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="University-wide compliance obligation register. Maps every obligation the institution carries to its ownership chain, governing statute, reporting requirement, due dates, and risk rating." languagecode="1033"/>
+    </Descriptions>
+    <Version>1.0.0.0</Version>
+    <Managed>0</Managed>
+    <Publisher>
+      <UniqueName>syracuseuniversity</UniqueName>
+      <LocalizedNames>
+        <LocalizedName description="Syracuse University" languagecode="1033"/>
+      </LocalizedNames>
+      <CustomizationPrefix>su</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>10000</CustomizationOptionValuePrefix>
+    </Publisher>
+    <RootComponents>
+      <RootComponent type="1" schemaName="su_compliancetopic" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancedirectory" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancefunction" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancedeadline" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancegap" behavior="0"/>
+      <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
+      <RootComponent type="1" schemaName="su_functionflag" behavior="0"/>
+      <RootComponent type="1" schemaName="su_counselassignment" behavior="0"/>
+      <RootComponent type="1" schemaName="su_appadmin" behavior="0"/>
+      <RootComponent type="9" schemaName="su_risklevel" behavior="0"/>
+      <RootComponent type="9" schemaName="su_cadence" behavior="0"/>
+      <RootComponent type="9" schemaName="su_gapstatus" behavior="0"/>
+      <RootComponent type="9" schemaName="su_ownershiprole" behavior="0"/>
+      <RootComponent type="9" schemaName="su_ownershipsubrole" behavior="0"/>
+      <RootComponent type="9" schemaName="su_flagstatus" behavior="0"/>
+      <RootComponent type="9" schemaName="su_approle" behavior="0"/>
+    </RootComponents>
+    <MissingDependencies/>
+  </SolutionManifest>
+</ImportExportXml>

@@ -1,0 +1,113 @@
+# =============================================================================
+# Compliance Matrix - application object
+# =============================================================================
+# Theme values come from the Syracuse University Brand Guidelines colour
+# palette (p.23) carried over verbatim from the prototype's CSS custom
+# properties, so the deployed app matches the approved brand marks exactly.
+#
+# OnStart resolves three things before the first screen paints:
+#   1. the brand theme, as a single record every screen reads from
+#   2. the signed-in user's directory record and application role
+#   3. reference data small enough to cache (topics, counsel assignments)
+#
+# Function, deadline, and gap data is NOT cached here. Those tables are
+# delegable and are queried per screen so the app stays correct past the
+# 2,000-row delegation limit at the full 404-function matrix size.
+# =============================================================================
+
+App:
+    Properties:
+        BackEnabled: =false
+
+        OnStart: |
+            =// ---- Brand theme -------------------------------------------------
+            Set(
+                gblTheme,
+                {
+                    // Primary
+                    Orange:       RGBA(247, 105,   0, 1),   // PMS 158C
+                    Navy:         RGBA(  0,  14,  84, 1),   // PMS 281C - primary blue
+                    White:        RGBA(255, 255, 255, 1),
+
+                    // Secondary orange
+                    OrangeMedium: RGBA(255,  67,  27, 1),   // PMS 2028C
+                    OrangeLight:  RGBA(255, 142,   0, 1),   // PMS 130C
+                    OrangeDark:   RGBA(215,  65,   0, 1),   // PMS 1665C - link colour, WCAG AA on white
+
+                    // Secondary blue
+                    BlueMedium:   RGBA( 32,  50, 153, 1),   // PMS 2728C
+                    BlueLight:    RGBA( 43, 114, 215, 1),   // PMS 2915C
+
+                    // Neutrals
+                    GrayDark:     RGBA( 64,  64,  64, 1),   // body copy on white
+                    GrayMid:      RGBA(112, 119, 128, 1),   // PMS Cool Gray 9C
+                    GrayLight:    RGBA(173, 179, 184, 1),   // PMS Cool Gray 7C
+                    Border:       RGBA(226, 229, 234, 1),
+                    BorderSoft:   RGBA(238, 240, 244, 1),
+                    Surface:      RGBA(250, 251, 253, 1),
+
+                    // Risk ratings - shared by functions, deadlines, and gap severity
+                    Critical:     RGBA(185,  28,  28, 1),
+                    High:         RGBA(220,  38,  38, 1),
+                    Medium:       RGBA(217, 119,   6, 1),
+                    Low:          RGBA( 22, 163,  74, 1),
+
+                    // Type
+                    FontDisplay:  "Verdana",
+                    FontBody:     "Verdana"
+                }
+            );
+
+            // ---- Fiscal calendar ---------------------------------------------
+            // University fiscal year starts July 1. Q1 is Jul-Sep.
+            Set(gblFiscalStartMonth, 7);
+            Set(gblToday, Today());
+
+            // ---- Signed-in user ----------------------------------------------
+            // The directory row is matched on email, which is an alternate key on
+            // su_compliancedirectory. A user with no directory row still gets in;
+            // they simply own nothing, and "Assigned to you" renders empty.
+            Set(
+                gblMe,
+                LookUp(
+                    'Compliance Directory',
+                    Lower(su_email) = Lower(User().Email)
+                )
+            );
+
+            // ---- Application role --------------------------------------------
+            // Absence of an active assignment means Compliance Owner. Only
+            // Administrator unlocks Gap Tracker, Risk Dashboard, and Reporting.
+            Set(
+                gblRoleAssignment,
+                LookUp(
+                    'App Role Assignments',
+                    su_person.su_compliancedirectoryid = gblMe.su_compliancedirectoryid
+                        && su_active = true
+                )
+            );
+            Set(
+                gblRole,
+                Coalesce(gblRoleAssignment.su_role, 'Application Role'.'Compliance Owner')
+            );
+            Set(gblIsAdmin, gblRole = 'Application Role'.Administrator);
+
+            // ---- Cached reference data ---------------------------------------
+            // Both are small, bounded, and read on nearly every screen.
+            ClearCollect(colTopics, SortByColumns('Compliance Topics', "su_sortorder"));
+            ClearCollect(colCounsel, 'Counsel Assignments');
+            Set(gblDefaultCounsel, LookUp(colCounsel, su_isdefault = true));
+
+            // ---- Navigation state --------------------------------------------
+            // The prototype kept a history stack so Back returned to the previous
+            // screen and selection. Canvas Back() covers the screen half; this
+            // collection preserves the selected record alongside it.
+            Clear(colNavHistory);
+            Set(gblSelectedFunction, Blank());
+            Set(
+                gblFilter,
+                {Query: "", Topic: "All", Risk: "All", Area: "All"}
+            );
+
+        # Brand-consistent loading state while OnStart resolves.
+        StartScreen: =scr_Home

@@ -1,0 +1,656 @@
+# =============================================================================
+# Syracuse University Compliance Matrix - Dataverse schema
+# =============================================================================
+# Single source of truth for the Dataverse data model. `tools/build_solution.py`
+# reads this file and emits importable solution source under solution/src/.
+#
+# Derived 1:1 from the standalone HTML prototype's data layer, which already
+# declared its intended Dataverse mapping:
+#   su_compliancefunction  <- FUNCTIONS
+#   su_compliancedeadline  <- DEADLINES   (lookup: su_FunctionId)
+#   su_compliancegap       <- GAPS        (lookup: su_FunctionId)
+#   su_compliancedirectory <- PEOPLE
+#   su_functionownership   <- OwnershipChain (function, person, role, subrole)
+#   su_counselassignment   <- COUNSEL (topic -> attorney)
+#   su_appadmin            <- role gate
+# =============================================================================
+
+publisher:
+  name: syracuseuniversity
+  displayName: Syracuse University
+  prefix: su
+  optionValuePrefix: 10000
+
+solution:
+  uniqueName: ComplianceMatrix
+  displayName: Compliance Matrix
+  version: 1.0.0.0
+  managed: false
+  description: >-
+    University-wide compliance obligation register. Maps every obligation the
+    institution carries to its ownership chain, governing statute, reporting
+    requirement, due dates, and risk rating.
+
+# -----------------------------------------------------------------------------
+# Global choice sets
+# -----------------------------------------------------------------------------
+choices:
+
+  su_risklevel:
+    displayName: Risk Level
+    description: Risk rating applied to functions, deadlines, and gap severity.
+    options:
+      - { value: 100000000, label: Critical, color: "#B91C1C" }
+      - { value: 100000001, label: High,     color: "#DC2626" }
+      - { value: 100000002, label: Medium,   color: "#D97706" }
+      - { value: 100000003, label: Low,      color: "#16A34A" }
+
+  su_cadence:
+    displayName: Cadence
+    description: Recurrence pattern for a compliance deadline.
+    options:
+      - { value: 100000010, label: Annual }
+      - { value: 100000011, label: Semiannual }
+      - { value: 100000012, label: Quarterly }
+      - { value: 100000013, label: Biennial }
+      - { value: 100000014, label: Continuous }
+      - { value: 100000015, label: One-time }
+
+  su_gapstatus:
+    displayName: Gap Status
+    options:
+      - { value: 100000020, label: Open }
+      - { value: 100000021, label: Closed }
+
+  su_ownershiprole:
+    displayName: Ownership Role
+    description: >-
+      The three tiers of the ownership chain. Every obligation has an executive
+      owner accountable at cabinet level, a unit owner who runs it inside the
+      unit, and a compliance owner who does the work and files the record.
+    options:
+      - { value: 100000030, label: Executive Owner }
+      - { value: 100000031, label: Unit Owner }
+      - { value: 100000032, label: Compliance Owner }
+
+  su_ownershipsubrole:
+    displayName: Ownership Sub-role
+    description: Weight of a person's involvement within a single ownership role.
+    options:
+      - { value: 100000040, label: Primary }
+      - { value: 100000041, label: Advisory }
+      - { value: 100000042, label: Support }
+
+  su_flagstatus:
+    displayName: Flag Status
+    options:
+      - { value: 100000050, label: Active }
+      - { value: 100000051, label: Cleared }
+
+  su_approle:
+    displayName: Application Role
+    description: >-
+      Drives screen-level access gating in the canvas app. Administrator unlocks
+      Gap Tracker, Risk Dashboard, and Reporting.
+    options:
+      - { value: 100000060, label: Administrator }
+      - { value: 100000061, label: Compliance Owner }
+      - { value: 100000062, label: Executive }
+
+# -----------------------------------------------------------------------------
+# Tables
+# -----------------------------------------------------------------------------
+tables:
+
+  # ---------------------------------------------------------------------------
+  su_compliancetopic:
+    displayName: Compliance Topic
+    displayCollectionName: Compliance Topics
+    description: >-
+      Thirteen top-level topics organize the matrix. Drill into a topic to see
+      its compliance areas, then the functions inside.
+    primaryName: su_name
+    ownership: OrganizationOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - name: su_name
+        displayName: Topic
+        type: String
+        maxLength: 150
+        required: SystemRequired
+      - name: su_functioncount
+        displayName: Published Function Count
+        description: >-
+          Count published in the university matrix of record. Held separately
+          from the live row count so the topic tiles keep showing the full
+          404-function figure while the environment is still being loaded.
+        type: Integer
+        minValue: 0
+        maxValue: 10000
+      - name: su_sortorder
+        displayName: Sort Order
+        type: Integer
+        minValue: 0
+        maxValue: 1000
+
+  # ---------------------------------------------------------------------------
+  su_compliancedirectory:
+    displayName: Compliance Directory
+    displayCollectionName: Compliance Directory
+    description: >-
+      The people layer of the matrix: every owner in an ownership chain, with
+      title, unit, and contact information. Records may be created manually or
+      pulled in from Entra ID via the directory lookup on the ownership chain.
+    primaryName: su_name
+    ownership: OrganizationOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - name: su_name
+        displayName: Full Name
+        type: String
+        maxLength: 150
+        required: SystemRequired
+      - name: su_jobtitle
+        displayName: Title
+        type: String
+        maxLength: 250
+      - name: su_unit
+        displayName: Unit
+        type: String
+        maxLength: 200
+      - name: su_email
+        displayName: Email
+        type: String
+        format: Email
+        maxLength: 150
+        # Alternate key: used to reconcile Entra ID lookups against existing rows
+        # so "Add to Compliance Directory" never creates a duplicate person.
+        alternateKey: true
+      - name: su_phone
+        displayName: Phone
+        type: String
+        format: Phone
+        maxLength: 40
+      - name: su_location
+        displayName: Location
+        type: String
+        maxLength: 200
+      - name: su_netid
+        displayName: NetID
+        type: String
+        maxLength: 50
+      - name: su_addedfromdirectory
+        displayName: Added From Entra ID
+        description: >-
+          Set when the record was created through the ownership chain's directory
+          lookup rather than entered by hand.
+        type: Boolean
+        default: false
+      - name: su_systemuser
+        displayName: Dataverse User
+        description: >-
+          Links a directory person to their Dataverse user. Drives "Assigned to
+          you" on Home and row-level security in the Power BI reports.
+        type: Lookup
+        target: systemuser
+      - name: su_isexecutive
+        displayName: Executive Team Member
+        description: Surfaces this person on the Executive Team portfolio screen.
+        type: Boolean
+        default: false
+
+  # ---------------------------------------------------------------------------
+  su_compliancefunction:
+    displayName: Compliance Function
+    displayCollectionName: Compliance Functions
+    description: >-
+      One row per obligation the university carries, with the full ownership
+      chain, governing statute, what the obligation requires, when it is due,
+      and the risk it carries. The system of record for the matrix.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: true
+    hasNotes: true
+    columns:
+      - name: su_name
+        displayName: Compliance Function
+        type: String
+        maxLength: 300
+        required: SystemRequired
+      - name: su_functioncode
+        displayName: Function ID
+        description: Stable public identifier, e.g. CF-1041.
+        type: String
+        maxLength: 20
+        alternateKey: true
+      - name: su_topic
+        displayName: Topic
+        type: Lookup
+        target: su_compliancetopic
+        required: ApplicationRequired
+      - name: su_area
+        displayName: Compliance Area
+        description: >-
+          Free text rather than a lookup: areas are a grouping users think in,
+          not a governed list, and the Areas screen derives its tiles from the
+          distinct values present.
+        type: String
+        maxLength: 200
+      - name: su_statute
+        displayName: Statute
+        type: String
+        maxLength: 300
+      - name: su_citation
+        displayName: Citation
+        type: String
+        maxLength: 300
+      - name: su_statuteurl
+        displayName: Statute URL
+        type: String
+        format: Url
+        maxLength: 500
+      - name: su_executiveowner
+        displayName: Executive Owner
+        description: Accountable at the cabinet level.
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_unitowner
+        displayName: Unit Owner
+        description: >-
+          Runs the obligation inside the unit. Nullable on purpose: the Risk
+          Dashboard reports unassigned unit-owner roles as an exposure signal.
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_complianceowner
+        displayName: Compliance Owner
+        description: Does the work and files the record.
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_description
+        displayName: What The Obligation Is
+        type: Memo
+        maxLength: 4000
+      - name: su_reporting
+        displayName: Reporting Requirement
+        type: Memo
+        maxLength: 4000
+      - name: su_deadlinenarrative
+        displayName: Deadline And Cadence
+        description: Prose statement of timing, distinct from the dated deadline rows.
+        type: Memo
+        maxLength: 2000
+      - name: su_resourcelabel
+        displayName: Resource Label
+        type: String
+        maxLength: 200
+      - name: su_resourceurl
+        displayName: Resource URL
+        type: String
+        format: Url
+        maxLength: 500
+      - name: su_risk
+        displayName: Risk Rating
+        type: Choice
+        choice: su_risklevel
+        required: ApplicationRequired
+      - name: su_lastreviewed
+        displayName: Last Reviewed
+        type: DateTime
+        format: DateOnly
+      - name: su_opengapcount
+        displayName: Open Gaps
+        description: >-
+          Rollup over related gaps where status is Open. Drives the count badge
+          shown everywhere a function appears.
+        type: Rollup
+        rollup:
+          aggregate: COUNT
+          relatedTable: su_compliancegap
+          relationship: su_compliancefunction_su_compliancegap
+          filter:
+            column: su_status
+            operator: eq
+            value: 100000020   # Open
+      - name: su_nextduedate
+        displayName: Next Due Date
+        description: Rollup MIN over incomplete related deadlines.
+        type: Rollup
+        rollup:
+          aggregate: MIN
+          relatedTable: su_compliancedeadline
+          relationship: su_compliancefunction_su_compliancedeadline
+          aggregateColumn: su_duedate
+          filter:
+            column: su_complete
+            operator: eq
+            value: false
+      - name: su_isflagged
+        displayName: Flagged For Review
+        description: >-
+          Maintained by the Flag / Clear flag actions so list screens can show
+          the flag pill without a related-table query per row.
+        type: Boolean
+        default: false
+
+  # ---------------------------------------------------------------------------
+  su_compliancedeadline:
+    displayName: Compliance Deadline
+    displayCollectionName: Compliance Deadlines
+    description: >-
+      One row per due date, joined to its function. Carries cadence, completion
+      flag, and copied owner and risk fields so the calendar and list views sort
+      and filter without traversing the lookup.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: true
+    hasNotes: false
+    columns:
+      - name: su_name
+        displayName: Deadline
+        type: String
+        maxLength: 300
+        required: SystemRequired
+      - name: su_function
+        displayName: Compliance Function
+        type: Lookup
+        target: su_compliancefunction
+        required: ApplicationRequired
+        relationshipName: su_compliancefunction_su_compliancedeadline
+        cascade: { delete: Cascade }
+      - name: su_duedate
+        displayName: Due Date
+        type: DateTime
+        format: DateOnly
+        required: ApplicationRequired
+      - name: su_cadence
+        displayName: Cadence
+        type: Choice
+        choice: su_cadence
+      - name: su_complete
+        displayName: Complete
+        type: Boolean
+        default: false
+      - name: su_completeddate
+        displayName: Completed On
+        type: DateTime
+        format: DateOnly
+      - name: su_owner
+        displayName: Owner
+        description: >-
+          Copied from the parent function's compliance owner on save. Denormalized
+          deliberately: reassigning a function rewrites this on every child row,
+          which is what "Owner fields on N deadline record(s) updated" reports.
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_risk
+        displayName: Risk Rating
+        description: Copied from the parent function so the calendar can colour by risk.
+        type: Choice
+        choice: su_risklevel
+
+  # ---------------------------------------------------------------------------
+  su_compliancegap:
+    displayName: Compliance Gap
+    displayCollectionName: Compliance Gaps
+    description: >-
+      Open and closed gaps with severity, opened and closed dates, and closure
+      notes. A gap is always raised against the function it came from.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: true
+    hasNotes: true
+    columns:
+      - name: su_name
+        displayName: Gap Summary
+        type: String
+        maxLength: 400
+        required: SystemRequired
+      - name: su_gapcode
+        displayName: Gap ID
+        type: String
+        maxLength: 20
+        alternateKey: true
+      - name: su_function
+        displayName: Compliance Function
+        type: Lookup
+        target: su_compliancefunction
+        required: ApplicationRequired
+        relationshipName: su_compliancefunction_su_compliancegap
+        cascade: { delete: Cascade }
+      - name: su_severity
+        displayName: Severity
+        type: Choice
+        choice: su_risklevel
+        required: ApplicationRequired
+      - name: su_status
+        displayName: Status
+        type: Choice
+        choice: su_gapstatus
+        required: SystemRequired
+      - name: su_openeddate
+        displayName: Opened
+        type: DateTime
+        format: DateOnly
+        required: ApplicationRequired
+      - name: su_closeddate
+        displayName: Closed
+        type: DateTime
+        format: DateOnly
+      - name: su_note
+        displayName: Detail And Remediation Plan
+        type: Memo
+        maxLength: 4000
+      - name: su_closenote
+        displayName: Closure Notes
+        description: >-
+          Required by the close-gap action. What was remediated, and what
+          prevents recurrence.
+        type: Memo
+        maxLength: 4000
+      - name: su_owner
+        displayName: Owner
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_closedby
+        displayName: Closed By
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_daysopen
+        displayName: Days Open
+        description: >-
+          Whole-day difference between opened and closed, or opened and today
+          while still open. Feeds gap-aging reporting.
+        type: Calculated
+        calculated:
+          returnType: Integer
+          formula: >-
+            IF(ISNULL(su_closeddate),
+               DIFFINDAYS(su_openeddate, NOW()),
+               DIFFINDAYS(su_openeddate, su_closeddate))
+
+  # ---------------------------------------------------------------------------
+  su_functionownership:
+    displayName: Function Ownership
+    displayCollectionName: Function Ownership
+    description: >-
+      Junction between a compliance function and a person, carrying the role
+      tier and the sub-role weight. Lets a single role hold many people, which
+      the three fixed lookups on the function row cannot express.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - name: su_name
+        displayName: Assignment
+        description: Generated as "<Person> - <Role> - <Function code>".
+        type: String
+        maxLength: 400
+        required: SystemRequired
+      - name: su_function
+        displayName: Compliance Function
+        type: Lookup
+        target: su_compliancefunction
+        required: ApplicationRequired
+        relationshipName: su_compliancefunction_su_functionownership
+        cascade: { delete: Cascade }
+      - name: su_person
+        displayName: Person
+        type: Lookup
+        target: su_compliancedirectory
+        required: ApplicationRequired
+      - name: su_role
+        displayName: Role
+        type: Choice
+        choice: su_ownershiprole
+        required: ApplicationRequired
+      - name: su_subrole
+        displayName: Sub-role
+        type: Choice
+        choice: su_ownershipsubrole
+        required: ApplicationRequired
+    # Prevents the same person being added twice to the same role on one function,
+    # which the prototype guarded in script ("already holds this role").
+    alternateKeys:
+      - name: su_uniqueassignment
+        columns: [su_function, su_person, su_role]
+
+  # ---------------------------------------------------------------------------
+  su_functionflag:
+    displayName: Function Flag
+    displayCollectionName: Function Flags
+    description: >-
+      Raised by any owner from a function's detail screen when a record looks
+      wrong. Flagging notifies the compliance office and adds the function to
+      the administrator review queue.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - name: su_name
+        displayName: Flag
+        type: String
+        maxLength: 400
+        required: SystemRequired
+      - name: su_function
+        displayName: Compliance Function
+        type: Lookup
+        target: su_compliancefunction
+        required: ApplicationRequired
+        relationshipName: su_compliancefunction_su_functionflag
+        cascade: { delete: Cascade }
+      - name: su_reason
+        displayName: Reason
+        type: Memo
+        maxLength: 2000
+        required: ApplicationRequired
+      - name: su_status
+        displayName: Status
+        type: Choice
+        choice: su_flagstatus
+        required: SystemRequired
+      - name: su_flaggedby
+        displayName: Flagged By
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_flaggedon
+        displayName: Flagged On
+        type: DateTime
+        format: DateOnly
+      - name: su_clearedby
+        displayName: Cleared By
+        type: Lookup
+        target: su_compliancedirectory
+      - name: su_clearedon
+        displayName: Cleared On
+        type: DateTime
+        format: DateOnly
+
+  # ---------------------------------------------------------------------------
+  su_counselassignment:
+    displayName: Counsel Assignment
+    displayCollectionName: Counsel Assignments
+    description: >-
+      Office of University Counsel attorney of record per compliance topic.
+      Exactly one row should carry Is Default, used when a topic has no explicit
+      assignment.
+    primaryName: su_name
+    ownership: OrganizationOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - name: su_name
+        displayName: Assignment
+        type: String
+        maxLength: 300
+        required: SystemRequired
+      - name: su_topic
+        displayName: Topic
+        description: Empty on the default escalation row.
+        type: Lookup
+        target: su_compliancetopic
+      - name: su_attorney
+        displayName: Attorney
+        type: Lookup
+        target: su_compliancedirectory
+        required: ApplicationRequired
+      - name: su_isdefault
+        displayName: Is Default Escalation
+        type: Boolean
+        default: false
+
+  # ---------------------------------------------------------------------------
+  su_appadmin:
+    displayName: App Role Assignment
+    displayCollectionName: App Role Assignments
+    description: >-
+      Role gate for the canvas app. Absence of a row means the signed-in user
+      gets the Compliance Owner experience; Administrator unlocks Gap Tracker,
+      Risk Dashboard, and Reporting.
+    primaryName: su_name
+    ownership: OrganizationOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - name: su_name
+        displayName: Assignment
+        type: String
+        maxLength: 300
+        required: SystemRequired
+      - name: su_person
+        displayName: Person
+        type: Lookup
+        target: su_compliancedirectory
+        required: ApplicationRequired
+      - name: su_role
+        displayName: Role
+        type: Choice
+        choice: su_approle
+        required: ApplicationRequired
+      - name: su_active
+        displayName: Active
+        type: Boolean
+        default: true
+
+# -----------------------------------------------------------------------------
+# Fiscal calendar
+# -----------------------------------------------------------------------------
+# The university fiscal year starts July 1. The prototype computed this in
+# script (fiscalQ); in the deployed solution it is computed in the canvas app
+# and marked as a proper date table in the Power BI semantic model.
+fiscalCalendar:
+  startMonth: 7
+  label: "FY{yy} Q{q}"
+
+# -----------------------------------------------------------------------------
+# Reminder schedule
+# -----------------------------------------------------------------------------
+# Drives the Power Automate flow that emails deadline owners. Stated in the app
+# UI as: reminders go out at 90 days, 30 days, on the due date, and weekly once
+# an item is overdue.
+reminders:
+  offsetsDays: [90, 30, 0]
+  overdueRepeatDays: 7

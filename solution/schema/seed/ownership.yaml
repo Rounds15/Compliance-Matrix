@@ -1,0 +1,505 @@
+# su_functionownership - junction seeded from the three fixed owner
+# lookups on each function. Every seeded assignment is Primary; Advisory
+# and Support entries are added by administrators in the app.
+
+ownership:
+- function: CF-1041
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-1041
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-1041
+  person: kmrupert@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-1042
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-1042
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-1042
+  person: amonroe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-1043
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-1043
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-1043
+  person: kmrupert@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-1044
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-1044
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-1044
+  person: kmrupert@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-1045
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-1045
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-1045
+  person: kmrupert@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-2010
+  person: awhitaker@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-2010
+  person: mhollis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-2010
+  person: asundberg@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-2011
+  person: awhitaker@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-2011
+  person: mhollis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-2011
+  person: mhollis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-2012
+  person: awhitaker@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-2012
+  person: dferrell@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-2012
+  person: dferrell@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-2013
+  person: awhitaker@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-2013
+  person: dferrell@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-2013
+  person: asundberg@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-2014
+  person: awhitaker@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-2014
+  person: mhollis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-2014
+  person: mhollis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-2015
+  person: awhitaker@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-2015
+  person: dferrell@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-2015
+  person: dferrell@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-2016
+  person: awhitaker@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-2016
+  person: pnovak@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-2016
+  person: pnovak@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-3020
+  person: mdelgado@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-3020
+  person: cruiz@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-3020
+  person: cruiz@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-3021
+  person: mdelgado@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-3021
+  person: cruiz@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-3021
+  person: cruiz@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-3022
+  person: mdelgado@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-3022
+  person: pnovak@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-3022
+  person: pnovak@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-3023
+  person: mdelgado@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-3023
+  person: lmarch@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-3023
+  person: lmarch@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-4030
+  person: bpadgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-4030
+  person: mduval@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-4030
+  person: mduval@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-4031
+  person: bpadgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-4031
+  person: mduval@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-4031
+  person: mduval@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-4032
+  person: bpadgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-4032
+  person: tgreaves@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-4032
+  person: tgreaves@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-4033
+  person: bpadgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-4033
+  person: mduval@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-4033
+  person: mduval@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-4034
+  person: bpadgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-4034
+  person: mduval@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-4034
+  person: sboyle@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-5040
+  person: praman@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-5040
+  person: iolsen@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-5040
+  person: iolsen@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-5041
+  person: praman@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-5041
+  person: rbhatt@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-5041
+  person: iolsen@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-5042
+  person: praman@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-5042
+  person: rbhatt@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-5042
+  person: rbhatt@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-5043
+  person: praman@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-5043
+  person: iolsen@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-5043
+  person: iolsen@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-6050
+  person: tbrennan@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-6050
+  person: kosei@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-6050
+  person: kosei@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-6051
+  person: tbrennan@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-6051
+  person: mduval@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-6051
+  person: ypetrov@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-6052
+  person: tbrennan@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-6052
+  person: rachebe@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-6052
+  person: rachebe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-7060
+  person: dokafor@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-7060
+  person: siyer@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-7060
+  person: siyer@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-7061
+  person: dokafor@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-7061
+  person: siyer@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-7061
+  person: amonroe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-7062
+  person: dokafor@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-7062
+  person: olang@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-7062
+  person: olang@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-8070
+  person: evasquez@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-8070
+  person: jkowalski@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-8070
+  person: jkowalski@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-8071
+  person: evasquez@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-8071
+  person: jkowalski@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-8071
+  person: jkowalski@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9080
+  person: hambrose@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9080
+  person: amonroe@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9080
+  person: amonroe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9081
+  person: hambrose@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9081
+  person: amonroe@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9081
+  person: olang@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9082
+  person: hambrose@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9082
+  person: amonroe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9090
+  person: ncaruso@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9090
+  person: gellsworth@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9090
+  person: gellsworth@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9091
+  person: ncaruso@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9091
+  person: dfreeman@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9091
+  person: dfreeman@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9100
+  person: glindstrom@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9100
+  person: ypetrov@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9100
+  person: ypetrov@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9110
+  person: rchin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9110
+  person: olang@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9110
+  person: olang@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9120
+  person: ncaruso@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9120
+  person: htanaka@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9120
+  person: cruiz@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- function: CF-9121
+  person: ncaruso@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- function: CF-9121
+  person: sboyle@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- function: CF-9121
+  person: dfreeman@syr.edu
+  role: Compliance Owner
+  subRole: Primary

@@ -1,0 +1,37 @@
+# su_counselassignment - attorney of record per topic, plus the single
+# default escalation row used when a topic has no explicit assignment.
+
+counsel:
+- topic: Research
+  attorney: madler@syr.edu
+  isDefault: false
+- topic: Privacy
+  attorney: amonroe@syr.edu
+  isDefault: false
+- topic: IT and Cyber Security
+  attorney: amonroe@syr.edu
+  isDefault: false
+- topic: Human Resources
+  attorney: dreyes@syr.edu
+  isDefault: false
+- topic: Academic and Faculty Affairs
+  attorney: dreyes@syr.edu
+  isDefault: false
+- topic: Athletics
+  attorney: gwhitfield@syr.edu
+  isDefault: false
+- topic: Student Experience
+  attorney: gwhitfield@syr.edu
+  isDefault: false
+- topic: Safety and Security
+  attorney: gwhitfield@syr.edu
+  isDefault: false
+- topic: Finance, CFO Office
+  attorney: plund@syr.edu
+  isDefault: false
+- topic: Advancement
+  attorney: plund@syr.edu
+  isDefault: false
+- topic: null
+  attorney: hambrose@syr.edu
+  isDefault: true

@@ -1,0 +1,4 @@
+# Packed artifacts - rebuild with tools/build_solution.py + pac
+*.msapp
+*.zip
+__pycache__/
