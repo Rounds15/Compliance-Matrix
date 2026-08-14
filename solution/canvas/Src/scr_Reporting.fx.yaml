@@ -33,8 +33,7 @@ Screens:
         Children:
 
             - cmp_HeaderRpt:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -44,8 +43,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_RptHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128

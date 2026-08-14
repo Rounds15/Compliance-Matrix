@@ -18,8 +18,7 @@ Screens:
         Children:
 
             - cmp_HeaderGap:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -29,8 +28,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_GapHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -302,8 +300,7 @@ Screens:
                                 )
                             BorderThickness: =0
                     - cmp_GapSeverityPill:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: =16
                             Y: =14

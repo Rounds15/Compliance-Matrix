@@ -125,6 +125,11 @@ Nothing renders correctly until OnStart has run once.
 
 ### 3. Screens
 
+**Both earlier steps are hard dependencies.** A screen embeds components as
+`Control: cmp_Header`, which resolves to nothing if the four components are not
+already in the app; and every screen reads `gblTheme`, `gblToday`, `gblMe` and
+the `ds*` collections, which only exist after App OnStart has run once.
+
 For each `scr_*.fx.yaml`: right-click in the screen list → **Paste code**.
 
 If your Studio build only offers paste on an existing screen, create a blank

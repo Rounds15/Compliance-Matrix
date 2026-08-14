@@ -27,6 +27,9 @@ Constraints the output has to keep satisfying, from the pa.yaml v3.0 schema
   * a CanvasComponent requires all seven of DefinitionType, Description,
     AllowCustomization, AccessAppScope, CustomProperties, Properties, Children.
   * no YAML '#' comments anywhere - Studio's paste parser raises PA1001.
+  * a component instance is `Control: <ComponentName>` directly. The preview
+    syntax, `Control: Component` plus a separate `ComponentName:` line, is
+    rejected. tools/validate.py fails the build if it reappears.
 
 Those first two live in the production component files under
 solution/canvas/Src/Components/; this script only has to avoid breaking them.

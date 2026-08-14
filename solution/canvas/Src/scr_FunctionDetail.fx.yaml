@@ -80,8 +80,7 @@ Screens:
         Children:
 
             - cmp_HeaderFd:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -169,8 +168,7 @@ Screens:
                     FontWeight: =FontWeight.Bold
                     Font: =gblTheme.FontDisplay
             - cmp_FdRisk:
-                Control: Component
-                ComponentName: cmp_RiskPill
+                Control: cmp_RiskPill
                 Properties:
                     X: =64
                     Y: =262
@@ -905,8 +903,7 @@ Screens:
                                             Size: =9
                                             Font: =gblTheme.FontBody
                                     - cmp_FdDlPill:
-                                        Control: Component
-                                        ComponentName: cmp_DuePill
+                                        Control: cmp_DuePill
                                         Properties:
                                             X: =Parent.TemplateWidth - 118
                                             Y: =12

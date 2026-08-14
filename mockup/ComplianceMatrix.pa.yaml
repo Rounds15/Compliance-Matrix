@@ -768,8 +768,7 @@ Screens:
         Children:
 
             - cmp_HeaderAsmtDetail:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -847,8 +846,7 @@ Screens:
                     FontWeight: =FontWeight.Bold
                     Font: =gblTheme.FontDisplay
             - cmp_AdRisk:
-                Control: Component
-                ComponentName: cmp_RiskPill
+                Control: cmp_RiskPill
                 Properties:
                     X: =64
                     Y: =262
@@ -1266,8 +1264,7 @@ Screens:
         Children:
 
             - cmp_HeaderAsmt:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -1277,8 +1274,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_AsmtHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -1585,8 +1581,7 @@ Screens:
                             VerticalAlign: =VerticalAlign.Middle
                             Font: =gblTheme.FontBody
                     - cmp_AsmtRisk:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: =Parent.TemplateWidth * 4 / 5 + 14
                             Y: =22
@@ -1707,8 +1702,7 @@ Screens:
         Children:
 
             - cmp_HeaderDl:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -1718,8 +1712,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_DlHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -2175,8 +2168,7 @@ Screens:
                             Size: =9
                             Font: =gblTheme.FontBody
                     - cmp_DlRowPill:
-                        Control: Component
-                        ComponentName: cmp_DuePill
+                        Control: cmp_DuePill
                         Properties:
                             X: =Parent.TemplateWidth - 110
                             Y: =19
@@ -2225,8 +2217,7 @@ Screens:
         Children:
 
             - cmp_HeaderDir:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -2236,8 +2227,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_DirHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -2551,8 +2541,7 @@ Screens:
                                     Size: =9
                                     Font: =gblTheme.FontBody
                             - cmp_DpRisk:
-                                Control: Component
-                                ComponentName: cmp_RiskPill
+                                Control: cmp_RiskPill
                                 Properties:
                                     X: =Parent.TemplateWidth - 92
                                     Y: =17
@@ -2715,8 +2704,7 @@ Screens:
         Children:
 
             - cmp_HeaderDomains:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -2745,8 +2733,7 @@ Screens:
                     Font: =gblTheme.FontBody
 
             - cmp_DomHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =152
@@ -3006,8 +2993,7 @@ Screens:
                             Size: =9
                             Font: =gblTheme.FontBody
                     - cmp_DfRisk:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: =Parent.TemplateWidth - 96
                             Y: =19
@@ -3062,8 +3048,7 @@ Screens:
         Children:
 
             - cmp_HeaderExec:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -3073,8 +3058,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_ExecHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -3394,8 +3378,7 @@ Screens:
                                     Size: =9
                                     Font: =gblTheme.FontBody
                             - cmp_EpRisk:
-                                Control: Component
-                                ComponentName: cmp_RiskPill
+                                Control: cmp_RiskPill
                                 Properties:
                                     X: =Parent.TemplateWidth - 92
                                     Y: =17
@@ -3533,8 +3516,7 @@ Screens:
         Children:
 
             - cmp_HeaderFd:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -3620,8 +3602,7 @@ Screens:
                     FontWeight: =FontWeight.Bold
                     Font: =gblTheme.FontDisplay
             - cmp_FdRisk:
-                Control: Component
-                ComponentName: cmp_RiskPill
+                Control: cmp_RiskPill
                 Properties:
                     X: =64
                     Y: =262
@@ -4341,8 +4322,7 @@ Screens:
                                             Size: =9
                                             Font: =gblTheme.FontBody
                                     - cmp_FdDlPill:
-                                        Control: Component
-                                        ComponentName: cmp_DuePill
+                                        Control: cmp_DuePill
                                         Properties:
                                             X: =Parent.TemplateWidth - 118
                                             Y: =12
@@ -5184,8 +5164,7 @@ Screens:
         Children:
 
             - cmp_HeaderFn:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -5195,8 +5174,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_FnHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -5482,8 +5460,7 @@ Screens:
                             Size: =9
                             Font: =gblTheme.FontBody
                     - cmp_FnRisk:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: |
                                 =If(gblFnView = "table",
@@ -5623,8 +5600,7 @@ Screens:
         Children:
 
             - cmp_HeaderGap:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -5634,8 +5610,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_GapHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -5907,8 +5882,7 @@ Screens:
                                 )
                             BorderThickness: =0
                     - cmp_GapSeverityPill:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: =16
                             Y: =14
@@ -6374,8 +6348,7 @@ Screens:
         Children:
 
             - cmp_HeaderHome:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -6797,8 +6770,7 @@ Screens:
                                     Size: =9
                                     Font: =gblTheme.FontBody
                             - cmp_MyFnRisk:
-                                Control: Component
-                                ComponentName: cmp_RiskPill
+                                Control: cmp_RiskPill
                                 Properties:
                                     X: =Parent.TemplateWidth - 96
                                     Y: =17
@@ -6929,8 +6901,7 @@ Screens:
                                     Size: =9
                                     Font: =gblTheme.FontBody
                             - cmp_DlPill:
-                                Control: Component
-                                ComponentName: cmp_DuePill
+                                Control: cmp_DuePill
                                 Properties:
                                     X: =Parent.TemplateWidth - 108
                                     Y: =16
@@ -6972,8 +6943,7 @@ Screens:
         Children:
 
             - cmp_HeaderNoAccess:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -7059,8 +7029,7 @@ Screens:
         Children:
 
             - cmp_HeaderRpt:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -7070,8 +7039,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_RptHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -7405,8 +7373,7 @@ Screens:
         Children:
 
             - cmp_HeaderRiskAreas:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -7453,8 +7420,7 @@ Screens:
                     Font: =gblTheme.FontBody
 
             - cmp_RaHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =152
@@ -7816,8 +7782,7 @@ Screens:
                             Size: =9
                             Font: =gblTheme.FontBody
                     - cmp_RaFnRisk:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: =Parent.TemplateWidth - 96
                             Y: =19
@@ -7882,8 +7847,7 @@ Screens:
         Children:
 
             - cmp_HeaderRisk:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -7893,8 +7857,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_RiskHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128

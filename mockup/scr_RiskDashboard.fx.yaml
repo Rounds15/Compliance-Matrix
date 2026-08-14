@@ -29,8 +29,7 @@ Screens:
         Children:
 
             - cmp_HeaderRisk:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -40,8 +39,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_RiskHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128

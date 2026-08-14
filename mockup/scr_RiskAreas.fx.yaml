@@ -12,8 +12,7 @@ Screens:
         Children:
 
             - cmp_HeaderRiskAreas:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -60,8 +59,7 @@ Screens:
                     Font: =gblTheme.FontBody
 
             - cmp_RaHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =152
@@ -423,8 +421,7 @@ Screens:
                             Size: =9
                             Font: =gblTheme.FontBody
                     - cmp_RaFnRisk:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: =Parent.TemplateWidth - 96
                             Y: =19

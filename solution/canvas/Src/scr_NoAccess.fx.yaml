@@ -16,8 +16,7 @@ Screens:
         Children:
 
             - cmp_HeaderNoAccess:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0

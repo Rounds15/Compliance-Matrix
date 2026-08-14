@@ -64,6 +64,25 @@ is expected and is left in place deliberately: the v3.0 schema lists it as
 required on a `CanvasComponent`, so removing it to silence a Studio warning
 risks failing `pac canvas pack`. A warning that says "ignored" costs nothing.
 
+## How a screen references a component
+
+```yaml
+- cmp_HeaderHome:
+    Control: cmp_Header
+    Properties:
+        X: =0
+        ActiveScreen: ="Home"
+```
+
+`Control:` takes the component name directly. The preview syntax — `Control:
+Component` with a separate `ComponentName:` line — is rejected by the current
+parser. `tools/validate.py` fails if it reappears, and also checks that every
+`Control: cmp_*` resolves to a component that exists.
+
+**A screen will not paste until its components exist.** `Control: cmp_Header`
+has nothing to resolve against otherwise. Order is: components, then App
+OnStart (and run it), then screens.
+
 ## Pasting these into Studio
 
 Paste the **whole file**, first line included, into the Components tab

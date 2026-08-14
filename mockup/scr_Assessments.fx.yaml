@@ -18,8 +18,7 @@ Screens:
         Children:
 
             - cmp_HeaderAsmt:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -29,8 +28,7 @@ Screens:
                     OpenGapCount: =gblOpenGapCount
 
             - cmp_AsmtHead:
-                Control: Component
-                ComponentName: cmp_PageHead
+                Control: cmp_PageHead
                 Properties:
                     X: =64
                     Y: =128
@@ -337,8 +335,7 @@ Screens:
                             VerticalAlign: =VerticalAlign.Middle
                             Font: =gblTheme.FontBody
                     - cmp_AsmtRisk:
-                        Control: Component
-                        ComponentName: cmp_RiskPill
+                        Control: cmp_RiskPill
                         Properties:
                             X: =Parent.TemplateWidth * 4 / 5 + 14
                             Y: =22

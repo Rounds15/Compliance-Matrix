@@ -125,7 +125,11 @@ def check_navigation(loaded: dict[pathlib.Path, object]) -> None:
         components.update(doc.get("ComponentDefinitions", {}) or {})
 
     nav_re = re.compile(r"Navigate\(\s*([A-Za-z_][A-Za-z0-9_]*)")
-    cmp_re = re.compile(r"^\s*ComponentName:\s*([A-Za-z_][A-Za-z0-9_]*)\s*$", re.M)
+    # SchemaV3 instantiates a component as `Control: <ComponentName>` directly.
+    # The preview syntax was `Control: Component` plus a `ComponentName:` line;
+    # Studio rejects it, so both halves are errors rather than references.
+    cmp_re = re.compile(r"^\s*Control:\s*(cmp_[A-Za-z0-9_]*)\s*$", re.M)
+    legacy_re = re.compile(r"^\s*(Control:\s*Component\s*$|ComponentName:.*$)", re.M)
 
     missing = False
     for path in sorted(CANVAS.rglob("*.yaml")):
@@ -137,10 +141,18 @@ def check_navigation(loaded: dict[pathlib.Path, object]) -> None:
                 missing = True
         for name in sorted(set(cmp_re.findall(text))):
             if name not in components:
-                fail(f"{rel}: ComponentName {name} - not defined")
+                fail(f"{rel}: Control: {name} - no such component")
                 missing = True
+        legacy = legacy_re.findall(text)
+        if legacy:
+            fail(f"{rel}: {len(legacy)} line(s) of preview component syntax "
+                 f"(Control: Component / ComponentName:) - use Control: <name>")
+            missing = True
     if not missing:
-        ok(f"{len(screens)} screens, {len(components)} components, all references resolve")
+        used = sum(len(set(cmp_re.findall(p.read_text(encoding="utf-8"))))
+                   for p in CANVAS.rglob("*.yaml"))
+        ok(f"{len(screens)} screens, {len(components)} components, "
+           f"all Navigate() targets and Control: cmp_* references resolve")
 
 
 # From schemas/pa-yaml/v3.0/pa.schema.yaml in microsoft/PowerApps-Tooling.

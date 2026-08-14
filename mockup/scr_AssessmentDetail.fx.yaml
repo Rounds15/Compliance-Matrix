@@ -30,8 +30,7 @@ Screens:
         Children:
 
             - cmp_HeaderAsmtDetail:
-                Control: Component
-                ComponentName: cmp_Header
+                Control: cmp_Header
                 Properties:
                     X: =0
                     Y: =0
@@ -109,8 +108,7 @@ Screens:
                     FontWeight: =FontWeight.Bold
                     Font: =gblTheme.FontDisplay
             - cmp_AdRisk:
-                Control: Component
-                ComponentName: cmp_RiskPill
+                Control: cmp_RiskPill
                 Properties:
                     X: =64
                     Y: =262
