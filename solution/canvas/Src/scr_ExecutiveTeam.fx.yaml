@@ -2,8 +2,8 @@
 # Executive Team - portfolio view
 # =============================================================================
 # Executive owners sit at the top of every ownership chain. Sorted by last
-# name. Selecting a member opens their portfolio with the critical and high
-# high-risk count that leadership reviews first.
+# name. Selecting a member opens their portfolio with the high-risk count
+# that leadership reviews first.
 # =============================================================================
 
 Screens:

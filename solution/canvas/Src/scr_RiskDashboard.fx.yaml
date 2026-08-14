@@ -81,8 +81,9 @@ Screens:
                     Items: |
                         =Table(
                             {RiskKey: 'Risk Level'.High,     RiskLabel: "High"},
-                            {RiskKey: 'Risk Level'.Moderate,   RiskLabel: "Moderate"},
-                            {RiskKey: 'Risk Level'.Low,      RiskLabel: "Low"}
+                            {RiskKey: 'Risk Level'.Moderate, RiskLabel: "Moderate"},
+                            {RiskKey: 'Risk Level'.Low,      RiskLabel: "Low"},
+                            {RiskKey: Blank(),               RiskLabel: "Unrated"}
                         )
                 Children:
                     - rec_RiskStatCard:
@@ -104,7 +105,16 @@ Screens:
                             Width: =Parent.TemplateWidth - 40
                             Height: =40
                             Text: |
-                                =CountRows(Filter(colAllFunctions, su_risk = ThisItem.RiskKey))
+                                =CountRows(
+                                    Filter(
+                                        colAllFunctions,
+                                        If(
+                                            ThisItem.RiskLabel = "Unrated",
+                                            IsBlank(su_risk),
+                                            su_risk = ThisItem.RiskKey
+                                        )
+                                    )
+                                )
                             Color: |
                                 =Switch(
                                     ThisItem.RiskLabel,
@@ -122,7 +132,7 @@ Screens:
                             Y: =52
                             Width: =Parent.TemplateWidth - 40
                             Height: =20
-                            Text: =ThisItem.RiskLabel & " risk"
+                            Text: =If(ThisItem.RiskLabel = "Unrated", "Unrated", ThisItem.RiskLabel & " risk")
                             Color: =gblTheme.GrayDark
                             Size: =10
                             FontWeight: =FontWeight.Semibold
@@ -136,8 +146,16 @@ Screens:
                             Height: =18
                             Text: |
                                 =Round(
-                                    CountRows(Filter(colAllFunctions, su_risk = ThisItem.RiskKey))
-                                        / Max(CountRows(colAllFunctions), 1) * 100,
+                                    CountRows(
+                                        Filter(
+                                            colAllFunctions,
+                                            If(
+                                                ThisItem.RiskLabel = "Unrated",
+                                                IsBlank(su_risk),
+                                                su_risk = ThisItem.RiskKey
+                                            )
+                                        )
+                                    ) / Max(CountRows(colAllFunctions), 1) * 100,
                                     0
                                 ) & "% of the matrix"
                             Color: =gblTheme.GrayMid
@@ -152,7 +170,7 @@ Screens:
                     Y: =382
                     Width: =600
                     Height: =24
-                    Text: ="HEAT MAP - RISK AREA BY RISK RATING"
+                    Text: ="HEAT MAP - RISK AREA BY RISK RATING (INCLUDING UNRATED)"
                     Color: =gblTheme.OrangeDark
                     Size: =8
                     FontWeight: =FontWeight.Bold
@@ -210,8 +228,9 @@ Screens:
                             Items: |
                                 =Table(
                                     {CellRisk: 'Risk Level'.High,     CellLabel: "High"},
-                                    {CellRisk: 'Risk Level'.Moderate,   CellLabel: "Moderate"},
-                                    {CellRisk: 'Risk Level'.Low,      CellLabel: "Low"}
+                                    {CellRisk: 'Risk Level'.Moderate, CellLabel: "Moderate"},
+                                    {CellRisk: 'Risk Level'.Low,      CellLabel: "Low"},
+                                    {CellRisk: Blank(),               CellLabel: "Unrated"}
                                 )
                         Children:
                             - rec_HeatCell:
@@ -230,7 +249,11 @@ Screens:
                                                         colAllFunctions,
                                                         su_riskarea.su_riskareaid
                                                             = gal_HeatRows.Selected.su_riskareaid,
-                                                        su_risk = ThisItem.CellRisk
+                                                        If(
+                                                            ThisItem.CellLabel = "Unrated",
+                                                            IsBlank(su_risk),
+                                                            su_risk = ThisItem.CellRisk
+                                                        )
                                                     )
                                                 )
                                             },
@@ -241,8 +264,9 @@ Screens:
                                                     Switch(
                                                         ThisItem.CellLabel,
                                                         "High",     gblTheme.High,
-                                                        "Moderate",   gblTheme.Moderate,
-                                                        gblTheme.Low
+                                                        "Moderate", gblTheme.Moderate,
+                                                        "Low",      gblTheme.Low,
+                                                        gblTheme.Unrated
                                                     ),
                                                     0.90 - 0.62 * (n / Max(gblHeatMax, 1))
                                                 )
@@ -265,7 +289,11 @@ Screens:
                                                         colAllFunctions,
                                                         su_riskarea.su_riskareaid
                                                             = gal_HeatRows.Selected.su_riskareaid,
-                                                        su_risk = ThisItem.CellRisk
+                                                        If(
+                                                            ThisItem.CellLabel = "Unrated",
+                                                            IsBlank(su_risk),
+                                                            su_risk = ThisItem.CellRisk
+                                                        )
                                                     )
                                                 )
                                             },
@@ -338,7 +366,7 @@ Screens:
                     X: =Parent.Width - 400
                     Y: =Parent.Height - 222
                     Width: =336
-                    Height: =160
+                    Height: =220
                     # Distinct() collapses several gaps on one function to one row,
                     # so these are counts of exposed functions, not of gaps.
                     Text: |
@@ -357,7 +385,13 @@ Screens:
                          ) & Char(10) &
                          "Overdue deadlines                    " & gblHomeOverdue & Char(10) &
                          "Unassigned unit-owner roles     " &
-                         CountRows(Filter(colAllFunctions, IsBlank(su_unitowner)))
+                         CountRows(Filter(colAllFunctions, IsBlank(su_unitowner))) & Char(10) &
+                         "Functions with no risk rating    " &
+                         CountRows(Filter(colAllFunctions, IsBlank(su_risk))) & Char(10) &
+                         "Functions with no risk area      " &
+                         CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) & Char(10) &
+                         "Functions with no domain          " &
+                         CountRows(Filter(colAllFunctions, IsBlank(su_domain)))
                     Fill: =gblTheme.Surface
                     Color: =gblTheme.GrayDark
                     Size: =10
@@ -436,7 +470,11 @@ Screens:
                                     colAllFunctions,
                                     su_riskarea.su_riskareaid
                                         = gblHeatCell.RiskArea.su_riskareaid,
-                                    su_risk = gblHeatCell.Risk
+                                    If(
+                                        gblHeatCell.RiskLabel = "Unrated",
+                                        IsBlank(su_risk),
+                                        su_risk = gblHeatCell.Risk
+                                    )
                                 )
                         Children:
                             - lbl_HeatDrillName:
