@@ -104,6 +104,12 @@ production source.
   and harmless — the v3.0 schema requires the property on a `CanvasComponent`,
   so it stays. Warnings do not block the paste.
 
+**Before pasting anything, run `python3 tools/validate.py`.** It checks the
+component definitions against the pa.yaml v3.0 schema — the seven required
+properties, and the `PropertyKind` and `DataType` enums. Studio reports an
+invalid enum value only as PA1001 "Exception during deserialization" with a line
+and column and no reason; the validator names the property.
+
 **Fastest way to find remaining property errors:** paste
 `ComplianceMatrix.pa.yaml` rather than one file at a time. PA2108 is reported
 per property with a line number, so the whole app surfaces every one in a single

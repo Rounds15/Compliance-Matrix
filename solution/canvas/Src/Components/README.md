@@ -45,6 +45,20 @@ written against the old property fails. Check the specific control supports them
 before relying on it — Studio reports an unsupported property as PA2108 with a
 line number, so a paste tells you immediately.
 
+**`DataType` and `PropertyKind` are closed enums.**
+
+```
+DataType      Text  Number  Boolean  DateAndTime  Screen  Record
+              Table  Image  VideoOrAudio  Color  Currency
+PropertyKind  Input  Output  InputFunction  OutputFunction  Event  Action
+```
+
+There is no `Date` — a date property is `DateAndTime`. Studio reports a bad
+value only as **PA1001 "Exception during deserialization"** with a line and
+column and no explanation, which is expensive to diagnose by pasting. Run
+`python3 tools/validate.py` instead; it checks both enums and the seven required
+properties, and names the offending property.
+
 **`AllowCustomization` raises PA1017 ("ignored in this context").** That warning
 is expected and is left in place deliberately: the v3.0 schema lists it as
 required on a `CanvasComponent`, so removing it to silence a Studio warning

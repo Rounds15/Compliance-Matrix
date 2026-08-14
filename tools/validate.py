@@ -10,6 +10,9 @@ Checks, in order:
   4. every generated .xml file is well-formed
   5. every screen referenced by Navigate() actually exists as a screen file
   6. every component referenced by ComponentName is defined
+  7. component definitions match the pa.yaml v3.0 schema - required properties,
+     and the PropertyKind / DataType enums, which Studio reports only as an
+     unexplained PA1001 with a line and column
 
 This is a static check. It cannot verify Power Fx semantics, control @version
 strings, or delegation behaviour - only `pac` and a real environment can.
@@ -138,6 +141,62 @@ def check_navigation(loaded: dict[pathlib.Path, object]) -> None:
                 missing = True
     if not missing:
         ok(f"{len(screens)} screens, {len(components)} components, all references resolve")
+
+
+# From schemas/pa-yaml/v3.0/pa.schema.yaml in microsoft/PowerApps-Tooling.
+# Studio reports a violation as PA1001 "Exception during deserialization" with a
+# line and column but no explanation, so checking here is much cheaper than
+# discovering it one paste at a time.
+PFX_DATA_TYPES = {
+    "Text", "Number", "Boolean", "DateAndTime", "Screen", "Record", "Table",
+    "Image", "VideoOrAudio", "Color", "Currency",
+}
+PROPERTY_KINDS = {
+    "Input", "Output", "InputFunction", "OutputFunction", "Event", "Action",
+}
+COMPONENT_REQUIRED = [
+    "DefinitionType", "Description", "AllowCustomization", "AccessAppScope",
+    "CustomProperties", "Properties", "Children",
+]
+
+
+def check_components(loaded: dict[pathlib.Path, object]) -> None:
+    """Validate component definitions against the pa.yaml v3.0 schema."""
+    print("\nComponent definitions (pa.yaml v3.0)")
+    found = False
+    clean = True
+    for path, doc in loaded.items():
+        if not isinstance(doc, dict) or "ComponentDefinitions" not in doc:
+            continue
+        found = True
+        rel = path.relative_to(ROOT)
+        for name, comp in (doc["ComponentDefinitions"] or {}).items():
+            missing = [k for k in COMPONENT_REQUIRED if k not in comp]
+            if missing:
+                fail(f"{rel}: {name} missing required {missing}")
+                clean = False
+            if comp.get("DefinitionType") != "CanvasComponent":
+                fail(f"{rel}: {name} DefinitionType "
+                     f"{comp.get('DefinitionType')!r} is not CanvasComponent")
+                clean = False
+            for pname, prop in (comp.get("CustomProperties") or {}).items():
+                kind = prop.get("PropertyKind")
+                if kind not in PROPERTY_KINDS:
+                    fail(f"{rel}: {name}.{pname} PropertyKind {kind!r} "
+                         f"not in {sorted(PROPERTY_KINDS)}")
+                    clean = False
+                dt = prop.get("DataType")
+                if kind in ("Input", "Output") and dt not in PFX_DATA_TYPES:
+                    fail(f"{rel}: {name}.{pname} DataType {dt!r} "
+                         f"not in {sorted(PFX_DATA_TYPES)}")
+                    clean = False
+    if not found:
+        print("  skip  no component definitions found")
+    elif clean:
+        n = sum(len(d["ComponentDefinitions"]) for d in loaded.values()
+                if isinstance(d, dict) and "ComponentDefinitions" in d)
+        print(f"  ok    {n} component(s): required properties, PropertyKind "
+              f"and DataType all valid")
 
 
 def check_seed_refs(loaded: dict[pathlib.Path, object]) -> None:
@@ -282,6 +341,7 @@ def main() -> int:
     loaded = check_yaml()
     check_top_keys(loaded)
     check_comment_syntax()
+    check_components(loaded)
     check_schema_refs(loaded)
     check_seed_refs(loaded)
     check_navigation(loaded)

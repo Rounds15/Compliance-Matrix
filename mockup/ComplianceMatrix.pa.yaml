@@ -240,7 +240,7 @@ ComponentDefinitions:
             DueDate:
                 PropertyKind: Input
                 DisplayName: Due Date
-                DataType: Date
+                DataType: DateAndTime
                 Default: =Today()
             IsComplete:
                 PropertyKind: Input
