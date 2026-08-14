@@ -36,6 +36,9 @@ import sys
 
 import yaml
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from fix_yaml_comments import strip_comments  # noqa: E402
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CANVAS = ROOT / "solution" / "canvas" / "Src"
 SEED = ROOT / "solution" / "schema" / "seed"
@@ -121,6 +124,9 @@ def transform(text: str) -> str:
                 "su_PowerBIDeadlineReportId", "su_PowerBIGapAgingReportId"):
         text = text.replace(var, f'"{var}-not-set"')
 
+    # Studio's Paste code parser rejects YAML comments with PA1001. The
+    # stripper is quote-aware, so hex colours and the inline SVG fills survive.
+    text, _ = strip_comments(text)
     return text
 
 
@@ -491,6 +497,9 @@ def build_app(out: pathlib.Path) -> None:
         "// Theme values come from the Syracuse University Brand Guidelines",
         "// MOCKUP BUILD - runs with no Dataverse connection.\n"
         "// Theme values come from the Syracuse University Brand Guidelines")
+    # Same PA1001 rule applies to the App object. Power Fx `//` comments inside
+    # the OnStart formula are left alone; only YAML `#` comments are removed.
+    text, _ = strip_comments(text)
     (out / "App.fx.yaml").write_text(text, encoding="utf-8")
     print("  App.fx.yaml")
 
@@ -514,9 +523,11 @@ def main(argv: list[str]) -> int:
         print(f"  {dest.relative_to(out)}")
 
     print("\nPaste order in Power Apps Studio:")
-    print("  1. Components/cmp_Shared.fx.yaml  (create the 4 components first)")
-    print("  2. App.fx.yaml OnStart            (paste into the App object)")
-    print("  3. each scr_*.fx.yaml             (right-click screen list, Paste code)")
+    print("  1. Components/cmp_*.fx.yaml  (one file per component, paste whole file)")
+    print("  2. App.fx.yaml OnStart       (paste into the App object, then Run OnStart)")
+    print("  3. each scr_*.fx.yaml        (right-click screen list, Paste code)")
+    print("\nEvery file carries its own root key and is comment-free, so each")
+    print("pastes on its own without editing.")
     return 0
 
 

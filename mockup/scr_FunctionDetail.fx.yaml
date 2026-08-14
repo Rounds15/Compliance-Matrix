@@ -1,15 +1,3 @@
-# =============================================================================
-# Function Detail - the full record
-# =============================================================================
-# Read and edit modes on one screen, plus three write actions that the
-# prototype carried: flag for review, log a gap, and manage the ownership
-# chain. Layout is a main column with a sticky right rail (record status,
-# take action, counsel of record, related functions).
-#
-# Saving an owner change also rewrites the copied owner field on every child
-# deadline row. That denormalization is deliberate and is what the save
-# confirmation reports back to the user.
-# =============================================================================
 
 Screens:
 
@@ -90,7 +78,6 @@ Screens:
                     ActiveScreen: ="Functions"
                     OpenGapCount: =gblOpenGapCount
 
-            # ---- breadcrumb -------------------------------------------------
             - btn_FdBack:
                 Control: Classic/Button@2.2.0
                 Properties:
@@ -122,7 +109,6 @@ Screens:
                     VerticalAlign: =VerticalAlign.Middle
                     Font: =gblTheme.FontBody
 
-            # ---- navy record header ----------------------------------------
             - rec_FdHead:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -233,7 +219,6 @@ Screens:
                     VerticalAlign: =VerticalAlign.Middle
                     Font: =gblTheme.FontBody
 
-            # ---- edit-mode save / cancel ------------------------------------
             - btn_FdSave:
                 Control: Classic/Button@2.2.0
                 Properties:
@@ -243,8 +228,6 @@ Screens:
                     Height: =40
                     Text: ="Save changes"
                     Visible: =gblFdMode = "edit"
-                    # Patch the function, then rewrite the copied owner and risk
-                    # fields on every child deadline so list views stay consistent.
                     OnSelect: |
                         =Patch(
                             dsFunctions,
@@ -330,9 +313,6 @@ Screens:
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
 
-            # =================================================================
-            # ACTION PANELS
-            # =================================================================
             - cnt_FlagPanel:
                 Control: GroupContainer@1.5.0
                 Variant: ManualLayout
@@ -663,9 +643,6 @@ Screens:
                             FontWeight: =FontWeight.Semibold
                             Font: =gblTheme.FontBody
 
-            # =================================================================
-            # MAIN COLUMN
-            # =================================================================
             - cnt_FdMain:
                 Control: GroupContainer@1.5.0
                 Variant: ManualLayout
@@ -678,7 +655,6 @@ Screens:
                     Fill: =RGBA(0, 0, 0, 0)
                 Children:
 
-                    # ---- flag banner ------------------------------------
                     - rec_FdFlagBanner:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -739,9 +715,6 @@ Screens:
                             FontWeight: =FontWeight.Semibold
                             Font: =gblTheme.FontBody
 
-                    # =========================================================
-                    # READ MODE
-                    # =========================================================
                     - cnt_FdRead:
                         Control: GroupContainer@1.5.0
                         Variant: AutoLayout
@@ -914,7 +887,6 @@ Screens:
                                             DueDate: =ThisItem.su_duedate
                                             IsComplete: =ThisItem.su_complete
 
-                            # ---- ownership chain --------------------------
                             - lbl_FdOwnershipHead:
                                 Control: Label@2.5.1
                                 Properties:
@@ -934,8 +906,6 @@ Screens:
                                     TemplateSize: =Parent.Width / 3 - 8
                                     TemplatePadding: =12
                                     ShowScrollbar: =false
-                                    # One container per role tier; the inner gallery
-                                    # lists every person holding that role.
                                     Items: |
                                         =Table(
                                             {
@@ -1076,7 +1046,6 @@ Screens:
                                                     Filter(colFdOwnership, su_role = ThisItem.RoleKey)
                                                 ) = 0
 
-                            # ---- gap history ------------------------------
                             - lbl_FdGapHead:
                                 Control: Label@2.5.1
                                 Properties:
@@ -1247,9 +1216,6 @@ Screens:
                                     FontWeight: =FontWeight.Semibold
                                     Font: =gblTheme.FontBody
 
-                    # =========================================================
-                    # EDIT MODE
-                    # =========================================================
                     - cnt_FdEdit:
                         Control: GroupContainer@1.5.0
                         Variant: AutoLayout
@@ -1342,9 +1308,6 @@ Screens:
                                 Properties:
                                     Height: =42
                                     Width: =Parent.Width
-                                    # Combo box rather than a dropdown: 61 domains
-                                    # is past the point where scrolling a plain
-                                    # list is usable, and this one is searchable.
                                     Items: =colDomains
                                     DefaultSelectedItems: |
                                         =If(
@@ -1369,7 +1332,6 @@ Screens:
                                 Properties:
                                     Height: =22
                                     Width: =Parent.Width
-                                    # Read-only: risk area follows the domain.
                                     Text: |
                                         =If(
                                             IsBlank(drp_FdDomain.Selected),
@@ -1543,9 +1505,6 @@ Screens:
                                     Size: =11
                                     Font: =gblTheme.FontBody
 
-            # =================================================================
-            # RIGHT RAIL
-            # =================================================================
             - cnt_FdRail:
                 Control: GroupContainer@1.5.0
                 Variant: AutoLayout
@@ -1700,7 +1659,6 @@ Screens:
                             FontWeight: =FontWeight.Semibold
                             Font: =gblTheme.FontBody
 
-            # ---- toast ------------------------------------------------------
             - rec_FdToast:
                 Control: Rectangle@2.3.0
                 Properties:

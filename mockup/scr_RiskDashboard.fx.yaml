@@ -1,17 +1,3 @@
-# =============================================================================
-# Risk Dashboard - administrator only
-# =============================================================================
-# The canvas half of the hybrid dashboard: interactive, drillable, and always
-# live against Dataverse. The Power BI half lives on scr_Reporting and carries
-# the historical trend analysis that a canvas app cannot do well.
-#
-# The split is deliberate:
-#   canvas   -> current state, click-through to the record, write actions
-#   Power BI -> aggregation over time, gap-aging curves, executive distribution
-#
-# Heat map cells are shaded by count within the risk colour, matching the
-# prototype. Selecting a cell lists the functions behind it.
-# =============================================================================
 
 Screens:
 
@@ -66,7 +52,6 @@ Screens:
                     Subtitle: |
                         ="The executive risk picture: where the institution's critical and high-risk obligations sit, and how gaps and deadlines cluster against them."
 
-            # ---- risk distribution tiles -------------------------------------
             - gal_RiskStats:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -162,7 +147,6 @@ Screens:
                             Size: =8
                             Font: =gblTheme.FontBody
 
-            # ---- heat map ------------------------------------------------------
             - lbl_HeatHead:
                 Control: Label@2.5.1
                 Properties:
@@ -240,7 +224,6 @@ Screens:
                                     Y: =1
                                     Width: =Parent.TemplateWidth - 2
                                     Height: =34
-                                    # Fade from 0.68 (dense) to near-white (sparse).
                                     Fill: |
                                         =With(
                                             {
@@ -347,7 +330,6 @@ Screens:
                             VerticalAlign: =VerticalAlign.Middle
                             Font: =gblTheme.FontBody
 
-            # ---- exposure signals ----------------------------------------------
             - lbl_SignalsHead:
                 Control: Label@2.5.1
                 Properties:
@@ -367,8 +349,6 @@ Screens:
                     Y: =Parent.Height - 222
                     Width: =336
                     Height: =220
-                    # Distinct() collapses several gaps on one function to one row,
-                    # so these are counts of exposed functions, not of gaps.
                     Text: |
                         ="Functions with an open gap        " &
                          CountRows(Distinct(colOpenGaps, su_function.su_compliancefunctionid)) &
@@ -397,9 +377,6 @@ Screens:
                     Size: =10
                     Font: =gblTheme.FontBody
 
-            # =================================================================
-            # CELL DRILL-DOWN
-            # =================================================================
             - rec_HeatScrim:
                 Control: Rectangle@2.3.0
                 Properties:

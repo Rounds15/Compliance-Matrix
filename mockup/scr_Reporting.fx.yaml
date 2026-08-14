@@ -1,25 +1,3 @@
-# =============================================================================
-# Reporting - the Power BI half of the hybrid dashboard
-# =============================================================================
-# The matrix is the system of record; Power BI is the visualization layer.
-# Reports connect straight to the Dataverse tables, so what leadership sees is
-# never a stale copy.
-#
-# The PowerBI control renders a published report tile inline. Two things must
-# be configured in the target environment before it displays:
-#   1. the workspace and report must exist and the viewer must have access
-#   2. the report GUIDs below must be supplied as environment variables, so the
-#      same solution promotes from dev to test to prod without an edit
-#
-# Environment variables consumed here (defined in the solution):
-#   "su_PowerBIWorkspaceId-not-set"
-#   "su_PowerBIExecutiveReportId-not-set"
-#   "su_PowerBIDeadlineReportId-not-set"
-#   "su_PowerBIGapAgingReportId-not-set"
-#
-# Row-level security in the semantic model filters by the ownership chain, so
-# an executive sees only their portfolio without a separate report.
-# =============================================================================
 
 Screens:
 
@@ -78,7 +56,6 @@ Screens:
                     FontWeight: =FontWeight.Bold
                     Font: =gblTheme.FontBody
 
-            # ---- tabs ---------------------------------------------------------
             - btn_RptTabEmbed:
                 Control: Classic/Button@2.2.0
                 Properties:
@@ -121,7 +98,6 @@ Screens:
                     Fill: =gblTheme.Border
                     BorderThickness: =0
 
-            # ---- embedded report -----------------------------------------------
             - rec_PbiPlaceholder:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -164,7 +140,6 @@ Screens:
                     VerticalAlign: =VerticalAlign.Middle
                     Font: =gblTheme.FontBody
 
-            # ---- report catalogue ------------------------------------------------
             - gal_RptCatalogue:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -253,7 +228,6 @@ Screens:
                             FontWeight: =FontWeight.Semibold
                             Font: =gblTheme.FontBody
 
-            # ---- datasets and connection ------------------------------------------
             - lbl_RptConnNote:
                 Control: Label@2.5.1
                 Properties:

@@ -1,0 +1,61 @@
+ComponentDefinitions:
+
+    cmp_PageHead:
+        DefinitionType: CanvasComponent
+        CustomProperties:
+            Eyebrow:
+                PropertyKind: Input
+                DisplayName: Eyebrow
+                DataType: Text
+                Default: ="Browse"
+            Title:
+                PropertyKind: Input
+                DisplayName: Title
+                DataType: Text
+                Default: ="Page title"
+            Subtitle:
+                PropertyKind: Input
+                DisplayName: Subtitle
+                DataType: Text
+                Default: =""
+        Properties:
+            Height: =124
+            Width: =1000
+            Fill: =RGBA(0, 0, 0, 0)
+        Children:
+            - lbl_Eyebrow:
+                Control: Label@2.5.1
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =18
+                    Text: =Upper(cmp_PageHead.Eyebrow)
+                    Color: =gblTheme.OrangeDark
+                    Size: =8
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - lbl_Title:
+                Control: Label@2.5.1
+                Properties:
+                    X: =0
+                    Y: =22
+                    Width: =Parent.Width
+                    Height: =46
+                    Text: =cmp_PageHead.Title
+                    Color: =gblTheme.Navy
+                    Size: =26
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontDisplay
+            - lbl_Subtitle:
+                Control: Label@2.5.1
+                Properties:
+                    X: =0
+                    Y: =72
+                    Width: =Min(Parent.Width, 760)
+                    Height: =46
+                    Text: =cmp_PageHead.Subtitle
+                    Color: =gblTheme.GrayMid
+                    Size: =11
+                    Font: =gblTheme.FontBody
+                    Visible: =!IsBlank(cmp_PageHead.Subtitle)

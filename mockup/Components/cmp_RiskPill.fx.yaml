@@ -1,0 +1,73 @@
+ComponentDefinitions:
+
+    cmp_RiskPill:
+        DefinitionType: CanvasComponent
+        CustomProperties:
+            Risk:
+                PropertyKind: Input
+                DisplayName: Risk
+                Description: >-
+                    High, Moderate, or Low. Anything else - including blank -
+                    renders as Unrated.
+                DataType: Text
+                Default: =""
+            RiskColor:
+                PropertyKind: Output
+                DisplayName: Risk Color
+                DataType: Color
+            RiskLabel:
+                PropertyKind: Output
+                DisplayName: Risk Label
+                DataType: Text
+        Properties:
+            Height: =24
+            Width: =74
+            Fill: =RGBA(0, 0, 0, 0)
+            RiskColor: |
+                =Switch(
+                    cmp_RiskPill.Risk,
+                    "High",     gblTheme.High,
+                    "Moderate", gblTheme.Moderate,
+                    "Low",      gblTheme.Low,
+                    gblTheme.Unrated
+                )
+            RiskLabel: |
+                =If(
+                    cmp_RiskPill.Risk in ["High", "Moderate", "Low"],
+                    cmp_RiskPill.Risk,
+                    "Unrated"
+                )
+        Children:
+            - rec_RiskBg:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =Parent.Height
+                    Fill: =ColorFade(cmp_RiskPill.RiskColor, 0.88)
+                    BorderRadius: =4
+                    BorderThickness: =0
+            - rec_RiskDot:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =8
+                    Y: =(Parent.Height - 7) / 2
+                    Width: =7
+                    Height: =7
+                    Fill: =cmp_RiskPill.RiskColor
+                    BorderRadius: =2
+                    BorderThickness: =0
+            - lbl_RiskText:
+                Control: Label@2.5.1
+                Properties:
+                    X: =19
+                    Y: =0
+                    Width: =Parent.Width - 22
+                    Height: =Parent.Height
+                    Text: =cmp_RiskPill.RiskLabel
+                    Color: =cmp_RiskPill.RiskColor
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody

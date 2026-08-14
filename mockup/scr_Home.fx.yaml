@@ -1,15 +1,3 @@
-# =============================================================================
-# Home - the way in for every audience
-# =============================================================================
-# Answers the question the hero asks: who is responsible for what, and are we
-# on top of it. Three bands:
-#   1. hero with the matrix-wide search
-#   2. institution figures (functions, risk areas, due in 90 days, past due)
-#   3. six destination cards, then the signed-in user's own assignments
-#
-# Counts are aggregated server-side with CountRows(Filter(...)) rather than
-# pulled into collections, so they stay accurate at the full matrix size.
-# =============================================================================
 
 Screens:
 
@@ -104,7 +92,6 @@ Screens:
                     ActiveScreen: ="Home"
                     OpenGapCount: =gblOpenGapCount
 
-            # ---- scrolling body -------------------------------------------
             - cnt_HomeScroll:
                 Control: GroupContainer@1.5.0
                 Variant: ManualLayout
@@ -116,7 +103,6 @@ Screens:
                     Fill: =gblTheme.White
                 Children:
 
-                    # ---- hero --------------------------------------------
                     - rec_HeroBg:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -189,8 +175,6 @@ Screens:
                             Width: =120
                             Height: =46
                             Text: ="Search"
-                            # Seeds the shared filter record, then hands off to the
-                            # Functions screen which owns all filtering.
                             OnSelect: |
                                 =Set(
                                     gblFilter,
@@ -226,7 +210,6 @@ Screens:
                                      </svg>"
                                 )
 
-                    # ---- figures band ------------------------------------
                     - rec_BandBg:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -290,7 +273,6 @@ Screens:
                             Y: =374
                             Width: =236
                             Height: =60
-                            # Fiscal year starts July 1, so Q1 is Jul-Sep.
                             Text: |
                                 ="As of " & Text(gblToday, "mmm d, yyyy") & Char(10) &
                                  "FY" & Text(
@@ -304,7 +286,6 @@ Screens:
                             Align: =Align.Right
                             Font: =gblTheme.FontBody
 
-                    # ---- destination cards -------------------------------
                     - lbl_StartHere:
                         Control: Label@2.5.1
                         Properties:
@@ -447,7 +428,6 @@ Screens:
                                             "RiskDashboard", Navigate(scr_RiskDashboard, ScreenTransition.None)
                                         )
 
-                    # ---- assigned to you ---------------------------------
                     - lbl_AssignedHead:
                         Control: Label@2.5.1
                         Properties:
@@ -597,7 +577,6 @@ Screens:
                             Font: =gblTheme.FontBody
                             Visible: =CountRows(colMyFunctions) = 0
 
-                    # ---- next deadlines rail -----------------------------
                     - rec_DeadlineRail:
                         Control: Rectangle@2.3.0
                         Properties:

@@ -1,11 +1,3 @@
-# =============================================================================
-# No Access - shown when a non-administrator reaches a gated screen
-# =============================================================================
-# Risk and Reporting is limited to compliance office staff carrying an
-# Administrator row in su_appadmin. This screen is the app's courtesy message;
-# the actual protection is the Dataverse security role, which prevents reading
-# the underlying rows regardless of which screen someone reaches.
-# =============================================================================
 
 Screens:
 

@@ -1,10 +1,3 @@
-# =============================================================================
-# Compliance Directory - the people layer
-# =============================================================================
-# Every owner in an ownership chain, with title, unit, and contact details.
-# Selecting a person shows their full ownership portfolio, resolved through the
-# junction table so it spans all three role tiers.
-# =============================================================================
 
 Screens:
 
@@ -76,7 +69,6 @@ Screens:
                     VerticalAlign: =VerticalAlign.Middle
                     Font: =gblTheme.FontBody
 
-            # ---- people cards -------------------------------------------------
             - gal_Directory:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -117,9 +109,6 @@ Screens:
                             Y: =16
                             Width: =44
                             Height: =44
-                            # Initials avatar. The prototype hashed the name to pick
-                            # a colour; here the palette is keyed off name length so
-                            # the same person always gets the same tile.
                             Text: |
                                 =Left(ThisItem.su_name, 1) &
                                  Left(Last(Split(ThisItem.su_name, " ")).Value, 1)
@@ -222,9 +211,6 @@ Screens:
                             BorderThickness: =0
                             OnSelect: =Set(gblDirSel, ThisItem)
 
-            # =================================================================
-            # PERSON DETAIL
-            # =================================================================
             - rec_DirScrim:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -316,8 +302,6 @@ Screens:
                             TemplateSize: =58
                             TemplatePadding: =0
                             ShowScrollbar: =true
-                            # Portfolio comes from the junction, so a person who is
-                            # Advisory on a function appears here too.
                             Items: |
                                 =Filter(
                                     dsOwnership,
@@ -479,9 +463,6 @@ Screens:
                                     Fill: =RGBA(0, 0, 0, 0)
                                     HoverFill: =RGBA(0, 14, 84, 0.05)
                                     BorderThickness: =0
-                                    # Assessment screens are administrator-gated,
-                                    # so non-admins get the courtesy screen rather
-                                    # than a dead chip.
                                     OnSelect: |
                                         =Set(gblSelectedAssessment, ThisItem.su_assessment);
                                         Set(gblDirSel, Blank());

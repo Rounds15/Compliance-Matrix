@@ -1,16 +1,3 @@
-# =============================================================================
-# Compliance Functions - the searchable register
-# =============================================================================
-# Search by name, statute, or code; filter by risk area and risk; page through in
-# table or card view. Selecting a row opens the full record.
-#
-# Delegation note: Dataverse does not delegate `in` (substring) across an Or()
-# of several columns. The search box therefore uses StartsWith on the indexed
-# columns, which IS delegable, and the topic/risk filters are plain equality.
-# At 404 rows the whole set is well inside the 2,000-row limit either way, but
-# keeping the query delegable means the screen still behaves if the matrix
-# grows past that.
-# =============================================================================
 
 Screens:
 
@@ -50,7 +37,6 @@ Screens:
                     Subtitle: |
                         ="Every obligation in the matrix. Search by name, statute, citation, or function ID; filter by risk area and risk rating. Select a function to view or edit the full record."
 
-            # ---- filter bar ------------------------------------------------
             - txt_FnSearch:
                 Control: Classic/TextInput@2.3.2
                 Properties:
@@ -140,7 +126,6 @@ Screens:
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
 
-            # ---- table header ----------------------------------------------
             - rec_FnTableHead:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -186,7 +171,6 @@ Screens:
                             VerticalAlign: =VerticalAlign.Middle
                             Font: =gblTheme.FontBody
 
-            # ---- results ---------------------------------------------------
             - gal_Functions:
                 Control: Gallery@2.15.0
                 Variant: Vertical
@@ -199,8 +183,6 @@ Screens:
                     TemplatePadding: =If(gblFnView = "table", 0, 16)
                     WrapCount: =If(gblFnView = "table", 1, 3)
                     ShowScrollbar: =true
-                    # Filter first, then page. Sorting on the public function code
-                    # keeps paging stable as records are edited.
                     Items: |
                         =With(
                             {
@@ -386,7 +368,6 @@ Screens:
                                 =Set(gblSelectedFunction, ThisItem);
                                 Navigate(scr_FunctionDetail, ScreenTransition.None)
 
-            # ---- empty state -----------------------------------------------
             - lbl_FnEmpty:
                 Control: Label@2.5.1
                 Properties:
@@ -403,7 +384,6 @@ Screens:
                     Font: =gblTheme.FontBody
                     Visible: =CountRows(gal_Functions.AllItems) = 0
 
-            # ---- pager -----------------------------------------------------
             - btn_FnPrev:
                 Control: Classic/Button@2.2.0
                 Properties:
@@ -442,7 +422,6 @@ Screens:
                     Width: =110
                     Height: =40
                     Text: ="Next"
-                    # Disabled once a short page proves the result set is exhausted.
                     OnSelect: =Set(gblFnPage, gblFnPage + 1)
                     DisplayMode: |
                         =If(

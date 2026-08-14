@@ -21,15 +21,23 @@ Studio pastes into an existing container, so order matters.
 
 ### 1. Components first
 
-Insert → **New component** four times, naming them exactly:
+There are four files in `Components/`, one per component. Each carries its own
+`ComponentDefinitions:` root and is comment-free, so you paste the **whole file**
+with no editing:
 
 `cmp_RiskPill` · `cmp_DuePill` · `cmp_PageHead` · `cmp_Header`
 
-Then open `Components/cmp_Shared.fx.yaml`, and for each component copy its block
-(from `cmp_X:` down to just before the next component) and paste into the
-matching component in the tree view (right-click → **Paste code**).
+In Studio, go to the **Components** tab in the tree view, right-click → **Paste
+code**, and paste one file. Repeat for the other three.
 
-The names must match — every screen references them by name.
+Two things that will otherwise bite:
+
+- A component block pasted **without** the `ComponentDefinitions:` root fails —
+  Studio needs the wrapper to know what it is receiving.
+- Any `#` comment in the pasted YAML raises **PA1001**. Every file here is
+  stripped; if you add comments while tuning, remove them before re-pasting.
+
+Names must match exactly — every screen references them by name.
 
 ### 2. App OnStart
 
@@ -61,6 +69,11 @@ Screen names must match — `Navigate()` calls reference them directly.
 | `PowerBI@1.4.0` control | placeholder panel |
 | Dataverse user lookup | `gblMe` pinned to a seeded person |
 | `gblIsAdmin` from `su_appadmin` | forced `true`, so gated screens are reachable |
+| YAML `#` comments | stripped — Studio's paste parser raises PA1001 |
+
+The comment stripper is quote-aware. Hex colours (`"#DC2626"`) and the inline
+SVG fills (`fill='#F76900'`) are inside quotes and survive; only real comments
+are removed. Power Fx `//` comments inside formulas are left alone.
 
 The `ds` prefix avoids a trap: the screens already declare `colFunctions`,
 `colDeadlines` and so on, and reusing those names would produce

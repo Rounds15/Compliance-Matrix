@@ -1,14 +1,3 @@
-# =============================================================================
-# Domains - the flat view across all risk areas
-# =============================================================================
-# For users who think in domains rather than risk areas. Reads the su_domain
-# table directly, so all 61 domains appear regardless of which risk area they
-# sit under and regardless of whether they carry any functions yet.
-#
-# A domain with zero functions is called out rather than hidden: that is the
-# coverage gap the office wants surfaced, and the old text-derived Areas screen
-# structurally could not show it.
-# =============================================================================
 
 Screens:
 
@@ -115,7 +104,6 @@ Screens:
                     VerticalAlign: =VerticalAlign.Middle
                     Font: =gblTheme.FontBody
 
-            # ---- domain tiles ------------------------------------------------
             - gal_Domains:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -254,7 +242,6 @@ Screens:
                             BorderThickness: =0
                             OnSelect: =Set(gblDomainSel, ThisItem)
 
-            # ---- functions in the selected domain ----------------------------
             - gal_DomFunctions:
                 Control: Gallery@2.15.0
                 Variant: Vertical

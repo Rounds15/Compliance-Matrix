@@ -67,6 +67,52 @@ def convert(text: str) -> tuple[str, int]:
     return "\n".join(out), changed
 
 
+def strip_comments(text: str) -> tuple[str, int]:
+    """
+    Remove YAML comments, leaving anything inside a quoted string alone.
+
+    Power Apps Studio's "Paste code" parser rejects `#` comments with PA1001,
+    so paste-ready output has to be comment-free. A naive strip would corrupt
+    this app badly: the theme is built from hex colours ("#DC2626") and the
+    icons are inline SVG carrying fill='#F76900'. Both live inside quotes.
+
+    A `#` opens a comment only when it is outside quotes AND either starts the
+    line or is preceded by whitespace - the same rule the YAML spec uses.
+    Returns (text, lines_changed).
+    """
+    out: list[str] = []
+    changed = 0
+
+    for line in text.split("\n"):
+        in_single = in_double = False
+        cut = None
+        for i, ch in enumerate(line):
+            if ch == "'" and not in_double:
+                in_single = not in_single
+            elif ch == '"' and not in_single:
+                in_double = not in_double
+            elif ch == "#" and not in_single and not in_double:
+                if i == 0 or line[i - 1] in " \t":
+                    cut = i
+                    break
+        if cut is None:
+            out.append(line)
+            continue
+        changed += 1
+        stripped = line[:cut].rstrip()
+        # A whole-line comment disappears; a trailing one leaves its code behind.
+        if stripped:
+            out.append(stripped)
+
+    # Collapse the blank runs that removing comment blocks leaves behind.
+    collapsed: list[str] = []
+    for line in out:
+        if not line.strip() and collapsed and not collapsed[-1].strip():
+            continue
+        collapsed.append(line)
+    return "\n".join(collapsed), changed
+
+
 def iter_files(targets: list[pathlib.Path]):
     for t in targets:
         if t.is_dir():

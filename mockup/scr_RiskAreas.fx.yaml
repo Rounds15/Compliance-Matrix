@@ -1,15 +1,3 @@
-# =============================================================================
-# Risk Areas - two-level drill: risk area, then domain, then function
-# =============================================================================
-# ERM's term for what the prototype called topics. 13 risk areas, each holding
-# a set of domains, each holding functions.
-#
-# The middle level now reads the su_domain table rather than distinct text
-# values off the function row. That matters: a domain with no functions yet
-# still appears, which is exactly the coverage gap leadership wants to see.
-# The old text-derived approach could only ever show domains that already had
-# work in them.
-# =============================================================================
 
 Screens:
 
@@ -34,7 +22,6 @@ Screens:
                     ActiveScreen: ="RiskAreas"
                     OpenGapCount: =gblOpenGapCount
 
-            # ---- breadcrumb -------------------------------------------------
             - btn_RaCrumbRoot:
                 Control: Classic/Button@2.2.0
                 Properties:
@@ -117,7 +104,6 @@ Screens:
                             ) & " functions in this domain."
                         )
 
-            # ---- level 1: risk area tiles -----------------------------------
             - gal_RiskAreaTiles:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -151,8 +137,6 @@ Screens:
                             Y: =0
                             Width: =Parent.TemplateWidth
                             Height: =5
-                            # su_colorhex carries the ERM brand colour per risk
-                            # area; fall back to SU blue where it is unset.
                             Fill: |
                                 =If(
                                     IsBlank(ThisItem.su_colorhex),
@@ -203,8 +187,6 @@ Screens:
                             Y: =98
                             Width: =68
                             Height: =38
-                            # Live row count, not a published figure: the matrix
-                            # is now the system of record.
                             Text: |
                                 =CountRows(
                                     Filter(
@@ -230,9 +212,6 @@ Screens:
                             BorderThickness: =0
                             OnSelect: =Set(gblRiskAreaSel, ThisItem); Set(gblRaDomainSel, Blank())
 
-            # ---- unassigned functions -----------------------------------------
-            # su_riskarea is Recommended, not Required. One live function has no
-            # risk area; without this tile it would be invisible on this screen.
             - rec_RaUnassigned:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -269,7 +248,6 @@ Screens:
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
 
-            # ---- level 2: domain tiles ---------------------------------------
             - gal_RaDomains:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -387,7 +365,6 @@ Screens:
                             BorderThickness: =0
                             OnSelect: =Set(gblRaDomainSel, ThisItem)
 
-            # ---- level 3: functions in the domain ----------------------------
             - gal_RaFunctions:
                 Control: Gallery@2.15.0
                 Variant: Vertical

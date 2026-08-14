@@ -1,252 +1,5 @@
-# =============================================================================
-# Shared canvas components
-# =============================================================================
-# cmp_RiskPill    - the risk / severity chip used on every list and detail view
-# cmp_DuePill     - deadline status chip (Complete / Overdue Nd / Due in Nd)
-# cmp_PageHead    - eyebrow + title + supporting copy block
-# cmp_Header      - university utility bar, lockup, and primary navigation
-#
-# Icons are inline SVG on Image controls rather than the classic icon set, so
-# stroke colour and weight match the prototype's 1.8px line icons exactly.
-# =============================================================================
-
 ComponentDefinitions:
 
-    # -------------------------------------------------------------------------
-    cmp_RiskPill:
-        DefinitionType: CanvasComponent
-        CustomProperties:
-            Risk:
-                PropertyKind: Input
-                DisplayName: Risk
-                Description: >-
-                    High, Moderate, or Low. Anything else - including blank -
-                    renders as Unrated.
-                DataType: Text
-                Default: =""
-            RiskColor:
-                PropertyKind: Output
-                DisplayName: Risk Color
-                DataType: Color
-            RiskLabel:
-                PropertyKind: Output
-                DisplayName: Risk Label
-                DataType: Text
-        Properties:
-            Height: =24
-            Width: =74
-            Fill: =RGBA(0, 0, 0, 0)
-            # Resolved once here so the three child controls cannot drift apart.
-            # su_risk is Recommended, not Required, and is empty on most rows in
-            # the live data, so blank is a first-class state rather than a
-            # fall-through to Low.
-            RiskColor: |
-                =Switch(
-                    cmp_RiskPill.Risk,
-                    "High",     gblTheme.High,
-                    "Moderate", gblTheme.Moderate,
-                    "Low",      gblTheme.Low,
-                    gblTheme.Unrated
-                )
-            RiskLabel: |
-                =If(
-                    cmp_RiskPill.Risk in ["High", "Moderate", "Low"],
-                    cmp_RiskPill.Risk,
-                    "Unrated"
-                )
-        Children:
-            - rec_RiskBg:
-                Control: Rectangle@2.3.0
-                Properties:
-                    X: =0
-                    Y: =0
-                    Width: =Parent.Width
-                    Height: =Parent.Height
-                    # 12% tint of the risk colour, matching the prototype's chips.
-                    Fill: =ColorFade(cmp_RiskPill.RiskColor, 0.88)
-                    BorderRadius: =4
-                    BorderThickness: =0
-            - rec_RiskDot:
-                Control: Rectangle@2.3.0
-                Properties:
-                    X: =8
-                    Y: =(Parent.Height - 7) / 2
-                    Width: =7
-                    Height: =7
-                    Fill: =cmp_RiskPill.RiskColor
-                    BorderRadius: =2
-                    BorderThickness: =0
-            - lbl_RiskText:
-                Control: Label@2.5.1
-                Properties:
-                    X: =19
-                    Y: =0
-                    Width: =Parent.Width - 22
-                    Height: =Parent.Height
-                    Text: =cmp_RiskPill.RiskLabel
-                    Color: =cmp_RiskPill.RiskColor
-                    Size: =9
-                    FontWeight: =FontWeight.Bold
-                    VerticalAlign: =VerticalAlign.Middle
-                    Font: =gblTheme.FontBody
-
-    # -------------------------------------------------------------------------
-    cmp_DuePill:
-        DefinitionType: CanvasComponent
-        CustomProperties:
-            DueDate:
-                PropertyKind: Input
-                DisplayName: Due Date
-                DataType: Date
-                Default: =Today()
-            IsComplete:
-                PropertyKind: Input
-                DisplayName: Is Complete
-                DataType: Boolean
-                Default: =false
-            DayDiff:
-                PropertyKind: Output
-                DisplayName: Day Diff
-                DataType: Number
-            StatusLabel:
-                PropertyKind: Output
-                DisplayName: Status Label
-                DataType: Text
-            HasDueDate:
-                PropertyKind: Output
-                DisplayName: Has Due Date
-                DataType: Boolean
-            DueColor:
-                PropertyKind: Output
-                DisplayName: Due Color
-                DataType: Color
-        Properties:
-            Height: =24
-            Width: =104
-            Fill: =RGBA(0, 0, 0, 0)
-            # Only Fixed Recurring deadlines carry a date. Event-Relative,
-            # Ongoing, and Conditional rows have su_duedate blank, and
-            # DateDiff against a blank returns a nonsense figure - the pill
-            # rendered "Overdue 46000d" before this guard. Those rows show
-            # "No fixed date" and the caller renders trigger/offset instead.
-            HasDueDate: =!IsBlank(cmp_DuePill.DueDate)
-            # Mirrors dueState() in the prototype: no date, then complete,
-            # then overdue, then the 30 / 90 day warning bands.
-            DayDiff: |
-                =If(
-                    cmp_DuePill.HasDueDate,
-                    DateDiff(gblToday, cmp_DuePill.DueDate, TimeUnit.Days),
-                    0
-                )
-            StatusLabel: |
-                =If(
-                    !cmp_DuePill.HasDueDate,
-                    "No fixed date",
-                    cmp_DuePill.IsComplete,
-                    "Complete",
-                    cmp_DuePill.DayDiff < 0,
-                    "Overdue " & Abs(cmp_DuePill.DayDiff) & "d",
-                    "Due in " & cmp_DuePill.DayDiff & "d"
-                )
-            DueColor: |
-                =If(
-                    !cmp_DuePill.HasDueDate,             gblTheme.GrayMid,
-                    cmp_DuePill.IsComplete,              gblTheme.Low,
-                    cmp_DuePill.DayDiff < 0,             gblTheme.High,
-                    cmp_DuePill.DayDiff <= 30,           gblTheme.Moderate,
-                    cmp_DuePill.DayDiff <= 90,           gblTheme.OrangeDark,
-                    gblTheme.GrayMid
-                )
-        Children:
-            - rec_DueBg:
-                Control: Rectangle@2.3.0
-                Properties:
-                    X: =0
-                    Y: =0
-                    Width: =Parent.Width
-                    Height: =Parent.Height
-                    Fill: =ColorFade(cmp_DuePill.DueColor, 0.88)
-                    BorderRadius: =4
-                    BorderThickness: =0
-            - lbl_DueText:
-                Control: Label@2.5.1
-                Properties:
-                    X: =0
-                    Y: =0
-                    Width: =Parent.Width
-                    Height: =Parent.Height
-                    Text: =cmp_DuePill.StatusLabel
-                    Color: =cmp_DuePill.DueColor
-                    Size: =9
-                    FontWeight: =FontWeight.Bold
-                    Align: =Align.Center
-                    VerticalAlign: =VerticalAlign.Middle
-                    Font: =gblTheme.FontBody
-
-    # -------------------------------------------------------------------------
-    cmp_PageHead:
-        DefinitionType: CanvasComponent
-        CustomProperties:
-            Eyebrow:
-                PropertyKind: Input
-                DisplayName: Eyebrow
-                DataType: Text
-                Default: ="Browse"
-            Title:
-                PropertyKind: Input
-                DisplayName: Title
-                DataType: Text
-                Default: ="Page title"
-            Subtitle:
-                PropertyKind: Input
-                DisplayName: Subtitle
-                DataType: Text
-                Default: =""
-        Properties:
-            Height: =124
-            Width: =1000
-            Fill: =RGBA(0, 0, 0, 0)
-        Children:
-            - lbl_Eyebrow:
-                Control: Label@2.5.1
-                Properties:
-                    X: =0
-                    Y: =0
-                    Width: =Parent.Width
-                    Height: =18
-                    Text: =Upper(cmp_PageHead.Eyebrow)
-                    Color: =gblTheme.OrangeDark
-                    Size: =8
-                    FontWeight: =FontWeight.Bold
-                    Font: =gblTheme.FontBody
-            - lbl_Title:
-                Control: Label@2.5.1
-                Properties:
-                    X: =0
-                    Y: =22
-                    Width: =Parent.Width
-                    Height: =46
-                    Text: =cmp_PageHead.Title
-                    Color: =gblTheme.Navy
-                    Size: =26
-                    FontWeight: =FontWeight.Bold
-                    Font: =gblTheme.FontDisplay
-            - lbl_Subtitle:
-                Control: Label@2.5.1
-                Properties:
-                    X: =0
-                    Y: =72
-                    Width: =Min(Parent.Width, 760)
-                    Height: =46
-                    Text: =cmp_PageHead.Subtitle
-                    Color: =gblTheme.GrayMid
-                    Size: =11
-                    Font: =gblTheme.FontBody
-                    Visible: =!IsBlank(cmp_PageHead.Subtitle)
-
-    # -------------------------------------------------------------------------
-    # Primary navigation. Risk and Reporting only renders for administrators;
-    # the screens themselves also gate, so the nav is convenience, not security.
     cmp_Header:
         DefinitionType: CanvasComponent
         CustomProperties:
@@ -265,7 +18,6 @@ ComponentDefinitions:
             Width: =1366
             Fill: =RGBA(0, 0, 0, 0)
         Children:
-            # ---- utility bar ------------------------------------------------
             - rec_UtilBar:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -337,13 +89,11 @@ ComponentDefinitions:
                     Y: =0
                     Width: =132
                     Height: =32
-                    # Real role from Dataverse. The prototype's role switcher was a
-                    # demo affordance and is deliberately not carried over.
                     Text: |
                         ="Signed in as " & Switch(
                             gblRole,
-                            'Application Role'.Administrator,      "Administrator",
-                            'Application Role'.Executive,          "Executive",
+                            "Administrator",      "Administrator",
+                            "Executive",          "Executive",
                             "Compliance Owner"
                         )
                     Color: =RGBA(199, 210, 234, 1)
@@ -352,7 +102,6 @@ ComponentDefinitions:
                     VerticalAlign: =VerticalAlign.Middle
                     Font: =gblTheme.FontBody
 
-            # ---- masthead ---------------------------------------------------
             - rec_HeaderBg:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -378,8 +127,6 @@ ComponentDefinitions:
                     Y: =46
                     Width: =40
                     Height: =44
-                    # Block S supergraphic, drawn as SVG so no media asset is
-                    # required in the solution package.
                     Image: |
                         ="data:image/svg+xml;utf8, " & EncodeUrl(
                             "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 110'>
@@ -428,7 +175,6 @@ ComponentDefinitions:
                     Font: =gblTheme.FontDisplay
                     DisplayMode: =DisplayMode.View
 
-            # ---- primary nav ------------------------------------------------
             - gal_Nav:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -440,7 +186,6 @@ ComponentDefinitions:
                     TemplateSize: =128
                     TemplatePadding: =0
                     ShowScrollbar: =false
-                    # NavScreen drives Navigate(); NavKey drives the active underline.
                     Items: |
                         =Filter(
                             Table(

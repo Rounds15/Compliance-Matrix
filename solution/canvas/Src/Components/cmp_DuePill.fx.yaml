@@ -1,0 +1,86 @@
+ComponentDefinitions:
+
+    cmp_DuePill:
+        DefinitionType: CanvasComponent
+        CustomProperties:
+            DueDate:
+                PropertyKind: Input
+                DisplayName: Due Date
+                DataType: Date
+                Default: =Today()
+            IsComplete:
+                PropertyKind: Input
+                DisplayName: Is Complete
+                DataType: Boolean
+                Default: =false
+            DayDiff:
+                PropertyKind: Output
+                DisplayName: Day Diff
+                DataType: Number
+            StatusLabel:
+                PropertyKind: Output
+                DisplayName: Status Label
+                DataType: Text
+            HasDueDate:
+                PropertyKind: Output
+                DisplayName: Has Due Date
+                DataType: Boolean
+            DueColor:
+                PropertyKind: Output
+                DisplayName: Due Color
+                DataType: Color
+        Properties:
+            Height: =24
+            Width: =104
+            Fill: =RGBA(0, 0, 0, 0)
+            HasDueDate: =!IsBlank(cmp_DuePill.DueDate)
+            DayDiff: |
+                =If(
+                    cmp_DuePill.HasDueDate,
+                    DateDiff(gblToday, cmp_DuePill.DueDate, TimeUnit.Days),
+                    0
+                )
+            StatusLabel: |
+                =If(
+                    !cmp_DuePill.HasDueDate,
+                    "No fixed date",
+                    cmp_DuePill.IsComplete,
+                    "Complete",
+                    cmp_DuePill.DayDiff < 0,
+                    "Overdue " & Abs(cmp_DuePill.DayDiff) & "d",
+                    "Due in " & cmp_DuePill.DayDiff & "d"
+                )
+            DueColor: |
+                =If(
+                    !cmp_DuePill.HasDueDate,             gblTheme.GrayMid,
+                    cmp_DuePill.IsComplete,              gblTheme.Low,
+                    cmp_DuePill.DayDiff < 0,             gblTheme.High,
+                    cmp_DuePill.DayDiff <= 30,           gblTheme.Moderate,
+                    cmp_DuePill.DayDiff <= 90,           gblTheme.OrangeDark,
+                    gblTheme.GrayMid
+                )
+        Children:
+            - rec_DueBg:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =Parent.Height
+                    Fill: =ColorFade(cmp_DuePill.DueColor, 0.88)
+                    BorderRadius: =4
+                    BorderThickness: =0
+            - lbl_DueText:
+                Control: Label@2.5.1
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =Parent.Height
+                    Text: =cmp_DuePill.StatusLabel
+                    Color: =cmp_DuePill.DueColor
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody

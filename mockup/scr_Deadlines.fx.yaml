@@ -1,15 +1,3 @@
-# =============================================================================
-# Deadlines - calendar and list
-# =============================================================================
-# Every recurring and one-off due date in the matrix. The month grid is built
-# from a 42-cell sequence rather than a control, because Canvas has no calendar
-# primitive; each cell counts the deadlines falling on that day and selecting a
-# day lists them underneath.
-#
-# Reminder emails are sent by a Power Automate flow, not by the app. The
-# schedule (90 days, 30 days, due date, then weekly once overdue) is declared
-# in solution/schema/dataverse-schema.yaml under `reminders`.
-# =============================================================================
 
 Screens:
 
@@ -108,7 +96,6 @@ Screens:
                     VerticalAlign: =VerticalAlign.Middle
                     Font: =gblTheme.FontBody
 
-            # ---- controls ---------------------------------------------------
             - drp_DlScope:
                 Control: Classic/DropDown@2.3.1
                 Properties:
@@ -162,7 +149,6 @@ Screens:
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
 
-            # ---- month navigation -------------------------------------------
             - btn_DlPrevMonth:
                 Control: Classic/Button@2.2.0
                 Properties:
@@ -245,7 +231,6 @@ Screens:
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
 
-            # ---- day-of-week header -----------------------------------------
             - gal_DlDow:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -279,7 +264,6 @@ Screens:
                             VerticalAlign: =VerticalAlign.Middle
                             Font: =gblTheme.FontBody
 
-            # ---- month grid --------------------------------------------------
             - gal_DlCalendar:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
@@ -293,8 +277,6 @@ Screens:
                     WrapCount: =7
                     ShowScrollbar: =false
                     Visible: =gblDlView = "calendar"
-                    # 42 cells covering six weeks. CellDate is blank for the
-                    # leading and trailing days that fall outside the month.
                     Items: |
                         =With(
                             {lead: Weekday(gblDlCursor) - 1},
@@ -398,7 +380,6 @@ Screens:
                                     )
                                 )
 
-            # ---- list view / selected-day detail ------------------------------
             - gal_DlList:
                 Control: Gallery@2.15.0
                 Variant: Vertical

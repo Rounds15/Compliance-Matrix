@@ -1,14 +1,3 @@
-# =============================================================================
-# Assessment Detail
-# =============================================================================
-# The full record for one assessment: its metadata, its owners (from the
-# su_assessmentowner junction), and the gaps it surfaced (su_compliancegap
-# where su_assessment = this record), each with its remediation target.
-#
-# This is the screen that closes the loop the office cares about most: an
-# assessment is only finished when the gaps it produced are closed, and until
-# now that link lived in someone's spreadsheet.
-# =============================================================================
 
 Screens:
 
@@ -69,7 +58,6 @@ Screens:
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
 
-            # ---- navy record header ------------------------------------------
             - rec_AdHead:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -190,9 +178,6 @@ Screens:
                     FontWeight: =FontWeight.Bold
                     Font: =gblTheme.FontBody
 
-            # =================================================================
-            # MAIN COLUMN - gaps produced
-            # =================================================================
             - lbl_AdGapsHead:
                 Control: Label@2.5.1
                 Properties:
@@ -352,8 +337,6 @@ Screens:
                             Fill: =RGBA(0, 0, 0, 0)
                             HoverFill: =RGBA(0, 14, 84, 0.03)
                             BorderThickness: =0
-                            # Jump to the function the gap sits on; the gap panel
-                            # there shows the full remediation history.
                             OnSelect: |
                                 =Set(gblSelectedFunction, ThisItem.su_function);
                                 Navigate(scr_FunctionDetail, ScreenTransition.None)
@@ -373,9 +356,6 @@ Screens:
                     Font: =gblTheme.FontBody
                     Visible: =CountRows(colAsmtGaps) = 0
 
-            # =================================================================
-            # RIGHT RAIL
-            # =================================================================
             - cnt_AdRail:
                 Control: GroupContainer@1.5.0
                 Variant: AutoLayout
@@ -526,8 +506,6 @@ Screens:
                         Properties:
                             Height: =62
                             Width: =Parent.Width
-                            # Free text pending a directory match; becomes a
-                            # junction once the names are reconciled.
                             Text: =gblSelectedAssessment.su_approverstext
                             Fill: =gblTheme.Surface
                             Color: =gblTheme.GrayDark
