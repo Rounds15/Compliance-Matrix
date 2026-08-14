@@ -40,7 +40,9 @@ solution/
       flags.yaml        (84)   _rejected.yaml    (39)
   canvas/Src/
     App.fx.yaml                Theme, startup, role resolution
-    Components/cmp_Shared.fx.yaml   Risk pill, due pill, page head, header nav
+    Components/cmp_*.fx.yaml   One file per component, each with its own
+                               ComponentDefinitions root so it pastes standalone
+                               (see Components/README.md for the schema rules)
     scr_*.fx.yaml              14 screens
   src/                         Generated solution source (pac solution pack)
 tools/
@@ -48,7 +50,12 @@ tools/
   build_seed.py                dataverse_import CSVs -> seed YAML
   validate.py                  Static checks across every source file
   fix_yaml_comments.py         Normalizes // vs # comment syntax
+  build_mockup.py              canvas source -> mockup/ (runs without Dataverse)
 ```
+
+`mockup/` is a generated, paste-ready copy that runs on in-memory collections,
+for tuning layout and colour in Studio before the solution is imported. See
+[`mockup/README.md`](mockup/README.md).
 
 ### Screens
 

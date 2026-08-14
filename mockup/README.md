@@ -32,24 +32,65 @@ depends on Studio's paste target accepting a fragment.
 
 ### 1. Components first
 
-Four files in `Components/`, one per component, each with its own
-`ComponentDefinitions:` root:
+Screens reference components by name, so all four must exist before any screen
+will paste cleanly.
 
-`cmp_RiskPill` · `cmp_DuePill` · `cmp_PageHead` · `cmp_Header`
+**Steps, per component:**
 
-Names must match exactly — every screen references them by name.
+1. In the Studio tree view, switch to the **Components** tab.
+2. Right-click in the empty area of the tree → **Paste code**.
+3. Open one file from `Components/` — `cmp_RiskPill.fx.yaml`,
+   `cmp_DuePill.fx.yaml`, `cmp_PageHead.fx.yaml`, `cmp_Header.fx.yaml` — select
+   all (**Ctrl+A**), copy (**Ctrl+C**), and paste the **entire file including
+   the first line**.
+4. Repeat for the other three.
 
-**Three things the parser is strict about**, all already handled in these files:
+Do not create the component first and paste into it. The file declares the
+component, so pasting into an existing one nests a definition inside a
+definition. If your Studio build only offers **Paste code** on an existing node,
+use `ComplianceMatrix.pa.yaml` instead.
 
-- **The `ComponentDefinitions:` root.** A block pasted starting at
-  `cmp_RiskPill:` yields *"Property 'cmp_RiskPill' not found on type
-  'PaModule'"* — the parser is reading it as a top-level key of the app.
+Names must match exactly. Paste order among the four does not matter — they do
+not reference each other.
+
+**What a valid file looks like.** Every file starts like this, and the first
+line is not optional:
+
+```yaml
+ComponentDefinitions:
+
+    cmp_RiskPill:
+        DefinitionType: CanvasComponent
+        Description: "Risk or severity chip..."
+        AllowCustomization: true
+        AccessAppScope: false
+        CustomProperties:
+            ...
+        Properties:
+            ...
+        Children:
+            - ...
+```
+
+**Three things the parser is strict about**, all already correct in these files —
+worth knowing because a hand edit can reintroduce any of them:
+
+- **The `ComponentDefinitions:` root.** Pasting a block that starts at
+  `cmp_RiskPill:` gives *"Property 'cmp_RiskPill' not found on type
+  'PaModule'"*. `PaModule` is the app root; its only properties are `App`,
+  `Screens`, `ComponentDefinitions`, `DataSources`, `EditorState`. Without the
+  wrapper the parser reads your component name as one of those.
 - **All seven required properties.** The v3.0 schema requires `DefinitionType`,
   `Description`, `AllowCustomization`, `AccessAppScope`, `CustomProperties`,
-  `Properties`, and `Children` on every `CanvasComponent`. Omitting any of the
-  first four is a validation failure.
-- **No `#` comments.** They raise **PA1001**. If you add comments while tuning,
-  strip them before re-pasting.
+  `Properties`, `Children` on every `CanvasComponent`. The last three are
+  obvious; the first four are easy to drop and are not optional.
+- **No `#` comments** — they raise **PA1001**. Also quote any `Description`
+  containing a colon: `Description: Page heading: eyebrow` parses as a nested
+  mapping, not a string, and kills the file.
+
+If you edit a component while tuning, re-run `python3 tools/build_mockup.py`
+before re-pasting; it strips comments and keeps the four files in step with the
+production source.
 
 ### 2. App OnStart
 

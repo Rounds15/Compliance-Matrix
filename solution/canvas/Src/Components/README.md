@@ -24,6 +24,19 @@ From the [pa.yaml v3.0 schema](https://raw.githubusercontent.com/microsoft/Power
 If you edit a component, keep it comment-free. `tools/build_mockup.py` strips
 comments on the way out anyway, but the source should paste cleanly too.
 
+## Pasting these into Studio
+
+Paste the **whole file**, first line included, into the Components tab
+(right-click the empty area → **Paste code**). Do not create a component first
+and paste into it — the file declares the component, so that nests a definition
+inside a definition.
+
+If your Studio build will not accept a single-component file, use
+`mockup/ComplianceMatrix.pa.yaml`: one complete app document with `App`,
+`ComponentDefinitions`, and `Screens` together, which is unambiguously a
+`PaModule`. Step-by-step instructions and troubleshooting are in
+[`mockup/README.md`](../../../../mockup/README.md).
+
 | File | Component |
 |---|---|
 | `cmp_RiskPill.fx.yaml` | Risk / severity chip |

@@ -18,6 +18,20 @@ The `ds` prefix is deliberate: the screens already declare collections named
 colFunctions, colDeadlines and so on, and reusing those names would produce
 self-referential ClearCollect calls that silently return empty.
 
+Constraints the output has to keep satisfying, from the pa.yaml v3.0 schema
+(microsoft/PowerApps-Tooling, schemas/pa-yaml/v3.0/pa.schema.yaml):
+
+  * every file's root is one PaModule property - App, Screens, or
+    ComponentDefinitions. A file starting at a component name fails with
+    "Property '<name>' not found on type 'PaModule'".
+  * a CanvasComponent requires all seven of DefinitionType, Description,
+    AllowCustomization, AccessAppScope, CustomProperties, Properties, Children.
+  * no YAML '#' comments anywhere - Studio's paste parser raises PA1001.
+
+Those first two live in the production component files under
+solution/canvas/Src/Components/; this script only has to avoid breaking them.
+The third it enforces, via strip_comments().
+
 Mock data is a representative slice of the real seed, plus a handful of
 synthesised rows that exist only to exercise visual states the live data does
 not contain yet - High and Moderate risk, an Event-Relative deadline with no
@@ -558,14 +572,21 @@ def main(argv: list[str]) -> int:
 
     build_single_document(out)
 
-    print("\nPaste order in Power Apps Studio:")
-    print("  1. Components/cmp_*.fx.yaml  (one file per component, paste whole file)")
-    print("  2. App.fx.yaml OnStart       (paste into the App object, then Run OnStart)")
-    print("  3. each scr_*.fx.yaml        (right-click screen list, Paste code)")
-    print("\nEvery file carries its own root key and is comment-free, so each")
-    print("pastes on its own without editing.")
-    print("\nIf per-file paste is rejected, use ComplianceMatrix.pa.yaml - one")
-    print("complete app document, which is what the Source Code schema expects.")
+    print("\nPasting into Power Apps Studio")
+    print("  Preferred: ComplianceMatrix.pa.yaml - one complete app document")
+    print("             (App + ComponentDefinitions + Screens). This is the")
+    print("             Source Code schema the parser validates against.")
+    print()
+    print("  Per file, if you would rather paste one piece at a time:")
+    print("    1. Components/cmp_*.fx.yaml   Components tab, right-click empty")
+    print("                                  area, Paste code. Paste the WHOLE")
+    print("                                  file including the first line.")
+    print("                                  Do all four before any screen.")
+    print("    2. App.fx.yaml OnStart        into the App object, then Run OnStart")
+    print("    3. each scr_*.fx.yaml         right-click screen list, Paste code")
+    print()
+    print("  Every file carries its own root key and is comment-free.")
+    print("  Details and troubleshooting: mockup/README.md")
     return 0
 
 
