@@ -1,4 +1,9 @@
 # Packed artifacts - rebuild with tools/build_solution.py + pac
 *.msapp
 *.zip
+
+# ...except the canvas app itself. It is the deliverable: Studio opens .msapp
+# directly and will not open .pa.yaml, and the pack path that produces it needs
+# a Linux pac build most people here do not have. Rebuild: tools/build_msapp.py
+!ComplianceMatrix.msapp
 __pycache__/

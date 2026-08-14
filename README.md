@@ -51,13 +51,22 @@ tools/
   validate.py                  Static checks across every source file
   fix_yaml_comments.py         Normalizes // vs # comment syntax
   build_mockup.py              canvas source -> mockup/ (runs without Dataverse)
+  build_msapp.py               mockup/ -> ComplianceMatrix.msapp (binary app)
   paste_check.py               Studio paste contract, Rules 1-6
   control_properties.json      Per-control-version property manifest
+  DefaultTheme.json            Canvas default theme, needed to pack an msapp
+ComplianceMatrix.msapp         Binary canvas app - open it in Studio directly
 ```
 
-`mockup/` is a generated, paste-ready copy that runs on in-memory collections,
-for tuning layout and colour in Studio before the solution is imported. See
+`mockup/` is a generated copy that runs on in-memory collections, for tuning
+layout and colour in Studio before the solution is imported. See
 [`mockup/README.md`](mockup/README.md).
+
+**`ComplianceMatrix.msapp` is the one to open.** Power Apps Studio, **File →
+Open → Browse**, pick the file, then **App → Run OnStart**. No `pac` install, no
+pack step, no pasting. How it is built, and why the modern `pac canvas pack
+--layout SourceCode` path cannot build it, is in
+[`docs/MSAPP-BUILD.md`](docs/MSAPP-BUILD.md).
 
 ### Screens
 
@@ -209,11 +218,16 @@ they would fail on import. They are written to `seed/_rejected.yaml` with a
 reason rather than dropped silently — the gap between CSV rows and seeded rows
 is always accountable. Fixing them is a data exercise in the source lists.
 
-**Not verified — needs a real environment.** No Power Platform CLI is available
-where this was built, so `pac solution pack` and the import have not been run.
-Control `@version` strings may need bumping to whatever the target tenant
-reports; that raises PA2105, a warning Studio auto-corrects. See
-[`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md) for the other first-import risks.
+**The canvas app packs.** `tools/build_msapp.py` builds
+`ComplianceMatrix.msapp` — 14 screens, 4 components, 504 controls — and `pac
+canvas unpack` reads it back without error, which is Microsoft's own reader
+confirming the archive is internally consistent.
+
+**Not verified — needs a real environment.** `pac solution pack` and the
+Dataverse import have not been run. Control `@version` strings may need bumping
+to whatever the target tenant reports; that raises PA2105, a warning Studio
+auto-corrects. See [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md) for the other
+first-import risks.
 
 
 ---

@@ -1,4 +1,4 @@
-# Mockup build — paste-ready, no Dataverse
+# Mockup build — no Dataverse
 
 A standalone copy of the canvas app that runs entirely on in-memory collections.
 Open it in Power Apps Studio with nothing connected, and tune layout, colours,
@@ -7,7 +7,8 @@ spacing, and states before any data work happens.
 **Generated — do not hand-edit.** Change `solution/canvas/Src/**` and re-run:
 
 ```bash
-python3 tools/build_mockup.py
+python3 tools/build_mockup.py     # canvas source -> mockup/ (.pa.yaml)
+python3 tools/build_msapp.py      # mockup/       -> ComplianceMatrix.msapp
 ```
 
 When you have finished tuning here, port the property values back to
@@ -15,7 +16,27 @@ When you have finished tuning here, port the property values back to
 
 ---
 
-## Paste order
+## Open it: `ComplianceMatrix.msapp` in the repository root
+
+**This is the way in.** It is a real binary canvas app — 14 screens, 4
+components, 504 controls, no data connections.
+
+1. Download `ComplianceMatrix.msapp` from the repository root.
+2. [make.powerapps.com](https://make.powerapps.com) → **Apps** → **Start with a
+   page design** is *not* it — use **Open** → **Browse**, pick the file.
+   In Power Apps Studio the same command is **File → Open → Browse**.
+3. **App → Run OnStart** once. Nothing renders until the mock collections exist.
+
+No `pac` install, no pack step, no pasting. If Studio offers to upgrade control
+versions on open, accept — the versions pinned here are the ones the source
+declares, and Studio's are authoritative for your tenant.
+
+The `.pa.yaml` files below still exist and are still generated, but they are now
+a reading and diffing format, not the delivery mechanism.
+
+---
+
+## Paste order (only if you are pasting fragments by hand)
 
 1. **The four component definitions**, each under `ComponentDefinitions:`.
 2. **App OnStart**, then **App → Run OnStart** once, so `gblTheme`, `gblToday`,
@@ -71,6 +92,8 @@ question about what a fragment is being pasted into.
 Use it wherever Studio accepts a full app source file. The per-file versions
 below exist for pasting one piece at a time, which is convenient while tuning but
 depends on Studio's paste target accepting a fragment.
+
+Neither is needed if you open `ComplianceMatrix.msapp`.
 
 ---
 
