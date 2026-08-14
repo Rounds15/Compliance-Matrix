@@ -1,0 +1,444 @@
+# =============================================================================
+# Assessment Tracker - list
+# =============================================================================
+# Administrator-gated, consistent with Gap Tracker and Risk Dashboard.
+#
+# An assessment is one conducted review: it has a date, an overall risk rating,
+# a status, a unit, owners, and it produces gaps. This screen answers "what have
+# we assessed, where is each one, and what came out of it".
+#
+# Status is normalized from the legacy free-text Progress field into four
+# values: Drafting, Report Complete, Finalized, Closed.
+# =============================================================================
+
+Screens:
+
+    scr_Assessments:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =If(!gblIsAdmin, Navigate(scr_NoAccess, ScreenTransition.None));
+                Set(gblAsmtStatusFilter, "All statuses");
+                ClearCollect(
+                    colAssessments,
+                    SortByColumns('Assessments', "su_assessmentdate", SortOrder.Descending)
+                );
+                // Gap counts per assessment are read once here rather than per
+                // row, so the list does not fire one query per card.
+                ClearCollect(colAllGaps, 'Compliance Gaps')
+
+        Children:
+
+            - cmp_HeaderAsmt:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Assessments"
+                    OpenGapCount: =gblOpenGapCount
+
+            - cmp_AsmtHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =128
+                    Width: =Parent.Width - 460
+                    Height: =124
+                    Eyebrow: ="Risk and Reporting - Administrator"
+                    Title: ="Assessment Tracker"
+                    Subtitle: |
+                        ="Every compliance assessment the office has conducted, with its owners, overall risk rating, and the gaps it surfaced."
+
+            # ---- summary tiles -----------------------------------------------
+            - gal_AsmtStats:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =262
+                    Width: =Parent.Width - 128
+                    Height: =104
+                    TemplateSize: =(Parent.Width - 128) / 4
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Items: |
+                        =Table(
+                            {
+                                StatValue: CountRows(colAssessments),
+                                StatLabel: "Assessments",
+                                StatNote: "All rounds",
+                                StatTone: ""
+                            },
+                            {
+                                StatValue: CountRows(
+                                    Filter(
+                                        colAssessments,
+                                        su_status = 'Assessment Status'.Drafting
+                                            || su_status = 'Assessment Status'.'Report Complete'
+                                    )
+                                ),
+                                StatLabel: "In flight",
+                                StatNote: "Drafting or report complete",
+                                StatTone: "warn"
+                            },
+                            {
+                                StatValue: CountRows(
+                                    Filter(colAssessments, su_risk = 'Risk Level'.High)
+                                ),
+                                StatLabel: "High risk",
+                                StatNote: "",
+                                StatTone: "bad"
+                            },
+                            {
+                                StatValue: Sum(colAssessments, su_keycontrolsmissing),
+                                StatLabel: "Key controls missing",
+                                StatNote: "Across all assessments",
+                                StatTone: "bad"
+                            }
+                        )
+                Children:
+                    - rec_AsmtStatCard:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth - 14
+                            Height: =96
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - lbl_AsmtStatValue:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =12
+                            Width: =Parent.TemplateWidth - 40
+                            Height: =40
+                            Text: =ThisItem.StatValue
+                            Color: |
+                                =Switch(
+                                    ThisItem.StatTone,
+                                    "bad",  gblTheme.High,
+                                    "warn", gblTheme.Moderate,
+                                    gblTheme.Navy
+                                )
+                            Size: =24
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_AsmtStatLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =52
+                            Width: =Parent.TemplateWidth - 40
+                            Height: =20
+                            Text: =ThisItem.StatLabel
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_AsmtStatNote:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =70
+                            Width: =Parent.TemplateWidth - 40
+                            Height: =18
+                            Text: =ThisItem.StatNote
+                            Color: =gblTheme.GrayMid
+                            Size: =8
+                            Font: =gblTheme.FontBody
+
+            # ---- filter ------------------------------------------------------
+            - drp_AsmtStatus:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                    X: =64
+                    Y: =386
+                    Width: =240
+                    Height: =44
+                    Items: |
+                        =Table(
+                            {Value: "All statuses"},
+                            {Value: "Drafting"},
+                            {Value: "Report Complete"},
+                            {Value: "Finalized"},
+                            {Value: "Closed"}
+                        )
+                    Default: ="All statuses"
+                    OnChange: =Set(gblAsmtStatusFilter, drp_AsmtStatus.Selected.Value)
+                    BorderColor: =gblTheme.Border
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - lbl_AsmtCount:
+                Control: Label@2.5.1
+                Properties:
+                    X: =320
+                    Y: =386
+                    Width: =300
+                    Height: =44
+                    Text: =CountRows(gal_Assessments.AllItems) & " shown"
+                    Color: =gblTheme.GrayMid
+                    Size: =10
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            # ---- assessment list ---------------------------------------------
+            - rec_AsmtTableHead:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =64
+                    Y: =446
+                    Width: =Parent.Width - 128
+                    Height: =40
+                    Fill: =gblTheme.Surface
+                    BorderThickness: =0
+            - gal_AsmtHeadCells:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =446
+                    Width: =Parent.Width - 128
+                    Height: =40
+                    TemplateSize: =(Parent.Width - 128) / 5
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Items: |
+                        =Table(
+                            {ColLabel: "Assessment"},
+                            {ColLabel: "Date"},
+                            {ColLabel: "Unit"},
+                            {ColLabel: "Status"},
+                            {ColLabel: "Risk / gaps"}
+                        )
+                Children:
+                    - lbl_AsmtHeadCell:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =0
+                            Width: =Parent.TemplateWidth - 20
+                            Height: =40
+                            Text: =Upper(ThisItem.ColLabel)
+                            Color: =gblTheme.GrayMid
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+
+            - gal_Assessments:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =486
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 530
+                    TemplateSize: =70
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Items: |
+                        =Filter(
+                            colAssessments,
+                            gblAsmtStatusFilter = "All statuses"
+                                || su_status = Switch(
+                                       gblAsmtStatusFilter,
+                                       "Drafting",        'Assessment Status'.Drafting,
+                                       "Report Complete", 'Assessment Status'.'Report Complete',
+                                       "Finalized",       'Assessment Status'.Finalized,
+                                       'Assessment Status'.Closed
+                                   )
+                        )
+                Children:
+                    - lbl_AsmtName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =10
+                            Width: =Parent.TemplateWidth / 5 - 24
+                            Height: =24
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_AsmtCode:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =36
+                            Width: =Parent.TemplateWidth / 5 - 24
+                            Height: =20
+                            Text: |
+                                =ThisItem.su_assessmentcode &
+                                 If(
+                                     ThisItem.su_followupround > 0,
+                                     "  |  follow-up " & ThisItem.su_followupround,
+                                     ""
+                                 )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_AsmtDate:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth / 5 + 14
+                            Y: =10
+                            Width: =Parent.TemplateWidth / 5 - 24
+                            Height: =46
+                            Text: |
+                                =If(
+                                    IsBlank(ThisItem.su_assessmentdate),
+                                    "No date recorded",
+                                    Text(ThisItem.su_assessmentdate, "mmm d, yyyy")
+                                )
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_AsmtUnit:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth * 2 / 5 + 14
+                            Y: =10
+                            Width: =Parent.TemplateWidth / 5 - 24
+                            Height: =46
+                            Text: =ThisItem.su_unit
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_AsmtStatus:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth * 3 / 5 + 14
+                            Y: =22
+                            Width: =130
+                            Height: =24
+                            Text: |
+                                =Switch(
+                                    ThisItem.su_status,
+                                    'Assessment Status'.Drafting,          "Drafting",
+                                    'Assessment Status'.'Report Complete', "Report Complete",
+                                    'Assessment Status'.Finalized,         "Finalized",
+                                    'Assessment Status'.Closed,            "Closed",
+                                    "Not set"
+                                )
+                            Fill: |
+                                =Switch(
+                                    ThisItem.su_status,
+                                    'Assessment Status'.Drafting,
+                                        ColorFade(gblTheme.Moderate, 0.88),
+                                    'Assessment Status'.'Report Complete',
+                                        ColorFade(gblTheme.BlueLight, 0.88),
+                                    'Assessment Status'.Finalized,
+                                        ColorFade(gblTheme.Low, 0.88),
+                                    ColorFade(gblTheme.GrayMid, 0.88)
+                                )
+                            Color: |
+                                =Switch(
+                                    ThisItem.su_status,
+                                    'Assessment Status'.Drafting,          gblTheme.Moderate,
+                                    'Assessment Status'.'Report Complete', gblTheme.BlueMedium,
+                                    'Assessment Status'.Finalized,         gblTheme.Low,
+                                    gblTheme.GrayMid
+                                )
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - cmp_AsmtRisk:
+                        Control: Component
+                        ComponentName: cmp_RiskPill
+                        Properties:
+                            X: =Parent.TemplateWidth * 4 / 5 + 14
+                            Y: =22
+                            Width: =74
+                            Height: =24
+                            Risk: |
+                                =Switch(
+                                    ThisItem.su_risk,
+                                    'Risk Level'.High,     "High",
+                                    'Risk Level'.Moderate, "Moderate",
+                                    'Risk Level'.Low,      "Low",
+                                    ""
+                                )
+                    - lbl_AsmtGapCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth * 4 / 5 + 96
+                            Y: =22
+                            Width: =70
+                            Height: =24
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Filter(
+                                                colAllGaps,
+                                                su_assessment.su_assessmentid
+                                                    = ThisItem.su_assessmentid
+                                            )
+                                        )
+                                    },
+                                    If(n = 0, "", n & " gap")
+                                )
+                            Visible: |
+                                =CountRows(
+                                    Filter(
+                                        colAllGaps,
+                                        su_assessment.su_assessmentid = ThisItem.su_assessmentid
+                                    )
+                                ) > 0
+                            Fill: =gblTheme.High
+                            Color: =gblTheme.White
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - rec_AsmtRowRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =69
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                    - btn_AsmtOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =70
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            PressedFill: =RGBA(0, 14, 84, 0.07)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedAssessment, ThisItem);
+                                Navigate(scr_AssessmentDetail, ScreenTransition.None)
+
+            - lbl_AsmtEmpty:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =560
+                    Width: =Parent.Width - 128
+                    Height: =70
+                    Text: |
+                        ="No assessments match this filter" & Char(10) &
+                         "Clear the status filter to see the full set."
+                    Color: =gblTheme.GrayMid
+                    Size: =12
+                    Align: =Align.Center
+                    Font: =gblTheme.FontBody
+                    Visible: =CountRows(gal_Assessments.AllItems) = 0

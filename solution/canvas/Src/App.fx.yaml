@@ -46,11 +46,16 @@ App:
                     BorderSoft:   RGBA(238, 240, 244, 1),
                     Surface:      RGBA(250, 251, 253, 1),
 
-                    // Risk ratings - shared by functions, deadlines, and gap severity
-                    Critical:     RGBA(185,  28,  28, 1),
-                    High:         RGBA(220,  38,  38, 1),
-                    Medium:       RGBA(217, 119,   6, 1),
-                    Low:          RGBA( 22, 163,  74, 1),
+                    // Risk ratings - shared by functions, assessments, and gap
+                    // severity. Three levels, matching the su_risklevel choice
+                    // set: High / Moderate / Low. Unrated is its own colour
+                    // because su_risk is Recommended, not Required, and is empty
+                    // on most rows today - a blank must read as "not yet rated"
+                    // rather than falling through to Low.
+                    High:         RGBA(220,  38,  38, 1),   // #DC2626
+                    Moderate:     RGBA(217, 119,   6, 1),   // #D97706
+                    Low:          RGBA( 22, 163,  74, 1),   // #16A34A
+                    Unrated:      RGBA(173, 179, 184, 1),
 
                     // Type
                     FontDisplay:  "Verdana",
@@ -94,7 +99,10 @@ App:
 
             // ---- Cached reference data ---------------------------------------
             // Both are small, bounded, and read on nearly every screen.
-            ClearCollect(colTopics, SortByColumns('Compliance Topics', "su_sortorder"));
+            ClearCollect(colRiskAreas, SortByColumns('Risk Areas', "su_sortorder"));
+            // 61 domains is small enough to cache, and the Domains screen plus
+            // the function filters both read it on every visit.
+            ClearCollect(colDomains, SortByColumns('Domains', "su_name"));
             ClearCollect(colCounsel, 'Counsel Assignments');
             Set(gblDefaultCounsel, LookUp(colCounsel, su_isdefault = true));
 

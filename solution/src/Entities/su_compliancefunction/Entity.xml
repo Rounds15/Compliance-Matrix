@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Compliance Functions" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="One row per obligation the university carries, with the full ownership chain, governing statute, what the obligation requires, when it is due, and the risk it carries. The system of record for the matrix." languagecode="1033"/>
+        <Description description="One row per obligation, with the ownership chain, governing statute, what it requires, when it is due, and the risk it carries. System of record." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -74,11 +74,11 @@
             <Description description="Stable public identifier, e.g. CF-1041." languagecode="1033"/>
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="su_topic">
+        <attribute PhysicalName="su_riskarea">
           <Type>lookup</Type>
-          <Name>su_topic</Name>
-          <LogicalName>su_topic</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <Name>su_riskarea</Name>
+          <LogicalName>su_riskarea</LogicalName>
+          <RequiredLevel>recommended</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -99,17 +99,17 @@
           <IsSearchable>0</IsSearchable>
           <LookupStyle>single</LookupStyle>
           <lookupTypes>
-            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancetopic"/>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_riskarea"/>
           </lookupTypes>
           <displaynames>
-            <displayname description="Topic" languagecode="1033"/>
+            <displayname description="Risk Area" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_area">
-          <Type>nvarchar</Type>
-          <Name>su_area</Name>
-          <LogicalName>su_area</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
+        <attribute PhysicalName="su_domain">
+          <Type>lookup</Type>
+          <Name>su_domain</Name>
+          <LogicalName>su_domain</LogicalName>
+          <RequiredLevel>recommended</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -127,15 +127,14 @@
           <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>1</IsSearchable>
-          <MaxLength>200</MaxLength>
-          <Format>text</Format>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_domain"/>
+          </lookupTypes>
           <displaynames>
-            <displayname description="Compliance Area" languagecode="1033"/>
+            <displayname description="Domain" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Free text rather than a lookup: areas are a grouping users think in, not a governed list, and the Areas screen derives its tiles from the distinct values present." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_statute">
           <Type>nvarchar</Type>
@@ -254,9 +253,6 @@
           <displaynames>
             <displayname description="Executive Owner" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Accountable at the cabinet level." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_unitowner">
           <Type>lookup</Type>
@@ -288,9 +284,6 @@
           <displaynames>
             <displayname description="Unit Owner" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Runs the obligation inside the unit. Nullable on purpose: the Risk Dashboard reports unassigned unit-owner roles as an exposure signal." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_complianceowner">
           <Type>lookup</Type>
@@ -322,9 +315,6 @@
           <displaynames>
             <displayname description="Compliance Owner" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Does the work and files the record." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_description">
           <Type>ntext</Type>
@@ -412,9 +402,6 @@
           <displaynames>
             <displayname description="Deadline And Cadence" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Prose statement of timing, distinct from the dated deadline rows." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_resourcelabel">
           <Type>nvarchar</Type>
@@ -478,7 +465,7 @@
           <Type>picklist</Type>
           <Name>su_risk</Name>
           <LogicalName>su_risk</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <RequiredLevel>recommended</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -504,6 +491,9 @@
           <displaynames>
             <displayname description="Risk Rating" languagecode="1033"/>
           </displaynames>
+          <Descriptions>
+            <Description description="Not required: empty on nearly all rows today, populated over time." languagecode="1033"/>
+          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_lastreviewed">
           <Type>datetime</Type>
@@ -568,9 +558,6 @@
           <displaynames>
             <displayname description="Open Gaps" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Rollup over related gaps where status is Open. Drives the count badge shown everywhere a function appears." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_nextduedate">
           <Type>int</Type>
@@ -606,9 +593,6 @@
           <displaynames>
             <displayname description="Next Due Date" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Rollup MIN over incomplete related deadlines." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_isflagged">
           <Type>bit</Type>
@@ -654,9 +638,6 @@
           <displaynames>
             <displayname description="Flagged For Review" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Maintained by the Flag / Clear flag actions so list screens can show the flag pill without a related-table query per row." languagecode="1033"/>
-          </Descriptions>
         </attribute>
       </attributes>
       <EntitySetName>su_compliancefunctions</EntitySetName>

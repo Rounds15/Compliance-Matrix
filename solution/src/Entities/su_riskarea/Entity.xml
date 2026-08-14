@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity>
-  <Name LocalizedName="App Role Assignment" OriginalName="App Role Assignment">su_appadmin</Name>
+  <Name LocalizedName="Risk Area" OriginalName="Risk Area">su_riskarea</Name>
   <EntityInfo>
-    <entity Name="su_appadmin">
+    <entity Name="su_riskarea">
       <LocalizedNames>
-        <LocalizedName description="App Role Assignment" languagecode="1033"/>
+        <LocalizedName description="Risk Area" languagecode="1033"/>
       </LocalizedNames>
       <LocalizedCollectionNames>
-        <LocalizedCollectionName description="App Role Assignments" languagecode="1033"/>
+        <LocalizedCollectionName description="Risk Areas" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="Role gate for the canvas app." languagecode="1033"/>
+        <Description description="The 13 top-level risk areas (ERM's term for what the prototype called topics). Drill into a risk area to see its domains, then the functions." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -36,17 +36,81 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>300</MaxLength>
+          <MaxLength>150</MaxLength>
           <Format>text</Format>
           <displaynames>
-            <displayname description="Assignment" languagecode="1033"/>
+            <displayname description="Risk Area" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_person">
+        <attribute PhysicalName="su_riskareacode">
+          <Type>nvarchar</Type>
+          <Name>su_riskareacode</Name>
+          <LogicalName>su_riskareacode</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>20</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Risk Area ID" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Legacy surrogate key for seed relationship resolution." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_colorhex">
+          <Type>nvarchar</Type>
+          <Name>su_colorhex</Name>
+          <LogicalName>su_colorhex</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>9</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Color Hex" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Brand color the app uses for this risk area." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_owner">
           <Type>lookup</Type>
-          <Name>su_person</Name>
-          <LogicalName>su_person</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <Name>su_owner</Name>
+          <LogicalName>su_owner</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -70,44 +134,13 @@
             <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
           </lookupTypes>
           <displaynames>
-            <displayname description="Person" languagecode="1033"/>
+            <displayname description="Risk Area Owner" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_role">
-          <Type>picklist</Type>
-          <Name>su_role</Name>
-          <LogicalName>su_role</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>0</IsSearchable>
-          <optionset Name="su_approle">
-            <IsGlobal>1</IsGlobal>
-            <OptionSetType>picklist</OptionSetType>
-          </optionset>
-          <displaynames>
-            <displayname description="Role" languagecode="1033"/>
-          </displaynames>
-        </attribute>
-        <attribute PhysicalName="su_active">
-          <Type>bit</Type>
-          <Name>su_active</Name>
-          <LogicalName>su_active</LogicalName>
+        <attribute PhysicalName="su_functioncount">
+          <Type>int</Type>
+          <Name>su_functioncount</Name>
+          <LogicalName>su_functioncount</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -127,30 +160,45 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>0</IsSearchable>
-          <optionset Name="su_active_optionset">
-            <displaynames>
-              <displayname description="Active" languagecode="1033"/>
-            </displaynames>
-            <IsGlobal>0</IsGlobal>
-            <OptionSetType>boolean</OptionSetType>
-            <option value="0">
-              <labels>
-                <label description="No" languagecode="1033"/>
-              </labels>
-            </option>
-            <option value="1">
-              <labels>
-                <label description="Yes" languagecode="1033"/>
-              </labels>
-            </option>
-          </optionset>
-          <DefaultValue>1</DefaultValue>
+          <MinValue>0</MinValue>
+          <MaxValue>10000</MaxValue>
+          <Format>none</Format>
           <displaynames>
-            <displayname description="Active" languagecode="1033"/>
+            <displayname description="Published Function Count" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_sortorder">
+          <Type>int</Type>
+          <Name>su_sortorder</Name>
+          <LogicalName>su_sortorder</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>0</MinValue>
+          <MaxValue>1000</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Sort Order" languagecode="1033"/>
           </displaynames>
         </attribute>
       </attributes>
-      <EntitySetName>su_appadmins</EntitySetName>
+      <EntitySetName>su_riskareas</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
       <IsRenameable>1</IsRenameable>

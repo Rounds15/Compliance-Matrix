@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity>
-  <Name LocalizedName="Compliance Topic" OriginalName="Compliance Topic">su_compliancetopic</Name>
+  <Name LocalizedName="Assessment Owner" OriginalName="Assessment Owner">su_assessmentowner</Name>
   <EntityInfo>
-    <entity Name="su_compliancetopic">
+    <entity Name="su_assessmentowner">
       <LocalizedNames>
-        <LocalizedName description="Compliance Topic" languagecode="1033"/>
+        <LocalizedName description="Assessment Owner" languagecode="1033"/>
       </LocalizedNames>
       <LocalizedCollectionNames>
-        <LocalizedCollectionName description="Compliance Topics" languagecode="1033"/>
+        <LocalizedCollectionName description="Assessment Owners" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="Thirteen top-level topics organize the matrix. Drill into a topic to see its compliance areas, then the functions inside." languagecode="1033"/>
+        <Description description="Junction between an assessment and a person, carrying the role. Mirrors Function Ownership. Handles the legacy multi-owner cells." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -36,17 +36,17 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>150</MaxLength>
+          <MaxLength>400</MaxLength>
           <Format>text</Format>
           <displaynames>
-            <displayname description="Topic" languagecode="1033"/>
+            <displayname description="Assignment" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_functioncount">
-          <Type>int</Type>
-          <Name>su_functioncount</Name>
-          <LogicalName>su_functioncount</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
+        <attribute PhysicalName="su_assessment">
+          <Type>lookup</Type>
+          <Name>su_assessment</Name>
+          <LogicalName>su_assessment</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -65,21 +65,19 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>0</IsSearchable>
-          <MinValue>0</MinValue>
-          <MaxValue>10000</MaxValue>
-          <Format>none</Format>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_assessment"/>
+          </lookupTypes>
           <displaynames>
-            <displayname description="Published Function Count" languagecode="1033"/>
+            <displayname description="Assessment" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Count published in the university matrix of record. Held separately from the live row count so the topic tiles keep showing the full 404-function figure while the environment is still being loaded." languagecode="1033"/>
-          </Descriptions>
         </attribute>
-        <attribute PhysicalName="su_sortorder">
-          <Type>int</Type>
-          <Name>su_sortorder</Name>
-          <LogicalName>su_sortorder</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
+        <attribute PhysicalName="su_person">
+          <Type>lookup</Type>
+          <Name>su_person</Name>
+          <LogicalName>su_person</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -98,15 +96,47 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>0</IsSearchable>
-          <MinValue>0</MinValue>
-          <MaxValue>1000</MaxValue>
-          <Format>none</Format>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
           <displaynames>
-            <displayname description="Sort Order" languagecode="1033"/>
+            <displayname description="Person" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_role">
+          <Type>picklist</Type>
+          <Name>su_role</Name>
+          <LogicalName>su_role</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_assessmentownerrole">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Role" languagecode="1033"/>
           </displaynames>
         </attribute>
       </attributes>
-      <EntitySetName>su_compliancetopics</EntitySetName>
+      <EntitySetName>su_assessmentowners</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
       <IsRenameable>1</IsRenameable>
@@ -123,7 +153,7 @@
       <IsCustomEntity>1</IsCustomEntity>
       <IsQuickCreateEnabled>1</IsQuickCreateEnabled>
       <IntroducedVersion>1.0.0.0</IntroducedVersion>
-      <OwnershipTypeMask>OrganizationOwned</OwnershipTypeMask>
+      <OwnershipTypeMask>UserOwned</OwnershipTypeMask>
       <PrimaryNameAttribute>su_name</PrimaryNameAttribute>
       <HasNotes>0</HasNotes>
       <HasActivities>0</HasActivities>

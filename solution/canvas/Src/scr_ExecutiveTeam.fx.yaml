@@ -3,7 +3,7 @@
 # =============================================================================
 # Executive owners sit at the top of every ownership chain. Sorted by last
 # name. Selecting a member opens their portfolio with the critical and high
-# risk count that leadership reviews first.
+# high-risk count that leadership reviews first.
 # =============================================================================
 
 Screens:
@@ -134,7 +134,7 @@ Screens:
                             Color: =gblTheme.GrayMid
                             Size: =9
                             Font: =gblTheme.FontBody
-                    - lbl_ExecCritical:
+                    - lbl_ExecHighRisk:
                         Control: Label@2.5.1
                         Properties:
                             X: =16
@@ -149,14 +149,14 @@ Screens:
                                                 colAllFunctions,
                                                 su_executiveowner.su_compliancedirectoryid
                                                     = ThisItem.su_compliancedirectoryid,
-                                                su_risk = 'Risk Level'.Critical
+                                                su_risk = 'Risk Level'.High
                                             )
                                         )
                                     },
-                                    If(n = 0, "", n & " critical")
+                                    If(n = 0, "", n & " high risk")
                                 )
-                            Fill: =ColorFade(gblTheme.Critical, 0.88)
-                            Color: =gblTheme.Critical
+                            Fill: =ColorFade(gblTheme.High, 0.88)
+                            Color: =gblTheme.High
                             Size: =9
                             FontWeight: =FontWeight.Bold
                             Align: =Align.Center
@@ -168,7 +168,7 @@ Screens:
                                         colAllFunctions,
                                         su_executiveowner.su_compliancedirectoryid
                                             = ThisItem.su_compliancedirectoryid,
-                                        su_risk = 'Risk Level'.Critical
+                                        su_risk = 'Risk Level'.High
                                     )
                                 ) > 0
                     - lbl_ExecPortfolio:
@@ -291,16 +291,16 @@ Screens:
                                         )
                                     },
                                     "Functions in portfolio       " & CountRows(port) & Char(10) &
-                                    "Critical or high risk           " &
+                                    "High or moderate risk       " &
                                         CountRows(
                                             Filter(
                                                 port,
-                                                su_risk = 'Risk Level'.Critical
-                                                    || su_risk = 'Risk Level'.High
+                                                su_risk = 'Risk Level'.High
+                                                    || su_risk = 'Risk Level'.Moderate
                                             )
                                         ) & Char(10) &
                                     "Topics touched                  " &
-                                        CountRows(Distinct(port, su_topic.su_name))
+                                        CountRows(Distinct(port, su_riskarea.su_name))
                                 )
                             Fill: =gblTheme.Surface
                             Color: =gblTheme.GrayDark
@@ -356,7 +356,7 @@ Screens:
                                     Width: =Parent.TemplateWidth - 110
                                     Height: =18
                                     Text: |
-                                        =ThisItem.su_area & "  |  " &
+                                        =ThisItem.su_domain.su_name & "  |  " &
                                          ThisItem.su_complianceowner.su_name
                                     Color: =gblTheme.GrayMid
                                     Size: =9
@@ -372,10 +372,10 @@ Screens:
                                     Risk: |
                                         =Switch(
                                             ThisItem.su_risk,
-                                            'Risk Level'.Critical, "Critical",
                                             'Risk Level'.High,     "High",
-                                            'Risk Level'.Medium,   "Medium",
-                                            "Low"
+                                            'Risk Level'.Moderate,   "Moderate",
+                                            'Risk Level'.Low,      "Low",
+                                            ""
                                         )
                             - rec_EpRule:
                                 Control: Rectangle@2.3.0

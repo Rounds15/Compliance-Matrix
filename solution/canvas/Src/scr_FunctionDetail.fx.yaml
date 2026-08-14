@@ -38,8 +38,8 @@ Screens:
                     Coalesce(
                         LookUp(
                             colCounsel,
-                            su_topic.su_compliancetopicid
-                                = gblSelectedFunction.su_topic.su_compliancetopicid
+                            su_riskarea.su_riskareaid
+                                = gblSelectedFunction.su_riskarea.su_riskareaid
                         ),
                         gblDefaultCounsel
                     )
@@ -115,7 +115,7 @@ Screens:
                     Width: =700
                     Height: =32
                     Text: |
-                        ="/  " & gblSelectedFunction.su_topic.su_name & "  /  " &
+                        ="/  " & gblSelectedFunction.su_riskarea.su_name & "  /  " &
                          gblSelectedFunction.su_name
                     Color: =gblTheme.GrayMid
                     Size: =10
@@ -149,8 +149,8 @@ Screens:
                     Width: =800
                     Height: =20
                     Text: |
-                        =Upper(gblSelectedFunction.su_topic.su_name & "  |  " &
-                               gblSelectedFunction.su_area)
+                        =Upper(gblSelectedFunction.su_riskarea.su_name & "  |  " &
+                               gblSelectedFunction.su_domain.su_name)
                     Color: =gblTheme.OrangeLight
                     Size: =8
                     FontWeight: =FontWeight.Bold
@@ -179,10 +179,10 @@ Screens:
                     Risk: |
                         =Switch(
                             gblSelectedFunction.su_risk,
-                            'Risk Level'.Critical, "Critical",
                             'Risk Level'.High,     "High",
-                            'Risk Level'.Medium,   "Medium",
-                            "Low"
+                            'Risk Level'.Moderate,   "Moderate",
+                            'Risk Level'.Low,      "Low",
+                            ""
                         )
             - lbl_FdCode:
                 Control: Label@2.5.1
@@ -251,7 +251,12 @@ Screens:
                             gblSelectedFunction,
                             {
                                 su_name: txt_FdName.Text,
-                                su_area: txt_FdArea.Text,
+                                // Risk area and domain are lookups now, not free
+                                // text. The domain dropdown carries the whole
+                                // record, and its parent risk area is written
+                                // alongside so the two never disagree.
+                                su_domain: drp_FdDomain.Selected,
+                                su_riskarea: drp_FdDomain.Selected.su_riskarea,
                                 su_statute: txt_FdStatute.Text,
                                 su_citation: txt_FdCitation.Text,
                                 su_statuteurl: txt_FdStatuteUrl.Text,
@@ -262,9 +267,8 @@ Screens:
                                 su_resourceurl: txt_FdResourceUrl.Text,
                                 su_risk: Switch(
                                     drp_FdRisk.Selected.Value,
-                                    "Critical", 'Risk Level'.Critical,
                                     "High",     'Risk Level'.High,
-                                    "Medium",   'Risk Level'.Medium,
+                                    "Moderate",   'Risk Level'.Moderate,
                                     'Risk Level'.Low
                                 ),
                                 su_lastreviewed: gblToday
@@ -279,9 +283,8 @@ Screens:
                                     su_owner: gblSelectedFunction.su_complianceowner,
                                     su_risk: Switch(
                                         drp_FdRisk.Selected.Value,
-                                        "Critical", 'Risk Level'.Critical,
                                         "High",     'Risk Level'.High,
-                                        "Medium",   'Risk Level'.Medium,
+                                        "Moderate",   'Risk Level'.Moderate,
                                         'Risk Level'.Low
                                     )
                                 }
@@ -531,12 +534,11 @@ Screens:
                             Height: =42
                             Items: |
                                 =Table(
-                                    {Value: "Critical"},
                                     {Value: "High"},
-                                    {Value: "Medium"},
+                                    {Value: "Moderate"},
                                     {Value: "Low"}
                                 )
-                            Default: ="Medium"
+                            Default: ="Moderate"
                             BorderColor: =gblTheme.Border
                             Size: =11
                             Font: =gblTheme.FontBody
@@ -605,9 +607,8 @@ Screens:
                                         su_function: gblSelectedFunction,
                                         su_severity: Switch(
                                             drp_GapSeverity.Selected.Value,
-                                            "Critical", 'Risk Level'.Critical,
                                             "High",     'Risk Level'.High,
-                                            "Medium",   'Risk Level'.Medium,
+                                            "Moderate",   'Risk Level'.Moderate,
                                             'Risk Level'.Low
                                         ),
                                         su_status: 'Gap Status'.Open,
@@ -631,7 +632,7 @@ Screens:
                                 Set(
                                     gblOpenGapCount,
                                     CountRows(
-                                        Filter('Compliance Gaps', su_status = 'Gap Status'.Open)
+                                        Filter('Compliance Gaps', su_status <> 'Gap Status'.Closed)
                                     )
                                 );
                                 Reset(txt_GapTitle);
@@ -639,7 +640,7 @@ Screens:
                                 Set(gblFdPanel, "");
                                 Set(gblFdToast, "Gap logged and routed to the gap tracker.")
                             Fill: =gblTheme.High
-                            HoverFill: =gblTheme.Critical
+                            HoverFill: =gblTheme.High
                             DisabledFill: =gblTheme.GrayLight
                             Color: =gblTheme.White
                             BorderThickness: =0
@@ -1119,12 +1120,11 @@ Screens:
                                             Height: =88
                                             Fill: |
                                                 =If(
-                                                    ThisItem.su_status = 'Gap Status'.Open,
+                                                    ThisItem.su_status <> 'Gap Status'.Closed,
                                                     Switch(
                                                         ThisItem.su_severity,
-                                                        'Risk Level'.Critical, gblTheme.Critical,
                                                         'Risk Level'.High,     gblTheme.High,
-                                                        'Risk Level'.Medium,   gblTheme.Medium,
+                                                        'Risk Level'.Moderate,   gblTheme.Moderate,
                                                         gblTheme.Low
                                                     ),
                                                     gblTheme.Low
@@ -1138,20 +1138,21 @@ Screens:
                                             Width: =70
                                             Height: =20
                                             Text: |
-                                                =If(
-                                                    ThisItem.su_status = 'Gap Status'.Open,
-                                                    "Open",
+                                                =Switch(
+                                                    ThisItem.su_status,
+                                                    'Gap Status'.Open,          "Open",
+                                                    'Gap Status'.'In Progress', "In Progress",
                                                     "Closed"
                                                 )
                                             Fill: |
                                                 =If(
-                                                    ThisItem.su_status = 'Gap Status'.Open,
+                                                    ThisItem.su_status <> 'Gap Status'.Closed,
                                                     ColorFade(gblTheme.High, 0.88),
                                                     ColorFade(gblTheme.Low, 0.88)
                                                 )
                                             Color: |
                                                 =If(
-                                                    ThisItem.su_status = 'Gap Status'.Open,
+                                                    ThisItem.su_status <> 'Gap Status'.Closed,
                                                     gblTheme.High,
                                                     gblTheme.Low
                                                 )
@@ -1170,7 +1171,13 @@ Screens:
                                             Text: |
                                                 =ThisItem.su_gapcode & "  |  opened " &
                                                  Text(ThisItem.su_openeddate, "mmm d, yyyy") &
-                                                 "  |  " & ThisItem.su_daysopen & " days open"
+                                                 "  |  " & ThisItem.su_daysopen & " days open" &
+                                                 If(
+                                                     IsBlank(ThisItem.su_assessment),
+                                                     "",
+                                                     "  |  from " &
+                                                     ThisItem.su_assessment.su_assessmentcode
+                                                 )
                                             Color: =gblTheme.GrayMid
                                             Size: =8
                                             VerticalAlign: =VerticalAlign.Middle
@@ -1307,18 +1314,17 @@ Screens:
                                     Width: =260
                                     Items: |
                                         =Table(
-                                            {Value: "Critical"},
                                             {Value: "High"},
-                                            {Value: "Medium"},
+                                            {Value: "Moderate"},
                                             {Value: "Low"}
                                         )
                                     Default: |
                                         =Switch(
                                             gblSelectedFunction.su_risk,
-                                            'Risk Level'.Critical, "Critical",
                                             'Risk Level'.High,     "High",
-                                            'Risk Level'.Medium,   "Medium",
-                                            "Low"
+                                            'Risk Level'.Moderate,   "Moderate",
+                                            'Risk Level'.Low,      "Low",
+                                            ""
                                         )
                                     BorderColor: =gblTheme.Border
                                     Size: =11
@@ -1328,20 +1334,52 @@ Screens:
                                 Properties:
                                     Height: =20
                                     Width: =Parent.Width
-                                    Text: ="Compliance area"
+                                    Text: ="Domain"
                                     Color: =gblTheme.Navy
                                     Size: =9
                                     FontWeight: =FontWeight.Semibold
                                     Font: =gblTheme.FontBody
-                            - txt_FdArea:
-                                Control: Classic/TextInput@2.3.2
+                            - drp_FdDomain:
+                                Control: Classic/ComboBox@2.4.0
                                 Properties:
                                     Height: =42
                                     Width: =Parent.Width
-                                    Default: =gblSelectedFunction.su_area
+                                    # Combo box rather than a dropdown: 61 domains
+                                    # is past the point where scrolling a plain
+                                    # list is usable, and this one is searchable.
+                                    Items: =colDomains
+                                    DefaultSelectedItems: |
+                                        =If(
+                                            IsBlank(gblSelectedFunction.su_domain),
+                                            Blank(),
+                                            Filter(
+                                                colDomains,
+                                                su_domainid
+                                                    = gblSelectedFunction.su_domain.su_domainid
+                                            )
+                                        )
+                                    SearchFields: =["su_name"]
+                                    DisplayFields: =["su_name"]
+                                    IsSearchable: =true
+                                    SelectMultiple: =false
                                     BorderColor: =gblTheme.Border
                                     FocusedBorderColor: =gblTheme.Orange
                                     Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_FdRiskAreaEcho:
+                                Control: Label@2.5.1
+                                Properties:
+                                    Height: =22
+                                    Width: =Parent.Width
+                                    # Read-only: risk area follows the domain.
+                                    Text: |
+                                        =If(
+                                            IsBlank(drp_FdDomain.Selected),
+                                            "No domain selected - risk area will be cleared",
+                                            "Risk area: " & drp_FdDomain.Selected.su_riskarea.su_name
+                                        )
+                                    Color: =gblTheme.GrayMid
+                                    Size: =9
                                     Font: =gblTheme.FontBody
                             - lbl_FdStatuteLabel:
                                 Control: Label@2.5.1
@@ -1632,7 +1670,7 @@ Screens:
                             Height: =134
                             Width: =Parent.Width
                             Text: |
-                                ="Counsel of record for " & gblSelectedFunction.su_topic.su_name &
+                                ="Counsel of record for " & gblSelectedFunction.su_riskarea.su_name &
                                  ". Reach out before responding to a regulator, signing an agreement, or interpreting the statute." &
                                  Char(10) & Char(10) &
                                  gblFdCounsel.su_attorney.su_name & Char(10) &

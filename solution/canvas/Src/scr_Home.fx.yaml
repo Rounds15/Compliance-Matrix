@@ -4,7 +4,7 @@
 # Answers the question the hero asks: who is responsible for what, and are we
 # on top of it. Three bands:
 #   1. hero with the matrix-wide search
-#   2. institution figures (functions, topics, due in 90 days, past due)
+#   2. institution figures (functions, risk areas, due in 90 days, past due)
 #   3. six destination cards, then the signed-in user's own assignments
 #
 # Counts are aggregated server-side with CountRows(Filter(...)) rather than
@@ -39,7 +39,7 @@ Screens:
                 );
                 Set(gblOpenGapCount,
                     CountRows(
-                        Filter('Compliance Gaps', su_status = 'Gap Status'.Open)
+                        Filter('Compliance Gaps', su_status <> 'Gap Status'.Closed)
                     )
                 );
                 Set(gblFunctionCount, CountRows('Compliance Functions'));
@@ -58,6 +58,20 @@ Screens:
                                 su_person.su_compliancedirectoryid = gblMe.su_compliancedirectoryid
                             ),
                             "su_function"
+                        )
+                    )
+                );
+                // Assessments this person owns, so "assigned to you" reflects
+                // the review work as well as the obligations.
+                ClearCollect(
+                    colMyAssessments,
+                    If(
+                        IsBlank(gblMe),
+                        Blank(),
+                        Filter(
+                            'Assessment Owners',
+                            su_person.su_compliancedirectoryid
+                                = gblMe.su_compliancedirectoryid
                         )
                     )
                 );
@@ -236,7 +250,7 @@ Screens:
                             Items: |
                                 =Table(
                                     {FigValue: gblFunctionCount,   FigLabel: "Compliance functions", FigAlert: false},
-                                    {FigValue: CountRows(colTopics), FigLabel: "Compliance topics",  FigAlert: false},
+                                    {FigValue: CountRows(colRiskAreas), FigLabel: "Risk areas",        FigAlert: false},
                                     {FigValue: gblHomeUpcoming90,  FigLabel: "Due within 90 days",   FigAlert: false},
                                     {FigValue: gblHomeOverdue,     FigLabel: "Past due today",       FigAlert: true}
                                 )
@@ -324,15 +338,15 @@ Screens:
                                         DestMeta: gblFunctionCount & " records"
                                     },
                                     {
-                                        DestKey: "Topics",
-                                        DestTitle: "Topics",
-                                        DestBody: "Browse by compliance topic: research, health and safety, privacy, Title IX, and more.",
-                                        DestMeta: CountRows(colTopics) & " topics"
+                                        DestKey: "RiskAreas",
+                                        DestTitle: "Risk Areas",
+                                        DestBody: "Browse by risk area, then domain, then the functions inside.",
+                                        DestMeta: CountRows(colRiskAreas) & " risk areas"
                                     },
                                     {
-                                        DestKey: "Areas",
-                                        DestTitle: "Functional Areas",
-                                        DestBody: "See obligations grouped by the university unit that carries them.",
+                                        DestKey: "Domains",
+                                        DestTitle: "Domains",
+                                        DestBody: "See obligations grouped by domain, including domains with no coverage yet.",
                                         DestMeta: "By unit"
                                     },
                                     {
@@ -426,8 +440,8 @@ Screens:
                                         =Switch(
                                             ThisItem.DestKey,
                                             "Functions",     Navigate(scr_Functions, ScreenTransition.None),
-                                            "Topics",        Navigate(scr_Topics, ScreenTransition.None),
-                                            "Areas",         Navigate(scr_Areas, ScreenTransition.None),
+                                            "RiskAreas",     Navigate(scr_RiskAreas, ScreenTransition.None),
+                                            "Domains",       Navigate(scr_Domains, ScreenTransition.None),
                                             "Deadlines",     Navigate(scr_Deadlines, ScreenTransition.None),
                                             "Directory",     Navigate(scr_Directory, ScreenTransition.None),
                                             "RiskDashboard", Navigate(scr_RiskDashboard, ScreenTransition.None)
@@ -460,6 +474,11 @@ Screens:
                                      'Application Role'.Administrator, "Administrator",
                                      'Application Role'.Executive,     "Executive",
                                      "Compliance Owner"
+                                 ) &
+                                 If(
+                                     CountRows(colMyAssessments) = 0,
+                                     "",
+                                     "  |  " & CountRows(colMyAssessments) & " assessment(s)"
                                  )
                             Color: =gblTheme.GrayMid
                             Size: =9
@@ -502,7 +521,7 @@ Screens:
                                     Width: =Parent.TemplateWidth - 200
                                     Height: =18
                                     Text: |
-                                        =ThisItem.Value.su_topic.su_name & "  |  " & ThisItem.Value.su_area
+                                        =ThisItem.Value.su_riskarea.su_name & "  |  " & ThisItem.Value.su_domain.su_name
                                     Color: =gblTheme.GrayMid
                                     Size: =9
                                     Font: =gblTheme.FontBody
@@ -517,10 +536,10 @@ Screens:
                                     Risk: |
                                         =Switch(
                                             ThisItem.Value.su_risk,
-                                            'Risk Level'.Critical, "Critical",
                                             'Risk Level'.High,     "High",
-                                            'Risk Level'.Medium,   "Medium",
-                                            "Low"
+                                            'Risk Level'.Moderate,   "Moderate",
+                                            'Risk Level'.Low,      "Low",
+                                            ""
                                         )
                             - lbl_MyFnGapBadge:
                                 Control: Label@2.5.1

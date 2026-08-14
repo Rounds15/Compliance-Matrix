@@ -12,14 +12,9 @@
         <displayname description="Risk Level" languagecode="1033"/>
       </displaynames>
       <Descriptions>
-        <Description description="Risk rating applied to functions, deadlines, and gap severity." languagecode="1033"/>
+        <Description description="Risk rating applied to functions, assessments, and gap severity." languagecode="1033"/>
       </Descriptions>
       <options>
-        <option value="100000000" Color="#B91C1C">
-          <labels>
-            <label description="Critical" languagecode="1033"/>
-          </labels>
-        </option>
         <option value="100000001" Color="#DC2626">
           <labels>
             <label description="High" languagecode="1033"/>
@@ -27,7 +22,7 @@
         </option>
         <option value="100000002" Color="#D97706">
           <labels>
-            <label description="Medium" languagecode="1033"/>
+            <label description="Moderate" languagecode="1033"/>
           </labels>
         </option>
         <option value="100000003" Color="#16A34A">
@@ -42,12 +37,12 @@
         <displayname description="Cadence" languagecode="1033"/>
       </displaynames>
       <Descriptions>
-        <Description description="Recurrence pattern for a compliance deadline." languagecode="1033"/>
+        <Description description="Recurrence pattern for a fixed-recurring compliance deadline." languagecode="1033"/>
       </Descriptions>
       <options>
         <option value="100000010">
           <labels>
-            <label description="Annual" languagecode="1033"/>
+            <label description="Annually" languagecode="1033"/>
           </labels>
         </option>
         <option value="100000011">
@@ -62,17 +57,69 @@
         </option>
         <option value="100000013">
           <labels>
-            <label description="Biennial" languagecode="1033"/>
+            <label description="Monthly" languagecode="1033"/>
           </labels>
         </option>
         <option value="100000014">
           <labels>
-            <label description="Continuous" languagecode="1033"/>
+            <label description="Biennial" languagecode="1033"/>
           </labels>
         </option>
         <option value="100000015">
           <labels>
+            <label description="Ongoing" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000016">
+          <labels>
             <label description="One-time" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_deadlinetype" localizedName="Deadline Type" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Deadline Type" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="Discriminator. Only Fixed Recurring rows carry calendar fields and drive the reminder flow; Event-Relative rows carry a trigger and offset instead." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000070">
+          <labels>
+            <label description="Fixed Recurring" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000071">
+          <labels>
+            <label description="Event-Relative" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000072">
+          <labels>
+            <label description="Ongoing" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000073">
+          <labels>
+            <label description="Conditional" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_offsetunit" localizedName="Offset Unit" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Offset Unit" languagecode="1033"/>
+      </displaynames>
+      <options>
+        <option value="100000080">
+          <labels>
+            <label description="Days" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000081">
+          <labels>
+            <label description="Months" languagecode="1033"/>
           </labels>
         </option>
       </options>
@@ -87,6 +134,11 @@
             <label description="Open" languagecode="1033"/>
           </labels>
         </option>
+        <option value="100000022">
+          <labels>
+            <label description="In Progress" languagecode="1033"/>
+          </labels>
+        </option>
         <option value="100000021">
           <labels>
             <label description="Closed" languagecode="1033"/>
@@ -99,7 +151,7 @@
         <displayname description="Ownership Role" languagecode="1033"/>
       </displaynames>
       <Descriptions>
-        <Description description="The three tiers of the ownership chain. Every obligation has an executive owner accountable at cabinet level, a unit owner who runs it inside the unit, and a compliance owner who does the work and files the record." languagecode="1033"/>
+        <Description description="The three tiers of the ownership chain: an executive owner accountable at cabinet level, a unit owner who runs it, a compliance owner who files it." languagecode="1033"/>
       </Descriptions>
       <options>
         <option value="100000030">
@@ -123,9 +175,6 @@
       <displaynames>
         <displayname description="Ownership Sub-role" languagecode="1033"/>
       </displaynames>
-      <Descriptions>
-        <Description description="Weight of a person's involvement within a single ownership role." languagecode="1033"/>
-      </Descriptions>
       <options>
         <option value="100000040">
           <labels>
@@ -161,13 +210,74 @@
         </option>
       </options>
     </optionset>
+    <optionset Name="su_flagsource" localizedName="Flag Source" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Flag Source" languagecode="1033"/>
+      </displaynames>
+      <options>
+        <option value="100000110">
+          <labels>
+            <label description="Manual" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000111">
+          <labels>
+            <label description="Survey" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_assessmentstatus" localizedName="Assessment Status" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Assessment Status" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="Normalized from the legacy free-text Progress field." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000090">
+          <labels>
+            <label description="Drafting" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000091">
+          <labels>
+            <label description="Report Complete" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000092">
+          <labels>
+            <label description="Finalized" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000093">
+          <labels>
+            <label description="Closed" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_assessmentownerrole" localizedName="Assessment Owner Role" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Assessment Owner Role" languagecode="1033"/>
+      </displaynames>
+      <options>
+        <option value="100000100">
+          <labels>
+            <label description="Compliance" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000101">
+          <labels>
+            <label description="Executive" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
     <optionset Name="su_approle" localizedName="Application Role" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
       <displaynames>
         <displayname description="Application Role" languagecode="1033"/>
       </displaynames>
-      <Descriptions>
-        <Description description="Drives screen-level access gating in the canvas app. Administrator unlocks Gap Tracker, Risk Dashboard, and Reporting." languagecode="1033"/>
-      </Descriptions>
       <options>
         <option value="100000060">
           <labels>
@@ -188,13 +298,81 @@
     </optionset>
   </optionsets>
   <EntityRelationships>
-    <EntityRelationship Name="su_compliancetopic_su_compliancefunction_su_topic">
+    <EntityRelationship Name="su_compliancedirectory_su_riskarea_su_owner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_riskarea</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_owner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_riskarea_su_domain">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_domain</ReferencingEntityName>
+      <ReferencedEntityName>su_riskarea</ReferencedEntityName>
+      <ReferencingAttributeName>su_riskarea</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_domain_su_owner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_domain</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_owner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_riskarea_su_compliancefunction">
       <EntityRelationshipType>OneToMany</EntityRelationshipType>
       <IsCustomizable>1</IsCustomizable>
       <IntroducedVersion>1.0.0.0</IntroducedVersion>
       <ReferencingEntityName>su_compliancefunction</ReferencingEntityName>
-      <ReferencedEntityName>su_compliancetopic</ReferencedEntityName>
-      <ReferencingAttributeName>su_topic</ReferencingAttributeName>
+      <ReferencedEntityName>su_riskarea</ReferencedEntityName>
+      <ReferencingAttributeName>su_riskarea</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_domain_su_compliancefunction">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancefunction</ReferencingEntityName>
+      <ReferencedEntityName>su_domain</ReferencedEntityName>
+      <ReferencingAttributeName>su_domain</ReferencingAttributeName>
       <RelationshipDescription/>
       <CascadeLinks>
         <CascadeAssign>NoCascade</CascadeAssign>
@@ -290,6 +468,57 @@
         <CascadeMerge>NoCascade</CascadeMerge>
       </CascadeLinks>
     </EntityRelationship>
+    <EntityRelationship Name="su_domain_su_assessment">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_assessment</ReferencingEntityName>
+      <ReferencedEntityName>su_domain</ReferencedEntityName>
+      <ReferencingAttributeName>su_domain</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_assessment_su_assessmentowner">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_assessmentowner</ReferencingEntityName>
+      <ReferencedEntityName>su_assessment</ReferencedEntityName>
+      <ReferencingAttributeName>su_assessment</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>Cascade</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedirectory_su_assessmentowner_su_person">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_assessmentowner</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_person</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
     <EntityRelationship Name="su_compliancefunction_su_compliancegap">
       <EntityRelationshipType>OneToMany</EntityRelationshipType>
       <IsCustomizable>1</IsCustomizable>
@@ -301,6 +530,23 @@
       <CascadeLinks>
         <CascadeAssign>NoCascade</CascadeAssign>
         <CascadeDelete>Cascade</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_assessment_su_compliancegap">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancegap</ReferencingEntityName>
+      <ReferencedEntityName>su_assessment</ReferencedEntityName>
+      <ReferencingAttributeName>su_assessment</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
         <CascadeReparent>NoCascade</CascadeReparent>
         <CascadeShare>NoCascade</CascadeShare>
         <CascadeUnshare>NoCascade</CascadeUnshare>
@@ -426,13 +672,13 @@
         <CascadeMerge>NoCascade</CascadeMerge>
       </CascadeLinks>
     </EntityRelationship>
-    <EntityRelationship Name="su_compliancetopic_su_counselassignment_su_topic">
+    <EntityRelationship Name="su_riskarea_su_counselassignment">
       <EntityRelationshipType>OneToMany</EntityRelationshipType>
       <IsCustomizable>1</IsCustomizable>
       <IntroducedVersion>1.0.0.0</IntroducedVersion>
       <ReferencingEntityName>su_counselassignment</ReferencingEntityName>
-      <ReferencedEntityName>su_compliancetopic</ReferencedEntityName>
-      <ReferencingAttributeName>su_topic</ReferencingAttributeName>
+      <ReferencedEntityName>su_riskarea</ReferencedEntityName>
+      <ReferencingAttributeName>su_riskarea</ReferencingAttributeName>
       <RelationshipDescription/>
       <CascadeLinks>
         <CascadeAssign>NoCascade</CascadeAssign>

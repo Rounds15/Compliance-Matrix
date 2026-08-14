@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity>
-  <Name LocalizedName="Compliance Directory" OriginalName="Compliance Directory">su_compliancedirectory</Name>
+  <Name LocalizedName="Assessment" OriginalName="Assessment">su_assessment</Name>
   <EntityInfo>
-    <entity Name="su_compliancedirectory">
+    <entity Name="su_assessment">
       <LocalizedNames>
-        <LocalizedName description="Compliance Directory" languagecode="1033"/>
+        <LocalizedName description="Assessment" languagecode="1033"/>
       </LocalizedNames>
       <LocalizedCollectionNames>
-        <LocalizedCollectionName description="Compliance Directory" languagecode="1033"/>
+        <LocalizedCollectionName description="Assessments" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="The people layer: every owner in an ownership chain, with title, unit, and contact info. May be created manually or linked to Entra ID." languagecode="1033"/>
+        <Description description="A compliance assessment: one conducted event, with its date, overall risk rating, status, and file. Produces gaps. Foundation of the Assessment Tracker." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -36,16 +36,16 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>150</MaxLength>
+          <MaxLength>300</MaxLength>
           <Format>text</Format>
           <displaynames>
-            <displayname description="Full Name" languagecode="1033"/>
+            <displayname description="Assessment Name" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_jobtitle">
+        <attribute PhysicalName="su_assessmentcode">
           <Type>nvarchar</Type>
-          <Name>su_jobtitle</Name>
-          <LogicalName>su_jobtitle</LogicalName>
+          <Name>su_assessmentcode</Name>
+          <LogicalName>su_assessmentcode</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -65,10 +65,167 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>250</MaxLength>
+          <MaxLength>20</MaxLength>
           <Format>text</Format>
           <displaynames>
-            <displayname description="Title" languagecode="1033"/>
+            <displayname description="Assessment ID" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Legacy surrogate key for seed relationship resolution." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_assessmentdate">
+          <Type>datetime</Type>
+          <Name>su_assessmentdate</Name>
+          <LogicalName>su_assessmentdate</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <Format>dateonly</Format>
+          <Behavior>1</Behavior>
+          <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
+          <displaynames>
+            <displayname description="Assessment Date" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="When the assessment was conducted (one per assessment)." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_risk">
+          <Type>picklist</Type>
+          <Name>su_risk</Name>
+          <LogicalName>su_risk</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_risklevel">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Risk Rating" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_status">
+          <Type>picklist</Type>
+          <Name>su_status</Name>
+          <LogicalName>su_status</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_assessmentstatus">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Status" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_currentholder">
+          <Type>nvarchar</Type>
+          <Name>su_currentholder</Name>
+          <LogicalName>su_currentholder</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>150</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Current Holder" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_followupround">
+          <Type>int</Type>
+          <Name>su_followupround</Name>
+          <LogicalName>su_followupround</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>0</MinValue>
+          <MaxValue>20</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Follow-up Round" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_unit">
@@ -100,126 +257,10 @@
             <displayname description="Unit" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_email">
-          <Type>nvarchar</Type>
-          <Name>su_email</Name>
-          <LogicalName>su_email</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>1</IsSearchable>
-          <MaxLength>150</MaxLength>
-          <Format>email</Format>
-          <displaynames>
-            <displayname description="Email" languagecode="1033"/>
-          </displaynames>
-        </attribute>
-        <attribute PhysicalName="su_phone">
-          <Type>nvarchar</Type>
-          <Name>su_phone</Name>
-          <LogicalName>su_phone</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>1</IsSearchable>
-          <MaxLength>40</MaxLength>
-          <Format>phone</Format>
-          <displaynames>
-            <displayname description="Phone" languagecode="1033"/>
-          </displaynames>
-        </attribute>
-        <attribute PhysicalName="su_location">
-          <Type>nvarchar</Type>
-          <Name>su_location</Name>
-          <LogicalName>su_location</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>1</IsSearchable>
-          <MaxLength>200</MaxLength>
-          <Format>text</Format>
-          <displaynames>
-            <displayname description="Location" languagecode="1033"/>
-          </displaynames>
-        </attribute>
-        <attribute PhysicalName="su_netid">
-          <Type>nvarchar</Type>
-          <Name>su_netid</Name>
-          <LogicalName>su_netid</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>1</IsSearchable>
-          <MaxLength>50</MaxLength>
-          <Format>text</Format>
-          <displaynames>
-            <displayname description="NetID" languagecode="1033"/>
-          </displaynames>
-        </attribute>
-        <attribute PhysicalName="su_active">
-          <Type>bit</Type>
-          <Name>su_active</Name>
-          <LogicalName>su_active</LogicalName>
+        <attribute PhysicalName="su_keycontrolsmissing">
+          <Type>int</Type>
+          <Name>su_keycontrolsmissing</Name>
+          <LogicalName>su_keycontrolsmissing</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -239,35 +280,78 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>0</IsSearchable>
-          <optionset Name="su_active_optionset">
-            <displaynames>
-              <displayname description="Active" languagecode="1033"/>
-            </displaynames>
-            <IsGlobal>0</IsGlobal>
-            <OptionSetType>boolean</OptionSetType>
-            <option value="0">
-              <labels>
-                <label description="No" languagecode="1033"/>
-              </labels>
-            </option>
-            <option value="1">
-              <labels>
-                <label description="Yes" languagecode="1033"/>
-              </labels>
-            </option>
-          </optionset>
-          <DefaultValue>1</DefaultValue>
+          <MinValue>0</MinValue>
+          <MaxValue>1000</MaxValue>
+          <Format>none</Format>
           <displaynames>
-            <displayname description="Active" languagecode="1033"/>
+            <displayname description="Key Controls Missing" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_approverstext">
+          <Type>nvarchar</Type>
+          <Name>su_approverstext</Name>
+          <LogicalName>su_approverstext</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>400</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Approvers" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="Cleared when a person leaves; drives the leaver rule and hides them from pickers." languagecode="1033"/>
+            <Description description="Approver names; becomes a junction once matched to directory." languagecode="1033"/>
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="su_systemuser">
+        <attribute PhysicalName="su_fileurl">
+          <Type>nvarchar</Type>
+          <Name>su_fileurl</Name>
+          <LogicalName>su_fileurl</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>500</MaxLength>
+          <Format>url</Format>
+          <displaynames>
+            <displayname description="Assessment File URL" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_domain">
           <Type>lookup</Type>
-          <Name>su_systemuser</Name>
-          <LogicalName>su_systemuser</LogicalName>
+          <Name>su_domain</Name>
+          <LogicalName>su_domain</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -289,62 +373,17 @@
           <IsSearchable>0</IsSearchable>
           <LookupStyle>single</LookupStyle>
           <lookupTypes>
-            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="systemuser"/>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_domain"/>
           </lookupTypes>
           <displaynames>
-            <displayname description="Dataverse User" languagecode="1033"/>
+            <displayname description="Domain Assessed" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="Links a directory person to their Dataverse user for Assigned to you and Power BI row-level security." languagecode="1033"/>
+            <Description description="What this assessment covers; optional link to a domain." languagecode="1033"/>
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="su_isexecutive">
-          <Type>bit</Type>
-          <Name>su_isexecutive</Name>
-          <LogicalName>su_isexecutive</LogicalName>
-          <RequiredLevel>none</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>0</IsSearchable>
-          <optionset Name="su_isexecutive_optionset">
-            <displaynames>
-              <displayname description="Executive Team Member" languagecode="1033"/>
-            </displaynames>
-            <IsGlobal>0</IsGlobal>
-            <OptionSetType>boolean</OptionSetType>
-            <option value="0">
-              <labels>
-                <label description="No" languagecode="1033"/>
-              </labels>
-            </option>
-            <option value="1">
-              <labels>
-                <label description="Yes" languagecode="1033"/>
-              </labels>
-            </option>
-          </optionset>
-          <DefaultValue>0</DefaultValue>
-          <displaynames>
-            <displayname description="Executive Team Member" languagecode="1033"/>
-          </displaynames>
-        </attribute>
       </attributes>
-      <EntitySetName>su_compliancedirectorys</EntitySetName>
+      <EntitySetName>su_assessments</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
       <IsRenameable>1</IsRenameable>
@@ -361,10 +400,10 @@
       <IsCustomEntity>1</IsCustomEntity>
       <IsQuickCreateEnabled>1</IsQuickCreateEnabled>
       <IntroducedVersion>1.0.0.0</IntroducedVersion>
-      <OwnershipTypeMask>OrganizationOwned</OwnershipTypeMask>
+      <OwnershipTypeMask>UserOwned</OwnershipTypeMask>
       <PrimaryNameAttribute>su_name</PrimaryNameAttribute>
-      <HasNotes>0</HasNotes>
-      <HasActivities>0</HasActivities>
+      <HasNotes>1</HasNotes>
+      <HasActivities>1</HasActivities>
       <IsChildEntity>0</IsChildEntity>
     </entity>
   </EntityInfo>

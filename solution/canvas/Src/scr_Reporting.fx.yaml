@@ -363,7 +363,7 @@ Screens:
                          "Function Ownership to Functions and to Directory (many-to-one both sides)" & Char(10) & Char(10) &
                          "Measures to define" & Char(10) &
                          "Open Gap Count, Gap Aging Days, Overdue Deadlines, On-Time Completion %" & Char(10) &
-                         "Critical Exposure = Critical functions with an open gap" & Char(10) &
+                         "High Exposure = High-risk functions with an open gap" & Char(10) &
                          "Fiscal calendar starts July 1 - mark a custom date table"
                     Fill: =gblTheme.Surface
                     Color: =gblTheme.GrayDark

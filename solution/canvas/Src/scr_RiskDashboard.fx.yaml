@@ -22,17 +22,17 @@ Screens:
                 =If(!gblIsAdmin, Navigate(scr_NoAccess, ScreenTransition.None));
                 Set(gblHeatCell, Blank());
                 ClearCollect(colAllFunctions, 'Compliance Functions');
-                ClearCollect(colOpenGaps, Filter('Compliance Gaps', su_status = 'Gap Status'.Open));
+                ClearCollect(colOpenGaps, Filter('Compliance Gaps', su_status <> 'Gap Status'.Closed));
                 // Densest cell in the grid, used to scale the shading ramp.
                 Set(
                     gblHeatMax,
                     Max(
                         ForAll(
-                            colTopics As t,
+                            colRiskAreas As t,
                             CountRows(
                                 Filter(
                                     colAllFunctions,
-                                    su_topic.su_compliancetopicid = t.su_compliancetopicid
+                                    su_riskarea.su_riskareaid = t.su_riskareaid
                                 )
                             )
                         ),
@@ -80,9 +80,8 @@ Screens:
                     ShowScrollbar: =false
                     Items: |
                         =Table(
-                            {RiskKey: 'Risk Level'.Critical, RiskLabel: "Critical"},
                             {RiskKey: 'Risk Level'.High,     RiskLabel: "High"},
-                            {RiskKey: 'Risk Level'.Medium,   RiskLabel: "Medium"},
+                            {RiskKey: 'Risk Level'.Moderate,   RiskLabel: "Moderate"},
                             {RiskKey: 'Risk Level'.Low,      RiskLabel: "Low"}
                         )
                 Children:
@@ -109,9 +108,8 @@ Screens:
                             Color: |
                                 =Switch(
                                     ThisItem.RiskLabel,
-                                    "Critical", gblTheme.Critical,
                                     "High",     gblTheme.High,
-                                    "Medium",   gblTheme.Medium,
+                                    "Moderate",   gblTheme.Moderate,
                                     gblTheme.Low
                                 )
                             Size: =24
@@ -154,7 +152,7 @@ Screens:
                     Y: =382
                     Width: =600
                     Height: =24
-                    Text: ="HEAT MAP - TOPIC BY RISK RATING"
+                    Text: ="HEAT MAP - RISK AREA BY RISK RATING"
                     Color: =gblTheme.OrangeDark
                     Size: =8
                     FontWeight: =FontWeight.Bold
@@ -182,7 +180,7 @@ Screens:
                     TemplateSize: =38
                     TemplatePadding: =0
                     ShowScrollbar: =true
-                    Items: =colTopics
+                    Items: =colRiskAreas
                 Children:
                     - lbl_HeatRowLabel:
                         Control: Label@2.5.1
@@ -211,9 +209,8 @@ Screens:
                             ShowScrollbar: =false
                             Items: |
                                 =Table(
-                                    {CellRisk: 'Risk Level'.Critical, CellLabel: "Critical"},
                                     {CellRisk: 'Risk Level'.High,     CellLabel: "High"},
-                                    {CellRisk: 'Risk Level'.Medium,   CellLabel: "Medium"},
+                                    {CellRisk: 'Risk Level'.Moderate,   CellLabel: "Moderate"},
                                     {CellRisk: 'Risk Level'.Low,      CellLabel: "Low"}
                                 )
                         Children:
@@ -231,8 +228,8 @@ Screens:
                                                 n: CountRows(
                                                     Filter(
                                                         colAllFunctions,
-                                                        su_topic.su_compliancetopicid
-                                                            = gal_HeatRows.Selected.su_compliancetopicid,
+                                                        su_riskarea.su_riskareaid
+                                                            = gal_HeatRows.Selected.su_riskareaid,
                                                         su_risk = ThisItem.CellRisk
                                                     )
                                                 )
@@ -243,9 +240,8 @@ Screens:
                                                 ColorFade(
                                                     Switch(
                                                         ThisItem.CellLabel,
-                                                        "Critical", gblTheme.Critical,
                                                         "High",     gblTheme.High,
-                                                        "Medium",   gblTheme.Medium,
+                                                        "Moderate",   gblTheme.Moderate,
                                                         gblTheme.Low
                                                     ),
                                                     0.90 - 0.62 * (n / Max(gblHeatMax, 1))
@@ -267,8 +263,8 @@ Screens:
                                                 n: CountRows(
                                                     Filter(
                                                         colAllFunctions,
-                                                        su_topic.su_compliancetopicid
-                                                            = gal_HeatRows.Selected.su_compliancetopicid,
+                                                        su_riskarea.su_riskareaid
+                                                            = gal_HeatRows.Selected.su_riskareaid,
                                                         su_risk = ThisItem.CellRisk
                                                     )
                                                 )
@@ -296,7 +292,7 @@ Screens:
                                         =Set(
                                             gblHeatCell,
                                             {
-                                                Topic: gal_HeatRows.Selected,
+                                                RiskArea: gal_HeatRows.Selected,
                                                 Risk: ThisItem.CellRisk,
                                                 RiskLabel: ThisItem.CellLabel
                                             }
@@ -312,7 +308,7 @@ Screens:
                                 =CountRows(
                                     Filter(
                                         colAllFunctions,
-                                        su_topic.su_compliancetopicid = ThisItem.su_compliancetopicid
+                                        su_riskarea.su_riskareaid = ThisItem.su_riskareaid
                                     )
                                 )
                             Fill: =gblTheme.Surface
@@ -349,12 +345,12 @@ Screens:
                         ="Functions with an open gap        " &
                          CountRows(Distinct(colOpenGaps, su_function.su_compliancefunctionid)) &
                          Char(10) &
-                         "Critical functions with a gap     " &
+                         "High-risk functions with a gap  " &
                          CountRows(
                              Distinct(
                                  Filter(
                                      colOpenGaps,
-                                     su_function.su_risk = 'Risk Level'.Critical
+                                     su_function.su_risk = 'Risk Level'.High
                                  ),
                                  su_function.su_compliancefunctionid
                              )
@@ -419,7 +415,7 @@ Screens:
                             Y: =38
                             Width: =600
                             Height: =32
-                            Text: =gblHeatCell.Topic.su_name
+                            Text: =gblHeatCell.RiskArea.su_name
                             Color: =gblTheme.White
                             Size: =16
                             FontWeight: =FontWeight.Bold
@@ -438,8 +434,8 @@ Screens:
                             Items: |
                                 =Filter(
                                     colAllFunctions,
-                                    su_topic.su_compliancetopicid
-                                        = gblHeatCell.Topic.su_compliancetopicid,
+                                    su_riskarea.su_riskareaid
+                                        = gblHeatCell.RiskArea.su_riskareaid,
                                     su_risk = gblHeatCell.Risk
                                 )
                         Children:
@@ -463,7 +459,7 @@ Screens:
                                     Width: =Parent.TemplateWidth - 120
                                     Height: =18
                                     Text: |
-                                        =ThisItem.su_area & "  |  " &
+                                        =ThisItem.su_domain.su_name & "  |  " &
                                          ThisItem.su_complianceowner.su_name
                                     Color: =gblTheme.GrayMid
                                     Size: =9

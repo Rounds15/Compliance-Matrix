@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Compliance Gaps" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="Open and closed gaps with severity, opened and closed dates, and closure notes. A gap is always raised against the function it came from." languagecode="1033"/>
+        <Description description="Open and closed gaps. A gap is raised against the function it came from and the assessment that surfaced it, and carries its own remediation target." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -102,11 +102,45 @@
             <displayname description="Compliance Function" languagecode="1033"/>
           </displaynames>
         </attribute>
+        <attribute PhysicalName="su_assessment">
+          <Type>lookup</Type>
+          <Name>su_assessment</Name>
+          <LogicalName>su_assessment</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_assessment"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Assessment" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Which assessment surfaced this gap." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
         <attribute PhysicalName="su_severity">
           <Type>picklist</Type>
           <Name>su_severity</Name>
           <LogicalName>su_severity</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <RequiredLevel>recommended</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -168,7 +202,7 @@
           <Type>datetime</Type>
           <Name>su_openeddate</Name>
           <LogicalName>su_openeddate</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -222,6 +256,67 @@
           <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
           <displaynames>
             <displayname description="Closed" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_targetquarter">
+          <Type>nvarchar</Type>
+          <Name>su_targetquarter</Name>
+          <LogicalName>su_targetquarter</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>20</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Target Quarter" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Owner's estimated remediation quarter (per gap)." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_targetfy">
+          <Type>nvarchar</Type>
+          <Name>su_targetfy</Name>
+          <LogicalName>su_targetfy</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>20</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Target FY" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_note">
@@ -281,9 +376,6 @@
           <displaynames>
             <displayname description="Closure Notes" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Required by the close-gap action. What was remediated, and what prevents recurrence." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_owner">
           <Type>lookup</Type>
@@ -378,9 +470,6 @@
           <displaynames>
             <displayname description="Days Open" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Whole-day difference between opened and closed, or opened and today while still open. Feeds gap-aging reporting." languagecode="1033"/>
-          </Descriptions>
         </attribute>
       </attributes>
       <EntitySetName>su_compliancegaps</EntitySetName>

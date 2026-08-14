@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Counsel Assignments" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="Office of University Counsel attorney of record per compliance topic. Exactly one row should carry Is Default, used when a topic has no explicit assignment." languagecode="1033"/>
+        <Description description="Office of University Counsel attorney of record per risk area. Exactly one row should carry Is Default, used when a risk area has no explicit one." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -42,10 +42,10 @@
             <displayname description="Assignment" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_topic">
+        <attribute PhysicalName="su_riskarea">
           <Type>lookup</Type>
-          <Name>su_topic</Name>
-          <LogicalName>su_topic</LogicalName>
+          <Name>su_riskarea</Name>
+          <LogicalName>su_riskarea</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -67,10 +67,10 @@
           <IsSearchable>0</IsSearchable>
           <LookupStyle>single</LookupStyle>
           <lookupTypes>
-            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancetopic"/>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_riskarea"/>
           </lookupTypes>
           <displaynames>
-            <displayname description="Topic" languagecode="1033"/>
+            <displayname description="Risk Area" languagecode="1033"/>
           </displaynames>
           <Descriptions>
             <Description description="Empty on the default escalation row." languagecode="1033"/>

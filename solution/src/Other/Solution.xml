@@ -6,7 +6,7 @@
       <LocalizedName description="Compliance Matrix" languagecode="1033"/>
     </LocalizedNames>
     <Descriptions>
-      <Description description="University-wide compliance obligation register. Maps every obligation the institution carries to its ownership chain, governing statute, reporting requirement, due dates, and risk rating." languagecode="1033"/>
+      <Description description="University-wide compliance obligation register. Maps every obligation the institution carries to its ownership chain, governing statute, reporting requirement, due dates, risk rating, and the assessments that surface gaps." languagecode="1033"/>
     </Descriptions>
     <Version>1.0.0.0</Version>
     <Managed>0</Managed>
@@ -19,10 +19,13 @@
       <CustomizationOptionValuePrefix>10000</CustomizationOptionValuePrefix>
     </Publisher>
     <RootComponents>
-      <RootComponent type="1" schemaName="su_compliancetopic" behavior="0"/>
+      <RootComponent type="1" schemaName="su_riskarea" behavior="0"/>
+      <RootComponent type="1" schemaName="su_domain" behavior="0"/>
       <RootComponent type="1" schemaName="su_compliancedirectory" behavior="0"/>
       <RootComponent type="1" schemaName="su_compliancefunction" behavior="0"/>
       <RootComponent type="1" schemaName="su_compliancedeadline" behavior="0"/>
+      <RootComponent type="1" schemaName="su_assessment" behavior="0"/>
+      <RootComponent type="1" schemaName="su_assessmentowner" behavior="0"/>
       <RootComponent type="1" schemaName="su_compliancegap" behavior="0"/>
       <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
       <RootComponent type="1" schemaName="su_functionflag" behavior="0"/>
@@ -30,10 +33,15 @@
       <RootComponent type="1" schemaName="su_appadmin" behavior="0"/>
       <RootComponent type="9" schemaName="su_risklevel" behavior="0"/>
       <RootComponent type="9" schemaName="su_cadence" behavior="0"/>
+      <RootComponent type="9" schemaName="su_deadlinetype" behavior="0"/>
+      <RootComponent type="9" schemaName="su_offsetunit" behavior="0"/>
       <RootComponent type="9" schemaName="su_gapstatus" behavior="0"/>
       <RootComponent type="9" schemaName="su_ownershiprole" behavior="0"/>
       <RootComponent type="9" schemaName="su_ownershipsubrole" behavior="0"/>
       <RootComponent type="9" schemaName="su_flagstatus" behavior="0"/>
+      <RootComponent type="9" schemaName="su_flagsource" behavior="0"/>
+      <RootComponent type="9" schemaName="su_assessmentstatus" behavior="0"/>
+      <RootComponent type="9" schemaName="su_assessmentownerrole" behavior="0"/>
       <RootComponent type="9" schemaName="su_approle" behavior="0"/>
     </RootComponents>
     <MissingDependencies/>

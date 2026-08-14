@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Compliance Deadlines" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="One row per due date, joined to its function. Carries cadence, completion flag, and copied owner and risk fields so the calendar and list views sort and filter without traversing the lookup." languagecode="1033"/>
+        <Description description="One row per due event, joined to its function. Typed: Fixed Recurring rows carry the calendar fields; Event-Relative rows carry a trigger and offset." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -73,11 +73,42 @@
             <displayname description="Compliance Function" languagecode="1033"/>
           </displaynames>
         </attribute>
+        <attribute PhysicalName="su_deadlinetype">
+          <Type>picklist</Type>
+          <Name>su_deadlinetype</Name>
+          <LogicalName>su_deadlinetype</LogicalName>
+          <RequiredLevel>required</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_deadlinetype">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Deadline Type" languagecode="1033"/>
+          </displaynames>
+        </attribute>
         <attribute PhysicalName="su_duedate">
           <Type>datetime</Type>
           <Name>su_duedate</Name>
           <LogicalName>su_duedate</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <RequiredLevel>recommended</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForCreateApi>1</ValidForCreateApi>
@@ -100,7 +131,7 @@
           <Behavior>1</Behavior>
           <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
           <displaynames>
-            <displayname description="Due Date" languagecode="1033"/>
+            <displayname description="Next Due Date" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_cadence">
@@ -132,6 +163,188 @@
           </optionset>
           <displaynames>
             <displayname description="Cadence" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_duemonthnum">
+          <Type>int</Type>
+          <Name>su_duemonthnum</Name>
+          <LogicalName>su_duemonthnum</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>1</MinValue>
+          <MaxValue>12</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Due Month Number" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_dueday">
+          <Type>int</Type>
+          <Name>su_dueday</Name>
+          <LogicalName>su_dueday</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>1</MinValue>
+          <MaxValue>31</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Due Day" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_triggerevent">
+          <Type>nvarchar</Type>
+          <Name>su_triggerevent</Name>
+          <LogicalName>su_triggerevent</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>250</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Trigger Event" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Event-Relative only: what starts the clock." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_offsetvalue">
+          <Type>int</Type>
+          <Name>su_offsetvalue</Name>
+          <LogicalName>su_offsetvalue</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>0</MinValue>
+          <MaxValue>3650</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Offset Value" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_offsetunit">
+          <Type>picklist</Type>
+          <Name>su_offsetunit</Name>
+          <LogicalName>su_offsetunit</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_offsetunit">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Offset Unit" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_notes">
+          <Type>ntext</Type>
+          <Name>su_notes</Name>
+          <LogicalName>su_notes</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>2000</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="Deadline Notes" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_complete">
@@ -206,7 +419,7 @@
           <Behavior>1</Behavior>
           <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
           <displaynames>
-            <displayname description="Completed On" languagecode="1033"/>
+            <displayname description="Last Completed Date" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_owner">
@@ -240,7 +453,7 @@
             <displayname description="Owner" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="Copied from the parent function's compliance owner on save. Denormalized deliberately: reassigning a function rewrites this on every child row, which is what &quot;Owner fields on N deadline record(s) updated&quot; reports." languagecode="1033"/>
+            <Description description="Copied from the parent function's compliance owner on save." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_risk">
@@ -273,9 +486,6 @@
           <displaynames>
             <displayname description="Risk Rating" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Copied from the parent function so the calendar can colour by risk." languagecode="1033"/>
-          </Descriptions>
         </attribute>
       </attributes>
       <EntitySetName>su_compliancedeadlines</EntitySetName>

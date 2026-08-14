@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Function Flags" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="Raised by any owner from a function's detail screen when a record looks wrong. Flagging notifies the compliance office and adds the function to the administrator review queue." languagecode="1033"/>
+        <Description description="Raised by any owner when a record looks wrong." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -100,6 +100,37 @@
           <Format>textarea</Format>
           <displaynames>
             <displayname description="Reason" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_source">
+          <Type>picklist</Type>
+          <Name>su_source</Name>
+          <LogicalName>su_source</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <optionset Name="su_flagsource">
+            <IsGlobal>1</IsGlobal>
+            <OptionSetType>picklist</OptionSetType>
+          </optionset>
+          <displaynames>
+            <displayname description="Source" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_status">

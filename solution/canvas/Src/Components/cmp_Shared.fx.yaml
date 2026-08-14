@@ -19,13 +19,41 @@ ComponentDefinitions:
             Risk:
                 PropertyKind: Input
                 DisplayName: Risk
-                Description: Critical, High, Medium, or Low.
+                Description: >-
+                    High, Moderate, or Low. Anything else - including blank -
+                    renders as Unrated.
                 DataType: Text
-                Default: ="Medium"
+                Default: =""
+            RiskColor:
+                PropertyKind: Output
+                DisplayName: Risk Color
+                DataType: Color
+            RiskLabel:
+                PropertyKind: Output
+                DisplayName: Risk Label
+                DataType: Text
         Properties:
             Height: =24
             Width: =74
             Fill: =RGBA(0, 0, 0, 0)
+            # Resolved once here so the three child controls cannot drift apart.
+            # su_risk is Recommended, not Required, and is empty on most rows in
+            # the live data, so blank is a first-class state rather than a
+            # fall-through to Low.
+            RiskColor: |
+                =Switch(
+                    cmp_RiskPill.Risk,
+                    "High",     gblTheme.High,
+                    "Moderate", gblTheme.Moderate,
+                    "Low",      gblTheme.Low,
+                    gblTheme.Unrated
+                )
+            RiskLabel: |
+                =If(
+                    cmp_RiskPill.Risk in ["High", "Moderate", "Low"],
+                    cmp_RiskPill.Risk,
+                    "Unrated"
+                )
         Children:
             - rec_RiskBg:
                 Control: Rectangle@2.3.0
@@ -35,17 +63,7 @@ ComponentDefinitions:
                     Width: =Parent.Width
                     Height: =Parent.Height
                     # 12% tint of the risk colour, matching the prototype's chips.
-                    Fill: |
-                        =ColorFade(
-                            Switch(
-                                cmp_RiskPill.Risk,
-                                "Critical", gblTheme.Critical,
-                                "High",     gblTheme.High,
-                                "Medium",   gblTheme.Medium,
-                                gblTheme.Low
-                            ),
-                            0.88
-                        )
+                    Fill: =ColorFade(cmp_RiskPill.RiskColor, 0.88)
                     BorderRadius: =4
                     BorderThickness: =0
             - rec_RiskDot:
@@ -55,14 +73,7 @@ ComponentDefinitions:
                     Y: =(Parent.Height - 7) / 2
                     Width: =7
                     Height: =7
-                    Fill: |
-                        =Switch(
-                            cmp_RiskPill.Risk,
-                            "Critical", gblTheme.Critical,
-                            "High",     gblTheme.High,
-                            "Medium",   gblTheme.Medium,
-                            gblTheme.Low
-                        )
+                    Fill: =cmp_RiskPill.RiskColor
                     BorderRadius: =2
                     BorderThickness: =0
             - lbl_RiskText:
@@ -72,15 +83,8 @@ ComponentDefinitions:
                     Y: =0
                     Width: =Parent.Width - 22
                     Height: =Parent.Height
-                    Text: =cmp_RiskPill.Risk
-                    Color: |
-                        =Switch(
-                            cmp_RiskPill.Risk,
-                            "Critical", gblTheme.Critical,
-                            "High",     gblTheme.High,
-                            "Medium",   gblTheme.Medium,
-                            gblTheme.Low
-                        )
+                    Text: =cmp_RiskPill.RiskLabel
+                    Color: =cmp_RiskPill.RiskColor
                     Size: =9
                     FontWeight: =FontWeight.Bold
                     VerticalAlign: =VerticalAlign.Middle
@@ -108,20 +112,50 @@ ComponentDefinitions:
                 PropertyKind: Output
                 DisplayName: Status Label
                 DataType: Text
+            HasDueDate:
+                PropertyKind: Output
+                DisplayName: Has Due Date
+                DataType: Boolean
+            DueColor:
+                PropertyKind: Output
+                DisplayName: Due Color
+                DataType: Color
         Properties:
             Height: =24
             Width: =104
             Fill: =RGBA(0, 0, 0, 0)
-            # Mirrors dueState() in the prototype: complete wins, then overdue,
-            # then the 30 / 90 day warning bands.
-            DayDiff: =DateDiff(gblToday, cmp_DuePill.DueDate, TimeUnit.Days)
+            # Only Fixed Recurring deadlines carry a date. Event-Relative,
+            # Ongoing, and Conditional rows have su_duedate blank, and
+            # DateDiff against a blank returns a nonsense figure - the pill
+            # rendered "Overdue 46000d" before this guard. Those rows show
+            # "No fixed date" and the caller renders trigger/offset instead.
+            HasDueDate: =!IsBlank(cmp_DuePill.DueDate)
+            # Mirrors dueState() in the prototype: no date, then complete,
+            # then overdue, then the 30 / 90 day warning bands.
+            DayDiff: |
+                =If(
+                    cmp_DuePill.HasDueDate,
+                    DateDiff(gblToday, cmp_DuePill.DueDate, TimeUnit.Days),
+                    0
+                )
             StatusLabel: |
                 =If(
+                    !cmp_DuePill.HasDueDate,
+                    "No fixed date",
                     cmp_DuePill.IsComplete,
                     "Complete",
                     cmp_DuePill.DayDiff < 0,
                     "Overdue " & Abs(cmp_DuePill.DayDiff) & "d",
                     "Due in " & cmp_DuePill.DayDiff & "d"
+                )
+            DueColor: |
+                =If(
+                    !cmp_DuePill.HasDueDate,             gblTheme.GrayMid,
+                    cmp_DuePill.IsComplete,              gblTheme.Low,
+                    cmp_DuePill.DayDiff < 0,             gblTheme.High,
+                    cmp_DuePill.DayDiff <= 30,           gblTheme.Moderate,
+                    cmp_DuePill.DayDiff <= 90,           gblTheme.OrangeDark,
+                    gblTheme.GrayMid
                 )
         Children:
             - rec_DueBg:
@@ -131,17 +165,7 @@ ComponentDefinitions:
                     Y: =0
                     Width: =Parent.Width
                     Height: =Parent.Height
-                    Fill: |
-                        =ColorFade(
-                            If(
-                                cmp_DuePill.IsComplete,           gblTheme.Low,
-                                cmp_DuePill.DayDiff < 0,          gblTheme.High,
-                                cmp_DuePill.DayDiff <= 30,        gblTheme.Medium,
-                                cmp_DuePill.DayDiff <= 90,        gblTheme.OrangeLight,
-                                gblTheme.GrayMid
-                            ),
-                            0.88
-                        )
+                    Fill: =ColorFade(cmp_DuePill.DueColor, 0.88)
                     BorderRadius: =4
                     BorderThickness: =0
             - lbl_DueText:
@@ -152,14 +176,7 @@ ComponentDefinitions:
                     Width: =Parent.Width
                     Height: =Parent.Height
                     Text: =cmp_DuePill.StatusLabel
-                    Color: |
-                        =If(
-                            cmp_DuePill.IsComplete,           gblTheme.Low,
-                            cmp_DuePill.DayDiff < 0,          gblTheme.High,
-                            cmp_DuePill.DayDiff <= 30,        gblTheme.Medium,
-                            cmp_DuePill.DayDiff <= 90,        gblTheme.OrangeDark,
-                            gblTheme.GrayMid
-                        )
+                    Color: =cmp_DuePill.DueColor
                     Size: =9
                     FontWeight: =FontWeight.Bold
                     Align: =Align.Center
@@ -429,11 +446,12 @@ ComponentDefinitions:
                             Table(
                                 {NavKey: "Home",           NavLabel: "Home",           NavAdmin: false},
                                 {NavKey: "Functions",      NavLabel: "Functions",      NavAdmin: false},
-                                {NavKey: "Topics",         NavLabel: "Topics",         NavAdmin: false},
-                                {NavKey: "Areas",          NavLabel: "Areas",          NavAdmin: false},
+                                {NavKey: "RiskAreas",      NavLabel: "Risk Areas",     NavAdmin: false},
+                                {NavKey: "Domains",        NavLabel: "Domains",        NavAdmin: false},
                                 {NavKey: "Deadlines",      NavLabel: "Deadlines",      NavAdmin: false},
                                 {NavKey: "Directory",      NavLabel: "Directory",      NavAdmin: false},
                                 {NavKey: "ExecutiveTeam",  NavLabel: "Executive Team", NavAdmin: false},
+                                {NavKey: "Assessments",    NavLabel: "Assessments",    NavAdmin: true},
                                 {NavKey: "GapTracker",     NavLabel: "Gap Tracker",    NavAdmin: true},
                                 {NavKey: "RiskDashboard",  NavLabel: "Risk Dashboard", NavAdmin: true},
                                 {NavKey: "Reporting",      NavLabel: "Reporting",      NavAdmin: true}
@@ -510,11 +528,12 @@ ComponentDefinitions:
                                     ThisItem.NavKey,
                                     "Home",          Navigate(scr_Home, ScreenTransition.None),
                                     "Functions",     Navigate(scr_Functions, ScreenTransition.None),
-                                    "Topics",        Navigate(scr_Topics, ScreenTransition.None),
-                                    "Areas",         Navigate(scr_Areas, ScreenTransition.None),
+                                    "RiskAreas",     Navigate(scr_RiskAreas, ScreenTransition.None),
+                                    "Domains",       Navigate(scr_Domains, ScreenTransition.None),
                                     "Deadlines",     Navigate(scr_Deadlines, ScreenTransition.None),
                                     "Directory",     Navigate(scr_Directory, ScreenTransition.None),
                                     "ExecutiveTeam", Navigate(scr_ExecutiveTeam, ScreenTransition.None),
+                                    "Assessments",   Navigate(scr_Assessments, ScreenTransition.None),
                                     "GapTracker",    Navigate(scr_GapTracker, ScreenTransition.None),
                                     "RiskDashboard", Navigate(scr_RiskDashboard, ScreenTransition.None),
                                     "Reporting",     Navigate(scr_Reporting, ScreenTransition.None)

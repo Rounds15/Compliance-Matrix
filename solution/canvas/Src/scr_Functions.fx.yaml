@@ -1,7 +1,7 @@
 # =============================================================================
 # Compliance Functions - the searchable register
 # =============================================================================
-# Search by name, statute, or owner; filter by topic and risk; page through in
+# Search by name, statute, or code; filter by risk area and risk; page through in
 # table or card view. Selecting a row opens the full record.
 #
 # Delegation note: Dataverse does not delegate `in` (substring) across an Or()
@@ -48,7 +48,7 @@ Screens:
                     Eyebrow: ="Browse"
                     Title: ="Compliance Functions"
                     Subtitle: |
-                        ="Every obligation in the matrix. Search by name, statute, or owner; filter by topic and risk. Select a function to view or edit the full record."
+                        ="Every obligation in the matrix. Search by name, statute, citation, or function ID; filter by risk area and risk rating. Select a function to view or edit the full record."
 
             # ---- filter bar ------------------------------------------------
             - txt_FnSearch:
@@ -59,14 +59,14 @@ Screens:
                     Width: =380
                     Height: =44
                     Default: =gblFilter.Query
-                    HintText: ="Search functions, statutes, citations, owners"
+                    HintText: ="Search functions, statutes, citations, function IDs"
                     OnChange: =Set(gblFnPage, 1)
                     BorderColor: =gblTheme.Border
                     FocusedBorderColor: =gblTheme.Orange
                     FocusedBorderThickness: =2
                     Size: =11
                     Font: =gblTheme.FontBody
-            - drp_FnTopic:
+            - drp_FnRiskArea:
                 Control: Classic/DropDown@2.3.1
                 Properties:
                     X: =456
@@ -76,12 +76,12 @@ Screens:
                     Items: |
                         =Ungroup(
                             Table(
-                                {Opt: Table({Value: "All topics"})},
-                                {Opt: ShowColumns(RenameColumns(colTopics, "su_name", "Value"), "Value")}
+                                {Opt: Table({Value: "All risk areas"})},
+                                {Opt: ShowColumns(RenameColumns(colRiskAreas, "su_name", "Value"), "Value")}
                             ),
                             "Opt"
                         )
-                    Default: ="All topics"
+                    Default: ="All risk areas"
                     OnChange: =Set(gblFnPage, 1)
                     BorderColor: =gblTheme.Border
                     Size: =11
@@ -96,9 +96,8 @@ Screens:
                     Items: |
                         =Table(
                             {Value: "All risk"},
-                            {Value: "Critical"},
                             {Value: "High"},
-                            {Value: "Medium"},
+                            {Value: "Moderate"},
                             {Value: "Low"}
                         )
                     Default: ="All risk"
@@ -167,7 +166,7 @@ Screens:
                     Items: |
                         =Table(
                             {ColLabel: "Compliance function"},
-                            {ColLabel: "Topic / area"},
+                            {ColLabel: "Risk area / domain"},
                             {ColLabel: "Statute / citation"},
                             {ColLabel: "Compliance owner"},
                             {ColLabel: "Risk"}
@@ -212,15 +211,14 @@ Screens:
                                             || StartsWith(su_name, txt_FnSearch.Text)
                                             || StartsWith(su_statute, txt_FnSearch.Text)
                                             || StartsWith(su_citation, txt_FnSearch.Text)
-                                            || StartsWith(su_area, txt_FnSearch.Text)),
-                                        (drp_FnTopic.Selected.Value = "All topics"
-                                            || su_topic.su_name = drp_FnTopic.Selected.Value),
+                                            || StartsWith(su_functioncode, txt_FnSearch.Text)),
+                                        (drp_FnRiskArea.Selected.Value = "All risk areas"
+                                            || su_riskarea.su_name = drp_FnRiskArea.Selected.Value),
                                         (drp_FnRisk.Selected.Value = "All risk"
                                             || su_risk = Switch(
                                                    drp_FnRisk.Selected.Value,
-                                                   "Critical", 'Risk Level'.Critical,
                                                    "High",     'Risk Level'.High,
-                                                   "Medium",   'Risk Level'.Medium,
+                                                   "Moderate",   'Risk Level'.Moderate,
                                                    'Risk Level'.Low
                                                ))
                                     )
@@ -301,7 +299,7 @@ Screens:
                             Height: =42
                             Visible: =gblFnView = "table"
                             Text: |
-                                =ThisItem.su_topic.su_name & Char(10) & ThisItem.su_area
+                                =ThisItem.su_riskarea.su_name & Char(10) & ThisItem.su_domain.su_name
                             Color: =gblTheme.GrayDark
                             Size: =9
                             Font: =gblTheme.FontBody
@@ -345,10 +343,10 @@ Screens:
                             Risk: |
                                 =Switch(
                                     ThisItem.su_risk,
-                                    'Risk Level'.Critical, "Critical",
                                     'Risk Level'.High,     "High",
-                                    'Risk Level'.Medium,   "Medium",
-                                    "Low"
+                                    'Risk Level'.Moderate,   "Moderate",
+                                    'Risk Level'.Low,      "Low",
+                                    ""
                                 )
                     - rec_FnRowRule:
                         Control: Rectangle@2.3.0
@@ -398,7 +396,7 @@ Screens:
                     Height: =80
                     Text: |
                         ="No matching functions" & Char(10) &
-                         "Try a broader search or clear the topic and risk filters."
+                         "Try a broader search or clear the risk area and risk filters."
                     Color: =gblTheme.GrayMid
                     Size: =12
                     Align: =Align.Center

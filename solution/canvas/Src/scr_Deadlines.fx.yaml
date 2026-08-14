@@ -25,6 +25,22 @@ Screens:
                 ClearCollect(
                     colDeadlines,
                     SortByColumns('Compliance Deadlines', "su_duedate", SortOrder.Ascending)
+                );
+                // Only Fixed Recurring rows carry a calendar date. Event-Relative,
+                // Ongoing, and Conditional rows are real obligations but have no
+                // due date, so they are held separately and listed rather than
+                // placed on the month grid - and they never drive reminders.
+                ClearCollect(
+                    colDatedDeadlines,
+                    Filter(
+                        colDeadlines,
+                        su_deadlinetype = 'Deadline Type'.'Fixed Recurring',
+                        !IsBlank(su_duedate)
+                    )
+                );
+                ClearCollect(
+                    colUndatedDeadlines,
+                    Filter(colDeadlines, su_deadlinetype <> 'Deadline Type'.'Fixed Recurring')
                 )
 
         Children:
@@ -78,14 +94,14 @@ Screens:
                     Text: |
                         =CountRows(
                             Filter(
-                                colDeadlines,
+                                colDatedDeadlines,
                                 !su_complete,
                                 su_duedate >= gblToday,
                                 su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days)
                             )
                         ) & " due in 30 days"
-                    Fill: =ColorFade(gblTheme.Medium, 0.88)
-                    Color: =gblTheme.Medium
+                    Fill: =ColorFade(gblTheme.Moderate, 0.88)
+                    Color: =gblTheme.Moderate
                     Size: =10
                     FontWeight: =FontWeight.Bold
                     Align: =Align.Center
@@ -105,6 +121,7 @@ Screens:
                             {Value: "Open"},
                             {Value: "Overdue only"},
                             {Value: "Completed"},
+                            {Value: "No fixed date"},
                             {Value: "All"}
                         )
                     Default: ="Open"
@@ -178,7 +195,7 @@ Screens:
                         =Text(gblDlCursor, "mmmm yyyy") & "   -   " &
                          CountRows(
                              Filter(
-                                 colDeadlines,
+                                 colDatedDeadlines,
                                  Year(su_duedate) = Year(gblDlCursor),
                                  Month(su_duedate) = Month(gblDlCursor)
                              )
@@ -342,7 +359,7 @@ Screens:
                                 =If(
                                     CountRows(
                                         Filter(
-                                            colDeadlines,
+                                            colDatedDeadlines,
                                             su_duedate = ThisItem.CellDate,
                                             !su_complete,
                                             su_duedate < gblToday
@@ -398,15 +415,28 @@ Screens:
                         =Filter(
                             colDeadlines,
                             // Calendar mode narrows to the selected day; list mode
-                            // applies the scope dropdown.
+                            // applies the scope dropdown. The date-based scopes
+                            // only make sense for Fixed Recurring rows, so the
+                            // undated types are reachable through their own scope
+                            // rather than being silently dropped or shown as
+                            // overdue.
                             If(
                                 gblDlView = "calendar",
                                 su_duedate = gblDlSelectedDay,
                                 Switch(
                                     gblDlScope,
-                                    "Open",         !su_complete,
-                                    "Overdue only", !su_complete && su_duedate < gblToday,
-                                    "Completed",    su_complete,
+                                    "Open",
+                                        !su_complete
+                                            && su_deadlinetype = 'Deadline Type'.'Fixed Recurring',
+                                    "Overdue only",
+                                        !su_complete
+                                            && su_deadlinetype = 'Deadline Type'.'Fixed Recurring'
+                                            && !IsBlank(su_duedate)
+                                            && su_duedate < gblToday,
+                                    "Completed",
+                                        su_complete,
+                                    "No fixed date",
+                                        su_deadlinetype <> 'Deadline Type'.'Fixed Recurring',
                                     true
                                 )
                             )
@@ -420,8 +450,28 @@ Screens:
                             Width: =140
                             Height: =40
                             Text: |
-                                =Text(ThisItem.su_duedate, "mmm d, yyyy") & Char(10) &
-                                 "FY" & Text(
+                                =If(
+                                    ThisItem.su_deadlinetype
+                                        <> 'Deadline Type'.'Fixed Recurring',
+                                    Switch(
+                                        ThisItem.su_deadlinetype,
+                                        'Deadline Type'.'Event-Relative', "Event-relative",
+                                        'Deadline Type'.Ongoing,          "Ongoing",
+                                        "Conditional"
+                                    ) & Char(10) &
+                                    If(
+                                        IsBlank(ThisItem.su_offsetvalue),
+                                        "No offset set",
+                                        ThisItem.su_offsetvalue & " " &
+                                        Switch(
+                                            ThisItem.su_offsetunit,
+                                            'Offset Unit'.Days,   "days",
+                                            'Offset Unit'.Months, "months",
+                                            ""
+                                        ) & " after trigger"
+                                    ),
+                                    Text(ThisItem.su_duedate, "mmm d, yyyy") & Char(10) &
+                                    "FY" & Text(
                                      If(Month(ThisItem.su_duedate) >= gblFiscalStartMonth,
                                         Year(ThisItem.su_duedate) + 1,
                                         Year(ThisItem.su_duedate)),

@@ -6,9 +6,8 @@ responsible for what**, and **are we on top of it**.
 
 Converted from the standalone HTML prototype (`Compliance Matrix (standalone).html`),
 which already declared its intended Dataverse mapping in comments. Those
-mappings are honoured exactly: `su_compliancefunction`, `su_compliancedeadline`,
-`su_compliancegap`, `su_compliancedirectory`, `su_functionownership`,
-`su_counselassignment`, `su_appadmin`.
+Since reconciled against the live SharePoint exports: topics became risk areas,
+free-text areas became a domain table, and assessments were added.
 
 ---
 
@@ -32,27 +31,27 @@ signed-in user, so the embedded view matches the app's own "assigned to you".
 ```
 solution/
   schema/
-    dataverse-schema.yaml      Single source of truth: 9 tables, 74 columns,
-                               7 global choice sets, relationships, rollups
-    seed/                      Seed data extracted from the prototype
-      topics.yaml      (13)    functions.yaml   (42)   deadlines.yaml (28)
-      directory.yaml   (39)    ownership.yaml  (125)   gaps.yaml      (17)
-      counsel.yaml     (11)    flags.yaml        (2)
+    dataverse-schema.yaml      Single source of truth: 12 tables, 108 columns,
+                               12 choice sets, 25 relationships, rollups
+    seed/                      Regenerated from the dataverse_import CSVs
+                               (pending - see Status below)
   canvas/Src/
     App.fx.yaml                Theme, startup, role resolution
     Components/cmp_Shared.fx.yaml   Risk pill, due pill, page head, header nav
-    scr_*.fx.yaml              12 screens
+    scr_*.fx.yaml              14 screens
   src/                         Generated solution source (pac solution pack)
 tools/
   build_solution.py            schema YAML  ->  solution source XML
-  build_seed.py                prototype JS ->  seed YAML
+  build_seed.py                source data  ->  seed YAML
+  validate.py                  Static checks across every source file
   fix_yaml_comments.py         Normalizes // vs # comment syntax
 ```
 
 ### Screens
 
-`Home` `Functions` `FunctionDetail` `Topics` `Areas` `Deadlines` `Directory`
-`ExecutiveTeam` `GapTracker`\* `RiskDashboard`\* `Reporting`\* `NoAccess`
+`Home` `Functions` `FunctionDetail` `RiskAreas` `Domains` `Deadlines`
+`Directory` `ExecutiveTeam` `Assessments`\* `AssessmentDetail`\* `GapTracker`\*
+`RiskDashboard`\* `Reporting`\* `NoAccess`
 
 \* Administrator only.
 
@@ -60,35 +59,45 @@ tools/
 
 ## Data model
 
-Nine tables. The one that matters most is the junction:
+Twelve tables. The ones that carry the most weight:
 
 **`su_functionownership`** — `(function, person, role, subrole)`
 
-The prototype's three fixed lookups (`exec`, `unitOwner`, `owner`) cannot express
-what the ownership-chain UI already supported: **many people per role**, each
-weighted Primary / Advisory / Support. Both representations are kept —
+Many people per role, each weighted Primary / Advisory / Support. The three
+fixed lookups on the function row stay for fast list rendering; the junction is
+the authority for "who is in charge of what", and is what Directory portfolios,
+"Assigned to you", and Power BI row-level security read.
 
-- the three lookups on `su_compliancefunction` stay, for fast list rendering and
-  the copied-owner denormalization onto deadline rows
-- the junction is the authority for "who is in charge of what", and is what
-  Directory portfolios, "Assigned to you", and Power BI row-level security read
+**`su_riskarea` and `su_domain`** — 13 risk areas, 61 domains
 
-An alternate key on `(su_function, su_person, su_role)` enforces the "already
-holds this role" guard the prototype did in script.
+The prototype's free-text `su_area` is gone. Domain is a table because the text
+values were drifting and leadership wants a coverage map. The practical payoff:
+a domain with zero functions still appears, and both the Risk Areas and Domains
+screens call it out. The old text-derived approach could only ever show domains
+that already had work in them.
 
-Other notable choices, and why:
+**`su_assessment` and `su_assessmentowner`** — new
 
-- **`su_compliancedirectory` is a table, not just Dataverse users.** University
-  responsibility sits with a role or office; people leave, obligations do not. A
-  `su_systemuser` lookup links a directory row to a real user where one exists.
-- **`su_area` is text, not a lookup.** Areas are a grouping users think in, not a
-  governed list. The Areas screen derives its tiles from distinct values.
-- **`su_opengapcount` and `su_nextduedate` are rollups**, so the count badge is
-  correct everywhere without a per-row query.
-- **`su_daysopen` is calculated**, feeding gap-aging reporting.
-- **Deadline `su_owner` and `su_risk` are deliberately denormalized** from the
-  parent function. Reassigning a function rewrites them on every child row —
-  that is what the save confirmation reports back.
+An assessment is one conducted review: date, overall risk, status, unit, owners,
+and the gaps it produced. Gaps link back via `su_assessment`, which closes the
+loop that previously lived in a spreadsheet — an assessment is not finished
+until its gaps are closed.
+
+**Non-required by design.** `su_riskarea`, `su_domain`, and `su_risk` are
+Recommended, not Required, because the live data has gaps: risk rating is empty
+on most rows and one function has no grouping. Making them required would fail
+those rows on import. The app treats blank risk as a first-class **Unrated**
+state rather than letting it fall through to Low.
+
+**`su_compliancedeadline` is typed.** Only `Fixed Recurring` rows carry a due
+date; Event-Relative rows carry a trigger and offset. This drives the calendar,
+the due pill, and — critically — the reminder flow. See
+[`docs/REMINDER-FLOW.md`](docs/REMINDER-FLOW.md).
+
+Other choices carried over from the first build: the directory is a table rather
+than plain Dataverse users (responsibility sits with a role or office, and
+people leave); rollups drive the open-gap badge and next due date; deadline
+`su_owner` and `su_risk` stay denormalized from the parent function.
 
 Full column dictionary with descriptions: `solution/schema/dataverse-schema.yaml`.
 
@@ -119,18 +128,20 @@ pac canvas pack --sources solution/canvas --msapp ComplianceMatrix.msapp
 
 Then, in the target environment:
 
-1. Import seed data from `solution/schema/seed/` (matched on the alternate keys
-   `su_email` and `su_functioncode`, so re-running updates rather than
-   duplicates). Deadline and gap dates are stored as **offsets from the import
-   date**, so a fresh environment always shows a live spread of overdue,
-   upcoming, and completed work.
+1. Import seed data from `solution/schema/seed/`, in this order: risk areas,
+   domains, directory, functions, ownership, deadlines, flags, assessments,
+   assessment owners, gaps. Rows match on the alternate keys (`su_riskareacode`,
+   `su_domaincode`, `su_email`, `su_functioncode`, `su_assessmentcode`,
+   `su_gapcode`), so re-running updates rather than duplicates. Dates are real
+   calendar dates, not offsets — a compliance register needs true dates.
 2. Create the environment variables the Reporting screen reads:
    `su_PowerBIWorkspaceId`, `su_PowerBIExecutiveReportId`,
    `su_PowerBIDeadlineReportId`, `su_PowerBIGapAgingReportId`.
 3. Grant at least one person an `Administrator` row in **App Role Assignments**,
    or nobody can reach Gap Tracker, Risk Dashboard, or Reporting.
-4. Build the reminder flow: 90 days, 30 days, due date, then weekly once
-   overdue (declared under `reminders` in the schema).
+4. Build the reminder flow per [`docs/REMINDER-FLOW.md`](docs/REMINDER-FLOW.md).
+   It must filter to `su_deadlinetype` = Fixed Recurring; the other three types
+   have no due date and must never trigger reminders.
 
 ---
 
@@ -146,32 +157,35 @@ sees only their portfolio without a separate report.
 
 ---
 
-## Verified / not verified
+## Status
 
-Verified here:
+**Schema and canvas app: done and verified statically.**
 
-- All 23 YAML files parse (`yaml.safe_load`)
-- All 11 generated XML files are well-formed; 17 relationships and 7 global
-  choice sets emitted as expected
-- Seed extraction round-trips the prototype's data: 42 functions, 28 deadlines,
-  17 gaps, 39 directory rows, 125 ownership assignments
+- `tools/build_solution.py` reports **12 tables, 108 columns, 12 choice sets**,
+  and emits **25 relationships** — matching the reconciliation target exactly
+- `tools/validate.py` passes: all YAML parses, all schema lookup/choice/rollup
+  references resolve, all 14 screens and 4 components resolve every
+  `Navigate()` target and `ComponentName`, all 13 XML files well-formed
+- No remaining references to `su_topic`, `su_area`, `su_compliancetopic`, or a
+  Critical / Medium risk value anywhere in canvas source
 
-**Not verified — needs a real environment.** No Power Platform CLI was available
-in the build environment (the npm package name 404s; `pac` ships via .NET tool
-or MSI). That means:
+**Seed data: blocked.** The `dataverse_import/` CSVs have not been supplied to
+this repository. The prototype-derived seed was deleted rather than left in
+place, because it referenced the topics table, `su_area`, and Critical, and
+would have failed import against the reconciled schema. Regenerating it needs
+the ten CSVs; expected totals are ~13 risk areas, 61 domains, 127 directory,
+392 functions, 1,175 ownership, 148 deadlines, 89 flags, 9 assessments,
+21 assessment owners, 4 gaps.
 
-- `pac solution pack` and the import have not been run. Solution source is
-  well-formed but unvalidated against the packager.
-- Control `@version` strings (`Label@2.5.1`, `Gallery@2.15.0`,
-  `Classic/Button@2.2.0`, `PowerBI@1.4.0`, `GroupContainer@1.5.0`,
-  `Rectangle@2.3.0`, `Classic/TextInput@2.3.2`, `Classic/DropDown@2.3.1`,
-  `Image@2.2.3`) may need bumping to whatever the target tenant reports. A
-  mismatch raises **PA2105**, which is a warning Studio can auto-correct.
-- Delegation was designed for but not measured. Search uses `StartsWith` on
-  indexed columns rather than a substring `in`, so it stays delegable past the
-  2,000-row limit as the matrix grows toward its full 404 functions.
+**Not verified — needs a real environment.** No Power Platform CLI is available
+where this was built, so `pac solution pack` and the import have not been run.
+Control `@version` strings (`Label@2.5.1`, `Gallery@2.15.0`,
+`Classic/Button@2.2.0`, `Classic/ComboBox@2.4.0`, `PowerBI@1.4.0`,
+`GroupContainer@1.5.0`, `Rectangle@2.3.0`, `Classic/TextInput@2.3.2`,
+`Classic/DropDown@2.3.1`, `Image@2.2.3`) may need bumping to whatever the target
+tenant reports; that raises PA2105, a warning Studio auto-corrects. See
+[`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md) for the other first-import risks.
 
-Run the import into a development environment first and fix forward from there.
 
 ---
 

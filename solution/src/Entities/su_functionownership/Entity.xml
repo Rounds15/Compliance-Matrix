@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Function Ownership" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="Junction between a compliance function and a person, carrying the role tier and the sub-role weight. Lets a single role hold many people, which the three fixed lookups on the function row cannot express." languagecode="1033"/>
+        <Description description="Junction between a function and a person, carrying the role tier and the sub-role weight. The authority for who is in charge of what." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -41,9 +41,6 @@
           <displaynames>
             <displayname description="Assignment" languagecode="1033"/>
           </displaynames>
-          <Descriptions>
-            <Description description="Generated as &quot;&lt;Person&gt; - &lt;Role&gt; - &lt;Function code&gt;&quot;." languagecode="1033"/>
-          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_function">
           <Type>lookup</Type>
