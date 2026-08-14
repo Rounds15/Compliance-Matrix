@@ -140,6 +140,108 @@ def check_navigation(loaded: dict[pathlib.Path, object]) -> None:
         ok(f"{len(screens)} screens, {len(components)} components, all references resolve")
 
 
+def check_seed_refs(loaded: dict[pathlib.Path, object]) -> None:
+    """Every seed cross-reference must resolve to an alternate key that exists."""
+    print("\nSeed referential integrity")
+    seed = ROOT / "solution" / "schema" / "seed"
+    if not seed.exists() or not any(seed.glob("*.yaml")):
+        notes.append("seed not generated - run tools/build_seed.py <dataverse_import>")
+        print("  skip  no seed files present")
+        return
+
+    def load(name, key):
+        path = seed / name
+        if not path.exists():
+            return []
+        doc = loaded.get(path) or yaml.safe_load(path.read_text(encoding="utf-8"))
+        return (doc or {}).get(key, []) or []
+
+    riskareas = load("riskareas.yaml", "riskareas")
+    domains = load("domains.yaml", "domains")
+    directory = load("directory.yaml", "directory")
+    functions = load("functions.yaml", "functions")
+    ownership = load("ownership.yaml", "ownership")
+    deadlines = load("deadlines.yaml", "deadlines")
+    flags = load("flags.yaml", "flags")
+    assessments = load("assessments.yaml", "assessments")
+    asmtowners = load("assessmentowners.yaml", "assessmentowners")
+    gaps = load("gaps.yaml", "gaps")
+
+    ra = {r["code"] for r in riskareas}
+    dm = {r["code"] for r in domains}
+    em = {r["email"] for r in directory}
+    fn = {r["code"] for r in functions}
+    az = {r["code"] for r in assessments}
+
+    checks = [
+        ("domains.riskArea",           domains,    "riskArea",       ra),
+        ("domains.owner",              domains,    "owner",          em),
+        ("riskareas.owner",            riskareas,  "owner",          em),
+        ("functions.riskArea",         functions,  "riskArea",       ra),
+        ("functions.domain",           functions,  "domain",         dm),
+        ("functions.executiveOwner",   functions,  "executiveOwner", em),
+        ("functions.unitOwner",        functions,  "unitOwner",      em),
+        ("functions.complianceOwner",  functions,  "complianceOwner", em),
+        ("ownership.function",         ownership,  "function",       fn),
+        ("ownership.person",           ownership,  "person",         em),
+        ("deadlines.function",         deadlines,  "function",       fn),
+        ("flags.function",             flags,      "function",       fn),
+        ("flags.flaggedBy",            flags,      "flaggedBy",      em),
+        ("assessmentowners.assessment", asmtowners, "assessment",    az),
+        ("assessmentowners.person",    asmtowners, "person",         em),
+        ("gaps.function",              gaps,       "function",       fn),
+        ("gaps.assessment",            gaps,       "assessment",     az),
+        ("gaps.owner",                 gaps,       "owner",          em),
+    ]
+    clean = True
+    for label, rows, field, valid in checks:
+        bad = [r for r in rows
+               if r.get(field) not in (None, "") and r.get(field) not in valid]
+        if bad:
+            sample = bad[0].get(field)
+            fail(f"{label}: {len(bad)} unresolved reference(s), e.g. {sample!r}")
+            clean = False
+    if clean:
+        total = sum(len(x) for x in (riskareas, domains, directory, functions,
+                                     ownership, deadlines, flags, assessments,
+                                     asmtowners, gaps))
+        print(f"  ok    {total:,} seeded rows, all cross-references resolve")
+        print(f"        riskareas {len(riskareas)}, domains {len(domains)}, "
+              f"directory {len(directory)}, functions {len(functions)},")
+        print(f"        ownership {len(ownership)}, deadlines {len(deadlines)}, "
+              f"flags {len(flags)}, assessments {len(assessments)},")
+        print(f"        assessmentowners {len(asmtowners)}, gaps {len(gaps)}")
+
+    # Choice values in the seed must exist in the schema's choice sets.
+    schema = loaded.get(SCHEMA_DIR / "dataverse-schema.yaml")
+    if isinstance(schema, dict):
+        ch = {k: {o["label"] for o in v["options"]}
+              for k, v in schema.get("choices", {}).items()}
+        enum_checks = [
+            ("functions.risk",        functions,  "risk",         ch["su_risklevel"]),
+            ("ownership.role",        ownership,  "role",         ch["su_ownershiprole"]),
+            ("ownership.subRole",     ownership,  "subRole",      ch["su_ownershipsubrole"]),
+            ("deadlines.deadlineType", deadlines, "deadlineType", ch["su_deadlinetype"]),
+            ("deadlines.cadence",     deadlines,  "cadence",      ch["su_cadence"]),
+            ("deadlines.offsetUnit",  deadlines,  "offsetUnit",   ch["su_offsetunit"]),
+            ("flags.source",          flags,      "source",       ch["su_flagsource"]),
+            ("flags.status",          flags,      "status",       ch["su_flagstatus"]),
+            ("assessments.risk",      assessments, "risk",        ch["su_risklevel"]),
+            ("assessments.status",    assessments, "status",      ch["su_assessmentstatus"]),
+            ("assessmentowners.role", asmtowners, "role",         ch["su_assessmentownerrole"]),
+            ("gaps.status",           gaps,       "status",       ch["su_gapstatus"]),
+        ]
+        ok_enum = True
+        for label, rows, field, valid in enum_checks:
+            bad = {r.get(field) for r in rows
+                   if r.get(field) not in (None, "") and r.get(field) not in valid}
+            if bad:
+                fail(f"{label}: value(s) not in choice set: {sorted(bad)}")
+                ok_enum = False
+        if ok_enum:
+            print("  ok    all seed choice values exist in the schema choice sets")
+
+
 def check_schema_refs(loaded: dict[pathlib.Path, object]) -> None:
     print("\nSchema internal references")
     schema = loaded.get(SCHEMA_DIR / "dataverse-schema.yaml")
@@ -181,6 +283,7 @@ def main() -> int:
     check_top_keys(loaded)
     check_comment_syntax()
     check_schema_refs(loaded)
+    check_seed_refs(loaded)
     check_navigation(loaded)
     check_xml()
 

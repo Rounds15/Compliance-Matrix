@@ -246,7 +246,7 @@ tables:
           aggregate: COUNT
           relatedTable: su_compliancegap
           relationship: su_compliancefunction_su_compliancegap
-          filter: { column: su_status, operator: eq, value: 100000020 }
+          filter: { column: su_status, operator: ne, value: 100000021 }
       - name: su_nextduedate
         displayName: Next Due Date
         type: Rollup

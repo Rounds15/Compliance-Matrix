@@ -1,0 +1,5765 @@
+# su_functionownership - the authority for who is in charge of what.
+# name is generated as '<Person> - <Role> - <FunctionID>' and the triple
+# (function, person, role) is an alternate key, so a re-run updates.
+
+ownership:
+- name: Lois Agnew - Executive Owner - 2
+  function: '2'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 2
+  function: '2'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 3
+  function: '3'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Campbell - Unit Owner - 3
+  function: '3'
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Katie Rupert - Compliance Owner - 3
+  function: '3'
+  person: kmrupert@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 4
+  function: '4'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Miranda Traudt - Compliance Owner - 4
+  function: '4'
+  person: mstraudt@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 6
+  function: '6'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Unit Owner - 6
+  function: '6'
+  person: maharr17@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 7
+  function: '7'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Unit Owner - 7
+  function: '7'
+  person: maharr17@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 8
+  function: '8'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Unit Owner - 8
+  function: '8'
+  person: maharr17@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 9
+  function: '9'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Compliance Owner - 9
+  function: '9'
+  person: maharr17@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 10
+  function: '10'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 10
+  function: '10'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Laura Harrington - Compliance Owner - 10
+  function: '10'
+  person: lalvut@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Shelly Sipley - Compliance Owner - 10
+  function: '10'
+  person: mbsipley@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Jeff Rubin - Executive Owner - 11
+  function: '11'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 11
+  function: '11'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 11
+  function: '11'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 12
+  function: '12'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Compliance Owner - 12
+  function: '12'
+  person: jmhasenw@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 13
+  function: '13'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 13
+  function: '13'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 14
+  function: '14'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 14
+  function: '14'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 15
+  function: '15'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 15
+  function: '15'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 16
+  function: '16'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Unit Owner - 16
+  function: '16'
+  person: rcwill05@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 17
+  function: '17'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Campbell - Unit Owner - 17
+  function: '17'
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 18
+  function: '18'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Campbell - Unit Owner - 18
+  function: '18'
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 19
+  function: '19'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 19
+  function: '19'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Support
+- name: Cory Wallack - Unit Owner - 19
+  function: '19'
+  person: cwallack@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Cory Wallack - Compliance Owner - 19
+  function: '19'
+  person: cwallack@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 20
+  function: '20'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 20
+  function: '20'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 20
+  function: '20'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cory Wallack - Unit Owner - 20
+  function: '20'
+  person: cwallack@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Melissa Lowry - Compliance Owner - 20
+  function: '20'
+  person: malowry@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 21
+  function: '21'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Unit Owner - 21
+  function: '21'
+  person: aadietri@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: William Myhill - Compliance Owner - 21
+  function: '21'
+  person: wmyhill@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 22
+  function: '22'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 22
+  function: '22'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Unit Owner - 22
+  function: '22'
+  person: aadietri@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: William Myhill - Compliance Owner - 22
+  function: '22'
+  person: wmyhill@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Christopher Croad - Compliance Owner - 22
+  function: '22'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Christian Jones - Compliance Owner - 22
+  function: '22'
+  person: cjones21@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 23
+  function: '23'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 23
+  function: '23'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 23
+  function: '23'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: William Myhill - Compliance Owner - 23
+  function: '23'
+  person: wmyhill@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Paula Possenti-Perez - Compliance Owner - 23
+  function: '23'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 24
+  function: '24'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 24
+  function: '24'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Paula Possenti-Perez - Compliance Owner - 24
+  function: '24'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 27
+  function: '27'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Pete Sala - Executive Owner - 27
+  function: '27'
+  person: pesala@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John Papazoglou - Executive Owner - 27
+  function: '27'
+  person: jpapa@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Pete Sala - Unit Owner - 27
+  function: '27'
+  person: pesala@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Cheryl Fabrizi - Unit Owner - 27
+  function: '27'
+  person: cafabriz@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 28
+  function: '28'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 28
+  function: '28'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Unit Owner - 28
+  function: '28'
+  person: aadietri@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Paula Possenti-Perez - Compliance Owner - 28
+  function: '28'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 29
+  function: '29'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 29
+  function: '29'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 29
+  function: '29'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: William Myhill - Compliance Owner - 29
+  function: '29'
+  person: wmyhill@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Paula Possenti-Perez - Compliance Owner - 29
+  function: '29'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 30
+  function: '30'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Unit Owner - 30
+  function: '30'
+  person: maharr17@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 31
+  function: '31'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 31
+  function: '31'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christina Stepien - Compliance Owner - 31
+  function: '31'
+  person: cdiecuch@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Ryan Williams - Executive Owner - 32
+  function: '32'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 32
+  function: '32'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tammy Kidd - Compliance Owner - 32
+  function: '32'
+  person: tsmurphy@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Levi Peckham - Compliance Owner - 32
+  function: '32'
+  person: lnpeckha@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 33
+  function: '33'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Seth Ovadia - Unit Owner - 33
+  function: '33'
+  person: saovadia@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Levi Peckham - Compliance Owner - 33
+  function: '33'
+  person: lnpeckha@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 34
+  function: '34'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Unit Owner - 34
+  function: '34'
+  person: maharr17@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Steven Kelly - Compliance Owner - 34
+  function: '34'
+  person: stkelly@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Christina Stepien - Compliance Owner - 34
+  function: '34'
+  person: cdiecuch@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Ryan Williams - Executive Owner - 35
+  function: '35'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 35
+  function: '35'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 36
+  function: '36'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 36
+  function: '36'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 37
+  function: '37'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 37
+  function: '37'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 38
+  function: '38'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 38
+  function: '38'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 39
+  function: '39'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 39
+  function: '39'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 39
+  function: '39'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christina Stepien - Compliance Owner - 39
+  function: '39'
+  person: cdiecuch@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Shelly Sipley - Compliance Owner - 39
+  function: '39'
+  person: mbsipley@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 40
+  function: '40'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Seth Ovadia - Unit Owner - 40
+  function: '40'
+  person: saovadia@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Levi Peckham - Compliance Owner - 40
+  function: '40'
+  person: lnpeckha@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 41
+  function: '41'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 41
+  function: '41'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 42
+  function: '42'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christina Stepien - Unit Owner - 42
+  function: '42'
+  person: cdiecuch@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 43
+  function: '43'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 43
+  function: '43'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 44
+  function: '44'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 45
+  function: '45'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 45
+  function: '45'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 46
+  function: '46'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 46
+  function: '46'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Karina Anderson - Compliance Owner - 46
+  function: '46'
+  person: kander06@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 47
+  function: '47'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 47
+  function: '47'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 48
+  function: '48'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cynthia Carnahan - Unit Owner - 48
+  function: '48'
+  person: clgebo@syr.edu
+  role: Unit Owner
+  subRole: Support
+- name: Jean Gallipeau - Unit Owner - 48
+  function: '48'
+  person: jbgallip@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Kelly Flannery - Compliance Owner - 48
+  function: '48'
+  person: kmflanne@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 49
+  function: '49'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Unit Owner - 49
+  function: '49'
+  person: rcwill05@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 50
+  function: '50'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 50
+  function: '50'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 51
+  function: '51'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 51
+  function: '51'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christina Stepien - Compliance Owner - 51
+  function: '51'
+  person: cdiecuch@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 52
+  function: '52'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 52
+  function: '52'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 53
+  function: '53'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 53
+  function: '53'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 53
+  function: '53'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christina Stepien - Compliance Owner - 53
+  function: '53'
+  person: cdiecuch@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 54
+  function: '54'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 54
+  function: '54'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 55
+  function: '55'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 55
+  function: '55'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Karina Anderson - Compliance Owner - 55
+  function: '55'
+  person: kander06@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 56
+  function: '56'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 56
+  function: '56'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 57
+  function: '57'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 57
+  function: '57'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 58
+  function: '58'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 58
+  function: '58'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Karina Anderson - Compliance Owner - 58
+  function: '58'
+  person: kander06@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Stacie Buffum - Compliance Owner - 58
+  function: '58'
+  person: sabuffum@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Steven Kelly - Compliance Owner - 58
+  function: '58'
+  person: stkelly@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 59
+  function: '59'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tammy Kidd - Compliance Owner - 59
+  function: '59'
+  person: tsmurphy@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Shelly Sipley - Compliance Owner - 59
+  function: '59'
+  person: mbsipley@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 60
+  function: '60'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jerry Edmonds - Unit Owner - 60
+  function: '60'
+  person: gedmonds@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 61
+  function: '61'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 61
+  function: '61'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Katie Rupert - Compliance Owner - 61
+  function: '61'
+  person: kmrupert@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 62
+  function: '62'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sharon Dotger - Unit Owner - 62
+  function: '62'
+  person: sdotger@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Kimberley Salanger - Compliance Owner - 62
+  function: '62'
+  person: kbsalang@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 63
+  function: '63'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 63
+  function: '63'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 64
+  function: '64'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Campbell - Unit Owner - 64
+  function: '64'
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Katie Rupert - Compliance Owner - 64
+  function: '64'
+  person: kmrupert@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 65
+  function: '65'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Unit Owner - 65
+  function: '65'
+  person: maharr17@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 66
+  function: '66'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Compliance Owner - 66
+  function: '66'
+  person: mbsipley@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 67
+  function: '67'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Compliance Owner - 67
+  function: '67'
+  person: mbsipley@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 68
+  function: '68'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 68
+  function: '68'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tammy Kidd - Compliance Owner - 68
+  function: '68'
+  person: tsmurphy@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Mark Lodato - Executive Owner - 69
+  function: '69'
+  person: mlodato@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Meg Craig - Unit Owner - 69
+  function: '69'
+  person: mlcraig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joe Lee - Compliance Owner - 69
+  function: '69'
+  person: jblee01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Mark Lodato - Executive Owner - 70
+  function: '70'
+  person: mlodato@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Meg Craig - Unit Owner - 70
+  function: '70'
+  person: mlcraig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joe Lee - Compliance Owner - 70
+  function: '70'
+  person: jblee01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 71
+  function: '71'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Mark Lodato - Unit Owner - 71
+  function: '71'
+  person: mlodato@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joe Lee - Compliance Owner - 71
+  function: '71'
+  person: jblee01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 72
+  function: '72'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 73
+  function: '73'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Boeke - Unit Owner - 73
+  function: '73'
+  person: joboeke@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ali Rhoad - Compliance Owner - 73
+  function: '73'
+  person: awrhoad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 74
+  function: '74'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Boeke - Unit Owner - 74
+  function: '74'
+  person: joboeke@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ali Rhoad - Compliance Owner - 74
+  function: '74'
+  person: awrhoad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 75
+  function: '75'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Boeke - Unit Owner - 75
+  function: '75'
+  person: joboeke@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jodie Ralston - Compliance Owner - 75
+  function: '75'
+  person: jralston@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 76
+  function: '76'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cristina Swift - Compliance Owner - 76
+  function: '76'
+  person: cswift@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 77
+  function: '77'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cristina Swift - Compliance Owner - 77
+  function: '77'
+  person: cswift@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 78
+  function: '78'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 78
+  function: '78'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 78
+  function: '78'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 79
+  function: '79'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 79
+  function: '79'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 80
+  function: '80'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 80
+  function: '80'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheriah Dixon - Unit Owner - 80
+  function: '80'
+  person: snmontgo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 80
+  function: '80'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 81
+  function: '81'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 81
+  function: '81'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 82
+  function: '82'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 82
+  function: '82'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tim Wasserman - Compliance Owner - 82
+  function: '82'
+  person: thwasser@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 83
+  function: '83'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tim Wasserman - Compliance Owner - 83
+  function: '83'
+  person: thwasser@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 84
+  function: '84'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 84
+  function: '84'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cathy Hill - Unit Owner - 84
+  function: '84'
+  person: chill06@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 85
+  function: '85'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cathy Hill - Unit Owner - 85
+  function: '85'
+  person: chill06@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 86
+  function: '86'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 86
+  function: '86'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 87
+  function: '87'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Executive Owner - 87
+  function: '87'
+  person: cmstallm@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 87
+  function: '87'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 88
+  function: '88'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 88
+  function: '88'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 89
+  function: '89'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Executive Owner - 89
+  function: '89'
+  person: cmstallm@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 89
+  function: '89'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 90
+  function: '90'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Executive Owner - 90
+  function: '90'
+  person: cmstallm@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 90
+  function: '90'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 91
+  function: '91'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 91
+  function: '91'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 91
+  function: '91'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 91
+  function: '91'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Benjamin Rounds - Compliance Owner - 91
+  function: '91'
+  person: bwrounds@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Bryan Blair - Executive Owner - 92
+  function: '92'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 93
+  function: '93'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 94
+  function: '94'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 94
+  function: '94'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 95
+  function: '95'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 95
+  function: '95'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 96
+  function: '96'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jeffrey A Stoecker - Executive Owner - 96
+  function: '96'
+  person: jastoeck@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Boeke - Unit Owner - 96
+  function: '96'
+  person: joboeke@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jeffrey A Stoecker - Executive Owner - 97
+  function: '97'
+  person: jastoeck@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lisa Andreotta - Unit Owner - 97
+  function: '97'
+  person: ldandreo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 98
+  function: '98'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 99
+  function: '99'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jeffrey A Stoecker - Executive Owner - 99
+  function: '99'
+  person: jastoeck@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lisa Andreotta - Unit Owner - 99
+  function: '99'
+  person: ldandreo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Melinda Lothes - Compliance Owner - 99
+  function: '99'
+  person: mmlothes@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Rachel Duffy - Compliance Owner - 99
+  function: '99'
+  person: rlduffy@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeffrey A Stoecker - Executive Owner - 100
+  function: '100'
+  person: jastoeck@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 100
+  function: '100'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kevin Morgan - Unit Owner - 100
+  function: '100'
+  person: kmorga13@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Rachel Duffy - Compliance Owner - 100
+  function: '100'
+  person: rlduffy@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 101
+  function: '101'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 101
+  function: '101'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 103
+  function: '103'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Mary G. Opperman - Executive Owner - 103
+  function: '103'
+  person: opperman@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 103
+  function: '103'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 104
+  function: '104'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 104
+  function: '104'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Utibe E Offiong - Unit Owner - 104
+  function: '104'
+  person: ueoffion@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 105
+  function: '105'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 105
+  function: '105'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 105
+  function: '105'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 106
+  function: '106'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 106
+  function: '106'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Katie Barnett - Compliance Owner - 106
+  function: '106'
+  person: kjoa01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 108
+  function: '108'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 108
+  function: '108'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ashley Collins - Compliance Owner - 108
+  function: '108'
+  person: acolli34@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 109
+  function: '109'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 109
+  function: '109'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ashley Collins - Compliance Owner - 109
+  function: '109'
+  person: acolli34@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 110
+  function: '110'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 110
+  function: '110'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ashley Collins - Compliance Owner - 110
+  function: '110'
+  person: acolli34@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 111
+  function: '111'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 111
+  function: '111'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ashley Collins - Compliance Owner - 111
+  function: '111'
+  person: acolli34@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 112
+  function: '112'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 112
+  function: '112'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ashley Collins - Compliance Owner - 112
+  function: '112'
+  person: acolli34@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 113
+  function: '113'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 114
+  function: '114'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 114
+  function: '114'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 114
+  function: '114'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 115
+  function: '115'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 115
+  function: '115'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ashley Collins - Compliance Owner - 115
+  function: '115'
+  person: acolli34@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 116
+  function: '116'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Fetter - Unit Owner - 116
+  function: '116'
+  person: jcfetter@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 117
+  function: '117'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brian Fancher - Unit Owner - 117
+  function: '117'
+  person: bfancher@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Rene Marceau - Compliance Owner - 117
+  function: '117'
+  person: rmarceau@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 118
+  function: '118'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 118
+  function: '118'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Support
+- name: Katie Barnett - Compliance Owner - 118
+  function: '118'
+  person: kjoa01@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Brett Padgett - Executive Owner - 119
+  function: '119'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katie Barnett - Unit Owner - 119
+  function: '119'
+  person: kjoa01@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 119
+  function: '119'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Steven Kelly - Compliance Owner - 119
+  function: '119'
+  person: stkelly@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 120
+  function: '120'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jean Gallipeau - Unit Owner - 120
+  function: '120'
+  person: jbgallip@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 121
+  function: '121'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brian Fancher - Unit Owner - 121
+  function: '121'
+  person: bfancher@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Marjorie Greeson - Compliance Owner - 121
+  function: '121'
+  person: magreeso@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 122
+  function: '122'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ashley Collins - Unit Owner - 122
+  function: '122'
+  person: acolli34@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 123
+  function: '123'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jamie Oswald - Unit Owner - 123
+  function: '123'
+  person: jsoswald@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 124
+  function: '124'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jean Gallipeau - Unit Owner - 124
+  function: '124'
+  person: jbgallip@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 124
+  function: '124'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 125
+  function: '125'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 125
+  function: '125'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 126
+  function: '126'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 126
+  function: '126'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jamie Oswald - Compliance Owner - 126
+  function: '126'
+  person: jsoswald@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 126
+  function: '126'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 127
+  function: '127'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 127
+  function: '127'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 127
+  function: '127'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 128
+  function: '128'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 128
+  function: '128'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 128
+  function: '128'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 129
+  function: '129'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 129
+  function: '129'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 129
+  function: '129'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 130
+  function: '130'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 130
+  function: '130'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 130
+  function: '130'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 131
+  function: '131'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Boeke - Unit Owner - 131
+  function: '131'
+  person: joboeke@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jodie Ralston - Compliance Owner - 131
+  function: '131'
+  person: jralston@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 132
+  function: '132'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 132
+  function: '132'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 132
+  function: '132'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 133
+  function: '133'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 133
+  function: '133'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 133
+  function: '133'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 134
+  function: '134'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 134
+  function: '134'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jean Gallipeau - Compliance Owner - 134
+  function: '134'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 135
+  function: '135'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 135
+  function: '135'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jamie Oswald - Compliance Owner - 135
+  function: '135'
+  person: jsoswald@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 136
+  function: '136'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 136
+  function: '136'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 137
+  function: '137'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 137
+  function: '137'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 138
+  function: '138'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 138
+  function: '138'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 139
+  function: '139'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 139
+  function: '139'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John Papazoglou - Unit Owner - 139
+  function: '139'
+  person: jpapa@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 140
+  function: '140'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 140
+  function: '140'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 140
+  function: '140'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 140
+  function: '140'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Barlok - Executive Owner - 141
+  function: '141'
+  person: twbarlok@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Boeke - Unit Owner - 141
+  function: '141'
+  person: joboeke@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 142
+  function: '142'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Scott Kemp - Unit Owner - 142
+  function: '142'
+  person: sckemp@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Steven Kelly - Compliance Owner - 142
+  function: '142'
+  person: stkelly@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Christina Stepien - Compliance Owner - 142
+  function: '142'
+  person: cdiecuch@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Brett Padgett - Executive Owner - 143
+  function: '143'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 143
+  function: '143'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 145
+  function: '145'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 145
+  function: '145'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 145
+  function: '145'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 146
+  function: '146'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 146
+  function: '146'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 146
+  function: '146'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 147
+  function: '147'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 147
+  function: '147'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 147
+  function: '147'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 148
+  function: '148'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 148
+  function: '148'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 148
+  function: '148'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 149
+  function: '149'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 149
+  function: '149'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 149
+  function: '149'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 149
+  function: '149'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 150
+  function: '150'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 150
+  function: '150'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 150
+  function: '150'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 151
+  function: '151'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 151
+  function: '151'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 151
+  function: '151'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 152
+  function: '152'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 152
+  function: '152'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 152
+  function: '152'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 153
+  function: '153'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 153
+  function: '153'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Unit Owner - 153
+  function: '153'
+  person: staub@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 153
+  function: '153'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 154
+  function: '154'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 154
+  function: '154'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 154
+  function: '154'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 156
+  function: '156'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 156
+  function: '156'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 156
+  function: '156'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 158
+  function: '158'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 158
+  function: '158'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 158
+  function: '158'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 159
+  function: '159'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 159
+  function: '159'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 159
+  function: '159'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 160
+  function: '160'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 160
+  function: '160'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 160
+  function: '160'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 161
+  function: '161'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 161
+  function: '161'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 161
+  function: '161'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 162
+  function: '162'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 162
+  function: '162'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 162
+  function: '162'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 163
+  function: '163'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 163
+  function: '163'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 163
+  function: '163'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 164
+  function: '164'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 164
+  function: '164'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 164
+  function: '164'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 165
+  function: '165'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 165
+  function: '165'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 165
+  function: '165'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 166
+  function: '166'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 166
+  function: '166'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 166
+  function: '166'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 167
+  function: '167'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 167
+  function: '167'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Maria Ferrara - Compliance Owner - 167
+  function: '167'
+  person: mmferrar@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 168
+  function: '168'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 168
+  function: '168'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Maria Ferrara - Compliance Owner - 168
+  function: '168'
+  person: mmferrar@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 169
+  function: '169'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 169
+  function: '169'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Eric Kay - Compliance Owner - 169
+  function: '169'
+  person: ekay03@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 170
+  function: '170'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 170
+  function: '170'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Eric Kay - Compliance Owner - 170
+  function: '170'
+  person: ekay03@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 171
+  function: '171'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 171
+  function: '171'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 171
+  function: '171'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 172
+  function: '172'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheila Johnson - Unit Owner - 172
+  function: '172'
+  person: sjohnson@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 172
+  function: '172'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 173
+  function: '173'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: William Myhill - Unit Owner - 173
+  function: '173'
+  person: wmyhill@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Melanie Domanico - Compliance Owner - 173
+  function: '173'
+  person: mmdomani@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 174
+  function: '174'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 174
+  function: '174'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 174
+  function: '174'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 175
+  function: '175'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheila Johnson - Unit Owner - 175
+  function: '175'
+  person: sjohnson@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 175
+  function: '175'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 176
+  function: '176'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 177
+  function: '177'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 177
+  function: '177'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 177
+  function: '177'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 178
+  function: '178'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 178
+  function: '178'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Casey Green - Compliance Owner - 178
+  function: '178'
+  person: cgreen21@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 179
+  function: '179'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 179
+  function: '179'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 179
+  function: '179'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 179
+  function: '179'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 180
+  function: '180'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 180
+  function: '180'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Casey Green - Compliance Owner - 180
+  function: '180'
+  person: cgreen21@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 181
+  function: '181'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 181
+  function: '181'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 182
+  function: '182'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 182
+  function: '182'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 182
+  function: '182'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 183
+  function: '183'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 183
+  function: '183'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 183
+  function: '183'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 184
+  function: '184'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 184
+  function: '184'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 184
+  function: '184'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 185
+  function: '185'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 185
+  function: '185'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 185
+  function: '185'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 186
+  function: '186'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 186
+  function: '186'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 186
+  function: '186'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 187
+  function: '187'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 187
+  function: '187'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 187
+  function: '187'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 188
+  function: '188'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 188
+  function: '188'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 188
+  function: '188'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 189
+  function: '189'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 189
+  function: '189'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 189
+  function: '189'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 190
+  function: '190'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 190
+  function: '190'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 190
+  function: '190'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Jean Gallipeau - Compliance Owner - 190
+  function: '190'
+  person: jbgallip@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 191
+  function: '191'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 191
+  function: '191'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 191
+  function: '191'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 192
+  function: '192'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 192
+  function: '192'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 192
+  function: '192'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 193
+  function: '193'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 193
+  function: '193'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 193
+  function: '193'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 194
+  function: '194'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 194
+  function: '194'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 194
+  function: '194'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 195
+  function: '195'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 195
+  function: '195'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 195
+  function: '195'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 196
+  function: '196'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 196
+  function: '196'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 196
+  function: '196'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 197
+  function: '197'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 197
+  function: '197'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 198
+  function: '198'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 198
+  function: '198'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 199
+  function: '199'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 199
+  function: '199'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 199
+  function: '199'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 200
+  function: '200'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 200
+  function: '200'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 200
+  function: '200'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 201
+  function: '201'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 201
+  function: '201'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 201
+  function: '201'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 202
+  function: '202'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 202
+  function: '202'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 202
+  function: '202'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 203
+  function: '203'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 203
+  function: '203'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 203
+  function: '203'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheriah Dixon - Unit Owner - 203
+  function: '203'
+  person: snmontgo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 204
+  function: '204'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 204
+  function: '204'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 204
+  function: '204'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 205
+  function: '205'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 205
+  function: '205'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 205
+  function: '205'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 206
+  function: '206'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 206
+  function: '206'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: William Myhill - Unit Owner - 206
+  function: '206'
+  person: wmyhill@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christian Jones - Compliance Owner - 206
+  function: '206'
+  person: cjones21@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Alex Dietrich - Executive Owner - 207
+  function: '207'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Unit Owner - 207
+  function: '207'
+  person: aadietri@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: William Myhill - Compliance Owner - 207
+  function: '207'
+  person: wmyhill@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 207
+  function: '207'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 208
+  function: '208'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: William Myhill - Unit Owner - 208
+  function: '208'
+  person: wmyhill@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Melanie Domanico - Compliance Owner - 208
+  function: '208'
+  person: mmdomani@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 209
+  function: '209'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: William Myhill - Unit Owner - 209
+  function: '209'
+  person: wmyhill@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Melanie Domanico - Compliance Owner - 209
+  function: '209'
+  person: mmdomani@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 210
+  function: '210'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 210
+  function: '210'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jim Mennig - Compliance Owner - 210
+  function: '210'
+  person: jemennig@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 211
+  function: '211'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 211
+  function: '211'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 211
+  function: '211'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 212
+  function: '212'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 212
+  function: '212'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 212
+  function: '212'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 213
+  function: '213'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 213
+  function: '213'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 213
+  function: '213'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 214
+  function: '214'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 214
+  function: '214'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 214
+  function: '214'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 215
+  function: '215'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 215
+  function: '215'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Erica Wynn-Kearse - Compliance Owner - 215
+  function: '215'
+  person: ewynnkea@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 216
+  function: '216'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 216
+  function: '216'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 216
+  function: '216'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 216
+  function: '216'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 217
+  function: '217'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dawn Singleton - Unit Owner - 217
+  function: '217'
+  person: dssingle@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Annie Dievendorf - Compliance Owner - 217
+  function: '217'
+  person: amdieven@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 218
+  function: '218'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 218
+  function: '218'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 218
+  function: '218'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 219
+  function: '219'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 219
+  function: '219'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 219
+  function: '219'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Maurice Harris - Unit Owner - 219
+  function: '219'
+  person: maharr17@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 220
+  function: '220'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheila Johnson - Unit Owner - 220
+  function: '220'
+  person: sjohnson@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 220
+  function: '220'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 221
+  function: '221'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 221
+  function: '221'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 221
+  function: '221'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 222
+  function: '222'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 222
+  function: '222'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Casey Green - Compliance Owner - 222
+  function: '222'
+  person: cgreen21@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 223
+  function: '223'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 223
+  function: '223'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 223
+  function: '223'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 224
+  function: '224'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 224
+  function: '224'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 224
+  function: '224'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 225
+  function: '225'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 225
+  function: '225'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 225
+  function: '225'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 225
+  function: '225'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 226
+  function: '226'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 226
+  function: '226'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 226
+  function: '226'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 227
+  function: '227'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 227
+  function: '227'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 227
+  function: '227'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 228
+  function: '228'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 228
+  function: '228'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jim Mennig - Compliance Owner - 228
+  function: '228'
+  person: jemennig@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 229
+  function: '229'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 229
+  function: '229'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Jim Mennig - Compliance Owner - 229
+  function: '229'
+  person: jemennig@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 230
+  function: '230'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 230
+  function: '230'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 230
+  function: '230'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 231
+  function: '231'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 231
+  function: '231'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 231
+  function: '231'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 232
+  function: '232'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 232
+  function: '232'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 232
+  function: '232'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 233
+  function: '233'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 233
+  function: '233'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Melanie Domanico - Compliance Owner - 233
+  function: '233'
+  person: mmdomani@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 234
+  function: '234'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 234
+  function: '234'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 234
+  function: '234'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 235
+  function: '235'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 235
+  function: '235'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 235
+  function: '235'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 235
+  function: '235'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 236
+  function: '236'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 236
+  function: '236'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 237
+  function: '237'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 237
+  function: '237'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Casey Green - Compliance Owner - 237
+  function: '237'
+  person: cgreen21@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 238
+  function: '238'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 238
+  function: '238'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Erica Wynn-Kearse - Compliance Owner - 238
+  function: '238'
+  person: ewynnkea@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Sharon Cole - Compliance Owner - 238
+  function: '238'
+  person: sdcole@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 239
+  function: '239'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 239
+  function: '239'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 239
+  function: '239'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 240
+  function: '240'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 240
+  function: '240'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Erica Wynn-Kearse - Compliance Owner - 240
+  function: '240'
+  person: ewynnkea@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 241
+  function: '241'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 241
+  function: '241'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 241
+  function: '241'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 242
+  function: '242'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 242
+  function: '242'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 242
+  function: '242'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 243
+  function: '243'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 243
+  function: '243'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 243
+  function: '243'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 244
+  function: '244'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 244
+  function: '244'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 244
+  function: '244'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 245
+  function: '245'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 245
+  function: '245'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 246
+  function: '246'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 246
+  function: '246'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 246
+  function: '246'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 247
+  function: '247'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 247
+  function: '247'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Erica Wynn-Kearse - Compliance Owner - 247
+  function: '247'
+  person: ewynnkea@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 248
+  function: '248'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 248
+  function: '248'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 248
+  function: '248'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 249
+  function: '249'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 249
+  function: '249'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 249
+  function: '249'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 250
+  function: '250'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jim Mennig - Unit Owner - 250
+  function: '250'
+  person: jemennig@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Erica Wynn-Kearse - Compliance Owner - 250
+  function: '250'
+  person: ewynnkea@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 251
+  function: '251'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 251
+  function: '251'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Dana Sovocool - Compliance Owner - 251
+  function: '251'
+  person: desovoco@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 252
+  function: '252'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 252
+  function: '252'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 252
+  function: '252'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 253
+  function: '253'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 253
+  function: '253'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 253
+  function: '253'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 254
+  function: '254'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 254
+  function: '254'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 254
+  function: '254'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 255
+  function: '255'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 255
+  function: '255'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 255
+  function: '255'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 256
+  function: '256'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 256
+  function: '256'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 256
+  function: '256'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 257
+  function: '257'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 257
+  function: '257'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 257
+  function: '257'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 258
+  function: '258'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 258
+  function: '258'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 258
+  function: '258'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 259
+  function: '259'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 259
+  function: '259'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Rene Marceau - Compliance Owner - 259
+  function: '259'
+  person: rmarceau@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 260
+  function: '260'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheila Johnson - Unit Owner - 260
+  function: '260'
+  person: sjohnson@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pam Peter - Compliance Owner - 260
+  function: '260'
+  person: papeter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Farah Duvalsaint - Compliance Owner - 260
+  function: '260'
+  person: fgduval@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 261
+  function: '261'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheila Johnson - Unit Owner - 261
+  function: '261'
+  person: sjohnson@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pam Peter - Compliance Owner - 261
+  function: '261'
+  person: papeter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 261
+  function: '261'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 262
+  function: '262'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 263
+  function: '263'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Unit Owner - 263
+  function: '263'
+  person: aadietri@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tanya Williamson - Compliance Owner - 263
+  function: '263'
+  person: tewill01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 264
+  function: '264'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John DeRosier - Unit Owner - 264
+  function: '264'
+  person: jjderosi@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 265
+  function: '265'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John DeRosier - Unit Owner - 265
+  function: '265'
+  person: jjderosi@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 266
+  function: '266'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 266
+  function: '266'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Rene Marceau - Compliance Owner - 266
+  function: '266'
+  person: rmarceau@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 267
+  function: '267'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 267
+  function: '267'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 267
+  function: '267'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 268
+  function: '268'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 268
+  function: '268'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Rene Marceau - Compliance Owner - 268
+  function: '268'
+  person: rmarceau@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 269
+  function: '269'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 269
+  function: '269'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 269
+  function: '269'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 270
+  function: '270'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 270
+  function: '270'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Rene Marceau - Compliance Owner - 270
+  function: '270'
+  person: rmarceau@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 271
+  function: '271'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 271
+  function: '271'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 271
+  function: '271'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 272
+  function: '272'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 272
+  function: '272'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pamela Socker - Compliance Owner - 272
+  function: '272'
+  person: pasocker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 273
+  function: '273'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 273
+  function: '273'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Gabe Nugent - Executive Owner - 273
+  function: '273'
+  person: gmnugent@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 273
+  function: '273'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 273
+  function: '273'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 274
+  function: '274'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 274
+  function: '274'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: David Seaman - Unit Owner - 274
+  function: '274'
+  person: dseaman@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Melinda Lothes - Compliance Owner - 274
+  function: '274'
+  person: mmlothes@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 274
+  function: '274'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Catherine Cocks - Compliance Owner - 274
+  function: '274'
+  person: cccocks@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 275
+  function: '275'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christopher Croad - Unit Owner - 275
+  function: '275'
+  person: ccroad@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 275
+  function: '275'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 276
+  function: '276'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 276
+  function: '276'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 276
+  function: '276'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 277
+  function: '277'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 277
+  function: '277'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: David Seaman - Unit Owner - 277
+  function: '277'
+  person: dseaman@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: SU Libraries Copyright Team - Compliance Owner - 277
+  function: '277'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 278
+  function: '278'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 278
+  function: '278'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Julie Hasenwinkel - Unit Owner - 278
+  function: '278'
+  person: jmhasenw@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Eric Sedore - Compliance Owner - 278
+  function: '278'
+  person: essedore@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Paula Possenti-Perez - Compliance Owner - 278
+  function: '278'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 279
+  function: '279'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 279
+  function: '279'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 279
+  function: '279'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 280
+  function: '280'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 280
+  function: '280'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 280
+  function: '280'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 281
+  function: '281'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 281
+  function: '281'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 281
+  function: '281'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 282
+  function: '282'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 282
+  function: '282'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 282
+  function: '282'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Joe Lee - Compliance Owner - 283
+  function: '283'
+  person: jblee01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 284
+  function: '284'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 284
+  function: '284'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Richard Feldmann - Compliance Owner - 284
+  function: '284'
+  person: rpfeldma@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 285
+  function: '285'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 285
+  function: '285'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 285
+  function: '285'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 286
+  function: '286'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Eric Sedore - Unit Owner - 286
+  function: '286'
+  person: essedore@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 286
+  function: '286'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 287
+  function: '287'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 287
+  function: '287'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 288
+  function: '288'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 288
+  function: '288'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 289
+  function: '289'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 289
+  function: '289'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 290
+  function: '290'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 290
+  function: '290'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 291
+  function: '291'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 291
+  function: '291'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 292
+  function: '292'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dawn Singleton - Unit Owner - 292
+  function: '292'
+  person: dssingle@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Annie Dievendorf - Compliance Owner - 292
+  function: '292'
+  person: amdieven@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 293
+  function: '293'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dawn Singleton - Unit Owner - 293
+  function: '293'
+  person: dssingle@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Annie Dievendorf - Compliance Owner - 293
+  function: '293'
+  person: amdieven@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 294
+  function: '294'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: William Myhill - Unit Owner - 294
+  function: '294'
+  person: wmyhill@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Gabe Nugent - Executive Owner - 295
+  function: '295'
+  person: gmnugent@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Heather Gaines - Unit Owner - 295
+  function: '295'
+  person: hkgaines@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Heather Gaines - Compliance Owner - 295
+  function: '295'
+  person: hkgaines@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Gabe Nugent - Executive Owner - 296
+  function: '296'
+  person: gmnugent@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Heather Gaines - Unit Owner - 296
+  function: '296'
+  person: hkgaines@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Heather Gaines - Compliance Owner - 296
+  function: '296'
+  person: hkgaines@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 297
+  function: '297'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 297
+  function: '297'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kathleen Coughlin - Unit Owner - 297
+  function: '297'
+  person: kccoughl@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joe Pellegrino - Compliance Owner - 297
+  function: '297'
+  person: jtpelleg@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 297
+  function: '297'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Kathleen Coughlin - Compliance Owner - 297
+  function: '297'
+  person: kccoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 298
+  function: '298'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 298
+  function: '298'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 298
+  function: '298'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 299
+  function: '299'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 299
+  function: '299'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 299
+  function: '299'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 300
+  function: '300'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 300
+  function: '300'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kathleen Coughlin - Unit Owner - 300
+  function: '300'
+  person: kccoughl@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joe Pellegrino - Compliance Owner - 300
+  function: '300'
+  person: jtpelleg@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 300
+  function: '300'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Michele Frontale - Compliance Owner - 300
+  function: '300'
+  person: mafronta@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 301
+  function: '301'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 301
+  function: '301'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 301
+  function: '301'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kathy Vander Werff - Unit Owner - 301
+  function: '301'
+  person: kvander@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Sarah Azria - Compliance Owner - 301
+  function: '301'
+  person: sazria@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Kathleen Coughlin - Compliance Owner - 301
+  function: '301'
+  person: kccoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Joe Pellegrino - Compliance Owner - 301
+  function: '301'
+  person: jtpelleg@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 302
+  function: '302'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christopher Croad - Compliance Owner - 302
+  function: '302'
+  person: ccroad@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 303
+  function: '303'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 303
+  function: '303'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Jeff Rubin - Executive Owner - 304
+  function: '304'
+  person: jhrubin@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 305
+  function: '305'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Campbell - Unit Owner - 305
+  function: '305'
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 306
+  function: '306'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Campbell - Unit Owner - 306
+  function: '306'
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 307
+  function: '307'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Campbell - Unit Owner - 307
+  function: '307'
+  person: kmnieder@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 308
+  function: '308'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Shelly Sipley - Unit Owner - 308
+  function: '308'
+  person: mbsipley@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 309
+  function: '309'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katie Barnett - Compliance Owner - 309
+  function: '309'
+  person: kjoa01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 310
+  function: '310'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katie Barnett - Compliance Owner - 310
+  function: '310'
+  person: kjoa01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 311
+  function: '311'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katie Barnett - Compliance Owner - 311
+  function: '311'
+  person: kjoa01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 312
+  function: '312'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 312
+  function: '312'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Katie Barnett - Compliance Owner - 312
+  function: '312'
+  person: kjoa01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 313
+  function: '313'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 313
+  function: '313'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lori Levengood - Compliance Owner - 313
+  function: '313'
+  person: llevengo@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 314
+  function: '314'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 314
+  function: '314'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Unit Owner - 314
+  function: '314'
+  person: staub@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Toni Besaw - Compliance Owner - 314
+  function: '314'
+  person: tbesaw@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 315
+  function: '315'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 315
+  function: '315'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Unit Owner - 315
+  function: '315'
+  person: staub@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Toni Besaw - Compliance Owner - 315
+  function: '315'
+  person: tbesaw@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Cromp - Compliance Owner - 315
+  function: '315'
+  person: tjcromp@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 316
+  function: '316'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 316
+  function: '316'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Unit Owner - 316
+  function: '316'
+  person: staub@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Toni Besaw - Compliance Owner - 316
+  function: '316'
+  person: tbesaw@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 316
+  function: '316'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 317
+  function: '317'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 317
+  function: '317'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 318
+  function: '318'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 318
+  function: '318'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 319
+  function: '319'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 319
+  function: '319'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Unit Owner - 319
+  function: '319'
+  person: staub@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Toni Besaw - Compliance Owner - 319
+  function: '319'
+  person: tbesaw@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 319
+  function: '319'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 320
+  function: '320'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 320
+  function: '320'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Unit Owner - 320
+  function: '320'
+  person: staub@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Toni Besaw - Compliance Owner - 320
+  function: '320'
+  person: tbesaw@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 320
+  function: '320'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 321
+  function: '321'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 321
+  function: '321'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 322
+  function: '322'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 323
+  function: '323'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ashley Collins - Compliance Owner - 323
+  function: '323'
+  person: acolli34@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 323
+  function: '323'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 324
+  function: '324'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Kelly Flannery - Unit Owner - 324
+  function: '324'
+  person: kmflanne@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Steven Kelly - Compliance Owner - 324
+  function: '324'
+  person: stkelly@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 325
+  function: '325'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brian Gerling - Compliance Owner - 325
+  function: '325'
+  person: bjgerlin@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 326
+  function: '326'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brian Gerling - Compliance Owner - 326
+  function: '326'
+  person: bjgerlin@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 327
+  function: '327'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brian Gerling - Compliance Owner - 327
+  function: '327'
+  person: bjgerlin@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 328
+  function: '328'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 328
+  function: '328'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 329
+  function: '329'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brian Gerling - Compliance Owner - 329
+  function: '329'
+  person: bjgerlin@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 330
+  function: '330'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Unit Owner - 330
+  function: '330'
+  person: staub@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 331
+  function: '331'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Stuart Taub - Compliance Owner - 331
+  function: '331'
+  person: staub@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 332
+  function: '332'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tracy Cromp - Compliance Owner - 332
+  function: '332'
+  person: tjcromp@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 333
+  function: '333'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tracy Cromp - Unit Owner - 333
+  function: '333'
+  person: tjcromp@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: David Carnes - Compliance Owner - 333
+  function: '333'
+  person: dbcarnes@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 334
+  function: '334'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tracy Cromp - Unit Owner - 334
+  function: '334'
+  person: tjcromp@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: David Carnes - Compliance Owner - 334
+  function: '334'
+  person: dbcarnes@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 335
+  function: '335'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 336
+  function: '336'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Isaiah Lopez - Unit Owner - 336
+  function: '336'
+  person: ilopez11@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Iris Laboy - Compliance Owner - 336
+  function: '336'
+  person: ijlaboy@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Isaiah Lopez - Compliance Owner - 336
+  function: '336'
+  person: ilopez11@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 337
+  function: '337'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katie Barnett - Compliance Owner - 337
+  function: '337'
+  person: kjoa01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 338
+  function: '338'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katherine McDonald - Unit Owner - 338
+  function: '338'
+  person: kemcdona@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tracy Cromp - Compliance Owner - 338
+  function: '338'
+  person: tjcromp@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Adam Hepburn - Executive Owner - 339
+  function: '339'
+  person: ajhepbur@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Adam Hepburn - Unit Owner - 339
+  function: '339'
+  person: ajhepbur@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Laura Kolton - Compliance Owner - 339
+  function: '339'
+  person: lgkolton@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 340
+  function: '340'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katherine McDonald - Compliance Owner - 340
+  function: '340'
+  person: kemcdona@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 341
+  function: '341'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katherine McDonald - Unit Owner - 341
+  function: '341'
+  person: kemcdona@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tracy Cromp - Compliance Owner - 341
+  function: '341'
+  person: tjcromp@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 342
+  function: '342'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Katherine McDonald - Compliance Owner - 342
+  function: '342'
+  person: kemcdona@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 343
+  function: '343'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Ryan Williams - Executive Owner - 343
+  function: '343'
+  person: rcwill05@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 343
+  function: '343'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Eric Kay - Compliance Owner - 343
+  function: '343'
+  person: ekay03@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 344
+  function: '344'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 344
+  function: '344'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Stallmann - Unit Owner - 344
+  function: '344'
+  person: cmstallm@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Michael Bunker - Compliance Owner - 344
+  function: '344'
+  person: mjbunker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Nikki Cooter - Compliance Owner - 344
+  function: '344'
+  person: njcooter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Benjamin Rounds - Compliance Owner - 344
+  function: '344'
+  person: bwrounds@syr.edu
+  role: Compliance Owner
+  subRole: Support
+- name: Allen Groves - Executive Owner - 345
+  function: '345'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheriah Dixon - Unit Owner - 345
+  function: '345'
+  person: snmontgo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joshua Rich - Compliance Owner - 345
+  function: '345'
+  person: jdrich@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 346
+  function: '346'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 346
+  function: '346'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cory Wallack - Unit Owner - 346
+  function: '346'
+  person: cwallack@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Veronica Jones - Compliance Owner - 346
+  function: '346'
+  person: vwjones@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Nikki Cooter - Compliance Owner - 346
+  function: '346'
+  person: njcooter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 347
+  function: '347'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Michael Bunker - Unit Owner - 347
+  function: '347'
+  person: mjbunker@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: William Karnadi - Compliance Owner - 347
+  function: '347'
+  person: wkarnadi@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 348
+  function: '348'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 348
+  function: '348'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: John Rossiter - Compliance Owner - 348
+  function: '348'
+  person: jarossit@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 349
+  function: '349'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Michael Bunker - Unit Owner - 349
+  function: '349'
+  person: mjbunker@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: John Sardino - Compliance Owner - 349
+  function: '349'
+  person: jsardino@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 350
+  function: '350'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 350
+  function: '350'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joseph Hernon - Compliance Owner - 350
+  function: '350'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 351
+  function: '351'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 351
+  function: '351'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 351
+  function: '351'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cory Wallack - Unit Owner - 351
+  function: '351'
+  person: cwallack@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Nikki Cooter - Compliance Owner - 351
+  function: '351'
+  person: njcooter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pam Peter - Compliance Owner - 351
+  function: '351'
+  person: papeter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Michael Bunker - Compliance Owner - 351
+  function: '351'
+  person: mjbunker@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Sheila Johnson - Compliance Owner - 351
+  function: '351'
+  person: sjohnson@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 352
+  function: '352'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 352
+  function: '352'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tim Coughlin - Compliance Owner - 352
+  function: '352'
+  person: tmcoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 353
+  function: '353'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 353
+  function: '353'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tiff Nelson - Compliance Owner - 353
+  function: '353'
+  person: tjnels01@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tim Coughlin - Compliance Owner - 353
+  function: '353'
+  person: tmcoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 354
+  function: '354'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 354
+  function: '354'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joseph Hernon - Compliance Owner - 354
+  function: '354'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 355
+  function: '355'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Pete Sala - Unit Owner - 355
+  function: '355'
+  person: pesala@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 355
+  function: '355'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 355
+  function: '355'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 356
+  function: '356'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 356
+  function: '356'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 356
+  function: '356'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 357
+  function: '357'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 357
+  function: '357'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joseph Hernon - Compliance Owner - 357
+  function: '357'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 358
+  function: '358'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 358
+  function: '358'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joseph Hernon - Compliance Owner - 358
+  function: '358'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 359
+  function: '359'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Glenn Korec - Compliance Owner - 359
+  function: '359'
+  person: gekorec@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 360
+  function: '360'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tim Coughlin - Compliance Owner - 360
+  function: '360'
+  person: tmcoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 361
+  function: '361'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 361
+  function: '361'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 361
+  function: '361'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 362
+  function: '362'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 362
+  function: '362'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 363
+  function: '363'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 363
+  function: '363'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: John Papazoglou - Executive Owner - 364
+  function: '364'
+  person: jpapa@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 364
+  function: '364'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Fetter - Unit Owner - 364
+  function: '364'
+  person: jcfetter@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Cheryl Fabrizi - Compliance Owner - 364
+  function: '364'
+  person: cafabriz@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Joseph Fetter - Compliance Owner - 364
+  function: '364'
+  person: jcfetter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 365
+  function: '365'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 365
+  function: '365'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 365
+  function: '365'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 366
+  function: '366'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 366
+  function: '366'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 366
+  function: '366'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 367
+  function: '367'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 367
+  function: '367'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 367
+  function: '367'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 368
+  function: '368'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 368
+  function: '368'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 368
+  function: '368'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 369
+  function: '369'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 369
+  function: '369'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joseph Hernon - Compliance Owner - 369
+  function: '369'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 370
+  function: '370'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 370
+  function: '370'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 371
+  function: '371'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 371
+  function: '371'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joseph Hernon - Compliance Owner - 371
+  function: '371'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 372
+  function: '372'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 372
+  function: '372'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Joseph Hernon - Compliance Owner - 372
+  function: '372'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 373
+  function: '373'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 373
+  function: '373'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 374
+  function: '374'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 374
+  function: '374'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 375
+  function: '375'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 375
+  function: '375'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 376
+  function: '376'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 376
+  function: '376'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 377
+  function: '377'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 377
+  function: '377'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 378
+  function: '378'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 378
+  function: '378'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 379
+  function: '379'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Compliance Owner - 379
+  function: '379'
+  person: jphernon@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 380
+  function: '380'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joe Hernon - Unit Owner - 380
+  function: '380'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Tim Coughlin - Compliance Owner - 380
+  function: '380'
+  person: tmcoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 381
+  function: '381'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John Papazoglou - Executive Owner - 381
+  function: '381'
+  person: jpapa@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 381
+  function: '381'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Cheryl Fabrizi - Compliance Owner - 381
+  function: '381'
+  person: cafabriz@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 381
+  function: '381'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Joseph Fetter - Compliance Owner - 381
+  function: '381'
+  person: jcfetter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 382
+  function: '382'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 382
+  function: '382'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 382
+  function: '382'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 383
+  function: '383'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 383
+  function: '383'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 383
+  function: '383'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 384
+  function: '384'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Tim Coughlin - Compliance Owner - 384
+  function: '384'
+  person: tmcoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 385
+  function: '385'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Christine Voorhees - Compliance Owner - 385
+  function: '385'
+  person: cmvoorhe@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Pat Rook - Compliance Owner - 385
+  function: '385'
+  person: sprook@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Brett Padgett - Executive Owner - 386
+  function: '386'
+  person: padgett@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Joseph Hernon - Unit Owner - 386
+  function: '386'
+  person: jphernon@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Kelly Miller - Compliance Owner - 386
+  function: '386'
+  person: kmmill03@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 387
+  function: '387'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 387
+  function: '387'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cory Wallack - Unit Owner - 387
+  function: '387'
+  person: cwallack@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Kathleen Coughlin - Compliance Owner - 387
+  function: '387'
+  person: kccoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 388
+  function: '388'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 388
+  function: '388'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cory Wallack - Unit Owner - 388
+  function: '388'
+  person: cwallack@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Kathleen Coughlin - Compliance Owner - 388
+  function: '388'
+  person: kccoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Cromp - Compliance Owner - 388
+  function: '388'
+  person: tjcromp@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 389
+  function: '389'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Duncan Brown - Executive Owner - 389
+  function: '389'
+  person: dabrown@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Cory Wallack - Unit Owner - 389
+  function: '389'
+  person: cwallack@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Kathleen Coughlin - Compliance Owner - 389
+  function: '389'
+  person: kccoughl@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Tracy Cromp - Compliance Owner - 389
+  function: '389'
+  person: tjcromp@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 390
+  function: '390'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John Papazoglou - Executive Owner - 390
+  function: '390'
+  person: jpapa@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Steven Herndon - Unit Owner - 390
+  function: '390'
+  person: stherndo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lauren Murphy - Compliance Owner - 390
+  function: '390'
+  person: lmurph13@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: William Myhill - Compliance Owner - 390
+  function: '390'
+  person: wmyhill@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jason Mock - Compliance Owner - 390
+  function: '390'
+  person: jemock@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 391
+  function: '391'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 391
+  function: '391'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Steven Herndon - Unit Owner - 391
+  function: '391'
+  person: stherndo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lauren Murphy - Compliance Owner - 391
+  function: '391'
+  person: lmurph13@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: William Myhill - Compliance Owner - 391
+  function: '391'
+  person: wmyhill@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 392
+  function: '392'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John Papazoglou - Executive Owner - 392
+  function: '392'
+  person: jpapa@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Steven Herndon - Unit Owner - 392
+  function: '392'
+  person: stherndo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lauren Murphy - Compliance Owner - 392
+  function: '392'
+  person: lmurph13@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Paula Possenti-Perez - Compliance Owner - 392
+  function: '392'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jason Mock - Compliance Owner - 392
+  function: '392'
+  person: jemock@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 393
+  function: '393'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Lois Agnew - Executive Owner - 393
+  function: '393'
+  person: lpagnew@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Steven Herndon - Unit Owner - 393
+  function: '393'
+  person: stherndo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lauren Murphy - Compliance Owner - 393
+  function: '393'
+  person: lmurph13@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Paula Possenti-Perez - Compliance Owner - 393
+  function: '393'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 394
+  function: '394'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: John Papazoglou - Executive Owner - 394
+  function: '394'
+  person: jpapa@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Steven Herndon - Unit Owner - 394
+  function: '394'
+  person: stherndo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Lauren Murphy - Compliance Owner - 394
+  function: '394'
+  person: lmurph13@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Jason Mock - Compliance Owner - 394
+  function: '394'
+  person: jemock@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Paula Possenti-Perez - Compliance Owner - 394
+  function: '394'
+  person: ppossent@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 395
+  function: '395'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 395
+  function: '395'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheriah Dixon - Unit Owner - 395
+  function: '395'
+  person: snmontgo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Pam Peter - Compliance Owner - 395
+  function: '395'
+  person: papeter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Alex Dietrich - Executive Owner - 396
+  function: '396'
+  person: aadietri@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Dana Sovocool - Unit Owner - 396
+  function: '396'
+  person: desovoco@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Casey Green - Compliance Owner - 396
+  function: '396'
+  person: cgreen21@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 397
+  function: '397'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Pam Peter - Compliance Owner - 397
+  function: '397'
+  person: papeter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 398
+  function: '398'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Pam Peter - Compliance Owner - 398
+  function: '398'
+  person: papeter@syr.edu
+  role: Compliance Owner
+  subRole: Primary
+- name: Allen Groves - Executive Owner - 399
+  function: '399'
+  person: awgroves@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Sheriah Dixon - Unit Owner - 399
+  function: '399'
+  person: snmontgo@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Bryan Blair - Executive Owner - 406
+  function: '406'
+  person: brblair@syr.edu
+  role: Executive Owner
+  subRole: Primary
+- name: Megan Travis - Unit Owner - 406
+  function: '406'
+  person: mttravis@syr.edu
+  role: Unit Owner
+  subRole: Primary
+- name: Megan Travis - Compliance Owner - 406
+  function: '406'
+  person: mttravis@syr.edu
+  role: Compliance Owner
+  subRole: Primary

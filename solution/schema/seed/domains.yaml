@@ -1,0 +1,247 @@
+# su_domain - matched on su_domaincode; riskArea resolves via su_riskareacode.
+
+domains:
+- code: A001
+  name: Academic Programs
+  riskArea: T01
+  owner: lpagnew@syr.edu
+- code: A002
+  name: Admissions, Title IV
+  riskArea: T01
+  owner: rcwill05@syr.edu
+- code: A003
+  name: Consumer Information
+  riskArea: T01
+  owner: lpagnew@syr.edu
+- code: A004
+  name: Disabilities & Accommodations
+  riskArea: T01
+  owner: aadietri@syr.edu
+- code: A005
+  name: Enrollment
+  riskArea: T01
+  owner: rcwill05@syr.edu
+- code: A006
+  name: FAFSA
+  riskArea: T01
+  owner: rcwill05@syr.edu
+- code: A007
+  name: Funding, Financial Aid
+  riskArea: T01
+  owner: rcwill05@syr.edu
+- code: A008
+  name: Middle States Accreditation
+  riskArea: T01
+  owner: lpagnew@syr.edu
+- code: A009
+  name: Program Participation Agreement
+  riskArea: T01
+  owner: lpagnew@syr.edu
+- code: A010
+  name: Radio, FCC
+  riskArea: T01
+  owner: mlodato@syr.edu
+- code: A011
+  name: Fundraising & Development
+  riskArea: T02
+  owner: twbarlok@syr.edu
+- code: A012
+  name: ACC Conference Compliance
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A013
+  name: Federal Requirements
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A014
+  name: NCAA Eligibility
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A015
+  name: NCAA Financial Aid
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A016
+  name: NCAA Institutional Control
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A017
+  name: NCAA Personnel
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A018
+  name: NCAA Recruiting
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A019
+  name: NCAA Student-Athlete Welfare
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A020
+  name: NIL, Name, Image and Likeness
+  riskArea: T03
+  owner: brblair@syr.edu
+- code: A021
+  name: Marketing & Communications Compliance
+  riskArea: T04
+  owner: twbarlok@syr.edu
+- code: A022
+  name: Trademark & Licensing
+  riskArea: T04
+  owner: brblair@syr.edu
+- code: A023
+  name: Compliance & Ethics
+  riskArea: T05
+  owner: gmnugent@syr.edu
+- code: A024
+  name: Contracts & Procurement
+  riskArea: T05
+  owner: padgett@syr.edu
+- code: A025
+  name: Financial Services
+  riskArea: T05
+  owner: padgett@syr.edu
+- code: A026
+  name: Form 990
+  riskArea: T05
+  owner: padgett@syr.edu
+- code: A027
+  name: Tax
+  riskArea: T05
+  owner: padgett@syr.edu
+- code: A028
+  name: Federal Employees
+  riskArea: T06
+  owner: jmhaynie@syr.edu
+- code: A029
+  name: Lobbying and Political Activities
+  riskArea: T06
+  owner: jmhaynie@syr.edu
+- code: A030
+  name: Background Checks
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A031
+  name: Discrimination
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A032
+  name: Employee Benefits
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A033
+  name: Equal Opportunity
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A034
+  name: Health Care and Insurance
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A035
+  name: Human Resources
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A036
+  name: Immigration
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A037
+  name: Recruitment Hiring & Termination
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A038
+  name: Retirement
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A039
+  name: Title IX
+  riskArea: T07
+  owner: brblair@syr.edu
+- code: A040
+  name: Title VII
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A041
+  name: Unions
+  riskArea: T07
+  owner: aadietri@syr.edu
+- code: A042
+  name: Wages
+  riskArea: T07
+  owner: padgett@syr.edu
+- code: A043
+  name: Copyright & Trademark
+  riskArea: T08
+  owner: lpagnew@syr.edu
+- code: A044
+  name: Information Technology
+  riskArea: T08
+  owner: jhrubin@syr.edu
+- code: A045
+  name: May not apply
+  riskArea: T08
+  owner: dabrown@syr.edu
+- code: A046
+  name: International Activities and Programs
+  riskArea: T09
+  owner: awgroves@syr.edu
+- code: A047
+  name: HIPAA
+  riskArea: T10
+  owner: aadietri@syr.edu
+- code: A048
+  name: Privacy
+  riskArea: T10
+  owner: padgett@syr.edu
+- code: A049
+  name: Student Privacy, FERPA
+  riskArea: T10
+  owner: rcwill05@syr.edu
+- code: A050
+  name: Export Controls
+  riskArea: T11
+  owner: dabrown@syr.edu
+- code: A051
+  name: Grants Management
+  riskArea: T11
+  owner: jmhaynie@syr.edu
+- code: A052
+  name: Intellectual Property and Technology Transfer
+  riskArea: T11
+  owner: padgett@syr.edu
+- code: A053
+  name: May not apply
+  riskArea: T11
+  owner: dabrown@syr.edu
+- code: A054
+  name: Research
+  riskArea: T11
+  owner: dabrown@syr.edu
+- code: A055
+  name: Campus Safety
+  riskArea: T12
+  owner: aadietri@syr.edu
+- code: A056
+  name: Environmental Health and Safety
+  riskArea: T12
+  owner: padgett@syr.edu
+- code: A057
+  name: Transportation & Fleet
+  riskArea: T12
+  owner: padgett@syr.edu
+- code: A058
+  name: Health Services
+  riskArea: T13
+  owner: awgroves@syr.edu
+- code: A059
+  name: Housing
+  riskArea: T13
+  owner: awgroves@syr.edu
+- code: A060
+  name: Title IX
+  riskArea: T13
+  owner: brblair@syr.edu
+- code: A061
+  name: Title VI
+  riskArea: T13
+  owner: awgroves@syr.edu

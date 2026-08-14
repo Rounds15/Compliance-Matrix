@@ -1,0 +1,113 @@
+# su_assessment - matched on su_assessmentcode.
+# approversText stays free text until the names are reconciled to the
+# directory, at which point it becomes a junction like assessment owners.
+
+assessments:
+- code: ASMT001
+  name: Eligibility Athletics Assessment
+  assessmentDate: '2025-10-23'
+  risk: Low
+  status: Report Complete
+  currentHolder: null
+  followUpRound: 2
+  unit: Athletics Compliance
+  keyControlsMissing: 3
+  approversText: Gretchen; Katie; Christine
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/Athletics/Initial%20Eligibility/Eligibility%20Athletics%20Assessment%20-%2010-23-2025.xlsx?d=wb09970287ddf49f98e4ba5ddc232fcef
+- code: ASMT002
+  name: Clery Act Assessment
+  assessmentDate: '2026-02-18'
+  risk: Low
+  status: Report Complete
+  currentHolder: null
+  followUpRound: 1
+  unit: Office of Compliance
+  keyControlsMissing: 2
+  approversText: Christine; Katie; Gretchen
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/Clery%20Act%20Assessment%20-%202-18-2026.xlsx?d=w9bedac1809a04bc1b7f136c5c1907e72
+- code: ASMT003
+  name: Stop Campus Hazing Act Assessment
+  assessmentDate: '2026-01-15'
+  risk: Low
+  status: Finalized
+  currentHolder: Katie
+  followUpRound: null
+  unit: Community Standards
+  keyControlsMissing: 0
+  approversText: Gretchen
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/Stop%20Campus%20Hazing%20Act%20Assessment.xlsx?d=w7a3419a86ced4c5392f668453252e833
+- code: ASMT004
+  name: Employee Health Plan Assessment
+  assessmentDate: '2026-03-03'
+  risk: Low
+  status: Drafting
+  currentHolder: Gretchen
+  followUpRound: null
+  unit: Office of Human Resources
+  keyControlsMissing: 3
+  approversText: null
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/HIPAA/Employee%20Health%20Plan/Employee%20Health%20Plan%20Assessment%20-%203-3-2026.xlsx?d=w57032029803f4e258571d7b4c234b982
+- code: ASMT005
+  name: Pharmacy Assessment
+  assessmentDate: '2026-03-02'
+  risk: Low
+  status: Drafting
+  currentHolder: Gretchen
+  followUpRound: null
+  unit: Barnes Center at The Arch
+  keyControlsMissing: 3
+  approversText: null
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/HIPAA/Pharmacy/Pharmacy%20Assessment%20-%203-2-2026.xlsx?d=wfc01b263131f44a6adb02e48820961e7
+- code: ASMT006
+  name: Gebbie Clinic Assessment
+  assessmentDate: '2026-03-03'
+  risk: Low
+  status: Drafting
+  currentHolder: Gretchen
+  followUpRound: null
+  unit: Gebbie Speech, Language, & Hearing Clinic
+  keyControlsMissing: 3
+  approversText: null
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/HIPAA/Gebbie%20Clinic/Gebbie%20Clinic%20Assessment%20-%203-3-2026.xlsx?d=waaf4850305e54e78b951c4dd332d72b7
+- code: ASMT007
+  name: Financial Aid Assessment
+  assessmentDate: '2026-02-13'
+  risk: Low
+  status: Report Complete
+  currentHolder: null
+  followUpRound: 1
+  unit: Athletics Compliance
+  keyControlsMissing: 0
+  approversText: Gretchen; Christine; Katie
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/Athletics/Financial%20Aid/Financial%20Aid%20Assessment%20-%202-13-2026.xlsx?d=w89f1844f2a3c4a069db43e483bb15608
+- code: ASMT008
+  name: Recruiting Assessment
+  assessmentDate: '2026-03-20'
+  risk: Low
+  status: Report Complete
+  currentHolder: null
+  followUpRound: 1
+  unit: Athletics Compliance
+  keyControlsMissing: 1
+  approversText: null
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/Athletics/Recruiting/Recruiting%20Assessment%20-%203-20-2026.xlsx?d=w9441c088501a4e4d8cc623a6f19fcdca
+- code: ASMT009
+  name: Revenue Share Program Assessment
+  assessmentDate: '2026-04-10'
+  risk: Low
+  status: Report Complete
+  currentHolder: null
+  followUpRound: 1
+  unit: Athletics
+  keyControlsMissing: 3
+  approversText: null
+  fileUrl: >-
+    https://sumailsyr.sharepoint.com/sites/ComplianceManagementPortal/AssessmentLibrary/Athletics/NIL/NIL%20Assessment%20-%2004-10-2026.xlsx?d=w976e8dd1838a4fc982364ae256a35be2

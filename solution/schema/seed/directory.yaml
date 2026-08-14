@@ -1,0 +1,513 @@
+# su_compliancedirectory - matched on su_email, which is an alternate key.
+# Unit, phone, location, and NetID are not in the export; they are filled
+# in the app or by a later Entra ID sync.
+
+directory:
+- email: ajhepbur@syr.edu
+  name: Adam Hepburn
+  jobTitle: Vice Chancellor for Strategic Initiatives and Innovation
+  active: true
+- email: aadietri@syr.edu
+  name: Alex Dietrich
+  jobTitle: Interim Chief HR Officer
+  active: true
+- email: awrhoad@syr.edu
+  name: Ali Rhoad
+  jobTitle: Director of Gift Documentation and Acceptance
+  active: true
+- email: awgroves@syr.edu
+  name: Allen Groves
+  jobTitle: Senior Vice President and Chief Student Experience Officer
+  active: true
+- email: amdieven@syr.edu
+  name: Annie Dievendorf
+  jobTitle: Interim Associate Director, International Services
+  active: true
+- email: acolli34@syr.edu
+  name: Ashley Collins
+  jobTitle: Assistant Vice President and Chief Procurement Officer
+  active: true
+- email: rjponza@syr.edu
+  name: Becky Ponza
+  jobTitle: null
+  active: true
+- email: bwrounds@syr.edu
+  name: Benjamin Rounds
+  jobTitle: null
+  active: true
+- email: padgett@syr.edu
+  name: Brett Padgett
+  jobTitle: Senior Vice President and Chief Financial Officer
+  active: true
+- email: bfancher@syr.edu
+  name: Brian Fancher
+  jobTitle: Associate Treasurer
+  active: true
+- email: bjgerlin@syr.edu
+  name: Brian Gerling
+  jobTitle: Executive Director of Technology Transfer and Director of the Innovation Law Center
+  active: true
+- email: brblair@syr.edu
+  name: Bryan Blair
+  jobTitle: Director of Athletics
+  active: true
+- email: cgreen21@syr.edu
+  name: Casey Green
+  jobTitle: Leave Specialist
+  active: true
+- email: cccocks@syr.edu
+  name: Catherine Cocks
+  jobTitle: Director, Syracuse University Press
+  active: true
+- email: chill06@syr.edu
+  name: Cathy Hill
+  jobTitle: Assistant Director, Financial Aid - Athletics/Abroad
+  active: true
+- email: cafabriz@syr.edu
+  name: Cheryl Fabrizi
+  jobTitle: Assoc Vice President, Aux Svs.
+  active: true
+- email: cjones21@syr.edu
+  name: Christian Jones
+  jobTitle: Senior Digital Access Specialist
+  active: true
+- email: cdiecuch@syr.edu
+  name: Christina Stepien
+  jobTitle: Director, Bursar Operations
+  active: true
+- email: cmstallm@syr.edu
+  name: Christine Stallmann
+  jobTitle: Chief Compliance Officer
+  active: true
+- email: cmvoorhe@syr.edu
+  name: Christine Voorhees
+  jobTitle: Environmental Compliance Manager
+  active: true
+- email: ccroad@syr.edu
+  name: Christopher Croad
+  jobTitle: Chief Information Security Officer
+  active: true
+- email: cwallack@syr.edu
+  name: Cory Wallack
+  jobTitle: Ph.D., Associate Vice President of Student Health and Wellness
+  active: true
+- email: cswift@syr.edu
+  name: Cristina Swift
+  jobTitle: Director of Gift Planning Administration
+  active: true
+- email: clgebo@syr.edu
+  name: Cynthia Carnahan
+  jobTitle: Associate Vice President for Budget and Planning
+  active: true
+- email: desovoco@syr.edu
+  name: Dana Sovocool
+  jobTitle: Associate Vice President of HR Operations & Talent Management Strategy
+  active: true
+- email: dfoste04@syr.edu
+  name: Daniel Foster
+  jobTitle: null
+  active: true
+- email: dbcarnes@syr.edu
+  name: David Carnes
+  jobTitle: Lab Animal Facilities Manager and IACUC Administrator
+  active: true
+- email: dseaman@syr.edu
+  name: David Seaman
+  jobTitle: Dean of Libraries
+  active: true
+- email: dssingle@syr.edu
+  name: Dawn Singleton
+  jobTitle: Vice President and Deputy to the Senior Vice President
+  active: true
+- email: dabrown@syr.edu
+  name: Duncan Brown
+  jobTitle: Vice President, Research /Prof
+  active: true
+- email: ekay03@syr.edu
+  name: Eric Kay
+  jobTitle: Senior HR Business Partner
+  active: true
+- email: essedore@syr.edu
+  name: Eric Sedore
+  jobTitle: AVP for IT / Chief Technology Officer
+  active: true
+- email: ewynnkea@syr.edu
+  name: Erica Wynn-Kearse
+  jobTitle: HR Operations Manager
+  active: true
+- email: fgduval@syr.edu
+  name: Farah Duvalsaint
+  jobTitle: EEO &Title IX Case Coordinator
+  active: true
+- email: gmnugent@syr.edu
+  name: Gabe Nugent
+  jobTitle: Sr VP/General Counsel
+  active: true
+- email: gekorec@syr.edu
+  name: Glenn Korec
+  jobTitle: Director ESSM
+  active: true
+- email: gmrauch@syr.edu
+  name: Gretchen Fitzgerald
+  jobTitle: null
+  active: true
+- email: hkgaines@syr.edu
+  name: Heather Gaines
+  jobTitle: Deputy General Counsel
+  active: true
+- email: hwaldron@syr.edu
+  name: Hunter Waldron
+  jobTitle: null
+  active: true
+- email: ijlaboy@syr.edu
+  name: Iris Laboy
+  jobTitle: Claims Specialist
+  active: true
+- email: ilopez11@syr.edu
+  name: Isaiah Lopez
+  jobTitle: Executive Director for Risk Management
+  active: true
+- email: jsoswald@syr.edu
+  name: Jamie Oswald
+  jobTitle: Director of Tax Reporting
+  active: true
+- email: jemock@syr.edu
+  name: Jason Mock
+  jobTitle: Director of Housing, Assignments & Meal Plans
+  active: true
+- email: jbgallip@syr.edu
+  name: Jean Gallipeau
+  jobTitle: Associate Vice President and Comptroller
+  active: true
+- email: jhrubin@syr.edu
+  name: Jeff Rubin
+  jobTitle: Senior Vice President for Digital Transformation and Chief Digital Officer
+  active: true
+- email: jastoeck@syr.edu
+  name: Jeffrey A Stoecker
+  jobTitle: SVP & Chief Marketing Officer
+  active: true
+- email: gedmonds@syr.edu
+  name: Jerry Edmonds
+  jobTitle: Chief of Staff for Academic Affairs
+  active: true
+- email: jemennig@syr.edu
+  name: Jim Mennig
+  jobTitle: Director, HR Shared Services
+  active: true
+- email: jralston@syr.edu
+  name: Jodie Ralston
+  jobTitle: Executive Director, Advancement Services
+  active: true
+- email: joboeke@syr.edu
+  name: Joe Boeke
+  jobTitle: aVP, Advancement Systems & Services
+  active: true
+- email: jphernon@syr.edu
+  name: Joe Hernon
+  jobTitle: AVP Emergency & Environmental Risk Services
+  active: true
+- email: jblee01@syr.edu
+  name: Joe Lee
+  jobTitle: Interim General Manager, WAER
+  active: true
+- email: jtpelleg@syr.edu
+  name: Joe Pellegrino
+  jobTitle: Teaching Professor
+  active: true
+- email: jjderosi@syr.edu
+  name: John DeRosier
+  jobTitle: Associate Director, Labor Relations
+  active: true
+- email: jpapa@syr.edu
+  name: John Papazoglou
+  jobTitle: SrVP & Chief Operations Officer
+  active: true
+- email: jarossit@syr.edu
+  name: John Rossiter
+  jobTitle: Fire and Life Safety Manager
+  active: true
+- email: jsardino@syr.edu
+  name: John Sardino
+  jobTitle: Deputy Chief
+  active: true
+- email: jsalfier@syr.edu
+  name: Joseph Alfieri
+  jobTitle: null
+  active: true
+- email: jcfetter@syr.edu
+  name: Joseph Fetter
+  jobTitle: AVP, Real Estate & Asset Management
+  active: true
+- email: jdrich@syr.edu
+  name: Joshua Rich
+  jobTitle: Director of Community Standards
+  active: true
+- email: jmhasenw@syr.edu
+  name: Julie Hasenwinkel
+  jobTitle: Associate Provost for Academic Programs
+  active: true
+- email: kander06@syr.edu
+  name: Karina Anderson
+  jobTitle: Assistant Director, Financial Literacy Programs
+  active: true
+- email: kemcdona@syr.edu
+  name: Katherine McDonald
+  jobTitle: Associate Vice Pres, Research
+  active: true
+- email: kccoughl@syr.edu
+  name: Kathleen Coughlin
+  jobTitle: Director of Health Service Operations & Administration
+  active: true
+- email: kvander@syr.edu
+  name: Kathy Vander Werff
+  jobTitle: Department Chairperson/Prof
+  active: true
+- email: kjoa01@syr.edu
+  name: Katie Barnett
+  jobTitle: Associate Director, Compliance & ECO/RSO
+  active: true
+- email: kmrupert@syr.edu
+  name: Katie Rupert
+  jobTitle: Manager, Curriculum Compliance
+  active: true
+- email: kmnieder@syr.edu
+  name: Kelly Campbell
+  jobTitle: University Registrar
+  active: true
+- email: kmflanne@syr.edu
+  name: Kelly Flannery
+  jobTitle: SAVP for Finance
+  active: true
+- email: kmmill03@syr.edu
+  name: Kelly Miller
+  jobTitle: Facilities Safety Manager
+  active: true
+- email: kmorga13@syr.edu
+  name: Kevin Morgan
+  jobTitle: GM/Chief Revenue Officer
+  active: true
+- email: kbsalang@syr.edu
+  name: Kimberley Salanger
+  jobTitle: Functional Business Analyst
+  active: true
+- email: lalvut@syr.edu
+  name: Laura Harrington
+  jobTitle: Director of Institutional Effectiveness
+  active: true
+- email: lgkolton@syr.edu
+  name: Laura Kolton
+  jobTitle: Executive Director, Federal Government Engagement
+  active: true
+- email: lmurph13@syr.edu
+  name: Lauren Murphy
+  jobTitle: Director Student Living
+  active: true
+- email: lnpeckha@syr.edu
+  name: Levi Peckham
+  jobTitle: Associate Director of Institutional Data & Reporting
+  active: true
+- email: ldandreo@syr.edu
+  name: Lisa Andreotta
+  jobTitle: SrAVP, Operations Marketing & Communications
+  active: true
+- email: lpagnew@syr.edu
+  name: Lois Agnew
+  jobTitle: Vice Chancellor and Provost
+  active: true
+- email: llevengo@syr.edu
+  name: Lori Levengood
+  jobTitle: Operations Specialist
+  active: true
+- email: mmferrar@syr.edu
+  name: Maria Ferrara
+  jobTitle: Senior Director Government Affairs
+  active: true
+- email: magreeso@syr.edu
+  name: Marjorie Greeson
+  jobTitle: Director, Global Cash Operations
+  active: true
+- email: mlodato@syr.edu
+  name: Mark Lodato
+  jobTitle: Dean, S.I. Newhouse School of Public Communications
+  active: true
+- email: opperman@syr.edu
+  name: Mary G. Opperman
+  jobTitle: SVP and University Secretary
+  active: true
+- email: maharr17@syr.edu
+  name: Maurice Harris
+  jobTitle: Dean of Undergraduate Admissions
+  active: true
+- email: mlcraig@syr.edu
+  name: Meg Craig
+  jobTitle: OTN General Manager
+  active: true
+- email: mttravis@syr.edu
+  name: Megan Travis
+  jobTitle: Director of Athletic Compliance
+  active: true
+- email: mmdomani@syr.edu
+  name: Melanie Domanico
+  jobTitle: Assistant Director, Disability Access
+  active: true
+- email: mmlothes@syr.edu
+  name: Melinda Lothes
+  jobTitle: Senior Associate General Counsel
+  active: true
+- email: malowry@syr.edu
+  name: Melissa Lowry
+  jobTitle: Director of Health Service Operations & Administration
+  active: true
+- email: mjbunker@syr.edu
+  name: Michael Bunker
+  jobTitle: Associate Vice President and Chief of Campus Safety and Emergency Management Services
+  active: true
+- email: jmhaynie@syr.edu
+  name: Michael Haynie
+  jobTitle: null
+  active: true
+- email: mafronta@syr.edu
+  name: Michele Frontale
+  jobTitle: Pharmacy Manager
+  active: true
+- email: mstraudt@syr.edu
+  name: Miranda Traudt
+  jobTitle: Assistant Provost for Strategic Initiatives
+  active: true
+- email: njcooter@syr.edu
+  name: Nikki Cooter
+  jobTitle: Regulatory Compliance Manager
+  active: true
+- email: papeter@syr.edu
+  name: Pam Peter
+  jobTitle: Director/Title IX Coordinator
+  active: true
+- email: pasocker@syr.edu
+  name: Pamela Socker
+  jobTitle: Director of Compensation Strategy
+  active: true
+- email: sprook@syr.edu
+  name: Pat Rook
+  jobTitle: Environmental Compliance Specialist
+  active: true
+- email: ppossent@syr.edu
+  name: Paula Possenti-Perez
+  jobTitle: Director, Office of Disability Services
+  active: true
+- email: pesala@syr.edu
+  name: Pete Sala
+  jobTitle: Interim Chief HR Officer
+  active: true
+- email: rlduffy@syr.edu
+  name: Rachel Duffy
+  jobTitle: Director of Trademark/Licensing
+  active: true
+- email: rmarceau@syr.edu
+  name: Rene Marceau
+  jobTitle: Director of Payroll
+  active: true
+- email: rpfeldma@syr.edu
+  name: Richard Feldmann
+  jobTitle: Telecommunications Manager
+  active: true
+- email: rcwill05@syr.edu
+  name: Ryan Williams
+  jobTitle: Vice President for Enrollment Services
+  active: true
+- email: sazria@syr.edu
+  name: Sarah Azria
+  jobTitle: ED, Benefits Strategy & Programs
+  active: true
+- email: sckemp@syr.edu
+  name: Scott Kemp
+  jobTitle: Associate Vice President and Treasurer
+  active: true
+- email: saovadia@syr.edu
+  name: Seth Ovadia
+  jobTitle: aVP Institutional Research
+  active: true
+- email: sdcole@syr.edu
+  name: Sharon Cole
+  jobTitle: Associate Director, Talent Management
+  active: true
+- email: sdotger@syr.edu
+  name: Sharon Dotger
+  jobTitle: Director/Professor, Ed-Teaching and Leadership
+  active: true
+- email: sjohnson@syr.edu
+  name: Sheila Johnson
+  jobTitle: Associate Vice President and Chief Equal Opportunity and Title IX Officer
+  active: true
+- email: mbsipley@syr.edu
+  name: Shelly Sipley
+  jobTitle: Executive Director, Office of Financial Aid and Scholarship Programs
+  active: true
+- email: snmontgo@syr.edu
+  name: Sheriah Dixon
+  jobTitle: Associate Vice President and Dean of Students
+  active: true
+- email: sabuffum@syr.edu
+  name: Stacie Buffum
+  jobTitle: Director, Student Debt Management
+  active: true
+- email: stherndo@syr.edu
+  name: Steven Herndon
+  jobTitle: aVP Student Living
+  active: true
+- email: stkelly@syr.edu
+  name: Steven Kelly
+  jobTitle: Associate Treasurer
+  active: true
+- email: staub@syr.edu
+  name: Stuart Taub
+  jobTitle: Director, Office of Sponsored Programs
+  active: true
+- email: tsmurphy@syr.edu
+  name: Tammy Kidd
+  jobTitle: Associate Director, Financial Aid Compliance
+  active: true
+- email: tewill01@syr.edu
+  name: Tanya Williamson
+  jobTitle: Assistant Vice President of People & Culture
+  active: true
+- email: tjnels01@syr.edu
+  name: Tiff Nelson
+  jobTitle: Chemical Safety Manager
+  active: true
+- email: tmcoughl@syr.edu
+  name: Tim Coughlin
+  jobTitle: Associate Director, Research and Laboratory Safety
+  active: true
+- email: thwasser@syr.edu
+  name: Tim Wasserman
+  jobTitle: Asst Dir OIRA
+  active: true
+- email: tbesaw@syr.edu
+  name: Toni Besaw
+  jobTitle: Director, Office of Sponsored Accounting
+  active: true
+- email: twbarlok@syr.edu
+  name: Tracy Barlok
+  jobTitle: Senior Vice President and Chief Advancement Officer
+  active: true
+- email: tjcromp@syr.edu
+  name: Tracy Cromp
+  jobTitle: Director, Research Integrity & Protections
+  active: true
+- email: ueoffion@syr.edu
+  name: Utibe E Offiong
+  jobTitle: null
+  active: true
+- email: vwjones@syr.edu
+  name: Veronica Jones
+  jobTitle: Director of Health Promotion
+  active: true
+- email: wkarnadi@syr.edu
+  name: William Karnadi
+  jobTitle: Director of DPS Emergency Management/Business Continuity/Emergency Communications
+  active: true
+- email: wmyhill@syr.edu
+  name: William Myhill
+  jobTitle: Director of Disability Access and ADA Coordinator
+  active: true

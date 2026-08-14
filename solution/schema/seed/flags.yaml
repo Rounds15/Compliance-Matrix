@@ -1,0 +1,714 @@
+# su_functionflag. Completed=True maps to Cleared, False to Active.
+# Rows carrying OrphanFlag are excluded; see _rejected.yaml.
+
+flags:
+- name: We believe this does not apply. Please verify.
+  function: '112'
+  reason: We believe this does not apply. Please verify.
+  source: Manual
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-10'
+- name: Double check if this belongs in HR. Who handles Payroll?
+  function: '140'
+  reason: Double check if this belongs in HR. Who handles Payroll?
+  source: Manual
+  status: Cleared
+  flaggedBy: null
+  flaggedOn: '2026-07-10'
+- name: Need to fix statute URL
+  function: '220'
+  reason: Need to fix statute URL
+  source: Manual
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-10'
+- name: Remove ITS from this function
+  function: '283'
+  reason: Remove ITS from this function
+  source: Manual
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Jean Gallipeau
+  function: '105'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Jean Gallipeau
+  source: Survey
+  status: Cleared
+  flaggedBy: kjoa01@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  function: '118'
+  reason: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  source: Survey
+  status: Active
+  flaggedBy: kjoa01@syr.edu
+  flaggedOn: '2026-07-10'
+- name: n error - I have no involvement in this area
+  function: '335'
+  reason: n error - I have no involvement in this area
+  source: Survey
+  status: Active
+  flaggedBy: kjoa01@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '136'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: jsoswald@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '137'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: jsoswald@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '138'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: jsoswald@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '140'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Cleared
+  flaggedBy: jsoswald@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '141'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: jsoswald@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '143'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: jsoswald@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: STIX, Pam Peter and EOIRS - Shei...
+  function: '261'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: STIX, Pam Peter and EOIRS - Sheila Johnson (papeter@syr.edu, sjohnson@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: STIX, Pam Peter and EOIRS - Shei...
+  function: '351'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: STIX, Pam Peter and EOIRS - Sheila Johnson (papeter@syr.edu, sjohnson@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '80'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: papeter@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '203'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: papeter@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '220'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: papeter@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '395'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: papeter@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '396'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Cleared
+  flaggedBy: papeter@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: University Compliance
+  function: '10'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: University Compliance
+  source: Survey
+  status: Active
+  flaggedBy: mbsipley@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '59'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: mbsipley@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '343'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: mbsipley@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '349'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: jsardino@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Christian Jones (cjones21@syr.edu,...
+  function: '22'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Christian Jones (cjones21@syr.edu, ITS)
+  source: Survey
+  status: Active
+  flaggedBy: wmyhill@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Paula Possenti-Perez (ppossent@syr...
+  function: '23'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Paula Possenti-Perez (ppossent@syr.edu, CDR)
+  source: Survey
+  status: Active
+  flaggedBy: wmyhill@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: This function sits in a different department than my own
+    Suggested: Paula Possenti-Perez (ppossent@syr.edu, CDR)
+  function: '28'
+  reason: |-
+    Reason: This function sits in a different department than my own
+    Suggested: Paula Possenti-Perez (ppossent@syr.edu, CDR)
+  source: Survey
+  status: Active
+  flaggedBy: wmyhill@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Paula Possenti-Perez (ppossent@syr...
+  function: '29'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Paula Possenti-Perez (ppossent@syr.edu, CDR)
+  source: Survey
+  status: Active
+  flaggedBy: wmyhill@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: This function sits in a different department than my own
+    Suggested: Paula Possenti-Perez (ppossent@syr.edu, CDR)
+  function: '390'
+  reason: |-
+    Reason: This function sits in a different department than my own
+    Suggested: Paula Possenti-Perez (ppossent@syr.edu, CDR)
+  source: Survey
+  status: Active
+  flaggedBy: wmyhill@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  function: '31'
+  reason: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  source: Survey
+  status: Active
+  flaggedBy: cdiecuch@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Steve Kelly (stkelly@syr.edu)
+  function: '34'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Steve Kelly (stkelly@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: cdiecuch@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  function: '39'
+  reason: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  source: Survey
+  status: Active
+  flaggedBy: cdiecuch@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  function: '51'
+  reason: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  source: Survey
+  status: Active
+  flaggedBy: cdiecuch@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  function: '53'
+  reason: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  source: Survey
+  status: Active
+  flaggedBy: cdiecuch@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Steve Kelly (stkelly@syr.edu)
+  function: '142'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Steve Kelly (stkelly@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: cdiecuch@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Office of University Counsel (un...
+  function: '295'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Office of University Counsel (univcoun@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: hkgaines@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Office of University Counsel (un...
+  function: '296'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Office of University Counsel (univcoun@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: hkgaines@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: This function sits in a different department than my own
+    Suggested: Michele Frontale (mafronta@syr.edu, Syracuse...
+  function: '300'
+  reason: |-
+    Reason: This function sits in a different department than my own
+    Suggested: Michele Frontale (mafronta@syr.edu, Syracuse University Health Service Pharmacy)
+  source: Survey
+  status: Active
+  flaggedBy: mafronta@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '66'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: cmstallm@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '149'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: cmstallm@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '303'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: cmstallm@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '322'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: cmstallm@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  function: '274'
+  reason: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  source: Survey
+  status: Active
+  flaggedBy: cccocks@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Steven Kelly (stkelly@syr.edu)
+  function: '58'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Steven Kelly (stkelly@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: sabuffum@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '19'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: kccoughl@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '20'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: kccoughl@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '297'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: kccoughl@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '301'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: kccoughl@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '387'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: kccoughl@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '388'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: kccoughl@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Marked as not owned (no reason given)'
+  function: '389'
+  reason: 'Reason: Marked as not owned (no reason given)'
+  source: Survey
+  status: Active
+  flaggedBy: kccoughl@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '72'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: cswift@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Tim Coughlin (tmcoughl@syr.edu)
+  function: '380'
+  reason: |-
+    Reason: I am involved in this function but am not the primary decision-maker
+    Suggested: Tim Coughlin (tmcoughl@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: My role/responsibilities have changed and I no longer oversee this function
+    Suggested: Tim Coughlin (tmcoughl@sy...
+  function: '352'
+  reason: |-
+    Reason: My role/responsibilities have changed and I no longer oversee this function
+    Suggested: Tim Coughlin (tmcoughl@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: sprook@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '352'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: cmvoorhe@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Jean Gallipeau (Comptroller)
+  function: '190'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Jean Gallipeau (Comptroller)
+  source: Survey
+  status: Active
+  flaggedBy: sazria@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '197'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: sazria@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '198'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: sazria@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '299'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: sazria@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '351'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: vwjones@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '212'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '213'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '224'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '226'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '232'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '234'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '239'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  function: '241'
+  reason: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, ...
+  function: '239'
+  reason: |-
+    Reason: Another unit owns this function; my role is supportive or advisory
+    Suggested: Sheila Johnson (sjohnson@syr.edu, EOIRS)
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  function: '241'
+  reason: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  source: Survey
+  status: Active
+  flaggedBy: desovoco@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  function: '278'
+  reason: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  source: Survey
+  status: Active
+  flaggedBy: essedore@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '9'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: tsmurphy@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '20'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: tsmurphy@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: This function sits in a different department than my own'
+  function: '59'
+  reason: 'Reason: This function sits in a different department than my own'
+  source: Survey
+  status: Active
+  flaggedBy: tsmurphy@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  function: '332'
+  reason: 'Reason: Ownership of this function is shared across multiple units; no single owner has been
+    designated'
+  source: Survey
+  status: Active
+  flaggedBy: tjcromp@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: This function was reassigned to another unit or individual
+    Suggested: Katherine McDonald (kemcdona@syr.edu)
+  function: '340'
+  reason: |-
+    Reason: This function was reassigned to another unit or individual
+    Suggested: Katherine McDonald (kemcdona@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: tjcromp@syr.edu
+  flaggedOn: '2026-07-10'
+- name: |-
+    Reason: This function was reassigned to another unit or individual
+    Suggested: Katherine McDonald (kemcdona@syr.edu)
+  function: '342'
+  reason: |-
+    Reason: This function was reassigned to another unit or individual
+    Suggested: Katherine McDonald (kemcdona@syr.edu)
+  source: Survey
+  status: Active
+  flaggedBy: tjcromp@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '387'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: tjcromp@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '388'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: tjcromp@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: I was listed in error - I have no involvement in this area'
+  function: '389'
+  reason: 'Reason: I was listed in error - I have no involvement in this area'
+  source: Survey
+  status: Active
+  flaggedBy: tjcromp@syr.edu
+  flaggedOn: '2026-07-10'
+- name: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  function: '206'
+  reason: 'Reason: Another unit owns this function; my role is supportive or advisory'
+  source: Survey
+  status: Active
+  flaggedBy: cjones21@syr.edu
+  flaggedOn: '2026-07-10'
+- name: Create new area for facilities and move this function inside that area
+  function: '27'
+  reason: Create new area for facilities and move this function inside that area
+  source: Manual
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-16'
+- name: Create role for support individuals & add Katie in new role as an advisor
+  function: '105'
+  reason: Create role for support individuals & add Katie in new role as an advisor
+  source: Manual
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-21'
+- name: Change Jean from Comp Owner to a new Support role
+  function: '339'
+  reason: Change Jean from Comp Owner to a new Support role
+  source: Manual
+  status: Active
+  flaggedBy: null
+  flaggedOn: '2026-07-21'

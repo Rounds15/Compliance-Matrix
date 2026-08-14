@@ -1,0 +1,43 @@
+# su_compliancegap - matched on su_gapcode.
+# assessment is null where the legacy reference did not resolve; the gap
+# is still valid, it just has no assessment of record yet.
+
+gaps:
+- code: GAP001
+  name: Document management system
+  function: '91'
+  assessment: null
+  status: In Progress
+  note: >-
+    Office of Athletic Compliance will adopt Teamworks as its formal document management system for recruiting,
+    giving all department members tracking and monitoring access.
+  targetQuarter: Q4
+  targetFY: FY26
+  owner: bwrounds@syr.edu
+- code: GAP002
+  name: University Policy
+  function: '406'
+  assessment: ASMT009
+  status: Open
+  note: null
+  targetQuarter: null
+  targetFY: null
+  owner: null
+- code: GAP003
+  name: Written Program
+  function: '406'
+  assessment: ASMT009
+  status: Open
+  note: null
+  targetQuarter: null
+  targetFY: null
+  owner: null
+- code: GAP004
+  name: Checks and Balances
+  function: '406'
+  assessment: ASMT009
+  status: Open
+  note: null
+  targetQuarter: null
+  targetFY: null
+  owner: null

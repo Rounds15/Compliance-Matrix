@@ -1,0 +1,69 @@
+# su_riskarea - matched on su_riskareacode.
+# owner holds a directory email, resolved to a lookup on import.
+
+riskareas:
+- code: T01
+  name: Academic and Faculty Affairs
+  colorHex: '#000E54'
+  owner: lpagnew@syr.edu
+  sortOrder: 0
+- code: T02
+  name: Advancement
+  colorHex: '#B44100'
+  owner: twbarlok@syr.edu
+  sortOrder: 10
+- code: T03
+  name: Athletics
+  colorHex: '#1A4A2E'
+  owner: brblair@syr.edu
+  sortOrder: 20
+- code: T04
+  name: Communications
+  colorHex: '#004A6E'
+  owner: twbarlok@syr.edu
+  sortOrder: 30
+- code: T05
+  name: Finance, CFO Office
+  colorHex: '#5C1A1A'
+  owner: gmnugent@syr.edu
+  sortOrder: 40
+- code: T06
+  name: Government and Community Relations
+  colorHex: '#1A3A5C'
+  owner: jmhaynie@syr.edu
+  sortOrder: 50
+- code: T07
+  name: Human Resources
+  colorHex: '#F76900'
+  owner: aadietri@syr.edu
+  sortOrder: 60
+- code: T08
+  name: IT & Cyber Security
+  colorHex: '#2A4A1A'
+  owner: lpagnew@syr.edu
+  sortOrder: 70
+- code: T09
+  name: Off Campus Activities
+  colorHex: '#4A3A1A'
+  owner: awgroves@syr.edu
+  sortOrder: 80
+- code: T10
+  name: Privacy
+  colorHex: '#1A2A4A'
+  owner: aadietri@syr.edu
+  sortOrder: 90
+- code: T11
+  name: Research
+  colorHex: '#3A2A1A'
+  owner: dabrown@syr.edu
+  sortOrder: 100
+- code: T12
+  name: Safety & Security
+  colorHex: '#1A4A4A'
+  owner: aadietri@syr.edu
+  sortOrder: 110
+- code: T13
+  name: Student Experience
+  colorHex: '#000E54'
+  owner: awgroves@syr.edu
+  sortOrder: 120

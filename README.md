@@ -33,8 +33,11 @@ solution/
   schema/
     dataverse-schema.yaml      Single source of truth: 12 tables, 108 columns,
                                12 choice sets, 25 relationships, rollups
-    seed/                      Regenerated from the dataverse_import CSVs
-                               (pending - see Status below)
+    seed/                      Generated from the dataverse_import CSVs
+      riskareas.yaml    (13)   functions.yaml   (392)  assessments.yaml     (9)
+      domains.yaml      (61)   ownership.yaml (1,152)  assessmentowners.yaml (14)
+      directory.yaml   (127)   deadlines.yaml   (144)  gaps.yaml             (4)
+      flags.yaml        (84)   _rejected.yaml    (39)
   canvas/Src/
     App.fx.yaml                Theme, startup, role resolution
     Components/cmp_Shared.fx.yaml   Risk pill, due pill, page head, header nav
@@ -42,7 +45,7 @@ solution/
   src/                         Generated solution source (pac solution pack)
 tools/
   build_solution.py            schema YAML  ->  solution source XML
-  build_seed.py                source data  ->  seed YAML
+  build_seed.py                dataverse_import CSVs -> seed YAML
   validate.py                  Static checks across every source file
   fix_yaml_comments.py         Normalizes // vs # comment syntax
 ```
@@ -159,31 +162,48 @@ sees only their portfolio without a separate report.
 
 ## Status
 
-**Schema and canvas app: done and verified statically.**
+**Schema, seed, and canvas app: complete and verified statically.**
 
-- `tools/build_solution.py` reports **12 tables, 108 columns, 12 choice sets**,
-  and emits **25 relationships** — matching the reconciliation target exactly
-- `tools/validate.py` passes: all YAML parses, all schema lookup/choice/rollup
-  references resolve, all 14 screens and 4 components resolve every
-  `Navigate()` target and `ComponentName`, all 13 XML files well-formed
-- No remaining references to `su_topic`, `su_area`, `su_compliancetopic`, or a
+`tools/build_solution.py` reports **12 tables, 108 columns, 12 choice sets**, and
+emits **25 relationships** — the reconciliation target exactly.
+
+`tools/validate.py` passes every check:
+
+- All YAML parses; all schema lookup / choice / rollup references resolve
+- **2,000 seeded rows, all cross-references resolve**; every seed choice value
+  exists in the schema's choice sets
+- 14 screens and 4 components resolve every `Navigate()` target and
+  `ComponentName`; 13 XML files well-formed
+- No references to `su_topic`, `su_area`, `su_compliancetopic`, or a
   Critical / Medium risk value anywhere in canvas source
 
-**Seed data: blocked.** The `dataverse_import/` CSVs have not been supplied to
-this repository. The prototype-derived seed was deleted rather than left in
-place, because it referenced the topics table, `su_area`, and Critical, and
-would have failed import against the reconciled schema. Regenerating it needs
-the ten CSVs; expected totals are ~13 risk areas, 61 domains, 127 directory,
-392 functions, 1,175 ownership, 148 deadlines, 89 flags, 9 assessments,
-21 assessment owners, 4 gaps.
+### Seed totals
+
+| Table | Seeded | CSV rows | Excluded |
+|---|---:|---:|---:|
+| Risk areas | 13 | 13 | — |
+| Domains | 61 | 61 | — |
+| Directory | 127 | 127 | — |
+| Functions | 392 | 392 | — |
+| Ownership | 1,152 | 1,175 | 23 |
+| Deadlines | 144 | 148 | 4 |
+| Flags | 84 | 89 | 5 |
+| Assessments | 9 | 9 | — |
+| Assessment owners | 14 | 21 | 7 |
+| Gaps | 4 | 4 | — |
+
+The 39 excluded rows are exactly the known integrity items called out in the
+export's own README: 23 ownership and 7 assessment-owner rows whose person never
+matched the directory, 4 deadlines pointing at deleted FunctionID 155, and 5
+flags marked `OrphanFlag`. Each has a required lookup that cannot resolve, so
+they would fail on import. They are written to `seed/_rejected.yaml` with a
+reason rather than dropped silently — the gap between CSV rows and seeded rows
+is always accountable. Fixing them is a data exercise in the source lists.
 
 **Not verified — needs a real environment.** No Power Platform CLI is available
 where this was built, so `pac solution pack` and the import have not been run.
-Control `@version` strings (`Label@2.5.1`, `Gallery@2.15.0`,
-`Classic/Button@2.2.0`, `Classic/ComboBox@2.4.0`, `PowerBI@1.4.0`,
-`GroupContainer@1.5.0`, `Rectangle@2.3.0`, `Classic/TextInput@2.3.2`,
-`Classic/DropDown@2.3.1`, `Image@2.2.3`) may need bumping to whatever the target
-tenant reports; that raises PA2105, a warning Studio auto-corrects. See
+Control `@version` strings may need bumping to whatever the target tenant
+reports; that raises PA2105, a warning Studio auto-corrects. See
 [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md) for the other first-import risks.
 
 

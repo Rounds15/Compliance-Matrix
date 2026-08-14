@@ -1,0 +1,127 @@
+# Rows excluded from the seed because a REQUIRED lookup could not be
+# resolved. These are the known data-quality items in the exports, not
+# bugs. They are listed rather than dropped silently so the gap between
+# CSV row counts and seeded row counts is always accountable.
+#
+# Fixing them is a data exercise in the source lists: add the missing
+# people to the directory, or correct the FunctionIDs.
+# Summary: {'ownership': 23, 'deadlines': 4, 'flags': 5, 'assessmentowners': 7}
+
+rejected:
+- table: ownership
+  row: FO0116
+  reason: person 'Anne Lombard' not in directory
+- table: ownership
+  row: FO0190
+  reason: person 'Karen Spear' not in directory
+- table: ownership
+  row: FO0201
+  reason: person 'Jason D. Tripp' not in directory
+- table: ownership
+  row: FO0204
+  reason: person 'Jason D. Tripp' not in directory
+- table: ownership
+  row: FO0210
+  reason: person 'Kristen Jones-Kolod' not in directory
+- table: ownership
+  row: FO0212
+  reason: person 'Heather Pallone' not in directory
+- table: ownership
+  row: FO0218
+  reason: person 'Katie Scanlon' not in directory
+- table: ownership
+  row: FO0221
+  reason: person 'Katie Scanlon' not in directory
+- table: ownership
+  row: FO0225
+  reason: person 'Katie Scanlon' not in directory
+- table: ownership
+  row: FO0242
+  reason: person 'Kevin Turi' not in directory
+- table: ownership
+  row: FO0246
+  reason: person 'Renee Briggs' not in directory
+- table: ownership
+  row: FO0253
+  reason: person 'Director of Sports Medicine' not in directory
+- table: ownership
+  row: FO0255
+  reason: person 'Director of Sports Medicine' not in directory
+- table: ownership
+  row: FO0258
+  reason: person 'Sean McCarthy' not in directory
+- table: ownership
+  row: FO0260
+  reason: person 'Jamie Mullin' not in directory
+- table: ownership
+  row: FO0265
+  reason: person 'Jennifer Zalewski' not in directory
+- table: ownership
+  row: FO0269
+  reason: person 'Advancement Services Telefund Manager' not in directory
+- table: ownership
+  row: FO0309
+  reason: person 'Sheila Johnson-Willis' not in directory
+- table: ownership
+  row: FO0330
+  reason: person 'Mike Paparo' not in directory
+- table: ownership
+  row: FO0485
+  reason: person 'Sheila Johnson-Willis' not in directory
+- table: ownership
+  row: FO0486
+  reason: person 'Sheila Johnson-Willis' not in directory
+- table: ownership
+  row: FO0620
+  reason: person 'Simone Adams' not in directory
+- table: ownership
+  row: FO0751
+  reason: person 'Sheila Johnson-Willis' not in directory
+- table: deadlines
+  row: DL0054
+  reason: FunctionID 155 not found
+- table: deadlines
+  row: DL0055
+  reason: FunctionID 155 not found
+- table: deadlines
+  row: DL0056
+  reason: FunctionID 155 not found
+- table: deadlines
+  row: DL0057
+  reason: FunctionID 155 not found
+- table: flags
+  row: FL005
+  reason: orphan / FunctionID 403 not found
+- table: flags
+  row: FL028
+  reason: orphan / FunctionID 25 not found
+- table: flags
+  row: FL029
+  reason: orphan / FunctionID 26 not found
+- table: flags
+  row: FL043
+  reason: orphan / FunctionID 144 not found
+- table: flags
+  row: FL089
+  reason: orphan / FunctionID 407 not found
+- table: assessmentowners
+  row: AO001
+  reason: person 'Trent Arnold' unmatched (no PersonKey)
+- table: assessmentowners
+  row: AO014
+  reason: person 'Joseph Pellegrino' unmatched (no PersonKey)
+- table: assessmentowners
+  row: AO015
+  reason: person 'Kathy VanderWerff' unmatched (no PersonKey)
+- table: assessmentowners
+  row: AO016
+  reason: person 'Stephen Clacherty' unmatched (no PersonKey)
+- table: assessmentowners
+  row: AO018
+  reason: person 'Kevin Turi' unmatched (no PersonKey)
+- table: assessmentowners
+  row: AO020
+  reason: person 'Sean McCarthy' unmatched (no PersonKey)
+- table: assessmentowners
+  row: AO021
+  reason: person 'John Wildhack' unmatched (no PersonKey)

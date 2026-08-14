@@ -1,0 +1,61 @@
+# su_assessmentowner - mirrors function ownership.
+# name is '<Person> - <Role> - <AssessmentID>'; the triple
+# (assessment, person, role) is an alternate key.
+
+assessmentowners:
+- name: Brett Padgett - Executive - ASMT001
+  assessment: ASMT001
+  person: padgett@syr.edu
+  role: Executive
+- name: Nikki Cooter - Compliance - ASMT002
+  assessment: ASMT002
+  person: njcooter@syr.edu
+  role: Compliance
+- name: Brett Padgett - Executive - ASMT002
+  assessment: ASMT002
+  person: padgett@syr.edu
+  role: Executive
+- name: Allen Groves - Executive - ASMT002
+  assessment: ASMT002
+  person: awgroves@syr.edu
+  role: Executive
+- name: Joshua Rich - Compliance - ASMT003
+  assessment: ASMT003
+  person: jdrich@syr.edu
+  role: Compliance
+- name: Allen Groves - Executive - ASMT003
+  assessment: ASMT003
+  person: awgroves@syr.edu
+  role: Executive
+- name: Jim Mennig - Compliance - ASMT004
+  assessment: ASMT004
+  person: jemennig@syr.edu
+  role: Compliance
+- name: Sarah Azria - Compliance - ASMT004
+  assessment: ASMT004
+  person: sazria@syr.edu
+  role: Compliance
+- name: Alex Dietrich - Executive - ASMT004
+  assessment: ASMT004
+  person: aadietri@syr.edu
+  role: Executive
+- name: Kathleen Coughlin - Compliance - ASMT005
+  assessment: ASMT005
+  person: kccoughl@syr.edu
+  role: Compliance
+- name: Dawn Singleton - Executive - ASMT005
+  assessment: ASMT005
+  person: dssingle@syr.edu
+  role: Executive
+- name: Allen Groves - Executive - ASMT005
+  assessment: ASMT005
+  person: awgroves@syr.edu
+  role: Executive
+- name: Brett Padgett - Executive - ASMT007
+  assessment: ASMT007
+  person: padgett@syr.edu
+  role: Executive
+- name: Brett Padgett - Executive - ASMT008
+  assessment: ASMT008
+  person: padgett@syr.edu
+  role: Executive

@@ -1,0 +1,1957 @@
+# su_compliancedeadline. Real due dates, not offsets.
+# complete is set where LastCompletedDate is present.
+# Only Fixed Recurring rows carry a dueDate; the reminder flow filters
+# on deadlineType for exactly that reason (see docs/REMINDER-FLOW.md).
+
+deadlines:
+- name: 1099 Reporting and Classification - February
+  function: '138'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-28'
+  dueMonthNum: 2
+  dueDay: 28
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (Form 1099-NEC to contractors); February 28 (paper to IRS) or March 31 (electronic
+    to IRS)
+  complete: false
+  completedDate: null
+- name: 1099 Reporting and Classification - January
+  function: '138'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (Form 1099-NEC to contractors); February 28 (paper to IRS) or March 31 (electronic
+    to IRS)
+  complete: false
+  completedDate: null
+- name: 1099-MISC - February
+  function: '143'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-28'
+  dueMonthNum: 2
+  dueDay: 28
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (to payment recipients); February 28 (paper to IRS) or March 31 (electronic to IRS)
+  complete: false
+  completedDate: null
+- name: 1099-MISC - January
+  function: '143'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (to payment recipients); February 28 (paper to IRS) or March 31 (electronic to IRS)
+  complete: false
+  completedDate: null
+- name: 117 Report - January
+  function: '105'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 or July 31, whichever comes first based on gift receipt date
+  complete: false
+  completedDate: null
+- name: 117 Report - July
+  function: '105'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-07-31'
+  dueMonthNum: 7
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 or July 31, whichever comes first based on gift receipt date
+  complete: true
+  completedDate: '2026-08-04'
+- name: 403(b) Plan Compliance - October
+  function: '194'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 5500: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form
+    5558)'
+  complete: false
+  completedDate: null
+- name: 403(b) Retirement Plans - October
+  function: '257'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 5500: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form
+    5558)'
+  complete: false
+  completedDate: null
+- name: 457(b) and 409A Compliance - October
+  function: '136'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 5500: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form
+    5558)'
+  complete: false
+  completedDate: null
+- name: Academic Progress Rate (APR) and Graduation Success Rate (GSR) - October
+  function: '82'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'APR data submission: October 15 annually. GSR report: November.'
+  complete: false
+  completedDate: null
+- name: Affirmative Action Plan Development and Maintenance - February
+  function: '201'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'AAP updated annually by February 1 (or first anniversary of prior AAP); EEO-1: typically spring;
+    VETS-4212: September 30'
+  complete: false
+  completedDate: null
+- name: Affirmative Action Plan Development and Maintenance - September
+  function: '201'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'AAP updated annually by February 1 (or first anniversary of prior AAP); EEO-1: typically spring;
+    VETS-4212: September 30'
+  complete: false
+  completedDate: null
+- name: Affirmative Action for Protected Veterans - September
+  function: '197'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 30 annually (VETS-4212 Federal Contractor Veterans Employment Report)
+  complete: false
+  completedDate: null
+- name: Air Emissions Compliance - March
+  function: '354'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-31'
+  dueMonthNum: 3
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: March 31 annually (EPA greenhouse gas emissions report for facilities above 25,000 metric tons
+    CO2 equivalent); semi-annual deviation reports as applicable
+  complete: false
+  completedDate: null
+- name: Animal Care and Use Program - December
+  function: '333'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-12-01'
+  dueMonthNum: 12
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: December 1 annually (annual report to USDA APHIS AC Regional Director)
+  complete: false
+  completedDate: null
+- name: Annual Consumer Information Notice - October
+  function: '10'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: |-
+    Per MSCHE schedule: comprehensive evaluation every 8 years; annual institutional updates; material change notifications as they occur
+
+    October 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Annual Equity in Athletics Disclosure Act (EADA) Report - October
+  function: '79'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 annually (make report available); October 30 (submit to Secretary of Education)
+  complete: false
+  completedDate: null
+- name: Annual Equity in Athletics Disclosure Act (EADA) Report - October
+  function: '79'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-30'
+  dueMonthNum: 10
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 annually (make report available); October 30 (submit to Secretary of Education)
+  complete: false
+  completedDate: null
+- name: Annual Fire Safety Report - October
+  function: '348'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (fire safety statistics included in Annual Security Report)
+  complete: false
+  completedDate: null
+- name: Annual Security Report (ASR) and Crime Statistics - December
+  function: '344'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-12-23'
+  dueMonthNum: 12
+  dueDay: 23
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (ASR); December 23 annually (Campus Hazing Transparency Report, effective
+    2024)
+  complete: false
+  completedDate: null
+- name: Annual Security Report (ASR) and Crime Statistics - October
+  function: '344'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (ASR); December 23 annually (Campus Hazing Transparency Report, effective
+    2024)
+  complete: false
+  completedDate: null
+- name: Asbestos Exposure Control (General Industry) - February
+  function: '372'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Ongoing recordkeeping; OSHA 300 annual posting February 1 - April 30
+  complete: false
+  completedDate: null
+- name: Asbestos Management (Construction) - February
+  function: '371'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Notification to EPA/state: at least 10 working days before demolition or renovation involving
+    asbestos; OSHA 300 annual posting February 1 - April 30'
+  complete: false
+  completedDate: null
+- name: Athletic Scholarship Limits and Management - October
+  function: '84'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Annual financial aid report due to NCAA by October 15. Squad list submissions before each season.
+  complete: false
+  completedDate: null
+- name: Biennial Review and Annual Notification - October
+  function: '346'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (suggested; concurrent with Annual Security Report distribution)
+  complete: false
+  completedDate: null
+- name: Bloodborne Pathogens Standard – Bloodborne Pathogens Exposure Control - February
+  function: '369'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: OSHA 300 annual posting February 1 - April 30; exposure records maintained for duration of employment
+    plus 30 years
+  complete: false
+  completedDate: null
+- name: Breach Notification - March
+  function: '297'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-01'
+  dueMonthNum: 3
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Individual notification: within 60 days of discovery; HHS notification: within 60 days (large
+    breach) or annual log by March 1 (small breaches)'
+  complete: false
+  completedDate: null
+- name: Cash Management - September
+  function: '39'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'September 30 annually (FISAP); annual compliance audit: 6 months after fiscal year end'
+  complete: false
+  completedDate: null
+- name: Charitable Contributions - January
+  function: '72'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Written acknowledgments: provided to donor by January 31 of the year following the gift, or
+    before donor files their tax return, whichever is earlier'
+  complete: false
+  completedDate: null
+- name: Chemical Inventory Reporting - March
+  function: '357'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-01'
+  dueMonthNum: 3
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: March 1 annually (Tier II chemical inventory report to LEPC, SERC, and local fire department)
+  complete: false
+  completedDate: null
+- name: Chemical Reporting - March
+  function: '358'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-01'
+  dueMonthNum: 3
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: March 1 annually (chemical inventory report to LEPC, SERC, and local fire department)
+  complete: false
+  completedDate: null
+- name: Compensation Review Process - November
+  function: '271'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 15th day of 5th month after fiscal year end (May 15 for calendar year filers); 6-month extension
+    available
+  complete: false
+  completedDate: null
+- name: Completion and Graduation Rate Disclosure - July
+  function: '32'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-01'
+  dueMonthNum: 7
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: July 1 annually (IPEDS Spring reporting satisfies this requirement)
+  complete: false
+  completedDate: null
+- name: Consumer Information - Copyright Infringement & Penalties - September
+  function: '11'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (suggested; no deadline mandated)
+  complete: false
+  completedDate: null
+- name: DEA Registration and Licensing - January
+  function: '388'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-15'
+  dueMonthNum: 1
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 15 annually (annual report to Attorney General); quarterly reports of acquisition and
+    distribution
+  complete: false
+  completedDate: null
+- name: DOT Compliance for Safety-Sensitive Positions - March
+  function: '386'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-15'
+  dueMonthNum: 3
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: March 15 annually (MIS report to FMCSA)
+  complete: false
+  completedDate: null
+- name: Deferred Compensation - October
+  function: '252'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form 5558 filed
+    before July 31)
+  complete: false
+  completedDate: null
+- name: Disclosure of Foreign Gifts - January
+  function: '119'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 or July 31, whichever comes first based on gift receipt date
+  complete: false
+  completedDate: null
+- name: Disclosure of Foreign Gifts - July
+  function: '119'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-07-31'
+  dueMonthNum: 7
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 or July 31, whichever comes first based on gift receipt date
+  complete: true
+  completedDate: '2026-08-04'
+- name: Domestic Production Activities Deduction (Patent Income) - November
+  function: '324'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: With annual federal tax return (Form 990-T); 15th day of 5th month after fiscal year end
+  complete: false
+  completedDate: null
+- name: Employer Shared Responsibility (Employer Mandate) - February
+  function: '192'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-28'
+  dueMonthNum: 2
+  dueDay: 28
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (Form 1095-C to employees); February 28 (paper to IRS) or March 31 (electronic to
+    IRS)
+  complete: false
+  completedDate: null
+- name: Employer Shared Responsibility (Employer Mandate) - January
+  function: '192'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (Form 1095-C to employees); February 28 (paper to IRS) or March 31 (electronic to
+    IRS)
+  complete: false
+  completedDate: null
+- name: Employer Tax Compliance - January
+  function: '117'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 940: January 31 annually; quarterly deposits if FUTA tax liability exceeds $500'
+  complete: false
+  completedDate: null
+- name: Energy Efficiency Compliance - September
+  function: '359'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (underground storage tank annual registration)
+  complete: false
+  completedDate: null
+- name: Exempt/Non-Exempt Classification - April
+  function: '269'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-30'
+  dueMonthNum: 4
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31; Form W-2: January 31 (to employees)'
+  complete: false
+  completedDate: null
+- name: Exempt/Non-Exempt Classification - January
+  function: '269'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31; Form W-2: January 31 (to employees)'
+  complete: false
+  completedDate: null
+- name: Exempt/Non-Exempt Classification - July
+  function: '269'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-07-31'
+  dueMonthNum: 7
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31; Form W-2: January 31 (to employees)'
+  complete: true
+  completedDate: '2026-08-04'
+- name: Exempt/Non-Exempt Classification - October
+  function: '269'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-31'
+  dueMonthNum: 10
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31; Form W-2: January 31 (to employees)'
+  complete: false
+  completedDate: null
+- name: F-1 Visa - January
+  function: '292'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: July 31 (academic year end designees); January 31 (calendar year end); October 31 (fiscal year
+    end); ongoing SEVIS updates within required timeframes
+  complete: false
+  completedDate: null
+- name: F-1 Visa - July
+  function: '292'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-07-31'
+  dueMonthNum: 7
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: July 31 (academic year end designees); January 31 (calendar year end); October 31 (fiscal year
+    end); ongoing SEVIS updates within required timeframes
+  complete: true
+  completedDate: '2026-08-04'
+- name: F-1 Visa - October
+  function: '292'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-31'
+  dueMonthNum: 10
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: July 31 (academic year end designees); January 31 (calendar year end); October 31 (fiscal year
+    end); ongoing SEVIS updates within required timeframes
+  complete: false
+  completedDate: null
+- name: FBAR and Foreign Compliance - April
+  function: '137'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-15'
+  dueMonthNum: 4
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: April 15 annually (FinCEN Form 114; automatic 6-month extension to October 15)
+  complete: false
+  completedDate: null
+- name: FUTA Reporting and Payment - January
+  function: '270'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 940: January 31 annually; quarterly deposits if FUTA liability exceeds $500'
+  complete: false
+  completedDate: null
+- name: Federal Registration and Reporting - April
+  function: '166'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-20'
+  dueMonthNum: 4
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'April 20 (Q1: January 1 - March 31); July 20 (Q2: April 1 - June 30); October 20 (Q3: July 1
+    - September 30); January 20 (Q4: October 1 - December 31)'
+  complete: false
+  completedDate: null
+- name: Federal Registration and Reporting - January
+  function: '166'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-20'
+  dueMonthNum: 1
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'April 20 (Q1: January 1 - March 31); July 20 (Q2: April 1 - June 30); October 20 (Q3: July 1
+    - September 30); January 20 (Q4: October 1 - December 31)'
+  complete: false
+  completedDate: null
+- name: Federal Registration and Reporting - July
+  function: '166'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-20'
+  dueMonthNum: 7
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'April 20 (Q1: January 1 - March 31); July 20 (Q2: April 1 - June 30); October 20 (Q3: July 1
+    - September 30); January 20 (Q4: October 1 - December 31)'
+  complete: false
+  completedDate: null
+- name: Federal Registration and Reporting - October
+  function: '166'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-20'
+  dueMonthNum: 10
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'April 20 (Q1: January 1 - March 31); July 20 (Q2: April 1 - June 30); October 20 (Q3: July 1
+    - September 30); January 20 (Q4: October 1 - December 31)'
+  complete: false
+  completedDate: null
+- name: Federal Supplemental Educational Opportunity Grant Program - September
+  function: '43'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 30 annually (FISAP submission)
+  complete: false
+  completedDate: null
+- name: Federal Work Study - September
+  function: '44'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 30 annually (FISAP submission)
+  complete: false
+  completedDate: null
+- name: Financial Aid Counseling (Entrance and Exit) - September
+  function: '46'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Financial Audits - December
+  function: '120'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-12-31'
+  dueMonthNum: 12
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 6 months after the last day of the institution's fiscal year (December 31 for Syracuse = June
+    30 deadline)
+  complete: false
+  completedDate: null
+- name: Financial Value Transparency & Gainful Employment - September
+  function: '12'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 30 annually (per Dept of Education schedule, first report September 30, 2025); ongoing
+    as specified by Dept of Education
+  complete: false
+  completedDate: null
+- name: Form 1098-T - February
+  function: '142'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-28'
+  dueMonthNum: 2
+  dueDay: 28
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (Form 1098-T to students); February 28 (paper to IRS) or March 31 (electronic to IRS)
+  complete: false
+  completedDate: null
+- name: Form 1098-T - January
+  function: '142'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (Form 1098-T to students); February 28 (paper to IRS) or March 31 (electronic to IRS)
+  complete: false
+  completedDate: null
+- name: Form 990 - Donor-Advised Fund Compliance - November
+  function: '131'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 990 Schedule D: 15th day of 5th month after fiscal year end'
+  complete: false
+  completedDate: null
+- name: Form 990 - Public Disclosure of Material - November
+  function: '126'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 15th day of 5th month after fiscal year end (May 15 for calendar year filers); documents must
+    be made available for 3 years from filing date
+  complete: false
+  completedDate: null
+- name: Form 990 - Tax-Exempt Status and Partisan Political Activity Prohibition - November
+  function: '132'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 990: 15th day of 5th month after fiscal year end'
+  complete: false
+  completedDate: null
+- name: Form 990 - Use of University Resources - November
+  function: '133'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 990 Part VI-A: 15th day of 5th month after fiscal year end; no other periodic external
+    filing'
+  complete: false
+  completedDate: null
+- name: Form 990 Governance Policies (Conflict of Interest, Whistleblower, Document Retention) - November
+  function: '127'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 15th day of 5th month after fiscal year end (May 15 for calendar year filers); 6-month extension
+    available
+  complete: false
+  completedDate: null
+- name: Form 990 Part VI – Governance, Management, and Disclosure - November
+  function: '128'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 15th day of 5th month after fiscal year end (May 15 for calendar year filers); 6-month extension
+    available via Form 8868
+  complete: false
+  completedDate: null
+- name: Form 990 Related Schedules (A, J, K, L, O, R) - November
+  function: '129'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 15th day of 5th month after fiscal year end (May 15 for calendar year filers); 6-month extension
+    available
+  complete: false
+  completedDate: null
+- name: Form 990-T (Unrelated Business Income Tax) - November
+  function: '130'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 15th day of 5th month after fiscal year end (May 15 for calendar year filers); automatic 6-month
+    extension available
+  complete: false
+  completedDate: null
+- name: GHG Reporting - March
+  function: '365'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-31'
+  dueMonthNum: 3
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: March 31 annually (EPA greenhouse gas annual report)
+  complete: false
+  completedDate: null
+- name: Gender Equity in Athletics - October
+  function: '395'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 (EADA report available to public); October 30 (submission to Dept of Education)
+  complete: false
+  completedDate: null
+- name: Gender Equity in Athletics - October
+  function: '395'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-30'
+  dueMonthNum: 10
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 (EADA report available to public); October 30 (submission to Dept of Education)
+  complete: false
+  completedDate: null
+- name: General Occupational Safety Compliance - February
+  function: '370'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: February 1 - April 30 (Form 300A posting); March 2 annually (ITA electronic submission for covered
+    establishments)
+  complete: false
+  completedDate: null
+- name: General Occupational Safety Compliance - March
+  function: '370'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-02'
+  dueMonthNum: 3
+  dueDay: 2
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: February 1 - April 30 (Form 300A posting); March 2 annually (ITA electronic submission for covered
+    establishments)
+  complete: false
+  completedDate: null
+- name: Hand and Portable Powered Tools Safety - February
+  function: '376'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: February 1 - April 30 (Form 300A annual summary posting); March 2 annually (ITA electronic submission
+    if applicable)
+  complete: false
+  completedDate: null
+- name: Hand and Portable Powered Tools Safety - March
+  function: '376'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-02'
+  dueMonthNum: 3
+  dueDay: 2
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: February 1 - April 30 (Form 300A annual summary posting); March 2 annually (ITA electronic submission
+    if applicable)
+  complete: false
+  completedDate: null
+- name: Hazardous Waste Management - September
+  function: '382'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (underground storage tank registration); ongoing hazardous waste manifests
+    and biennial hazardous waste report
+  complete: false
+  completedDate: null
+- name: Hazmat Drivers - March
+  function: '350'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-15'
+  dueMonthNum: 3
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Annual vehicle inspection; MIS report: March 15 annually; no other fixed periodic external filing'
+  complete: false
+  completedDate: null
+- name: Hazmat Shipping Compliance - June
+  function: '363'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-06-30'
+  dueMonthNum: 6
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: June 30 annually (hazmat registration renewal with PHMSA)
+  complete: false
+  completedDate: null
+- name: Hot Work Safety - February
+  function: '377'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: OSHA 300 annual posting February 1 - April 30; no separate external reporting deadline
+  complete: false
+  completedDate: null
+- name: IACUC Oversight - December
+  function: '334'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-12-01'
+  dueMonthNum: 12
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: December 1 annually (USDA APHIS annual report); semiannual IACUC program review (no fixed calendar
+    date)
+  complete: false
+  completedDate: null
+- name: IRC Section 409A - October
+  function: '140'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: May 15 for calendar year plans (July 31 deadline plus 2-month extension via Form 5558)
+  complete: false
+  completedDate: null
+- name: IRC Section 409A Compliance - October
+  function: '256'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form 5558)
+  complete: false
+  completedDate: null
+- name: IT Equipment Disposal and Transport - June
+  function: '284'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-06-30'
+  dueMonthNum: 6
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: June 30 annually if registration required
+  complete: false
+  completedDate: null
+- name: Information Distributed to Students - September
+  function: '13'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Institutional and Financial Assistance Information for Students - October
+  function: '50'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Internal Controls and Financial Reporting - November
+  function: '134'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Annual audit; Form 990: 15th day of 5th month after fiscal year end'
+  complete: false
+  completedDate: null
+- name: Invention Disclosure and Reporting - February
+  function: '326'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Invention disclosure to sponsor: within 2 months of inventor disclosure; NIH iEdison annual
+    utilization report: February 1'
+  complete: false
+  completedDate: null
+- name: Lobbying Activity Reporting - April
+  function: '162'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-20'
+  dueMonthNum: 4
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: April 20 (Q1); July 20 (Q2); October 20 (Q3); January 20 (Q4)
+  complete: false
+  completedDate: null
+- name: Lobbying Activity Reporting - January
+  function: '162'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-20'
+  dueMonthNum: 1
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: April 20 (Q1); July 20 (Q2); October 20 (Q3); January 20 (Q4)
+  complete: false
+  completedDate: null
+- name: Lobbying Activity Reporting - July
+  function: '162'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-20'
+  dueMonthNum: 7
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: April 20 (Q1); July 20 (Q2); October 20 (Q3); January 20 (Q4)
+  complete: false
+  completedDate: null
+- name: Lobbying Activity Reporting - October
+  function: '162'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-20'
+  dueMonthNum: 10
+  dueDay: 20
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: April 20 (Q1); July 20 (Q2); October 20 (Q3); January 20 (Q4)
+  complete: false
+  completedDate: null
+- name: Missing Person Procedures - October
+  function: '349'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (included in Annual Security Report)
+  complete: false
+  completedDate: null
+- name: Noncontributory Retirement Plan - October
+  function: '258'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 5500: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form
+    5558); Summary Annual Report: 9 months after plan year end'
+  complete: false
+  completedDate: null
+- name: OSHA Form 300 and Injury Reporting - February
+  function: '367'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: February 1 - April 30 (Form 300A posting); March 2 annually (electronic ITA submission for covered
+    establishments)
+  complete: false
+  completedDate: null
+- name: OSHA Form 300 and Injury Reporting - March
+  function: '367'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-02'
+  dueMonthNum: 3
+  dueDay: 2
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: February 1 - April 30 (Form 300A posting); March 2 annually (electronic ITA submission for covered
+    establishments)
+  complete: false
+  completedDate: null
+- name: PCBs and Regulated Chemicals - July
+  function: '385'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-01'
+  dueMonthNum: 7
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: July 1 (annual document log completed); July 15 (annual report submitted to EPA Regional Administrator)
+  complete: false
+  completedDate: null
+- name: PCBs and Regulated Chemicals - July
+  function: '385'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-15'
+  dueMonthNum: 7
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: July 1 (annual document log completed); July 15 (annual report submitted to EPA Regional Administrator)
+  complete: false
+  completedDate: null
+- name: PLUS Loans - September
+  function: '54'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Payroll Tax Compliance - April
+  function: '268'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-30'
+  dueMonthNum: 4
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: >-
+    Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees);
+    February 28 (paper to IRS) or March 31 (electronic); FICA deposits: semi-weekly or monthly per lookback
+    period
+  complete: false
+  completedDate: null
+- name: Payroll Tax Compliance - February
+  function: '268'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-28'
+  dueMonthNum: 2
+  dueDay: 28
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: >-
+    Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees);
+    February 28 (paper to IRS) or March 31 (electronic); FICA deposits: semi-weekly or monthly per lookback
+    period
+  complete: false
+  completedDate: null
+- name: Payroll Tax Compliance - January
+  function: '268'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: >-
+    Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees);
+    February 28 (paper to IRS) or March 31 (electronic); FICA deposits: semi-weekly or monthly per lookback
+    period
+  complete: false
+  completedDate: null
+- name: Payroll Tax Compliance - July
+  function: '268'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-07-31'
+  dueMonthNum: 7
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: >-
+    Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees);
+    February 28 (paper to IRS) or March 31 (electronic); FICA deposits: semi-weekly or monthly per lookback
+    period
+  complete: true
+  completedDate: '2026-08-04'
+- name: Payroll Tax Compliance - October
+  function: '268'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-31'
+  dueMonthNum: 10
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: >-
+    Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees);
+    February 28 (paper to IRS) or March 31 (electronic); FICA deposits: semi-weekly or monthly per lookback
+    period
+  complete: false
+  completedDate: null
+- name: Penalties for Drug Violations - September
+  function: '52'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Perkins Loans - September
+  function: '53'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 30 annually (FISAP submission)
+  complete: false
+  completedDate: null
+- name: Personal Protective Equipment Program - February
+  function: '373'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-01'
+  dueMonthNum: 2
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: OSHA 300 annual posting February 1 - April 30; no separate PPE external reporting deadline
+  complete: false
+  completedDate: null
+- name: Plan Administration and Fiduciary Responsibilities - October
+  function: '255'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 5500: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form
+    5558)'
+  complete: false
+  completedDate: null
+- name: Program Approval and Accreditation - April
+  function: '62'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-30'
+  dueMonthNum: 4
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: April 30 (submit to state); October 31 (states submit to Dept of Education)
+  complete: false
+  completedDate: null
+- name: Program Approval and Accreditation - October
+  function: '62'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-31'
+  dueMonthNum: 10
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: April 30 (submit to state); October 31 (states submit to Dept of Education)
+  complete: false
+  completedDate: null
+- name: Remitted Tuition - October
+  function: '195'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form 5558)
+  complete: false
+  completedDate: null
+- name: Retirement Plan Provisions - April
+  function: '196'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-01'
+  dueMonthNum: 4
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Required minimum distributions by April 1 of the year following the year the employee reaches
+    age 73 or retires, whichever is later
+  complete: false
+  completedDate: null
+- name: Sex Offender Registration Disclosure - October
+  function: '343'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (suggested; concurrent with Annual Security Report)
+  complete: false
+  completedDate: null
+- name: Social Security Tax Administration - April
+  function: '259'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-30'
+  dueMonthNum: 4
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees)'
+  complete: false
+  completedDate: null
+- name: Social Security Tax Administration - January
+  function: '259'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees)'
+  complete: false
+  completedDate: null
+- name: Social Security Tax Administration - July
+  function: '259'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-07-31'
+  dueMonthNum: 7
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees)'
+  complete: true
+  completedDate: '2026-08-04'
+- name: Social Security Tax Administration - October
+  function: '259'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-31'
+  dueMonthNum: 10
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 941: April 30, July 31, October 31, January 31 (quarterly); Form W-2: January 31 (to employees)'
+  complete: false
+  completedDate: null
+- name: State and Local Lobbying Registration - January
+  function: '167'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-15'
+  dueMonthNum: 1
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Bi-monthly (every 2 months) LD reports to JCOPE; January 15, March 15, May 15, July 15, September
+    15, November 15
+  complete: false
+  completedDate: null
+- name: State and Local Lobbying Registration - July
+  function: '167'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-15'
+  dueMonthNum: 7
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Bi-monthly (every 2 months) LD reports to JCOPE; January 15, March 15, May 15, July 15, September
+    15, November 15
+  complete: false
+  completedDate: null
+- name: State and Local Lobbying Registration - March
+  function: '167'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-03-15'
+  dueMonthNum: 3
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Bi-monthly (every 2 months) LD reports to JCOPE; January 15, March 15, May 15, July 15, September
+    15, November 15
+  complete: false
+  completedDate: null
+- name: State and Local Lobbying Registration - May
+  function: '167'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-05-15'
+  dueMonthNum: 5
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Bi-monthly (every 2 months) LD reports to JCOPE; January 15, March 15, May 15, July 15, September
+    15, November 15
+  complete: false
+  completedDate: null
+- name: State and Local Lobbying Registration - November
+  function: '167'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Bi-monthly (every 2 months) LD reports to JCOPE; January 15, March 15, May 15, July 15, September
+    15, November 15
+  complete: false
+  completedDate: null
+- name: State and Local Lobbying Registration - September
+  function: '167'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-15'
+  dueMonthNum: 9
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: Bi-monthly (every 2 months) LD reports to JCOPE; January 15, March 15, May 15, July 15, September
+    15, November 15
+  complete: false
+  completedDate: null
+- name: Subcontracting Plan Compliance - April
+  function: '115'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-30'
+  dueMonthNum: 4
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Semi-annual eSRS reports: April 30 (October 1 - March 31) and October 30 (April 1 - September
+    30); final report at contract completion'
+  complete: false
+  completedDate: null
+- name: Subcontracting Plan Compliance - October
+  function: '115'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-30'
+  dueMonthNum: 10
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Semi-annual eSRS reports: April 30 (October 1 - March 31) and October 30 (April 1 - September
+    30); final report at contract completion'
+  complete: false
+  completedDate: null
+- name: TIAA Retirement Contracts - October
+  function: '253'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form 5558)
+  complete: false
+  completedDate: null
+- name: TIAA Retirement Plans - October
+  function: '254'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-15'
+  dueMonthNum: 10
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'Form 5500: October 15 for calendar year plans (July 31 deadline plus 2-month extension via Form
+    5558)'
+  complete: false
+  completedDate: null
+- name: Tax on Unrelated Business Income - November
+  function: '135'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-11-15'
+  dueMonthNum: 11
+  dueDay: 15
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 15th day of 5th month after fiscal year end (May 15 for calendar year filers); estimated tax
+    payments quarterly if applicable
+  complete: false
+  completedDate: null
+- name: Taxable Fringe Benefit Reporting - February
+  function: '190'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-02-28'
+  dueMonthNum: 2
+  dueDay: 28
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (W-2 to employees); February 28 (paper to IRS) or March 31 (electronic to IRS)
+  complete: false
+  completedDate: null
+- name: Taxable Fringe Benefit Reporting - January
+  function: '190'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-31'
+  dueMonthNum: 1
+  dueDay: 31
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: January 31 (W-2 to employees); February 28 (paper to IRS) or March 31 (electronic to IRS)
+  complete: false
+  completedDate: null
+- name: Textbook Information - October
+  function: '17'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Textbook Pricing Disclosure - September
+  function: '18'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-01'
+  dueMonthNum: 9
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 1 annually (no deadline mandated; suggested)
+  complete: false
+  completedDate: null
+- name: Transfer-Out Rate Disclosure - July
+  function: '33'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-01'
+  dueMonthNum: 7
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: July 1 annually (IPEDS Spring reporting)
+  complete: false
+  completedDate: null
+- name: VETS-4212 report - September
+  function: '226'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: VETS-4212 due September 30 annually; AAP updated annually
+  complete: false
+  completedDate: null
+- name: Veteran Employment & Affirmative Action - September
+  function: '174'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-09-30'
+  dueMonthNum: 9
+  dueDay: 30
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: September 30 annually (VETS-4212 report)
+  complete: false
+  completedDate: null
+- name: Violence Against Women Reauthorization Act - October
+  function: '351'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-01'
+  dueMonthNum: 10
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: October 1 annually (VAWA statistics in ASR); Annual training before start of academic year
+  complete: false
+  completedDate: null
+- name: Wireless Communications, Licensing – Campus Radio Station Licensing - April
+  function: '70'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-04-10'
+  dueMonthNum: 4
+  dueDay: 10
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'EEO report: annually by December 1; quarterly issues/programs list: January 10, April 10, July
+    10, October 10; license renewal: every 8 years'
+  complete: false
+  completedDate: null
+- name: Wireless Communications, Licensing – Campus Radio Station Licensing - December
+  function: '70'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-12-01'
+  dueMonthNum: 12
+  dueDay: 1
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'EEO report: annually by December 1; quarterly issues/programs list: January 10, April 10, July
+    10, October 10; license renewal: every 8 years'
+  complete: false
+  completedDate: null
+- name: Wireless Communications, Licensing – Campus Radio Station Licensing - January
+  function: '70'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-01-10'
+  dueMonthNum: 1
+  dueDay: 10
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'EEO report: annually by December 1; quarterly issues/programs list: January 10, April 10, July
+    10, October 10; license renewal: every 8 years'
+  complete: false
+  completedDate: null
+- name: Wireless Communications, Licensing – Campus Radio Station Licensing - July
+  function: '70'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2027-07-10'
+  dueMonthNum: 7
+  dueDay: 10
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'EEO report: annually by December 1; quarterly issues/programs list: January 10, April 10, July
+    10, October 10; license renewal: every 8 years'
+  complete: true
+  completedDate: '2026-07-27'
+- name: Wireless Communications, Licensing – Campus Radio Station Licensing - October
+  function: '70'
+  deadlineType: Fixed Recurring
+  cadence: Annually
+  dueDate: '2026-10-10'
+  dueMonthNum: 10
+  dueDay: 10
+  triggerEvent: null
+  offsetValue: null
+  offsetUnit: null
+  notes: 'EEO report: annually by December 1; quarterly issues/programs list: January 10, April 10, July
+    10, October 10; license renewal: every 8 years'
+  complete: false
+  completedDate: null
