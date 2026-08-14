@@ -1,0 +1,88 @@
+{
+  // Ctrl+Shift+B runs the default build (Generate solution source).
+  // Everything else: Ctrl+Shift+P -> "Tasks: Run Task".
+  //
+  // The pac CLI ships inside the Power Platform Tools extension, so these
+  // tasks work without a separate install once that extension is active.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Generate solution source",
+      "detail": "dataverse-schema.yaml -> solution/src/**/Entity.xml",
+      "type": "shell",
+      "command": "python",
+      "args": ["tools/build_solution.py"],
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "2. Validate YAML and XML",
+      "detail": "Parses every .yaml and .xml file and reports failures",
+      "type": "shell",
+      "command": "python",
+      "args": ["tools/validate.py"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "3. Pack solution",
+      "detail": "solution/src -> ComplianceMatrix.zip (unmanaged)",
+      "type": "shell",
+      "command": "pac",
+      "args": [
+        "solution", "pack",
+        "--zipfile", "ComplianceMatrix.zip",
+        "--folder", "solution/src",
+        "--packagetype", "Unmanaged"
+      ],
+      "problemMatcher": [],
+      "dependsOn": "1. Generate solution source",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "4. Pack canvas app",
+      "detail": "solution/canvas -> ComplianceMatrix.msapp",
+      "type": "shell",
+      "command": "pac",
+      "args": [
+        "canvas", "pack",
+        "--sources", "solution/canvas",
+        "--msapp", "ComplianceMatrix.msapp"
+      ],
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "5. Import solution to environment",
+      "detail": "Requires an active auth profile: pac auth create --environment <url>",
+      "type": "shell",
+      "command": "pac",
+      "args": [
+        "solution", "import",
+        "--path", "ComplianceMatrix.zip",
+        "--publish-changes"
+      ],
+      "problemMatcher": [],
+      "dependsOn": "3. Pack solution",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "Normalize YAML comments",
+      "detail": "Rewrites structural-level // comments to # (safe to re-run)",
+      "type": "shell",
+      "command": "python",
+      "args": ["tools/fix_yaml_comments.py", "solution/canvas"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "List pac auth profiles",
+      "type": "shell",
+      "command": "pac",
+      "args": ["auth", "list"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    }
+  ]
+}

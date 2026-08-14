@@ -96,7 +96,12 @@ Full column dictionary with descriptions: `solution/schema/dataverse-schema.yaml
 
 ## Deploy
 
-Requires the [Power Platform CLI](https://learn.microsoft.com/power-platform/developer/cli/introduction).
+**Working in VS Code? Start with [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md)** —
+it covers the extension install (which bundles the `pac` CLI), auth, the wired-up
+build tasks, and the first-import issues worth expecting.
+
+The commands below are the same steps without the walkthrough. They require the
+[Power Platform CLI](https://learn.microsoft.com/power-platform/developer/cli/introduction).
 
 ```bash
 # 1. Generate solution source from the schema

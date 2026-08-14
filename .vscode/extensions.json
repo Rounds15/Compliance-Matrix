@@ -1,0 +1,20 @@
+{
+  // Install prompt appears automatically when the folder is opened.
+  "recommendations": [
+    // Power Platform Tools. Bundles the pac CLI, so no separate install is
+    // needed, and adds the environment/solution explorer in the sidebar.
+    "microsoft-IsvExpTools.powerplatform-vscode",
+
+    // YAML language server. Gives structure validation and folding on the
+    // .fx.yaml canvas sources and the schema files.
+    "redhat.vscode-yaml",
+
+    // Runs tools/build_solution.py and tools/build_seed.py.
+    "ms-python.python",
+
+    // Highlights the generated Entity.xml under solution/src.
+    "redhat.vscode-xml"
+  ],
+
+  "unwantedRecommendations": []
+}
