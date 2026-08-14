@@ -4,10 +4,10 @@ Power Platform solution for the Syracuse University Office of Compliance and
 Enterprise Risk Management. One place to answer two questions: **who is
 responsible for what**, and **are we on top of it**.
 
-Converted from the standalone HTML prototype (`Compliance Matrix (standalone).html`),
-which already declared its intended Dataverse mapping in comments. Those
-Since reconciled against the live SharePoint exports: topics became risk areas,
-free-text areas became a domain table, and assessments were added.
+Converted from the standalone HTML prototype, which already declared its
+intended Dataverse mapping in comments, then reconciled against the live
+SharePoint exports: topics became risk areas, free-text areas became a domain
+table, and assessments were added.
 
 ---
 
