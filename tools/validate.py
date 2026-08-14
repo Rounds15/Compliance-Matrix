@@ -211,6 +211,30 @@ def check_components(loaded: dict[pathlib.Path, object]) -> None:
               f"and DataType all valid")
 
 
+def check_paste_contract() -> None:
+    """Run the Studio paste contract over the source and the mockup."""
+    print("\nStudio paste contract (Rules 1-6)")
+    sys.path.insert(0, str(ROOT / "tools"))
+    from paste_check import check_paths  # noqa: PLC0415
+
+    # The production source keeps its documentation comments; build_mockup.py
+    # strips them on the way out, so only the mockup must be comment-free.
+    for target, allow_comments, label in (
+        (CANVAS, True, "solution/canvas/Src"),
+        (ROOT / "mockup", False, "mockup"),
+    ):
+        if not target.exists():
+            continue
+        rep = check_paths([target], allow_comments=allow_comments)
+        for w in rep.warnings:
+            print(f"  warn  {w}")
+        for e in rep.errors:
+            fail(e)
+        if not rep.errors:
+            n = len(list(target.rglob("*.fx.yaml")))
+            print(f"  ok    {label}: {n} block(s) paste-ready")
+
+
 def check_seed_refs(loaded: dict[pathlib.Path, object]) -> None:
     """Every seed cross-reference must resolve to an alternate key that exists."""
     print("\nSeed referential integrity")
@@ -354,6 +378,7 @@ def main() -> int:
     check_top_keys(loaded)
     check_comment_syntax()
     check_components(loaded)
+    check_paste_contract()
     check_schema_refs(loaded)
     check_seed_refs(loaded)
     check_navigation(loaded)

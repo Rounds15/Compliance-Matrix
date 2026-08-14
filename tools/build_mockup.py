@@ -55,6 +55,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from fix_yaml_comments import strip_comments  # noqa: E402
+from paste_check import check_paths  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CANVAS = ROOT / "solution" / "canvas" / "Src"
@@ -574,6 +575,25 @@ def main(argv: list[str]) -> int:
         print(f"  {dest.relative_to(out)}")
 
     build_single_document(out)
+
+    # ---- gate --------------------------------------------------------------
+    # Nothing ships that Studio would reject. Every emitted block is re-parsed
+    # and checked against the paste contract; a violation fails the build here
+    # rather than in a paste dialog.
+    print("\nValidating emitted blocks against the paste contract")
+    rep = check_paths([out])
+    for w in rep.warnings:
+        print(f"  warn  {w}")
+    if rep.errors:
+        for e in rep.errors:
+            print(f"  FAIL  {e}")
+        print(f"\n{len(rep.errors)} paste-blocking error(s). The files were "
+              f"written but are NOT paste-ready; fix the source and re-run.")
+        return 1
+    n = len(list(out.rglob("*.fx.yaml")))
+    print(f"  ok    {n} block(s) satisfy Rules 1-6"
+          + (f", {len(rep.warnings)} unverified-property warning(s)"
+             if rep.warnings else ""))
 
     print("\nPasting into Power Apps Studio")
     print("  Preferred: ComplianceMatrix.pa.yaml - one complete app document")

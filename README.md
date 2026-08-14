@@ -51,6 +51,8 @@ tools/
   validate.py                  Static checks across every source file
   fix_yaml_comments.py         Normalizes // vs # comment syntax
   build_mockup.py              canvas source -> mockup/ (runs without Dataverse)
+  paste_check.py               Studio paste contract, Rules 1-6
+  control_properties.json      Per-control-version property manifest
 ```
 
 `mockup/` is a generated, paste-ready copy that runs on in-memory collections,

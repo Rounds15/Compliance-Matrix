@@ -15,6 +15,52 @@ When you have finished tuning here, port the property values back to
 
 ---
 
+## Paste order
+
+1. **The four component definitions**, each under `ComponentDefinitions:`.
+2. **App OnStart**, then **App → Run OnStart** once, so `gblTheme`, `gblToday`,
+   `gblMe`, and the `ds*` collections exist.
+3. **Each screen**, each under `Screens:`. Components must already exist or the
+   `Control: cmp_*` reference cannot resolve.
+
+Everything here is checked against the contract below before it is written, so
+a block that reaches you has already been re-parsed and verified.
+
+---
+
+## The paste contract
+
+`tools/paste_check.py` enforces six rules on every emitted block, and
+`build_mockup.py` fails the build rather than writing something Studio would
+reject. Each rule exists because a paste failed on it:
+
+| Rule | Requirement | Error it prevents |
+|---|---|---|
+| 1 | Root is `Screens:` / `ComponentDefinitions:` / `App:`, correctly nested | PA1001 *not found on type PaModule* |
+| 2 | No YAML `#` comments | PA1001 *YamlInvalidSyntax* |
+| 3 | `Control: <ComponentName>`, never `Control: Component` + `ComponentName:` | PA1003 / PA2101 |
+| 4 | Only properties the pinned control version has | PA2108 |
+| 5 | Spaces only, consistent indentation | surfaces as Rule 1 |
+| 6 | Block scalars for multi-line values | YamlInvalidSyntax |
+
+Run it yourself any time:
+
+```bash
+python3 tools/paste_check.py mockup          # must be comment-free
+python3 tools/validate.py                    # runs it over both trees
+```
+
+**One honest limit.** Rules 1, 2, 3, 5, 6 and the component-definition schema
+checks are exact. Rule 4 is only as good as `tools/control_properties.json`:
+confirmed-rejected properties (`BorderRadius` on `Rectangle@2.3.0` and
+`Classic/Button@2.2.0`) are hard failures, but the allow-list is an inventory of
+what is currently emitted, not an authoritative list from Microsoft. A property
+outside it is reported as *unverified*, not valid. When a paste confirms a new
+one, add it to the manifest; when a paste rejects one, move it to `rejected`
+with the error code so it can never come back.
+
+---
+
 ## Try the whole app first
 
 **`ComplianceMatrix.pa.yaml`** is one complete app document — `App`,
