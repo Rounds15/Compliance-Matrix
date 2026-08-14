@@ -19,7 +19,7 @@ Screens:
                     OpenGapCount: =0
 
             - rec_NoAccessCard:
-                Control: Classic/Button@2.2.0
+                Control: Rectangle@2.3.0
                 Properties:
                     X: =(Parent.Width - 640) / 2
                     Y: =240
@@ -28,15 +28,6 @@ Screens:
                     Fill: =gblTheme.White
                     BorderColor: =gblTheme.Border
                     BorderThickness: =1
-                    BorderRadius: =5
-                    Text: =""
-                    OnSelect: =false
-                    HoverFill: =Self.Fill
-                    PressedFill: =Self.Fill
-                    HoverBorderColor: =Self.BorderColor
-                    PressedBorderColor: =Self.BorderColor
-                    FocusedBorderThickness: =0
-                    TabIndex: =-1
             - img_NoAccessShield:
                 Control: Image@2.2.3
                 Properties:

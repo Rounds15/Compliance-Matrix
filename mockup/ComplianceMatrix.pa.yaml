@@ -295,23 +295,14 @@ ComponentDefinitions:
                 )
         Children:
             - rec_DueBg:
-                Control: Classic/Button@2.2.0
+                Control: Rectangle@2.3.0
                 Properties:
                     X: =0
                     Y: =0
                     Width: =Parent.Width
                     Height: =Parent.Height
                     Fill: =ColorFade(cmp_DuePill.DueColor, 0.88)
-                    BorderRadius: =4
                     BorderThickness: =0
-                    Text: =""
-                    OnSelect: =false
-                    HoverFill: =Self.Fill
-                    PressedFill: =Self.Fill
-                    HoverBorderColor: =Self.BorderColor
-                    PressedBorderColor: =Self.BorderColor
-                    FocusedBorderThickness: =0
-                    TabIndex: =-1
             - lbl_DueText:
                 Control: Label@2.5.1
                 Properties:
@@ -716,41 +707,23 @@ ComponentDefinitions:
                 )
         Children:
             - rec_RiskBg:
-                Control: Classic/Button@2.2.0
+                Control: Rectangle@2.3.0
                 Properties:
                     X: =0
                     Y: =0
                     Width: =Parent.Width
                     Height: =Parent.Height
                     Fill: =ColorFade(cmp_RiskPill.RiskColor, 0.88)
-                    BorderRadius: =4
                     BorderThickness: =0
-                    Text: =""
-                    OnSelect: =false
-                    HoverFill: =Self.Fill
-                    PressedFill: =Self.Fill
-                    HoverBorderColor: =Self.BorderColor
-                    PressedBorderColor: =Self.BorderColor
-                    FocusedBorderThickness: =0
-                    TabIndex: =-1
             - rec_RiskDot:
-                Control: Classic/Button@2.2.0
+                Control: Rectangle@2.3.0
                 Properties:
                     X: =8
                     Y: =(Parent.Height - 7) / 2
                     Width: =7
                     Height: =7
                     Fill: =cmp_RiskPill.RiskColor
-                    BorderRadius: =2
                     BorderThickness: =0
-                    Text: =""
-                    OnSelect: =false
-                    HoverFill: =Self.Fill
-                    PressedFill: =Self.Fill
-                    HoverBorderColor: =Self.BorderColor
-                    PressedBorderColor: =Self.BorderColor
-                    FocusedBorderThickness: =0
-                    TabIndex: =-1
             - lbl_RiskText:
                 Control: Label@2.5.1
                 Properties:
@@ -969,7 +942,7 @@ Screens:
                     Items: =colAsmtGaps
                 Children:
                     - rec_AdGapCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -978,15 +951,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =4
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - rec_AdGapAccent:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -1373,7 +1337,7 @@ Screens:
                         )
                 Children:
                     - rec_AsmtStatCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -1382,15 +1346,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - lbl_AsmtStatValue:
                         Control: Label@2.5.1
                         Properties:
@@ -2343,7 +2298,7 @@ Screens:
                         )
                 Children:
                     - rec_DirCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -2352,15 +2307,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - lbl_DirInitials:
                         Control: Label@2.5.1
                         Properties:
@@ -2883,7 +2829,7 @@ Screens:
                         )
                 Children:
                     - rec_DomCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -2892,15 +2838,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - rec_DomCardBar:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -3163,7 +3100,7 @@ Screens:
                     Items: =colExecutives
                 Children:
                     - rec_ExecCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -3172,15 +3109,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - rec_ExecCardBar:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -4372,7 +4300,7 @@ Screens:
                                     Items: =colFdDeadlines
                                 Children:
                                     - rec_FdDlBox:
-                                        Control: Classic/Button@2.2.0
+                                        Control: Rectangle@2.3.0
                                         Properties:
                                             X: =0
                                             Y: =0
@@ -4387,15 +4315,6 @@ Screens:
                                                 )
                                             BorderColor: =gblTheme.Border
                                             BorderThickness: =1
-                                            BorderRadius: =4
-                                            Text: =""
-                                            OnSelect: =false
-                                            HoverFill: =Self.Fill
-                                            PressedFill: =Self.Fill
-                                            HoverBorderColor: =Self.BorderColor
-                                            PressedBorderColor: =Self.BorderColor
-                                            FocusedBorderThickness: =0
-                                            TabIndex: =-1
                                     - lbl_FdDlTitle:
                                         Control: Label@2.5.1
                                         Properties:
@@ -4471,7 +4390,7 @@ Screens:
                                         )
                                 Children:
                                     - rec_FdRoleCard:
-                                        Control: Classic/Button@2.2.0
+                                        Control: Rectangle@2.3.0
                                         Properties:
                                             X: =0
                                             Y: =0
@@ -4480,15 +4399,6 @@ Screens:
                                             Fill: =gblTheme.Surface
                                             BorderColor: =gblTheme.Border
                                             BorderThickness: =1
-                                            BorderRadius: =5
-                                            Text: =""
-                                            OnSelect: =false
-                                            HoverFill: =Self.Fill
-                                            PressedFill: =Self.Fill
-                                            HoverBorderColor: =Self.BorderColor
-                                            PressedBorderColor: =Self.BorderColor
-                                            FocusedBorderThickness: =0
-                                            TabIndex: =-1
                                     - lbl_FdRoleLabel:
                                         Control: Label@2.5.1
                                         Properties:
@@ -4621,7 +4531,7 @@ Screens:
                                     Items: =colFdGaps
                                 Children:
                                     - rec_FdGapBox:
-                                        Control: Classic/Button@2.2.0
+                                        Control: Rectangle@2.3.0
                                         Properties:
                                             X: =0
                                             Y: =0
@@ -4630,15 +4540,6 @@ Screens:
                                             Fill: =gblTheme.White
                                             BorderColor: =gblTheme.Border
                                             BorderThickness: =1
-                                            BorderRadius: =4
-                                            Text: =""
-                                            OnSelect: =false
-                                            HoverFill: =Self.Fill
-                                            PressedFill: =Self.Fill
-                                            HoverBorderColor: =Self.BorderColor
-                                            PressedBorderColor: =Self.BorderColor
-                                            FocusedBorderThickness: =0
-                                            TabIndex: =-1
                                     - rec_FdGapAccent:
                                         Control: Rectangle@2.3.0
                                         Properties:
@@ -5221,7 +5122,7 @@ Screens:
                             Font: =gblTheme.FontBody
 
             - rec_FdToast:
-                Control: Classic/Button@2.2.0
+                Control: Rectangle@2.3.0
                 Properties:
                     X: =(Parent.Width - 560) / 2
                     Y: =Parent.Height - 84
@@ -5229,16 +5130,7 @@ Screens:
                     Height: =52
                     Fill: =gblTheme.Navy
                     BorderThickness: =0
-                    BorderRadius: =5
                     Visible: =!IsBlank(gblFdToast)
-                    Text: =""
-                    OnSelect: =false
-                    HoverFill: =Self.Fill
-                    PressedFill: =Self.Fill
-                    HoverBorderColor: =Self.BorderColor
-                    PressedBorderColor: =Self.BorderColor
-                    FocusedBorderThickness: =0
-                    TabIndex: =-1
             - rec_FdToastAccent:
                 Control: Rectangle@2.3.0
                 Properties:
@@ -5619,7 +5511,7 @@ Screens:
                             BorderThickness: =0
                             Visible: =gblFnView = "table"
                     - rec_FnCardBorder:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -5628,16 +5520,7 @@ Screens:
                             Fill: =RGBA(0, 0, 0, 0)
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
                             Visible: =gblFnView = "cards"
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - btn_FnOverlay:
                         Control: Classic/Button@2.2.0
                         Properties:
@@ -5806,7 +5689,7 @@ Screens:
                         )
                 Children:
                     - rec_GapStatCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -5815,15 +5698,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - lbl_GapStatValue:
                         Control: Label@2.5.1
                         Properties:
@@ -6004,7 +5878,7 @@ Screens:
                         )
                 Children:
                     - rec_GapCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -6013,15 +5887,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - rec_GapCardAccent:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -6778,7 +6643,7 @@ Screens:
                                 )
                         Children:
                             - rec_DestCard:
-                                Control: Classic/Button@2.2.0
+                                Control: Rectangle@2.3.0
                                 Properties:
                                     X: =0
                                     Y: =0
@@ -6787,15 +6652,6 @@ Screens:
                                     Fill: =gblTheme.White
                                     BorderColor: =gblTheme.Border
                                     BorderThickness: =1
-                                    BorderRadius: =5
-                                    Text: =""
-                                    OnSelect: =false
-                                    HoverFill: =Self.Fill
-                                    PressedFill: =Self.Fill
-                                    HoverBorderColor: =Self.BorderColor
-                                    PressedBorderColor: =Self.BorderColor
-                                    FocusedBorderThickness: =0
-                                    TabIndex: =-1
                             - rec_DestAccent:
                                 Control: Rectangle@2.3.0
                                 Properties:
@@ -7013,7 +6869,7 @@ Screens:
                             Visible: =CountRows(colMyFunctions) = 0
 
                     - rec_DeadlineRail:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =64 + (Parent.Width - 144) * 0.6 + 16
                             Y: =932
@@ -7022,15 +6878,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - lbl_RailHead:
                         Control: Label@2.5.1
                         Properties:
@@ -7136,7 +6983,7 @@ Screens:
                     OpenGapCount: =0
 
             - rec_NoAccessCard:
-                Control: Classic/Button@2.2.0
+                Control: Rectangle@2.3.0
                 Properties:
                     X: =(Parent.Width - 640) / 2
                     Y: =240
@@ -7145,15 +6992,6 @@ Screens:
                     Fill: =gblTheme.White
                     BorderColor: =gblTheme.Border
                     BorderThickness: =1
-                    BorderRadius: =5
-                    Text: =""
-                    OnSelect: =false
-                    HoverFill: =Self.Fill
-                    PressedFill: =Self.Fill
-                    HoverBorderColor: =Self.BorderColor
-                    PressedBorderColor: =Self.BorderColor
-                    FocusedBorderThickness: =0
-                    TabIndex: =-1
             - img_NoAccessShield:
                 Control: Image@2.2.3
                 Properties:
@@ -7382,7 +7220,7 @@ Screens:
                         )
                 Children:
                     - rec_RptCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -7391,15 +7229,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - lbl_RptCardTitle:
                         Control: Label@2.5.1
                         Properties:
@@ -7684,7 +7513,7 @@ Screens:
                     Items: =colRiskAreas
                 Children:
                     - rec_RaTile:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -7693,15 +7522,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - rec_RaTileBar:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -7840,7 +7660,7 @@ Screens:
                         )
                 Children:
                     - rec_RaDomainTile:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -7849,15 +7669,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - rec_RaDomainBar:
                         Control: Rectangle@2.3.0
                         Properties:
@@ -8114,7 +7925,7 @@ Screens:
                         )
                 Children:
                     - rec_RiskStatCard:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -8123,15 +7934,6 @@ Screens:
                             Fill: =gblTheme.White
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - lbl_RiskStatValue:
                         Control: Label@2.5.1
                         Properties:

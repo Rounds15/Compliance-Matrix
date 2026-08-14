@@ -26,36 +26,24 @@ comments on the way out anyway, but the source should paste cleanly too.
 
 ## Control property rules
 
-**`Rectangle@2.3.0` has no `BorderRadius`.** The classic Rectangle shape
-supports `Fill`, `BorderColor`, `BorderStyle`, `BorderThickness`, their
-hover/pressed variants, `OnSelect`, geometry, and `Visible` — nothing else.
-Adding `BorderRadius` raises **PA2108**.
+**No corner radius anywhere — every surface is square.** All cards, pills, and
+tiles are plain `Rectangle@2.3.0`, which is the lightest control for the job.
 
-Rounded cards and pills therefore use `Classic/Button@2.2.0`, which does carry
-`BorderRadius`, made inert:
+If you ever do want a rounded corner, `BorderRadius` is **not** the property.
+It raises **PA2108** on `Rectangle` *and* on `Classic/Button`. The current
+controls expose four separate corner properties instead:
 
 ```yaml
-Control: Classic/Button@2.2.0
-Properties:
-    Fill: =...
-    BorderRadius: =4
-    Text: =""
-    OnSelect: =false
-    HoverFill: =Self.Fill
-    PressedFill: =Self.Fill
-    HoverBorderColor: =Self.BorderColor
-    PressedBorderColor: =Self.BorderColor
-    FocusedBorderThickness: =0
-    TabIndex: =-1
+RadiusTopLeft: =8
+RadiusTopRight: =8
+RadiusBottomLeft: =8
+RadiusBottomRight: =8
 ```
 
-`Self.Fill` rather than a repeated literal, so retuning `Fill` keeps the static
-appearance automatically. `TabIndex: =-1` keeps a decorative element out of the
-tab order. Every card already carries a separate transparent overlay button for
-its click target, so these backgrounds stay non-interactive.
-
-Use a plain `Rectangle` wherever square corners are fine — accent bars, rules,
-scrims. It is the lighter control.
+These replaced the older single `BorderRadius`, which is why every example
+written against the old property fails. Check the specific control supports them
+before relying on it — Studio reports an unsupported property as PA2108 with a
+line number, so a paste tells you immediately.
 
 **`AllowCustomization` raises PA1017 ("ignored in this context").** That warning
 is expected and is left in place deliberately: the v3.0 schema lists it as

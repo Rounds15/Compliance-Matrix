@@ -94,11 +94,12 @@ production source.
 
 **Two control rules worth knowing before you retune anything:**
 
-- **`Rectangle@2.3.0` has no `BorderRadius`** — it raises **PA2108**. Every
-  rounded card and pill is a `Classic/Button@2.2.0` made inert (`Text: =""`,
-  `OnSelect: =false`, hover and pressed fills pinned to `Self.Fill`, out of the
-  tab order). If you add a rounded surface, copy that pattern; if square corners
-  are fine, a plain `Rectangle` is the lighter control.
+- **No corner radius anywhere** — every card, pill, and tile is a square
+  `Rectangle@2.3.0`. `BorderRadius` is not a valid property on `Rectangle` or on
+  `Classic/Button`; it raises **PA2108** on both. Current controls use four
+  separate corner properties (`RadiusTopLeft`, `RadiusTopRight`,
+  `RadiusBottomLeft`, `RadiusBottomRight`) which replaced the old single
+  `BorderRadius`. Verify the control supports them before adding one.
 - **`AllowCustomization` raises PA1017**, "ignored in this context". Expected
   and harmless — the v3.0 schema requires the property on a `CanvasComponent`,
   so it stays. Warnings do not block the paste.

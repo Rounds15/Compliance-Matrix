@@ -341,7 +341,7 @@ Screens:
                             BorderThickness: =0
                             Visible: =gblFnView = "table"
                     - rec_FnCardBorder:
-                        Control: Classic/Button@2.2.0
+                        Control: Rectangle@2.3.0
                         Properties:
                             X: =0
                             Y: =0
@@ -350,16 +350,7 @@ Screens:
                             Fill: =RGBA(0, 0, 0, 0)
                             BorderColor: =gblTheme.Border
                             BorderThickness: =1
-                            BorderRadius: =5
                             Visible: =gblFnView = "cards"
-                            Text: =""
-                            OnSelect: =false
-                            HoverFill: =Self.Fill
-                            PressedFill: =Self.Fill
-                            HoverBorderColor: =Self.BorderColor
-                            PressedBorderColor: =Self.BorderColor
-                            FocusedBorderThickness: =0
-                            TabIndex: =-1
                     - btn_FnOverlay:
                         Control: Classic/Button@2.2.0
                         Properties:
