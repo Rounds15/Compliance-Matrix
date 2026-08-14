@@ -2,6 +2,9 @@ ComponentDefinitions:
 
     cmp_DuePill:
         DefinitionType: CanvasComponent
+        Description: "Deadline status chip. Guards against deadlines that carry no due date."
+        AllowCustomization: true
+        AccessAppScope: false
         CustomProperties:
             DueDate:
                 PropertyKind: Input

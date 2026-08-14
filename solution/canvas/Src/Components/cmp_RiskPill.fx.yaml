@@ -2,6 +2,9 @@ ComponentDefinitions:
 
     cmp_RiskPill:
         DefinitionType: CanvasComponent
+        Description: "Risk or severity chip. High, Moderate, Low, or Unrated when blank."
+        AllowCustomization: true
+        AccessAppScope: false
         CustomProperties:
             Risk:
                 PropertyKind: Input

@@ -1,9 +1,25 @@
 # Shared components — design notes
 
 One file per component, each with its own `ComponentDefinitions:` root, so each
-pastes into Studio standalone. The files carry **no YAML comments**: Studio's
-"Paste code" parser rejects `#` with **PA1001**. The rationale that used to live
-inline is here instead.
+pastes into Studio standalone.
+
+## Schema rules these files satisfy
+
+From the [pa.yaml v3.0 schema](https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/refs/heads/master/schemas/pa-yaml/v3.0/pa.schema.yaml):
+
+- **Root must be `ComponentDefinitions:`.** Component names are keys beneath it.
+  A file starting at `cmp_RiskPill:` fails with *"Property 'cmp_RiskPill' not
+  found on type 'PaModule'"* — `PaModule` is the app root, and its only
+  properties are `App`, `Screens`, `ComponentDefinitions`, `DataSources`, and
+  `EditorState`.
+- **A `CanvasComponent` requires all seven of** `DefinitionType`, `Description`,
+  `AllowCustomization`, `AccessAppScope`, `CustomProperties`, `Properties`,
+  `Children`. The last three are the obvious ones; the first four are easy to
+  omit and are not optional.
+- **No YAML `#` comments** — Studio's paste parser raises **PA1001**. The
+  rationale that used to live inline is in this file instead.
+- **Quote any `Description` containing a colon.** `Description: Page heading
+  block: eyebrow` is a nested mapping, not a string, and stops the parse.
 
 If you edit a component, keep it comment-free. `tools/build_mockup.py` strips
 comments on the way out anyway, but the source should paste cleanly too.

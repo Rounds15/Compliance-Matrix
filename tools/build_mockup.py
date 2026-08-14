@@ -504,6 +504,40 @@ def build_app(out: pathlib.Path) -> None:
     print("  App.fx.yaml")
 
 
+def build_single_document(out: pathlib.Path) -> None:
+    """
+    Merge everything into one complete app document.
+
+    A PaModule is the root type the parser validates against, and its
+    properties are App / Screens / ComponentDefinitions / DataSources /
+    EditorState. Emitting all three sections in one file removes any question
+    about what a fragment is being pasted into - it is a whole, valid app.
+
+    Merged as text rather than through a YAML round-trip, because round-tripping
+    reflows the Power Fx block scalars and the formatting is the thing being
+    tuned.
+    """
+    def body(path: pathlib.Path, root: str) -> str:
+        text = path.read_text(encoding="utf-8")
+        idx = text.index(f"{root}:")
+        after = text[idx + len(root) + 1:].lstrip("\n")
+        return after.rstrip() + "\n"
+
+    parts: list[str] = []
+    parts.append("App:\n" + body(out / "App.fx.yaml", "App"))
+    parts.append("\nComponentDefinitions:\n")
+    for f in sorted((out / "Components").glob("*.fx.yaml")):
+        parts.append(body(f, "ComponentDefinitions"))
+    parts.append("\nScreens:\n")
+    for f in sorted(out.glob("scr_*.fx.yaml")):
+        parts.append(body(f, "Screens"))
+
+    dest = out / "ComplianceMatrix.pa.yaml"
+    dest.write_text("".join(parts), encoding="utf-8")
+    lines = len(dest.read_text(encoding="utf-8").splitlines())
+    print(f"\n  {dest.name}  ({lines:,} lines) - complete app, all sections")
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=pathlib.Path, default=ROOT / "mockup")
@@ -522,12 +556,16 @@ def main(argv: list[str]) -> int:
         dest.write_text(transform(path.read_text(encoding="utf-8")), encoding="utf-8")
         print(f"  {dest.relative_to(out)}")
 
+    build_single_document(out)
+
     print("\nPaste order in Power Apps Studio:")
     print("  1. Components/cmp_*.fx.yaml  (one file per component, paste whole file)")
     print("  2. App.fx.yaml OnStart       (paste into the App object, then Run OnStart)")
     print("  3. each scr_*.fx.yaml        (right-click screen list, Paste code)")
     print("\nEvery file carries its own root key and is comment-free, so each")
     print("pastes on its own without editing.")
+    print("\nIf per-file paste is rejected, use ComplianceMatrix.pa.yaml - one")
+    print("complete app document, which is what the Source Code schema expects.")
     return 0
 
 

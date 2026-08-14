@@ -15,29 +15,41 @@ When you have finished tuning here, port the property values back to
 
 ---
 
-## Paste order
+## Try the whole app first
 
-Studio pastes into an existing container, so order matters.
+**`ComplianceMatrix.pa.yaml`** is one complete app document — `App`,
+`ComponentDefinitions`, and `Screens` in a single file, 8,400 lines. This is the
+Source Code schema the parser validates against (`PaModule`), so there is no
+question about what a fragment is being pasted into.
+
+Use it wherever Studio accepts a full app source file. The per-file versions
+below exist for pasting one piece at a time, which is convenient while tuning but
+depends on Studio's paste target accepting a fragment.
+
+---
+
+## Per-file paste
 
 ### 1. Components first
 
-There are four files in `Components/`, one per component. Each carries its own
-`ComponentDefinitions:` root and is comment-free, so you paste the **whole file**
-with no editing:
+Four files in `Components/`, one per component, each with its own
+`ComponentDefinitions:` root:
 
 `cmp_RiskPill` · `cmp_DuePill` · `cmp_PageHead` · `cmp_Header`
 
-In Studio, go to the **Components** tab in the tree view, right-click → **Paste
-code**, and paste one file. Repeat for the other three.
-
-Two things that will otherwise bite:
-
-- A component block pasted **without** the `ComponentDefinitions:` root fails —
-  Studio needs the wrapper to know what it is receiving.
-- Any `#` comment in the pasted YAML raises **PA1001**. Every file here is
-  stripped; if you add comments while tuning, remove them before re-pasting.
-
 Names must match exactly — every screen references them by name.
+
+**Three things the parser is strict about**, all already handled in these files:
+
+- **The `ComponentDefinitions:` root.** A block pasted starting at
+  `cmp_RiskPill:` yields *"Property 'cmp_RiskPill' not found on type
+  'PaModule'"* — the parser is reading it as a top-level key of the app.
+- **All seven required properties.** The v3.0 schema requires `DefinitionType`,
+  `Description`, `AllowCustomization`, `AccessAppScope`, `CustomProperties`,
+  `Properties`, and `Children` on every `CanvasComponent`. Omitting any of the
+  first four is a validation failure.
+- **No `#` comments.** They raise **PA1001**. If you add comments while tuning,
+  strip them before re-pasting.
 
 ### 2. App OnStart
 

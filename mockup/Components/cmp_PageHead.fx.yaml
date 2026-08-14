@@ -2,6 +2,9 @@ ComponentDefinitions:
 
     cmp_PageHead:
         DefinitionType: CanvasComponent
+        Description: "Page heading block: eyebrow, title, and supporting copy."
+        AllowCustomization: true
+        AccessAppScope: false
         CustomProperties:
             Eyebrow:
                 PropertyKind: Input

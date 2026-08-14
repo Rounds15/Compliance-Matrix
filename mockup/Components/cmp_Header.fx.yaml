@@ -2,6 +2,9 @@ ComponentDefinitions:
 
     cmp_Header:
         DefinitionType: CanvasComponent
+        Description: "University utility bar, lockup, and primary navigation."
+        AllowCustomization: true
+        AccessAppScope: false
         CustomProperties:
             ActiveScreen:
                 PropertyKind: Input
