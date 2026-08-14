@@ -1,0 +1,521 @@
+# =============================================================================
+# Compliance Directory - the people layer
+# =============================================================================
+# Every owner in an ownership chain, with title, unit, and contact details.
+# Selecting a person shows their full ownership portfolio, resolved through the
+# junction table so it spans all three role tiers.
+# =============================================================================
+
+Screens:
+
+    scr_Directory:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblDirSel, Blank());
+                ClearCollect(
+                    colDirectory,
+                    SortByColumns(dsDirectory, "su_name", SortOrder.Ascending)
+                );
+                // A person's portfolio spans both junctions. Function ownership
+                // is the obligations they carry; assessment ownership is the
+                // reviews they ran. The office thinks of these together, so the
+                // detail panel shows both rather than only the first.
+                ClearCollect(colAllAssessmentOwners, dsAssessmentOwners)
+
+        Children:
+
+            - cmp_HeaderDir:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Directory"
+                    OpenGapCount: =gblOpenGapCount
+
+            - cmp_DirHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =128
+                    Width: =Parent.Width - 128
+                    Height: =124
+                    Eyebrow: ="Browse"
+                    Title: ="Compliance Directory"
+                    Subtitle: |
+                        ="The people layer of the matrix: every owner in an ownership chain, with title, unit, and contact information."
+
+            - txt_DirSearch:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                    X: =64
+                    Y: =262
+                    Width: =420
+                    Height: =44
+                    Default: =""
+                    HintText: ="Search people, titles, units"
+                    BorderColor: =gblTheme.Border
+                    FocusedBorderColor: =gblTheme.Orange
+                    FocusedBorderThickness: =2
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - lbl_DirCount:
+                Control: Label@2.5.1
+                Properties:
+                    X: =500
+                    Y: =262
+                    Width: =200
+                    Height: =44
+                    Text: =CountRows(gal_Directory.AllItems) & " people"
+                    Color: =gblTheme.GrayMid
+                    Size: =10
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            # ---- people cards -------------------------------------------------
+            - gal_Directory:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =326
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 370
+                    TemplateSize: =(Parent.Width - 128) / 4 - 4
+                    TemplatePadding: =16
+                    WrapCount: =4
+                    ShowScrollbar: =true
+                    Items: |
+                        =Filter(
+                            colDirectory,
+                            IsBlank(txt_DirSearch.Text)
+                                || StartsWith(su_name, txt_DirSearch.Text)
+                                || StartsWith(su_jobtitle, txt_DirSearch.Text)
+                                || StartsWith(su_unit, txt_DirSearch.Text)
+                                || StartsWith(su_email, txt_DirSearch.Text)
+                        )
+                Children:
+                    - rec_DirCard:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =172
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - lbl_DirInitials:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =16
+                            Width: =44
+                            Height: =44
+                            # Initials avatar. The prototype hashed the name to pick
+                            # a colour; here the palette is keyed off name length so
+                            # the same person always gets the same tile.
+                            Text: |
+                                =Left(ThisItem.su_name, 1) &
+                                 Left(Last(Split(ThisItem.su_name, " ")).Value, 1)
+                            Fill: |
+                                =Switch(
+                                    Mod(Len(ThisItem.su_name), 4),
+                                    0, gblTheme.Navy,
+                                    1, gblTheme.BlueMedium,
+                                    2, gblTheme.BlueLight,
+                                    gblTheme.OrangeDark
+                                )
+                            Color: =gblTheme.White
+                            Size: =13
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_DirName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =70
+                            Y: =16
+                            Width: =Parent.TemplateWidth - 86
+                            Height: =22
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =12
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_DirTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =70
+                            Y: =38
+                            Width: =Parent.TemplateWidth - 86
+                            Height: =34
+                            Text: =ThisItem.su_jobtitle
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_DirUnit:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =80
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =20
+                            Text: =ThisItem.su_unit
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_DirEmail:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =102
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =20
+                            Text: =ThisItem.su_email
+                            Color: =gblTheme.GrayMid
+                            Size: =8
+                            Font: =gblTheme.FontBody
+                    - lbl_DirPortfolio:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =130
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =26
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Filter(
+                                                dsOwnership,
+                                                su_person.su_compliancedirectoryid
+                                                    = ThisItem.su_compliancedirectoryid
+                                            )
+                                        )
+                                    },
+                                    n & If(n = 1, " function", " functions")
+                                )
+                            Fill: =gblTheme.Surface
+                            Color: =gblTheme.Navy
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - btn_DirOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =172
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblDirSel, ThisItem)
+
+            # =================================================================
+            # PERSON DETAIL
+            # =================================================================
+            - rec_DirScrim:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =Parent.Height
+                    Fill: =RGBA(0, 14, 84, 0.55)
+                    BorderThickness: =0
+                    Visible: =!IsBlank(gblDirSel)
+            - cnt_DirDialog:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                    X: =(Parent.Width - 760) / 2
+                    Y: =(Parent.Height - 580) / 2
+                    Width: =760
+                    Height: =580
+                    Fill: =gblTheme.White
+                    Visible: =!IsBlank(gblDirSel)
+                Children:
+                    - rec_DirDialogHead:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =760
+                            Height: =104
+                            Fill: =gblTheme.Navy
+                            BorderThickness: =0
+                    - lbl_DirDialogName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =22
+                            Width: =620
+                            Height: =32
+                            Text: =gblDirSel.su_name
+                            Color: =gblTheme.White
+                            Size: =18
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_DirDialogTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =56
+                            Width: =620
+                            Height: =32
+                            Text: =gblDirSel.su_jobtitle & "  |  " & gblDirSel.su_unit
+                            Color: =RGBA(199, 210, 234, 1)
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_DirDialogContact:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =124
+                            Width: =704
+                            Height: =84
+                            Text: |
+                                ="Email        " & gblDirSel.su_email & Char(10) &
+                                 "Phone       " & gblDirSel.su_phone & Char(10) &
+                                 "Location   " & gblDirSel.su_location
+                            Fill: =gblTheme.Surface
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_DirPortfolioHead:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =220
+                            Width: =704
+                            Height: =24
+                            Text: ="OWNERSHIP PORTFOLIO"
+                            Color: =gblTheme.OrangeDark
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - gal_DirPortfolio:
+                        Control: Gallery@2.15.0
+                        Variant: Vertical
+                        Properties:
+                            X: =28
+                            Y: =248
+                            Width: =704
+                            Height: =250
+                            TemplateSize: =58
+                            TemplatePadding: =0
+                            ShowScrollbar: =true
+                            # Portfolio comes from the junction, so a person who is
+                            # Advisory on a function appears here too.
+                            Items: |
+                                =Filter(
+                                    dsOwnership,
+                                    su_person.su_compliancedirectoryid
+                                        = gblDirSel.su_compliancedirectoryid
+                                )
+                        Children:
+                            - lbl_DpName:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =8
+                                    Y: =8
+                                    Width: =Parent.TemplateWidth - 210
+                                    Height: =22
+                                    Text: =ThisItem.su_function.su_name
+                                    Color: =gblTheme.Navy
+                                    Size: =11
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_DpRole:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =8
+                                    Y: =30
+                                    Width: =Parent.TemplateWidth - 210
+                                    Height: =18
+                                    Text: |
+                                        =ThisItem.su_function.su_riskarea.su_name & "  |  " &
+                                         Switch(
+                                             ThisItem.su_role,
+                                             "Executive Owner",  "Executive Owner",
+                                             "Unit Owner",       "Unit Owner",
+                                             "Compliance Owner"
+                                         ) & " (" &
+                                         Switch(
+                                             ThisItem.su_subrole,
+                                             "Primary",  "Primary",
+                                             "Advisory", "Advisory",
+                                             "Support"
+                                         ) & ")"
+                                    Color: =gblTheme.GrayMid
+                                    Size: =9
+                                    Font: =gblTheme.FontBody
+                            - cmp_DpRisk:
+                                Control: Component
+                                ComponentName: cmp_RiskPill
+                                Properties:
+                                    X: =Parent.TemplateWidth - 92
+                                    Y: =17
+                                    Width: =74
+                                    Height: =24
+                                    Risk: |
+                                        =Switch(
+                                            ThisItem.su_function.su_risk,
+                                            "High",     "High",
+                                            "Moderate",   "Moderate",
+                                            "Low",      "Low",
+                                            ""
+                                        )
+                            - rec_DpRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =0
+                                    Y: =57
+                                    Width: =Parent.TemplateWidth
+                                    Height: =1
+                                    Fill: =gblTheme.BorderSoft
+                                    BorderThickness: =0
+                            - btn_DpOverlay:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.TemplateWidth
+                                    Height: =58
+                                    Text: =""
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                                    BorderThickness: =0
+                                    OnSelect: |
+                                        =Set(gblSelectedFunction, ThisItem.su_function);
+                                        Set(gblDirSel, Blank());
+                                        Navigate(scr_FunctionDetail, ScreenTransition.None)
+                    - lbl_DirAsmtHead:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =28
+                            Y: =512
+                            Width: =704
+                            Height: =22
+                            Text: |
+                                ="ASSESSMENTS OWNED (" &
+                                 CountRows(
+                                     Filter(
+                                         colAllAssessmentOwners,
+                                         su_person.su_compliancedirectoryid
+                                             = gblDirSel.su_compliancedirectoryid
+                                     )
+                                 ) & ")"
+                            Color: =gblTheme.OrangeDark
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                            Visible: |
+                                =CountRows(
+                                    Filter(
+                                        colAllAssessmentOwners,
+                                        su_person.su_compliancedirectoryid
+                                            = gblDirSel.su_compliancedirectoryid
+                                    )
+                                ) > 0
+                    - gal_DirAssessments:
+                        Control: Gallery@2.15.0
+                        Variant: Horizontal
+                        Properties:
+                            X: =28
+                            Y: =536
+                            Width: =560
+                            Height: =46
+                            TemplateSize: =186
+                            TemplatePadding: =8
+                            ShowScrollbar: =true
+                            Items: |
+                                =Filter(
+                                    colAllAssessmentOwners,
+                                    su_person.su_compliancedirectoryid
+                                        = gblDirSel.su_compliancedirectoryid
+                                )
+                        Children:
+                            - lbl_DirAsmtChip:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =178
+                                    Height: =40
+                                    Text: |
+                                        =ThisItem.su_assessment.su_assessmentcode & "  " &
+                                         Switch(
+                                             ThisItem.su_role,
+                                             "Compliance", "Compliance",
+                                             "Executive"
+                                         )
+                                    Fill: =gblTheme.Surface
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - btn_DirAsmtOverlay:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =178
+                                    Height: =40
+                                    Text: =""
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.05)
+                                    BorderThickness: =0
+                                    # Assessment screens are administrator-gated,
+                                    # so non-admins get the courtesy screen rather
+                                    # than a dead chip.
+                                    OnSelect: |
+                                        =Set(gblSelectedAssessment, ThisItem.su_assessment);
+                                        Set(gblDirSel, Blank());
+                                        Navigate(scr_AssessmentDetail, ScreenTransition.None)
+                    - btn_DirEmail:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =28
+                            Y: =520
+                            Width: =180
+                            Height: =40
+                            Text: ="Email " & First(Split(gblDirSel.su_name, " ")).Value
+                            OnSelect: =Launch("mailto:" & gblDirSel.su_email)
+                            Fill: =gblTheme.Orange
+                            HoverFill: =gblTheme.OrangeMedium
+                            Color: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =11
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - btn_DirDialogClose:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =622
+                            Y: =520
+                            Width: =110
+                            Height: =40
+                            Text: ="Close"
+                            OnSelect: =Set(gblDirSel, Blank())
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody

@@ -1,0 +1,96 @@
+# =============================================================================
+# No Access - shown when a non-administrator reaches a gated screen
+# =============================================================================
+# Risk and Reporting is limited to compliance office staff carrying an
+# Administrator row in su_appadmin. This screen is the app's courtesy message;
+# the actual protection is the Dataverse security role, which prevents reading
+# the underlying rows regardless of which screen someone reaches.
+# =============================================================================
+
+Screens:
+
+    scr_NoAccess:
+        Properties:
+            Fill: =gblTheme.White
+
+        Children:
+
+            - cmp_HeaderNoAccess:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Home"
+                    OpenGapCount: =0
+
+            - rec_NoAccessCard:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =(Parent.Width - 640) / 2
+                    Y: =240
+                    Width: =640
+                    Height: =300
+                    Fill: =gblTheme.White
+                    BorderColor: =gblTheme.Border
+                    BorderThickness: =1
+                    BorderRadius: =5
+            - img_NoAccessShield:
+                Control: Image@2.2.3
+                Properties:
+                    X: =(Parent.Width - 48) / 2
+                    Y: =286
+                    Width: =48
+                    Height: =48
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'
+                                  fill='none' stroke='#ADB3B8' stroke-width='1.8'
+                                  stroke-linecap='round' stroke-linejoin='round'>
+                               <path d='M12 3 5 5.5v5c0 5 3.2 8.4 7 10 3.8-1.6 7-5 7-10v-5z'/>
+                             </svg>"
+                        )
+            - lbl_NoAccessTitle:
+                Control: Label@2.5.1
+                Properties:
+                    X: =(Parent.Width - 560) / 2
+                    Y: =348
+                    Width: =560
+                    Height: =36
+                    Text: ="Administrator access required"
+                    Color: =gblTheme.Navy
+                    Size: =18
+                    FontWeight: =FontWeight.Bold
+                    Align: =Align.Center
+                    Font: =gblTheme.FontDisplay
+            - lbl_NoAccessBody:
+                Control: Label@2.5.1
+                Properties:
+                    X: =(Parent.Width - 520) / 2
+                    Y: =390
+                    Width: =520
+                    Height: =62
+                    Text: |
+                        ="Risk and Reporting is limited to compliance office staff. If you need access, contact the Office of Compliance and Enterprise Risk Management."
+                    Color: =gblTheme.GrayMid
+                    Size: =11
+                    Align: =Align.Center
+                    Font: =gblTheme.FontBody
+            - btn_NoAccessHome:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =(Parent.Width - 180) / 2
+                    Y: =468
+                    Width: =180
+                    Height: =44
+                    Text: ="Back to Home"
+                    OnSelect: =Navigate(scr_Home, ScreenTransition.None)
+                    Fill: =gblTheme.Navy
+                    HoverFill: =gblTheme.BlueMedium
+                    Color: =gblTheme.White
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody

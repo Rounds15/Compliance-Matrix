@@ -1,0 +1,375 @@
+# =============================================================================
+# Reporting - the Power BI half of the hybrid dashboard
+# =============================================================================
+# The matrix is the system of record; Power BI is the visualization layer.
+# Reports connect straight to the Dataverse tables, so what leadership sees is
+# never a stale copy.
+#
+# The PowerBI control renders a published report tile inline. Two things must
+# be configured in the target environment before it displays:
+#   1. the workspace and report must exist and the viewer must have access
+#   2. the report GUIDs below must be supplied as environment variables, so the
+#      same solution promotes from dev to test to prod without an edit
+#
+# Environment variables consumed here (defined in the solution):
+#   "su_PowerBIWorkspaceId-not-set"
+#   "su_PowerBIExecutiveReportId-not-set"
+#   "su_PowerBIDeadlineReportId-not-set"
+#   "su_PowerBIGapAgingReportId-not-set"
+#
+# Row-level security in the semantic model filters by the ownership chain, so
+# an executive sees only their portfolio without a separate report.
+# =============================================================================
+
+Screens:
+
+    scr_Reporting:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =If(!gblIsAdmin, Navigate(scr_NoAccess, ScreenTransition.None));
+                Set(gblRptTab, "embed")
+
+        Children:
+
+            - cmp_HeaderRpt:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Reporting"
+                    OpenGapCount: =gblOpenGapCount
+
+            - cmp_RptHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =128
+                    Width: =Parent.Width - 420
+                    Height: =124
+                    Eyebrow: ="Risk and Reporting - Administrator"
+                    Title: ="Reporting"
+                    Subtitle: |
+                        ="The matrix is the system of record; Power BI is the visualization layer. Reports connect straight to the Dataverse tables, so what leadership sees is never a stale copy."
+
+            - btn_RptOpenPbi:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 260
+                    Y: =150
+                    Width: =196
+                    Height: =44
+                    Text: ="Open in Power BI"
+                    OnSelect: |
+                        =Launch(
+                            "https://app.powerbi.com/groups/" &
+                            "su_PowerBIWorkspaceId-not-set" &
+                            "/reports/" & "su_PowerBIExecutiveReportId-not-set"
+                        )
+                    Fill: =gblTheme.Orange
+                    HoverFill: =gblTheme.OrangeMedium
+                    Color: =gblTheme.White
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+
+            # ---- tabs ---------------------------------------------------------
+            - btn_RptTabEmbed:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =262
+                    Width: =190
+                    Height: =42
+                    Text: ="Embedded report"
+                    OnSelect: =Set(gblRptTab, "embed")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =If(gblRptTab = "embed", gblTheme.Navy, gblTheme.GrayMid)
+                    BorderThickness: =0
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - btn_RptTabData:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =258
+                    Y: =262
+                    Width: =230
+                    Height: =42
+                    Text: ="Datasets and connection"
+                    OnSelect: =Set(gblRptTab, "data")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =If(gblRptTab = "data", gblTheme.Navy, gblTheme.GrayMid)
+                    BorderThickness: =0
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - rec_RptTabRule:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =64
+                    Y: =304
+                    Width: =Parent.Width - 128
+                    Height: =1
+                    Fill: =gblTheme.Border
+                    BorderThickness: =0
+
+            # ---- embedded report -----------------------------------------------
+            - rec_PbiPlaceholder:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =64
+                    Y: =324
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 500
+                    Visible: =gblRptTab = "embed"
+                    Fill: =gblTheme.Surface
+                    BorderColor: =gblTheme.Border
+                    BorderThickness: =1
+            - lbl_PbiPlaceholder:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =(Parent.Height - 500) / 2 + 250
+                    Width: =Parent.Width - 128
+                    Height: =60
+                    Visible: =gblRptTab = "embed"
+                    Text: ="Power BI report renders here once the workspace and report IDs are set"
+                    Color: =gblTheme.GrayMid
+                    Size: =12
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+            - lbl_PbiNote:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =Parent.Height - 168
+                    Width: =Parent.Width - 128
+                    Height: =40
+                    Visible: =gblRptTab = "embed"
+                    Text: |
+                        ="Workspace: Compliance and ERM   |   Refresh: every 3 hours   |   Row-level security: by ownership chain"
+                    Fill: =gblTheme.Surface
+                    Color: =gblTheme.GrayMid
+                    Size: =9
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            # ---- report catalogue ------------------------------------------------
+            - gal_RptCatalogue:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =Parent.Height - 120
+                    Width: =Parent.Width - 128
+                    Height: =100
+                    TemplateSize: =(Parent.Width - 128) / 3 - 4
+                    TemplatePadding: =16
+                    ShowScrollbar: =false
+                    Visible: =gblRptTab = "embed"
+                    Items: |
+                        =Table(
+                            {
+                                RptTitle: "Compliance Executive Overview",
+                                RptBody: "Portfolio risk, gap counts, and deadline health for the senior leadership team.",
+                                RptId: "su_PowerBIExecutiveReportId-not-set"
+                            },
+                            {
+                                RptTitle: "Deadline Health",
+                                RptBody: "Overdue and upcoming obligations by unit, with reminder-response rates.",
+                                RptId: "su_PowerBIDeadlineReportId-not-set"
+                            },
+                            {
+                                RptTitle: "Gap Aging",
+                                RptBody: "Open gaps by severity and days-open, with closure throughput over time.",
+                                RptId: "su_PowerBIGapAgingReportId-not-set"
+                            }
+                        )
+                Children:
+                    - rec_RptCard:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =92
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - lbl_RptCardTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =10
+                            Width: =Parent.TemplateWidth - 28
+                            Height: =22
+                            Text: =ThisItem.RptTitle
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_RptCardBody:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =32
+                            Width: =Parent.TemplateWidth - 28
+                            Height: =34
+                            Text: =ThisItem.RptBody
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - btn_RptCardOpen:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =14
+                            Y: =62
+                            Width: =140
+                            Height: =24
+                            Text: ="Open report"
+                            OnSelect: |
+                                =Launch(
+                                    "https://app.powerbi.com/groups/" &
+                                    "su_PowerBIWorkspaceId-not-set" &
+                                    "/reports/" & ThisItem.RptId
+                                )
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.OrangeDark
+                            HoverFill: =RGBA(215, 65, 0, 0.06)
+                            BorderThickness: =0
+                            Align: =Align.Left
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+
+            # ---- datasets and connection ------------------------------------------
+            - lbl_RptConnNote:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =324
+                    Width: =Parent.Width - 128
+                    Height: =56
+                    Visible: =gblRptTab = "data"
+                    Text: |
+                        ="Connection. Power BI Desktop, then Get Data, then Dataverse, then the environment URL, then select the tables below. Publish to the Compliance and ERM workspace and schedule refresh; no intermediate export is required."
+                    Fill: =gblTheme.Surface
+                    Color: =gblTheme.GrayDark
+                    Size: =10
+                    Font: =gblTheme.FontBody
+            - gal_RptDatasets:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =396
+                    Width: =Parent.Width - 128
+                    Height: =260
+                    TemplateSize: =56
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: =gblRptTab = "data"
+                    Items: |
+                        =Table(
+                            {
+                                DsName: "Compliance Functions",
+                                DsLogical: "su_compliancefunction",
+                                DsBody: "One row per obligation with the full ownership chain, statute, cadence, and risk rating."
+                            },
+                            {
+                                DsName: "Compliance Deadlines",
+                                DsLogical: "su_compliancedeadline",
+                                DsBody: "One row per due date, joined to its function; carries cadence, completion flag, and copied owner fields."
+                            },
+                            {
+                                DsName: "Compliance Gaps",
+                                DsLogical: "su_compliancegap",
+                                DsBody: "Open and closed gaps with severity, opened and closed dates, and closure notes."
+                            },
+                            {
+                                DsName: "Compliance Directory",
+                                DsLogical: "su_compliancedirectory",
+                                DsBody: "People layer: name, title, unit, email, phone, location."
+                            },
+                            {
+                                DsName: "Function Ownership",
+                                DsLogical: "su_functionownership",
+                                DsBody: "Junction carrying role and sub-role. This is the table row-level security filters on."
+                            }
+                        )
+                Children:
+                    - lbl_DsName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =8
+                            Y: =8
+                            Width: =240
+                            Height: =20
+                            Text: =ThisItem.DsName
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_DsLogical:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =8
+                            Y: =28
+                            Width: =240
+                            Height: =18
+                            Text: =ThisItem.DsLogical
+                            Color: =gblTheme.BlueMedium
+                            Size: =9
+                            Font: ="Consolas"
+                    - lbl_DsBody:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =264
+                            Y: =8
+                            Width: =Parent.TemplateWidth - 280
+                            Height: =40
+                            Text: =ThisItem.DsBody
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - rec_DsRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =55
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+            - lbl_RptModelNote:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =672
+                    Width: =Parent.Width - 128
+                    Height: =130
+                    Visible: =gblRptTab = "data"
+                    Text: |
+                        ="Relationships" & Char(10) &
+                         "Deadlines to Functions on su_function (many-to-one)" & Char(10) &
+                         "Gaps to Functions on su_function (many-to-one)" & Char(10) &
+                         "Function Ownership to Functions and to Directory (many-to-one both sides)" & Char(10) & Char(10) &
+                         "Measures to define" & Char(10) &
+                         "Open Gap Count, Gap Aging Days, Overdue Deadlines, On-Time Completion %" & Char(10) &
+                         "High Exposure = High-risk functions with an open gap" & Char(10) &
+                         "Fiscal calendar starts July 1 - mark a custom date table"
+                    Fill: =gblTheme.Surface
+                    Color: =gblTheme.GrayDark
+                    Size: =10
+                    Font: =gblTheme.FontBody

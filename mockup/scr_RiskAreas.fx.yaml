@@ -1,0 +1,488 @@
+# =============================================================================
+# Risk Areas - two-level drill: risk area, then domain, then function
+# =============================================================================
+# ERM's term for what the prototype called topics. 13 risk areas, each holding
+# a set of domains, each holding functions.
+#
+# The middle level now reads the su_domain table rather than distinct text
+# values off the function row. That matters: a domain with no functions yet
+# still appears, which is exactly the coverage gap leadership wants to see.
+# The old text-derived approach could only ever show domains that already had
+# work in them.
+# =============================================================================
+
+Screens:
+
+    scr_RiskAreas:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblRiskAreaSel, Blank());
+                Set(gblRaDomainSel, Blank());
+                ClearCollect(colAllFunctions, dsFunctions)
+
+        Children:
+
+            - cmp_HeaderRiskAreas:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="RiskAreas"
+                    OpenGapCount: =gblOpenGapCount
+
+            # ---- breadcrumb -------------------------------------------------
+            - btn_RaCrumbRoot:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =116
+                    Width: =100
+                    Height: =30
+                    Text: ="Risk Areas"
+                    Visible: =!IsBlank(gblRiskAreaSel)
+                    OnSelect: =Set(gblRiskAreaSel, Blank()); Set(gblRaDomainSel, Blank())
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    BorderThickness: =0
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    Align: =Align.Left
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - btn_RaCrumbArea:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =170
+                    Y: =116
+                    Width: =300
+                    Height: =30
+                    Text: =">  " & gblRiskAreaSel.su_name
+                    Visible: =!IsBlank(gblRiskAreaSel) && !IsBlank(gblRaDomainSel)
+                    OnSelect: =Set(gblRaDomainSel, Blank())
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    BorderThickness: =0
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    Align: =Align.Left
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            - cmp_RaHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =152
+                    Width: =Parent.Width - 128
+                    Height: =124
+                    Eyebrow: |
+                        =If(
+                            IsBlank(gblRiskAreaSel), "Browse",
+                            IsBlank(gblRaDomainSel), "Risk area",
+                            "Domain"
+                        )
+                    Title: |
+                        =If(
+                            IsBlank(gblRiskAreaSel), "Risk Areas",
+                            IsBlank(gblRaDomainSel), gblRiskAreaSel.su_name,
+                            gblRaDomainSel.su_name
+                        )
+                    Subtitle: |
+                        =If(
+                            IsBlank(gblRiskAreaSel),
+                            "Thirteen risk areas organize the matrix. Drill into one to see its domains, then the functions inside.",
+                            IsBlank(gblRaDomainSel),
+                            CountRows(
+                                Filter(
+                                    colDomains,
+                                    su_riskarea.su_riskareaid = gblRiskAreaSel.su_riskareaid
+                                )
+                            ) & " domains, " &
+                            CountRows(
+                                Filter(
+                                    colAllFunctions,
+                                    su_riskarea.su_riskareaid = gblRiskAreaSel.su_riskareaid
+                                )
+                            ) & " functions.",
+                            CountRows(
+                                Filter(
+                                    colAllFunctions,
+                                    su_domain.su_domainid = gblRaDomainSel.su_domainid
+                                )
+                            ) & " functions in this domain."
+                        )
+
+            # ---- level 1: risk area tiles -----------------------------------
+            - gal_RiskAreaTiles:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 330
+                    TemplateSize: =(Parent.Width - 128) / 4 - 4
+                    TemplatePadding: =16
+                    WrapCount: =4
+                    ShowScrollbar: =true
+                    Visible: =IsBlank(gblRiskAreaSel)
+                    Items: =colRiskAreas
+                Children:
+                    - rec_RaTile:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =148
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - rec_RaTileBar:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =5
+                            # su_colorhex carries the ERM brand colour per risk
+                            # area; fall back to SU blue where it is unset.
+                            Fill: |
+                                =If(
+                                    IsBlank(ThisItem.su_colorhex),
+                                    gblTheme.BlueMedium,
+                                    ColorValue(ThisItem.su_colorhex)
+                                )
+                            BorderThickness: =0
+                    - lbl_RaTileName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =22
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =58
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =13
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_RaTileDomains:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =104
+                            Width: =Parent.TemplateWidth - 100
+                            Height: =28
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Filter(
+                                                colDomains,
+                                                su_riskarea.su_riskareaid
+                                                    = ThisItem.su_riskareaid
+                                            )
+                                        )
+                                    },
+                                    n & If(n = 1, " domain", " domains")
+                                )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_RaTileCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 84
+                            Y: =98
+                            Width: =68
+                            Height: =38
+                            # Live row count, not a published figure: the matrix
+                            # is now the system of record.
+                            Text: |
+                                =CountRows(
+                                    Filter(
+                                        colAllFunctions,
+                                        su_riskarea.su_riskareaid = ThisItem.su_riskareaid
+                                    )
+                                )
+                            Color: =gblTheme.Orange
+                            Size: =20
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Right
+                            Font: =gblTheme.FontDisplay
+                    - btn_RaTileOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =148
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblRiskAreaSel, ThisItem); Set(gblRaDomainSel, Blank())
+
+            # ---- unassigned functions -----------------------------------------
+            # su_riskarea is Recommended, not Required. One live function has no
+            # risk area; without this tile it would be invisible on this screen.
+            - rec_RaUnassigned:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =64
+                    Y: =Parent.Height - 84
+                    Width: =Parent.Width - 128
+                    Height: =44
+                    Fill: =ColorFade(gblTheme.GrayMid, 0.92)
+                    BorderThickness: =0
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel)
+                            && CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) > 0
+            - btn_RaUnassigned:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =Parent.Height - 84
+                    Width: =Parent.Width - 128
+                    Height: =44
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel)
+                            && CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) > 0
+                    Text: |
+                        =CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) &
+                         " function(s) have no risk area assigned - review and classify"
+                    OnSelect: |
+                        =Set(gblFilter, {Query: "", RiskArea: "Unassigned", Domain: "All", Risk: "All"});
+                        Navigate(scr_Functions, ScreenTransition.None)
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.05)
+                    Color: =gblTheme.GrayDark
+                    BorderThickness: =0
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            # ---- level 2: domain tiles ---------------------------------------
+            - gal_RaDomains:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 330
+                    TemplateSize: =(Parent.Width - 128) / 4 - 4
+                    TemplatePadding: =16
+                    WrapCount: =4
+                    ShowScrollbar: =true
+                    Visible: =!IsBlank(gblRiskAreaSel) && IsBlank(gblRaDomainSel)
+                    Items: |
+                        =Filter(
+                            colDomains,
+                            su_riskarea.su_riskareaid = gblRiskAreaSel.su_riskareaid
+                        )
+                Children:
+                    - rec_RaDomainTile:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =134
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - rec_RaDomainBar:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =5
+                            Fill: =gblTheme.BlueMedium
+                            BorderThickness: =0
+                    - lbl_RaDomainName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =22
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =54
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =12
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_RaDomainOwner:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =78
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =20
+                            Text: |
+                                =If(
+                                    IsBlank(ThisItem.su_owner),
+                                    "No domain owner",
+                                    ThisItem.su_owner.su_name
+                                )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_RaDomainCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =100
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =24
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Filter(
+                                                colAllFunctions,
+                                                su_domain.su_domainid = ThisItem.su_domainid
+                                            )
+                                        )
+                                    },
+                                    If(
+                                        n = 0,
+                                        "No functions yet",
+                                        n & If(n = 1, " function", " functions")
+                                    )
+                                )
+                            Color: |
+                                =If(
+                                    CountRows(
+                                        Filter(
+                                            colAllFunctions,
+                                            su_domain.su_domainid = ThisItem.su_domainid
+                                        )
+                                    ) = 0,
+                                    gblTheme.Moderate,
+                                    gblTheme.GrayMid
+                                )
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - btn_RaDomainOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =134
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblRaDomainSel, ThisItem)
+
+            # ---- level 3: functions in the domain ----------------------------
+            - gal_RaFunctions:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 330
+                    TemplateSize: =62
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: =!IsBlank(gblRiskAreaSel) && !IsBlank(gblRaDomainSel)
+                    Items: |
+                        =Filter(
+                            colAllFunctions,
+                            su_domain.su_domainid = gblRaDomainSel.su_domainid
+                        )
+                Children:
+                    - lbl_RaFnName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =10
+                            Width: =Parent.TemplateWidth - 320
+                            Height: =22
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_RaFnSub:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =32
+                            Width: =Parent.TemplateWidth - 320
+                            Height: =18
+                            Text: |
+                                =ThisItem.su_functioncode & "  |  " & ThisItem.su_statute
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_RaFnOwner:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 290
+                            Y: =10
+                            Width: =180
+                            Height: =40
+                            Text: |
+                                =If(
+                                    IsBlank(ThisItem.su_complianceowner),
+                                    "No compliance owner",
+                                    ThisItem.su_complianceowner.su_name & Char(10) &
+                                    ThisItem.su_complianceowner.su_unit
+                                )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - cmp_RaFnRisk:
+                        Control: Component
+                        ComponentName: cmp_RiskPill
+                        Properties:
+                            X: =Parent.TemplateWidth - 96
+                            Y: =19
+                            Width: =74
+                            Height: =24
+                            Risk: |
+                                =Switch(
+                                    ThisItem.su_risk,
+                                    "High",     "High",
+                                    "Moderate", "Moderate",
+                                    "Low",      "Low",
+                                    ""
+                                )
+                    - rec_RaFnRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =61
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                    - btn_RaFnOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =62
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedFunction, ThisItem);
+                                Navigate(scr_FunctionDetail, ScreenTransition.None)

@@ -1,0 +1,555 @@
+# =============================================================================
+# Deadlines - calendar and list
+# =============================================================================
+# Every recurring and one-off due date in the matrix. The month grid is built
+# from a 42-cell sequence rather than a control, because Canvas has no calendar
+# primitive; each cell counts the deadlines falling on that day and selecting a
+# day lists them underneath.
+#
+# Reminder emails are sent by a Power Automate flow, not by the app. The
+# schedule (90 days, 30 days, due date, then weekly once overdue) is declared
+# in solution/schema/dataverse-schema.yaml under `reminders`.
+# =============================================================================
+
+Screens:
+
+    scr_Deadlines:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblDlView, "calendar");
+                Set(gblDlScope, "Open");
+                // Cursor is the first of the displayed month.
+                Set(gblDlCursor, Date(Year(gblToday), Month(gblToday), 1));
+                Set(gblDlSelectedDay, Blank());
+                ClearCollect(
+                    colDeadlines,
+                    SortByColumns(dsDeadlines, "su_duedate", SortOrder.Ascending)
+                );
+                // Only Fixed Recurring rows carry a calendar date. Event-Relative,
+                // Ongoing, and Conditional rows are real obligations but have no
+                // due date, so they are held separately and listed rather than
+                // placed on the month grid - and they never drive reminders.
+                ClearCollect(
+                    colDatedDeadlines,
+                    Filter(
+                        colDeadlines,
+                        su_deadlinetype = "Fixed Recurring",
+                        !IsBlank(su_duedate)
+                    )
+                );
+                ClearCollect(
+                    colUndatedDeadlines,
+                    Filter(colDeadlines, su_deadlinetype <> "Fixed Recurring")
+                )
+
+        Children:
+
+            - cmp_HeaderDl:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Deadlines"
+                    OpenGapCount: =gblOpenGapCount
+
+            - cmp_DlHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =128
+                    Width: =Parent.Width - 500
+                    Height: =124
+                    Eyebrow: ="Browse"
+                    Title: ="Deadlines"
+                    Subtitle: |
+                        ="Every recurring and one-off due date in the matrix. Reminder emails go out automatically at 90 days, 30 days, on the due date, and weekly once an item is overdue."
+
+            - lbl_DlOverdueChip:
+                Control: Label@2.5.1
+                Properties:
+                    X: =Parent.Width - 380
+                    Y: =150
+                    Width: =150
+                    Height: =30
+                    Text: =gblHomeOverdue & " overdue"
+                    Fill: =ColorFade(gblTheme.High, 0.88)
+                    Color: =gblTheme.High
+                    Size: =10
+                    FontWeight: =FontWeight.Bold
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+            - lbl_DlDue30Chip:
+                Control: Label@2.5.1
+                Properties:
+                    X: =Parent.Width - 220
+                    Y: =150
+                    Width: =156
+                    Height: =30
+                    Text: |
+                        =CountRows(
+                            Filter(
+                                colDatedDeadlines,
+                                !su_complete,
+                                su_duedate >= gblToday,
+                                su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days)
+                            )
+                        ) & " due in 30 days"
+                    Fill: =ColorFade(gblTheme.Moderate, 0.88)
+                    Color: =gblTheme.Moderate
+                    Size: =10
+                    FontWeight: =FontWeight.Bold
+                    Align: =Align.Center
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            # ---- controls ---------------------------------------------------
+            - drp_DlScope:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                    X: =64
+                    Y: =262
+                    Width: =200
+                    Height: =44
+                    Items: |
+                        =Table(
+                            {Value: "Open"},
+                            {Value: "Overdue only"},
+                            {Value: "Completed"},
+                            {Value: "No fixed date"},
+                            {Value: "All"}
+                        )
+                    Default: ="Open"
+                    OnChange: =Set(gblDlScope, drp_DlScope.Selected.Value)
+                    BorderColor: =gblTheme.Border
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - btn_DlCalendarView:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 244
+                    Y: =262
+                    Width: =88
+                    Height: =44
+                    Text: ="Calendar"
+                    OnSelect: =Set(gblDlView, "calendar")
+                    Fill: =If(gblDlView = "calendar", gblTheme.Navy, RGBA(0, 0, 0, 0))
+                    Color: =If(gblDlView = "calendar", gblTheme.White, gblTheme.GrayDark)
+                    BorderColor: =gblTheme.Border
+                    BorderThickness: =1
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - btn_DlListView:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 152
+                    Y: =262
+                    Width: =88
+                    Height: =44
+                    Text: ="List"
+                    OnSelect: =Set(gblDlView, "list")
+                    Fill: =If(gblDlView = "list", gblTheme.Navy, RGBA(0, 0, 0, 0))
+                    Color: =If(gblDlView = "list", gblTheme.White, gblTheme.GrayDark)
+                    BorderColor: =gblTheme.Border
+                    BorderThickness: =1
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            # ---- month navigation -------------------------------------------
+            - btn_DlPrevMonth:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =322
+                    Width: =100
+                    Height: =38
+                    Text: ="Previous"
+                    Visible: =gblDlView = "calendar"
+                    OnSelect: |
+                        =Set(gblDlCursor, DateAdd(gblDlCursor, -1, TimeUnit.Months));
+                        Set(gblDlSelectedDay, Blank())
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.Navy
+                    BorderColor: =gblTheme.Navy
+                    BorderThickness: =1
+                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - lbl_DlMonth:
+                Control: Label@2.5.1
+                Properties:
+                    X: =176
+                    Y: =322
+                    Width: =400
+                    Height: =38
+                    Visible: =gblDlView = "calendar"
+                    Text: |
+                        =Text(gblDlCursor, "mmmm yyyy") & "   -   " &
+                         CountRows(
+                             Filter(
+                                 colDatedDeadlines,
+                                 Year(su_duedate) = Year(gblDlCursor),
+                                 Month(su_duedate) = Month(gblDlCursor)
+                             )
+                         ) & " this month"
+                    Color: =gblTheme.Navy
+                    Size: =13
+                    FontWeight: =FontWeight.Bold
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontDisplay
+            - btn_DlToday:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 244
+                    Y: =322
+                    Width: =88
+                    Height: =38
+                    Text: ="Today"
+                    Visible: =gblDlView = "calendar"
+                    OnSelect: |
+                        =Set(gblDlCursor, Date(Year(gblToday), Month(gblToday), 1));
+                        Set(gblDlSelectedDay, Blank())
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.GrayDark
+                    BorderThickness: =0
+                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - btn_DlNextMonth:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 152
+                    Y: =322
+                    Width: =88
+                    Height: =38
+                    Text: ="Next"
+                    Visible: =gblDlView = "calendar"
+                    OnSelect: |
+                        =Set(gblDlCursor, DateAdd(gblDlCursor, 1, TimeUnit.Months));
+                        Set(gblDlSelectedDay, Blank())
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.Navy
+                    BorderColor: =gblTheme.Navy
+                    BorderThickness: =1
+                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            # ---- day-of-week header -----------------------------------------
+            - gal_DlDow:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =372
+                    Width: =Parent.Width - 128
+                    Height: =28
+                    TemplateSize: =(Parent.Width - 128) / 7
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Visible: =gblDlView = "calendar"
+                    Items: |
+                        =Table(
+                            {Dow: "Sun"}, {Dow: "Mon"}, {Dow: "Tue"}, {Dow: "Wed"},
+                            {Dow: "Thu"}, {Dow: "Fri"}, {Dow: "Sat"}
+                        )
+                Children:
+                    - lbl_DlDow:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =28
+                            Text: =Upper(ThisItem.Dow)
+                            Color: =gblTheme.GrayMid
+                            Size: =8
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+
+            # ---- month grid --------------------------------------------------
+            - gal_DlCalendar:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =400
+                    Width: =Parent.Width - 128
+                    Height: =414
+                    TemplateSize: =(Parent.Width - 128) / 7
+                    TemplatePadding: =0
+                    WrapCount: =7
+                    ShowScrollbar: =false
+                    Visible: =gblDlView = "calendar"
+                    # 42 cells covering six weeks. CellDate is blank for the
+                    # leading and trailing days that fall outside the month.
+                    Items: |
+                        =With(
+                            {lead: Weekday(gblDlCursor) - 1},
+                            ForAll(
+                                Sequence(42, 0) As idx,
+                                With(
+                                    {d: DateAdd(gblDlCursor, idx.Value - lead, TimeUnit.Days)},
+                                    {
+                                        CellDate: If(Month(d) = Month(gblDlCursor), d, Blank()),
+                                        CellDay:  If(Month(d) = Month(gblDlCursor), Day(d), 0)
+                                    }
+                                )
+                            )
+                        )
+                Children:
+                    - rec_DlCell:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth - 2
+                            Height: =67
+                            Fill: |
+                                =If(
+                                    IsBlank(ThisItem.CellDate), gblTheme.Surface,
+                                    ThisItem.CellDate = gblDlSelectedDay,
+                                        ColorFade(gblTheme.Orange, 0.86),
+                                    gblTheme.White
+                                )
+                            BorderColor: |
+                                =If(
+                                    ThisItem.CellDate = gblToday,
+                                    gblTheme.Orange,
+                                    gblTheme.Border
+                                )
+                            BorderThickness: =If(ThisItem.CellDate = gblToday, 2, 1)
+                    - lbl_DlCellDay:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =6
+                            Y: =4
+                            Width: =32
+                            Height: =18
+                            Text: =If(ThisItem.CellDay = 0, "", Text(ThisItem.CellDay))
+                            Color: =gblTheme.Navy
+                            Size: =9
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_DlCellCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =6
+                            Y: =24
+                            Width: =Parent.TemplateWidth - 14
+                            Height: =38
+                            Text: |
+                                =With(
+                                    {n: CountRows(Filter(colDeadlines, su_duedate = ThisItem.CellDate))},
+                                    If(n = 0, "", n & If(n = 1, " deadline", " deadlines"))
+                                )
+                            Color: |
+                                =If(
+                                    CountRows(
+                                        Filter(
+                                            colDatedDeadlines,
+                                            su_duedate = ThisItem.CellDate,
+                                            !su_complete,
+                                            su_duedate < gblToday
+                                        )
+                                    ) > 0,
+                                    gblTheme.High,
+                                    gblTheme.GrayMid
+                                )
+                            Size: =8
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - btn_DlCellOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth - 2
+                            Height: =67
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                            BorderThickness: =0
+                            DisplayMode: |
+                                =If(
+                                    IsBlank(ThisItem.CellDate),
+                                    DisplayMode.Disabled,
+                                    DisplayMode.Edit
+                                )
+                            OnSelect: |
+                                =Set(
+                                    gblDlSelectedDay,
+                                    If(
+                                        gblDlSelectedDay = ThisItem.CellDate,
+                                        Blank(),
+                                        ThisItem.CellDate
+                                    )
+                                )
+
+            # ---- list view / selected-day detail ------------------------------
+            - gal_DlList:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =If(gblDlView = "list", 322, 826)
+                    Width: =Parent.Width - 128
+                    Height: =If(gblDlView = "list", Parent.Height - 350, 240)
+                    TemplateSize: =62
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: =gblDlView = "list" || !IsBlank(gblDlSelectedDay)
+                    Items: |
+                        =Filter(
+                            colDeadlines,
+                            // Calendar mode narrows to the selected day; list mode
+                            // applies the scope dropdown. The date-based scopes
+                            // only make sense for Fixed Recurring rows, so the
+                            // undated types are reachable through their own scope
+                            // rather than being silently dropped or shown as
+                            // overdue.
+                            If(
+                                gblDlView = "calendar",
+                                su_duedate = gblDlSelectedDay,
+                                Switch(
+                                    gblDlScope,
+                                    "Open",
+                                        !su_complete
+                                            && su_deadlinetype = "Fixed Recurring",
+                                    "Overdue only",
+                                        !su_complete
+                                            && su_deadlinetype = "Fixed Recurring"
+                                            && !IsBlank(su_duedate)
+                                            && su_duedate < gblToday,
+                                    "Completed",
+                                        su_complete,
+                                    "No fixed date",
+                                        su_deadlinetype <> "Fixed Recurring",
+                                    true
+                                )
+                            )
+                        )
+                Children:
+                    - lbl_DlRowDate:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =10
+                            Width: =140
+                            Height: =40
+                            Text: |
+                                =If(
+                                    ThisItem.su_deadlinetype
+                                        <> "Fixed Recurring",
+                                    Switch(
+                                        ThisItem.su_deadlinetype,
+                                        "Event-Relative", "Event-relative",
+                                        "Ongoing",          "Ongoing",
+                                        "Conditional"
+                                    ) & Char(10) &
+                                    If(
+                                        IsBlank(ThisItem.su_offsetvalue),
+                                        "No offset set",
+                                        ThisItem.su_offsetvalue & " " &
+                                        Switch(
+                                            ThisItem.su_offsetunit,
+                                            "Days",   "days",
+                                            "Months", "months",
+                                            ""
+                                        ) & " after trigger"
+                                    ),
+                                    Text(ThisItem.su_duedate, "mmm d, yyyy") & Char(10) &
+                                    "FY" & Text(
+                                     If(Month(ThisItem.su_duedate) >= gblFiscalStartMonth,
+                                        Year(ThisItem.su_duedate) + 1,
+                                        Year(ThisItem.su_duedate)),
+                                     "00"
+                                 ) & " Q" &
+                                 (RoundDown(Mod(Month(ThisItem.su_duedate) + 5, 12) / 3, 0) + 1)
+                            Color: =gblTheme.Navy
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_DlRowTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =170
+                            Y: =10
+                            Width: =Parent.TemplateWidth - 560
+                            Height: =40
+                            Text: |
+                                =ThisItem.su_name & Char(10) & ThisItem.su_function.su_name
+                            Color: =gblTheme.GrayDark
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_DlRowCadence:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 376
+                            Y: =20
+                            Width: =104
+                            Height: =22
+                            Text: =ThisItem.su_cadence
+                            Fill: =gblTheme.Surface
+                            Color: =gblTheme.GrayDark
+                            Size: =9
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_DlRowOwner:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 258
+                            Y: =10
+                            Width: =140
+                            Height: =40
+                            Text: |
+                                =ThisItem.su_owner.su_name & Char(10) & ThisItem.su_owner.su_unit
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - cmp_DlRowPill:
+                        Control: Component
+                        ComponentName: cmp_DuePill
+                        Properties:
+                            X: =Parent.TemplateWidth - 110
+                            Y: =19
+                            Width: =104
+                            Height: =24
+                            DueDate: =ThisItem.su_duedate
+                            IsComplete: =ThisItem.su_complete
+                    - rec_DlRowRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =61
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                    - btn_DlRowOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =62
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedFunction, ThisItem.su_function);
+                                Navigate(scr_FunctionDetail, ScreenTransition.None)

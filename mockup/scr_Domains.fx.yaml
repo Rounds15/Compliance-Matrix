@@ -1,0 +1,356 @@
+# =============================================================================
+# Domains - the flat view across all risk areas
+# =============================================================================
+# For users who think in domains rather than risk areas. Reads the su_domain
+# table directly, so all 61 domains appear regardless of which risk area they
+# sit under and regardless of whether they carry any functions yet.
+#
+# A domain with zero functions is called out rather than hidden: that is the
+# coverage gap the office wants surfaced, and the old text-derived Areas screen
+# structurally could not show it.
+# =============================================================================
+
+Screens:
+
+    scr_Domains:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =Set(gblDomainSel, Blank());
+                ClearCollect(colAllFunctions, dsFunctions)
+
+        Children:
+
+            - cmp_HeaderDomains:
+                Control: Component
+                ComponentName: cmp_Header
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =104
+                    ActiveScreen: ="Domains"
+                    OpenGapCount: =gblOpenGapCount
+
+            - btn_DomCrumbRoot:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =116
+                    Width: =90
+                    Height: =30
+                    Text: ="Domains"
+                    Visible: =!IsBlank(gblDomainSel)
+                    OnSelect: =Set(gblDomainSel, Blank())
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    BorderThickness: =0
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    Align: =Align.Left
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+
+            - cmp_DomHead:
+                Control: Component
+                ComponentName: cmp_PageHead
+                Properties:
+                    X: =64
+                    Y: =152
+                    Width: =Parent.Width - 128
+                    Height: =124
+                    Eyebrow: =If(IsBlank(gblDomainSel), "Browse", "Domain")
+                    Title: =If(IsBlank(gblDomainSel), "Domains", gblDomainSel.su_name)
+                    Subtitle: |
+                        =If(
+                            IsBlank(gblDomainSel),
+                            "Sixty-one domains group related obligations. Domains carrying no functions are flagged, so coverage gaps stay visible.",
+                            "Risk area: " & gblDomainSel.su_riskarea.su_name & "  |  " &
+                            CountRows(
+                                Filter(
+                                    colAllFunctions,
+                                    su_domain.su_domainid = gblDomainSel.su_domainid
+                                )
+                            ) & " functions."
+                        )
+
+            - txt_DomSearch:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =420
+                    Height: =44
+                    Default: =""
+                    HintText: ="Search domains"
+                    Visible: =IsBlank(gblDomainSel)
+                    BorderColor: =gblTheme.Border
+                    FocusedBorderColor: =gblTheme.Orange
+                    FocusedBorderThickness: =2
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - lbl_DomEmptyCount:
+                Control: Label@2.5.1
+                Properties:
+                    X: =500
+                    Y: =286
+                    Width: =420
+                    Height: =44
+                    Visible: =IsBlank(gblDomainSel)
+                    Text: |
+                        =CountRows(
+                            Filter(
+                                colDomains,
+                                CountRows(
+                                    Filter(
+                                        colAllFunctions,
+                                        su_domain.su_domainid = su_domainid
+                                    )
+                                ) = 0
+                            )
+                        ) & " domain(s) with no functions"
+                    Color: =gblTheme.Moderate
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            # ---- domain tiles ------------------------------------------------
+            - gal_Domains:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                    X: =64
+                    Y: =346
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 390
+                    TemplateSize: =(Parent.Width - 128) / 4 - 4
+                    TemplatePadding: =16
+                    WrapCount: =4
+                    ShowScrollbar: =true
+                    Visible: =IsBlank(gblDomainSel)
+                    Items: |
+                        =Filter(
+                            colDomains,
+                            IsBlank(txt_DomSearch.Text)
+                                || StartsWith(su_name, txt_DomSearch.Text)
+                        )
+                Children:
+                    - rec_DomCard:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =146
+                            Fill: =gblTheme.White
+                            BorderColor: =gblTheme.Border
+                            BorderThickness: =1
+                            BorderRadius: =5
+                    - rec_DomCardBar:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =5
+                            Fill: |
+                                =If(
+                                    IsBlank(ThisItem.su_riskarea.su_colorhex),
+                                    gblTheme.Orange,
+                                    ColorValue(ThisItem.su_riskarea.su_colorhex)
+                                )
+                            BorderThickness: =0
+                    - lbl_DomCardArea:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =18
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =18
+                            Text: |
+                                =Upper(
+                                    Coalesce(ThisItem.su_riskarea.su_name, "No risk area")
+                                )
+                            Color: =gblTheme.OrangeDark
+                            Size: =7
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_DomCardName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =38
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =56
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =12
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_DomCardOwner:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =96
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =20
+                            Text: |
+                                =If(
+                                    IsBlank(ThisItem.su_owner),
+                                    "No domain owner",
+                                    ThisItem.su_owner.su_name
+                                )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_DomCardCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =16
+                            Y: =118
+                            Width: =Parent.TemplateWidth - 32
+                            Height: =22
+                            Text: |
+                                =With(
+                                    {
+                                        n: CountRows(
+                                            Filter(
+                                                colAllFunctions,
+                                                su_domain.su_domainid = ThisItem.su_domainid
+                                            )
+                                        )
+                                    },
+                                    If(
+                                        n = 0,
+                                        "No functions yet",
+                                        n & If(n = 1, " function", " functions")
+                                    )
+                                )
+                            Color: |
+                                =If(
+                                    CountRows(
+                                        Filter(
+                                            colAllFunctions,
+                                            su_domain.su_domainid = ThisItem.su_domainid
+                                        )
+                                    ) = 0,
+                                    gblTheme.Moderate,
+                                    gblTheme.GrayMid
+                                )
+                            Size: =9
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - btn_DomCardOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =146
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblDomainSel, ThisItem)
+
+            # ---- functions in the selected domain ----------------------------
+            - gal_DomFunctions:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =286
+                    Width: =Parent.Width - 128
+                    Height: =Parent.Height - 330
+                    TemplateSize: =62
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: =!IsBlank(gblDomainSel)
+                    Items: |
+                        =Filter(
+                            colAllFunctions,
+                            su_domain.su_domainid = gblDomainSel.su_domainid
+                        )
+                Children:
+                    - lbl_DfName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =10
+                            Width: =Parent.TemplateWidth - 320
+                            Height: =22
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_DfSub:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =32
+                            Width: =Parent.TemplateWidth - 320
+                            Height: =18
+                            Text: |
+                                =ThisItem.su_functioncode & "  |  " &
+                                 Coalesce(ThisItem.su_riskarea.su_name, "No risk area")
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_DfOwner:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 290
+                            Y: =10
+                            Width: =180
+                            Height: =40
+                            Text: |
+                                =If(
+                                    IsBlank(ThisItem.su_complianceowner),
+                                    "No compliance owner",
+                                    ThisItem.su_complianceowner.su_name & Char(10) &
+                                    ThisItem.su_complianceowner.su_unit
+                                )
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - cmp_DfRisk:
+                        Control: Component
+                        ComponentName: cmp_RiskPill
+                        Properties:
+                            X: =Parent.TemplateWidth - 96
+                            Y: =19
+                            Width: =74
+                            Height: =24
+                            Risk: |
+                                =Switch(
+                                    ThisItem.su_risk,
+                                    "High",     "High",
+                                    "Moderate", "Moderate",
+                                    "Low",      "Low",
+                                    ""
+                                )
+                    - rec_DfRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =61
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                    - btn_DfOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =62
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedFunction, ThisItem);
+                                Navigate(scr_FunctionDetail, ScreenTransition.None)
