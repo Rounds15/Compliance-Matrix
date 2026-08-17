@@ -1,0 +1,1234 @@
+
+Screens:
+
+    scr_FunctionDetail:
+        Properties:
+            Fill: =RGBA(247, 248, 250, 1)
+            OnVisible: |
+                =Set(gblMenu, "");
+                ClearCollect(
+                    colFdOwnership,
+                    Filter(
+                        dsOwnership,
+                        su_function.su_compliancefunctionid
+                            = gblSelectedFunction.su_compliancefunctionid
+                    )
+                );
+                ClearCollect(
+                    colFdGaps,
+                    Filter(
+                        dsGaps,
+                        su_function.su_compliancefunctionid
+                            = gblSelectedFunction.su_compliancefunctionid
+                    )
+                );
+                ClearCollect(
+                    colFdRelated,
+                    FirstN(
+                        Filter(
+                            dsFunctions,
+                            su_riskarea.su_name = gblSelectedFunction.su_riskarea.su_name,
+                            su_compliancefunctionid <> gblSelectedFunction.su_compliancefunctionid
+                        ),
+                        4
+                    )
+                )
+        Children:
+
+            - cnt_Scroll:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                    X: =0
+                    Y: =113
+                    Width: =Parent.Width
+                    Height: =Parent.Height - 113
+                    Fill: =RGBA(247, 248, 250, 1)
+                    LayoutDirection: =LayoutDirection.Vertical
+                    LayoutGap: =0
+                    LayoutOverflowY: =LayoutOverflow.Scroll
+                Children:
+
+                    - cnt_BackBar:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =41
+                            Fill: =RGBA(242, 244, 248, 1)
+                        Children:
+
+                            - btn_Back:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =51
+                                    Y: =6
+                                    Width: =80
+                                    Height: =28
+                                    Text: ="Back"
+                                    Align: =Align.Left
+                                    OnSelect: =Back(ScreenTransition.None)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(247, 105, 0, 0.08)
+                                    PressedFill: =RGBA(247, 105, 0, 0.15)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverColor: =gblTheme.Orange
+                                    PressedColor: =gblTheme.OrangeDark
+                                    BorderThickness: =0
+                                    Size: =9
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_BackSub:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =139
+                                    Y: =6
+                                    Width: =700
+                                    Height: =28
+                                    Text: =gblSelectedFunction.su_name
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =9
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_BackBarRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =0
+                                    Y: =40
+                                    Width: =Parent.Width
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+
+                    - cnt_Crumb:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =49
+                            Fill: =gblTheme.White
+                        Children:
+
+                            - btn_CrumbAll:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =51
+                                    Y: =10
+                                    Width: =110
+                                    Height: =28
+                                    Text: ="All functions"
+                                    Align: =Align.Left
+                                    OnSelect: =Navigate(scr_Functions, ScreenTransition.None)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(247, 105, 0, 0.08)
+                                    PressedFill: =RGBA(247, 105, 0, 0.15)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverColor: =gblTheme.Orange
+                                    PressedColor: =gblTheme.OrangeDark
+                                    BorderThickness: =0
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_CrumbSep1:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =165
+                                    Y: =10
+                                    Width: =12
+                                    Height: =28
+                                    Text: ="/"
+                                    Color: =RGBA(173, 179, 184, 1)
+                                    Size: =9
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - btn_CrumbTopic:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =181
+                                    Y: =10
+                                    Width: =200
+                                    Height: =28
+                                    Text: =gblSelectedFunction.su_riskarea.su_name
+                                    Align: =Align.Left
+                                    OnSelect: |
+                                        =Set(
+                                            gblFilter,
+                                            {
+                                                Query: "",
+                                                Topic: gblSelectedFunction.su_riskarea.su_name,
+                                                Risk: "All",
+                                                Area: "All"
+                                            }
+                                        );
+                                        Navigate(scr_Functions, ScreenTransition.None)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(247, 105, 0, 0.08)
+                                    PressedFill: =RGBA(247, 105, 0, 0.15)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverColor: =gblTheme.Orange
+                                    PressedColor: =gblTheme.OrangeDark
+                                    BorderThickness: =0
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_CrumbSep2:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =385
+                                    Y: =10
+                                    Width: =12
+                                    Height: =28
+                                    Text: ="/"
+                                    Color: =RGBA(173, 179, 184, 1)
+                                    Size: =9
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - lbl_CrumbHere:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =401
+                                    Y: =10
+                                    Width: =600
+                                    Height: =28
+                                    Text: =gblSelectedFunction.su_name
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =9
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - btn_PrevRecord:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 291
+                                    Y: =6
+                                    Width: =108
+                                    Height: =37
+                                    Text: ="Previous"
+                                    OnSelect: |
+                                        =With(
+                                            {
+                                                i: CountRows(
+                                                    Filter(
+                                                        dsFunctions,
+                                                        su_functioncode < gblSelectedFunction.su_functioncode
+                                                    )
+                                                )
+                                            },
+                                            If(
+                                                i > 0,
+                                                Set(
+                                                    gblSelectedFunction,
+                                                    Last(
+                                                        FirstN(
+                                                            SortByColumns(dsFunctions, "su_functioncode", SortOrder.Ascending),
+                                                            i
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    Fill: =RGBA(226, 228, 232, 1)
+                                    HoverFill: =RGBA(210, 213, 219, 1)
+                                    PressedFill: =RGBA(196, 199, 206, 1)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderThickness: =0
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - btn_NextRecord:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 177
+                                    Y: =6
+                                    Width: =126
+                                    Height: =37
+                                    Text: ="Next record"
+                                    OnSelect: |
+                                        =Set(
+                                            gblSelectedFunction,
+                                            First(
+                                                SortByColumns(
+                                                    Filter(
+                                                        dsFunctions,
+                                                        su_functioncode > gblSelectedFunction.su_functioncode
+                                                    ),
+                                                    "su_functioncode",
+                                                    SortOrder.Ascending
+                                                )
+                                            )
+                                        )
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderThickness: =0
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+
+                    - cnt_Head:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =230
+                            Fill: =gblTheme.Navy
+                        Children:
+
+                            - lbl_Eyebrow:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =30
+                                    Width: =Parent.Width - 102
+                                    Height: =20
+                                    Text: |
+                                        =Upper(
+                                            gblSelectedFunction.su_riskarea.su_name & "  |  " &
+                                            gblSelectedFunction.su_domain.su_name
+                                        )
+                                    Color: =gblTheme.OrangeLight
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_Title:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =58
+                                    Width: =Parent.Width - 480
+                                    Height: =81
+                                    Text: =gblSelectedFunction.su_name
+                                    Color: =gblTheme.White
+                                    Size: =27
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontDisplay
+                            - lbl_Risk:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =152
+                                    Width: =92
+                                    Height: =26
+                                    Text: |
+                                        =If(
+                                            IsBlank(gblSelectedFunction.su_risk),
+                                            "UNRATED",
+                                            Upper(gblSelectedFunction.su_risk)
+                                        )
+                                    Fill: |
+                                        =Switch(
+                                            gblSelectedFunction.su_risk,
+                                            "High",     gblTheme.High,
+                                            "Moderate", gblTheme.Moderate,
+                                            "Low",      gblTheme.Low,
+                                            gblTheme.Unrated
+                                        )
+                                    Color: =gblTheme.White
+                                    Size: =9
+                                    FontWeight: =FontWeight.Bold
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - lbl_ChipCode:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =151
+                                    Y: =153
+                                    Width: =90
+                                    Height: =25
+                                    Text: ="CF-" & gblSelectedFunction.su_functioncode
+                                    Fill: =RGBA(255, 255, 255, 0.12)
+                                    Color: =gblTheme.White
+                                    Size: =9
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - lbl_ChipStatute:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =249
+                                    Y: =153
+                                    Width: =260
+                                    Height: =25
+                                    Text: =gblSelectedFunction.su_statute
+                                    Fill: =RGBA(255, 255, 255, 0.12)
+                                    Color: =gblTheme.White
+                                    Size: =9
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_HeadRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =0
+                                    Y: =224
+                                    Width: =Parent.Width
+                                    Height: =6
+                                    Fill: =gblTheme.Orange
+                                    BorderThickness: =0
+
+                    - cnt_Body:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =1292
+                            Fill: =RGBA(247, 248, 250, 1)
+                        Children:
+
+                            - rec_Main:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =0
+                                    Width: =Parent.Width - 468
+                                    Height: =1244
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_StatuteHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =27
+                                    Width: =300
+                                    Height: =31
+                                    Text: ="GOVERNING STATUTE"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_StatuteRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =241
+                                    Y: =42
+                                    Width: =Parent.Width - 659
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - lbl_StatuteKeys:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =73
+                                    Width: =180
+                                    Height: =92
+                                    Text: |
+                                        ="Statute" & Char(10) & "Citation" & Char(10) & "Reference"
+                                    Color: =gblTheme.Navy
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_StatuteValues:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =276
+                                    Y: =73
+                                    Width: =Parent.Width - 694
+                                    Height: =92
+                                    Text: |
+                                        =gblSelectedFunction.su_statute & Char(10) &
+                                         gblSelectedFunction.su_citation
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - btn_StatuteLink:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =272
+                                    Y: =130
+                                    Width: =300
+                                    Height: =28
+                                    Text: ="Open the statute"
+                                    Align: =Align.Left
+                                    OnSelect: =Launch(gblSelectedFunction.su_statuteurl)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(247, 105, 0, 0.08)
+                                    PressedFill: =RGBA(247, 105, 0, 0.15)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverColor: =gblTheme.Orange
+                                    PressedColor: =gblTheme.OrangeDark
+                                    BorderThickness: =0
+                                    Size: =10
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_ObligationHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =181
+                                    Width: =300
+                                    Height: =31
+                                    Text: ="WHAT IT REQUIRES"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_ObligationRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =241
+                                    Y: =196
+                                    Width: =Parent.Width - 659
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - lbl_ObligationBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =220
+                                    Width: =Parent.Width - 526
+                                    Height: =70
+                                    Text: =gblSelectedFunction.su_description
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =12
+                                    Font: =gblTheme.FontBody
+                            - lbl_ReportingHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =293
+                                    Width: =300
+                                    Height: =31
+                                    Text: ="REPORTING"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_ReportingRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =241
+                                    Y: =308
+                                    Width: =Parent.Width - 659
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - lbl_ReportingBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =332
+                                    Width: =Parent.Width - 526
+                                    Height: =45
+                                    Text: |
+                                        =Coalesce(gblSelectedFunction.su_reporting, "No periodic external reporting is required.")
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =12
+                                    Font: =gblTheme.FontBody
+                            - lbl_CadenceHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =381
+                                    Width: =300
+                                    Height: =31
+                                    Text: ="CADENCE"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_CadenceRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =241
+                                    Y: =396
+                                    Width: =Parent.Width - 659
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - lbl_CadenceBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =420
+                                    Width: =Parent.Width - 526
+                                    Height: =40
+                                    Text: |
+                                        =Coalesce(gblSelectedFunction.su_deadlinenarrative, "No fixed cadence recorded.")
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =12
+                                    Font: =gblTheme.FontBody
+
+                            - lbl_OwnershipHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =469
+                                    Width: =300
+                                    Height: =34
+                                    Text: ="OWNERSHIP CHAIN"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_OwnershipRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =228
+                                    Y: =485
+                                    Width: =Parent.Width - 813
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - btn_ManagePeople:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 566
+                                    Y: =469
+                                    Width: =147
+                                    Height: =34
+                                    Text: ="Manage people"
+                                    OnSelect: =Notify("Ownership editing opens the PersonPicker in the deployed app.", NotificationType.Information)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderColor: =gblTheme.Navy
+                                    BorderThickness: =2
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_Roles:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =80
+                                    Y: =511
+                                    Width: =Parent.Width - 526
+                                    Height: =340
+                                    TemplateSize: =(Parent.Width - 526) / 2
+                                    TemplatePadding: =0
+                                    WrapCount: =2
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =Table(
+                                            {RoleLabel: "Executive Owner", RoleNote: "Accountable at the cabinet level"},
+                                            {RoleLabel: "Unit Owner",      RoleNote: "Runs the obligation day to day"},
+                                            {RoleLabel: "Compliance Owner", RoleNote: "Maintains the record and evidence"},
+                                            {RoleLabel: "Counsel",         RoleNote: "Advises on interpretation"}
+                                        )
+                                Children:
+                                    - rec_RoleCard:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 14
+                                            Height: =162
+                                            Fill: =gblTheme.White
+                                            BorderColor: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =1
+                                    - lbl_RoleLabel:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =16
+                                            Y: =14
+                                            Width: =Parent.TemplateWidth - 44
+                                            Height: =22
+                                            Text: =Upper(ThisItem.RoleLabel)
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_RoleNote:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =16
+                                            Y: =36
+                                            Width: =Parent.TemplateWidth - 44
+                                            Height: =20
+                                            Text: =ThisItem.RoleNote
+                                            Color: =RGBA(107, 114, 128, 1)
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                                    - gal_RolePeople:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                            X: =12
+                                            Y: =62
+                                            Width: =Parent.TemplateWidth - 36
+                                            Height: =92
+                                            TemplateSize: =46
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =true
+                                            Items: =Filter(colFdOwnership, su_role = ThisItem.RoleLabel)
+                                        Children:
+                                            - lbl_PersonName:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =4
+                                                    Y: =4
+                                                    Width: =Parent.TemplateWidth - 80
+                                                    Height: =20
+                                                    Text: =ThisItem.su_person.su_name
+                                                    Color: =gblTheme.Navy
+                                                    Size: =10
+                                                    FontWeight: =FontWeight.Semibold
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_PersonTitle:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =4
+                                                    Y: =24
+                                                    Width: =Parent.TemplateWidth - 80
+                                                    Height: =20
+                                                    Text: =ThisItem.su_person.su_jobtitle
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =9
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_PersonSubrole:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 72
+                                                    Y: =12
+                                                    Width: =68
+                                                    Height: =22
+                                                    Text: =ThisItem.su_subrole
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =9
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontBody
+                                    - lbl_RoleEmpty:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =16
+                                            Y: =96
+                                            Width: =Parent.TemplateWidth - 44
+                                            Height: =40
+                                            Text: ="No one is assigned to this role."
+                                            Color: =RGBA(173, 179, 184, 1)
+                                            Size: =10
+                                            Font: =gblTheme.FontBody
+                                            Visible: =CountRows(Filter(colFdOwnership, su_role = ThisItem.RoleLabel)) = 0
+
+                            - lbl_GapsHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =869
+                                    Width: =300
+                                    Height: =31
+                                    Text: ="COMPLIANCE GAPS"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_GapsRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =241
+                                    Y: =884
+                                    Width: =Parent.Width - 659
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - gal_Gaps:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =80
+                                    Y: =911
+                                    Width: =Parent.Width - 526
+                                    Height: =171
+                                    TemplateSize: =86
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Visible: =CountRows(colFdGaps) > 0
+                                    Items: =colFdGaps
+                                Children:
+                                    - rec_GapBox:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =80
+                                            Fill: =RGBA(250, 251, 253, 1)
+                                            BorderColor: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =1
+                                    - rec_GapAccent:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =4
+                                            Height: =80
+                                            Fill: |
+                                                =Switch(
+                                                    ThisItem.su_severity,
+                                                    "High",     gblTheme.High,
+                                                    "Moderate", gblTheme.Moderate,
+                                                    "Low",      gblTheme.Low,
+                                                    gblTheme.Unrated
+                                                )
+                                            BorderThickness: =0
+                                    - lbl_GapMeta:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =18
+                                            Y: =8
+                                            Width: =Parent.TemplateWidth - 40
+                                            Height: =20
+                                            Text: |
+                                                =ThisItem.su_gapcode & "  |  " & ThisItem.su_status &
+                                                 "  |  " & ThisItem.su_daysopen & " days open"
+                                            Color: =RGBA(107, 114, 128, 1)
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                                    - lbl_GapTitle:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =18
+                                            Y: =28
+                                            Width: =Parent.TemplateWidth - 40
+                                            Height: =22
+                                            Text: =ThisItem.su_name
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_GapNote:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =18
+                                            Y: =50
+                                            Width: =Parent.TemplateWidth - 40
+                                            Height: =24
+                                            Text: =ThisItem.su_note
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =10
+                                            Font: =gblTheme.FontBody
+                            - rec_GapsEmpty:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =80
+                                    Y: =911
+                                    Width: =Parent.Width - 526
+                                    Height: =171
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                                    Visible: =CountRows(colFdGaps) = 0
+                            - lbl_GapsEmptyHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =105
+                                    Y: =960
+                                    Width: =Parent.Width - 576
+                                    Height: =40
+                                    Text: ="No gaps recorded"
+                                    Color: =gblTheme.Navy
+                                    Size: =21
+                                    Align: =Align.Center
+                                    Font: =gblTheme.FontDisplay
+                                    Visible: =CountRows(colFdGaps) = 0
+                            - lbl_GapsEmptyBody:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =105
+                                    Y: =1008
+                                    Width: =Parent.Width - 576
+                                    Height: =25
+                                    Text: ="Nothing has been logged against this function."
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =12
+                                    Align: =Align.Center
+                                    Font: =gblTheme.FontBody
+                                    Visible: =CountRows(colFdGaps) = 0
+                            - lbl_ResourceHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =1106
+                                    Width: =300
+                                    Height: =31
+                                    Text: ="RESOURCE"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_ResourceRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =241
+                                    Y: =1121
+                                    Width: =Parent.Width - 659
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - btn_ResourceLink:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =76
+                                    Y: =1145
+                                    Width: =400
+                                    Height: =28
+                                    Text: =gblSelectedFunction.su_resourcelabel
+                                    Align: =Align.Left
+                                    OnSelect: =Launch(gblSelectedFunction.su_resourceurl)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(247, 105, 0, 0.08)
+                                    PressedFill: =RGBA(247, 105, 0, 0.15)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverColor: =gblTheme.Orange
+                                    PressedColor: =gblTheme.OrangeDark
+                                    BorderThickness: =0
+                                    Size: =11
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_ResourceUrl:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80
+                                    Y: =1172
+                                    Width: =Parent.Width - 526
+                                    Height: =21
+                                    Text: =gblSelectedFunction.su_resourceurl
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+
+                            - rec_RailStatus:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =Parent.Width - 381
+                                    Y: =0
+                                    Width: =330
+                                    Height: =210
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_RailStatusHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =19
+                                    Width: =296
+                                    Height: =17
+                                    Text: ="RECORD STATUS"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =9
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_RailStatusKeys:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =52
+                                    Width: =192
+                                    Height: =140
+                                    Text: |
+                                        ="Risk rating" & Char(10) &
+                                         "Open gaps" & Char(10) &
+                                         "Next deadline" & Char(10) &
+                                         "Under review" & Char(10) &
+                                         "Last reviewed"
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =9
+                                    Font: =gblTheme.FontBody
+                            - lbl_RailStatusValues:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 172
+                                    Y: =52
+                                    Width: =121
+                                    Height: =140
+                                    Text: |
+                                        =If(IsBlank(gblSelectedFunction.su_risk), "Unrated", gblSelectedFunction.su_risk) & Char(10) &
+                                         CountRows(Filter(colFdGaps, su_status <> "Closed")) & Char(10) &
+                                         If(
+                                             IsBlank(gblSelectedFunction.su_nextduedate),
+                                             "None",
+                                             Text(gblSelectedFunction.su_nextduedate, "mmm d, yyyy")
+                                         ) & Char(10) &
+                                         If(gblSelectedFunction.su_isflagged, "Yes", "No") & Char(10) &
+                                         Text(gblSelectedFunction.su_lastreviewed, "mmm d, yyyy")
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Align: =Align.Right
+                                    Font: =gblTheme.FontBody
+                            - rec_RailActions:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =Parent.Width - 381
+                                    Y: =224
+                                    Width: =330
+                                    Height: =228
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_RailActionsHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =243
+                                    Width: =296
+                                    Height: =17
+                                    Text: ="ACTIONS"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =9
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - btn_RailEdit:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =272
+                                    Width: =296
+                                    Height: =34
+                                    Text: ="Edit this record"
+                                    OnSelect: =Notify("Edit mode opens the field form in the deployed app.", NotificationType.Information)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderColor: =gblTheme.Navy
+                                    BorderThickness: =2
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - btn_RailFlag:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =314
+                                    Width: =296
+                                    Height: =34
+                                    Text: ="Flag for review"
+                                    OnSelect: =Notify("Flag raised. The compliance office has been notified.", NotificationType.Success)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderColor: =gblTheme.Navy
+                                    BorderThickness: =2
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - btn_RailLogGap:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =356
+                                    Width: =296
+                                    Height: =35
+                                    Text: ="Log a gap"
+                                    OnSelect: =Notify("Gap form opens in the deployed app.", NotificationType.Information)
+                                    Fill: =gblTheme.High
+                                    HoverFill: =RGBA(185, 28, 28, 1)
+                                    PressedFill: =RGBA(153, 27, 27, 1)
+                                    Color: =gblTheme.White
+                                    HoverColor: =gblTheme.White
+                                    PressedColor: =gblTheme.White
+                                    BorderThickness: =0
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - rec_RailCounsel:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =Parent.Width - 381
+                                    Y: =466
+                                    Width: =330
+                                    Height: =260
+                                    Fill: =RGBA(250, 251, 253, 1)
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_RailCounselHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =485
+                                    Width: =296
+                                    Height: =17
+                                    Text: ="COUNSEL"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =9
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_RailCounselLede:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =514
+                                    Width: =296
+                                    Height: =54
+                                    Text: |
+                                        ="Counsel of record for " & gblSelectedFunction.su_riskarea.su_name & "."
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =9
+                                    Font: =gblTheme.FontBody
+                            - lbl_RailCounselAvatar:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =580
+                                    Width: =40
+                                    Height: =40
+                                    Text: ="UC"
+                                    Fill: =gblTheme.Navy
+                                    Color: =gblTheme.White
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - lbl_RailCounselName:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 314
+                                    Y: =580
+                                    Width: =246
+                                    Height: =40
+                                    Text: |
+                                        ="Office of University Counsel" & Char(10) & "counsel@syr.edu"
+                                    Color: =gblTheme.Navy
+                                    Size: =9
+                                    Font: =gblTheme.FontBody
+                            - btn_RailCounselEmail:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =678
+                                    Width: =296
+                                    Height: =30
+                                    Text: ="Email a question about this function"
+                                    Align: =Align.Left
+                                    OnSelect: |
+                                        =Launch(
+                                            "mailto:counsel@syr.edu?subject=" &
+                                            EncodeUrl(gblSelectedFunction.su_name)
+                                        )
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(247, 105, 0, 0.08)
+                                    PressedFill: =RGBA(247, 105, 0, 0.15)
+                                    Color: =gblTheme.OrangeDark
+                                    HoverColor: =gblTheme.Orange
+                                    PressedColor: =gblTheme.OrangeDark
+                                    BorderThickness: =0
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - rec_RailRelated:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =Parent.Width - 381
+                                    Y: =741
+                                    Width: =330
+                                    Height: =261
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_RailRelatedHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =760
+                                    Width: =296
+                                    Height: =17
+                                    Text: ="RELATED FUNCTIONS"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =9
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_Related:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =Parent.Width - 364
+                                    Y: =789
+                                    Width: =296
+                                    Height: =196
+                                    TemplateSize: =49
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Items: =colFdRelated
+                                Children:
+                                    - lbl_RelName:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =4
+                                            Width: =Parent.TemplateWidth - 100
+                                            Height: =40
+                                            Text: =ThisItem.su_name
+                                            Color: =gblTheme.Navy
+                                            Size: =9
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_RelRisk:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 92
+                                            Y: =11
+                                            Width: =92
+                                            Height: =26
+                                            Text: |
+                                                =If(IsBlank(ThisItem.su_risk), "UNRATED", Upper(ThisItem.su_risk))
+                                            Fill: |
+                                                =Switch(
+                                                    ThisItem.su_risk,
+                                                    "High",     gblTheme.High,
+                                                    "Moderate", gblTheme.Moderate,
+                                                    "Low",      gblTheme.Low,
+                                                    gblTheme.Unrated
+                                                )
+                                            Color: =gblTheme.White
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - rec_RelRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =48
+                                            Width: =Parent.TemplateWidth
+                                            Height: =1
+                                            Fill: =RGBA(238, 240, 244, 1)
+                                            BorderThickness: =0
+                                    - btn_RelOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =49
+                                            Text: =""
+                                            Tooltip: ="Open " & ThisItem.su_name
+                                            OnSelect: =Set(gblSelectedFunction, ThisItem)
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                                            BorderThickness: =0
+
+                    - cnt_FooterSlot:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =220
+                            Fill: =RGBA(247, 248, 250, 1)
