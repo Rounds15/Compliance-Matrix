@@ -32,10 +32,38 @@ Every file passes `python3 tools/paste_check.py <file> --strict`.
 
 ## Paste order
 
-1. Paste `_chrome-components.yaml` into the app first: Components tab,
+1. Paste `_app-onstart.pfx` into **App > OnStart**. Do this first. Every
+   screen reads `gblTheme`, so without it every `gblTheme.White` resolves
+   to `Blank()` and renders **black**. Then run OnStart once (App > right
+   click > **Run OnStart**) or reload the app; setting the property alone
+   does not execute it.
+2. Paste `_chrome-components.yaml` into the app: Components tab,
    right-click, **Paste code**. Nothing else resolves until these exist.
-2. Paste each screen file: right-click in the screen list, **Paste code**.
-3. Add the chrome instances to each screen (below).
+3. Paste each screen file: right-click in the screen list, **Paste code**.
+4. Add the chrome instances to each screen (below).
+
+### What OnStart supplies
+
+The screens set their own state in `OnVisible`. These ten come from
+OnStart and nowhere else:
+
+`gblTheme`, `gblToday`, `gblFiscalStartMonth`, `gblMe`, `gblIsAdmin`,
+`dsFunctions`, `dsDeadlines`, `dsGaps`, `dsOwnership`, `dsDirectory`.
+
+`gblRole` and `gblMenu` are also seeded there: the header's role dropdown
+takes `gblRole` as its `Default`, and `cmp_NavMenus` reads `gblMenu` for
+its `Visible`, both before any screen `OnVisible` has run.
+
+`_app-onstart.pfx` is the app's existing OnStart from `mockup/App.fx.yaml`
+with two changes:
+
+- `gblMenu` added.
+- `gblFilter` reseeded as `{Query, Topic, Risk, Area}`. The original shape
+  was `{Query, RiskArea, Risk, Domain}`. These screens read `.Topic` and
+  `.Area`, and `scr_Functions` only seeds `gblFilter` when it is blank, so
+  the old shape would survive OnStart and then fail on first read. If you
+  are keeping the earlier generation of screens in the same app, they read
+  the old field names and will need reconciling.
 
 ## Chrome instances
 
