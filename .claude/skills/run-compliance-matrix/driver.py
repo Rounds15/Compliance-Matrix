@@ -937,12 +937,20 @@ def render_node(node, out: list, stats: dict):
 
     elif node.kind == "image":
         src = node.res.get("Image")
-        label = as_text(src) if src is not None else node.name
         classes.append("nofit")
-        style.append("background:rgba(255,255,255,.14)")
-        inner = ('<div class="t" style="justify-content:center;align-items:center;'
-                 f'font-size:9px;color:rgba(255,255,255,.85)"><span>{esc(label)}'
-                 "</span></div>")
+        if isinstance(src, str) and src.startswith(("data:", "http:", "https:")):
+            # A resolvable image - usually an inline SVG icon. Draw it for real;
+            # a placeholder box here would hide whether the icon is even right.
+            inner = (f'<img src="{html_mod.escape(src, quote=True)}" '
+                     'style="width:100%;height:100%;object-fit:contain;'
+                     'display:block" alt="">')
+        else:
+            label = as_text(src) if src is not None else node.name
+            style.append("background:rgba(255,255,255,.14)")
+            inner = ('<div class="t" style="justify-content:center;'
+                     'align-items:center;font-size:9px;'
+                     f'color:rgba(255,255,255,.85)"><span>{esc(label)}'
+                     "</span></div>")
 
     elif node.kind == "powerbi":
         classes.append("nofit")

@@ -664,6 +664,17 @@ class Evaluator:
             return None
         if low in ("sum", "average", "counta", "countif"):
             return None
+        if low == "encodeurl":
+            # Every icon in this app is an inline SVG built as
+            # "data:image/svg+xml;utf8, " & EncodeUrl("<svg .../>"), so
+            # resolving this is what lets the renderer draw real icons
+            # instead of an empty placeholder box.
+            v = vals[0] if vals else None
+            if not isinstance(v, str):
+                return None
+            import urllib.parse
+
+            return urllib.parse.quote(v, safe="")
         if low == "char":
             n = num(vals[0]) if vals else None
             return None if n is None else chr(int(n))
