@@ -1,0 +1,821 @@
+
+ComponentDefinitions:
+
+    cmp_ChromeHeader:
+        DefinitionType: CanvasComponent
+        Description: "Two tier chrome from the HTML mockup - navy utility bar, white nav bar with lockup and primary navigation. 1366x113."
+        AllowCustomization: true
+        AccessAppScope: true
+        CustomProperties:
+            ActiveScreen:
+                PropertyKind: Input
+                DisplayName: Active Screen
+                DataType: Text
+                Default: ="Home"
+            IsAdmin:
+                PropertyKind: Input
+                DisplayName: Is Admin
+                DataType: Boolean
+                Default: =true
+        Properties:
+            Height: =113
+            Width: =1366
+            Fill: =RGBA(0, 0, 0, 0)
+        Children:
+
+            - rec_UtilBar:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =34
+                    Fill: =gblTheme.Navy
+                    BorderThickness: =0
+            - btn_UtilSyracuse:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =51
+                    Y: =0
+                    Width: =96
+                    Height: =34
+                    Text: ="Syracuse.edu"
+                    OnSelect: =Launch("https://www.syracuse.edu")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(255, 255, 255, 0.08)
+                    PressedFill: =RGBA(255, 255, 255, 0.15)
+                    Color: =RGBA(201, 210, 230, 1)
+                    HoverColor: =gblTheme.White
+                    PressedColor: =gblTheme.White
+                    BorderThickness: =0
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - btn_UtilPolicies:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =163
+                    Y: =0
+                    Width: =72
+                    Height: =34
+                    Text: ="Policies"
+                    OnSelect: =Launch("https://policies.syr.edu")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(255, 255, 255, 0.08)
+                    PressedFill: =RGBA(255, 255, 255, 0.15)
+                    Color: =RGBA(201, 210, 230, 1)
+                    HoverColor: =gblTheme.White
+                    PressedColor: =gblTheme.White
+                    BorderThickness: =0
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - btn_UtilConcern:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =Parent.Width - 393
+                    Y: =0
+                    Width: =137
+                    Height: =34
+                    Text: ="Report a Concern"
+                    OnSelect: =Launch("https://compliance.syr.edu")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(255, 255, 255, 0.08)
+                    PressedFill: =RGBA(255, 255, 255, 0.15)
+                    Color: =RGBA(201, 210, 230, 1)
+                    HoverColor: =gblTheme.White
+                    PressedColor: =gblTheme.White
+                    BorderThickness: =0
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - lbl_ViewingAs:
+                Control: Label@2.5.1
+                Properties:
+                    X: =Parent.Width - 244
+                    Y: =7
+                    Width: =76
+                    Height: =21
+                    Text: ="VIEWING AS"
+                    Color: =RGBA(143, 160, 198, 1)
+                    Size: =8
+                    FontWeight: =FontWeight.Bold
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+            - drp_ViewingAs:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                    X: =Parent.Width - 168
+                    Y: =6
+                    Width: =117
+                    Height: =22
+                    Items: |
+                        =Table(
+                            {Role: "Administrator"},
+                            {Role: "Compliance Owner"},
+                            {Role: "Executive"}
+                        )
+                    Default: =gblRole
+                    OnChange: =Set(gblRole, drp_ViewingAs.Selected.Role)
+                    BorderColor: =RGBA(201, 210, 230, 0.4)
+                    Size: =8
+                    Font: =gblTheme.FontBody
+
+            - rec_HdrBg:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =34
+                    Width: =Parent.Width
+                    Height: =79
+                    Fill: =gblTheme.White
+                    BorderThickness: =0
+            - rec_HdrRule:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =112
+                    Width: =Parent.Width
+                    Height: =1
+                    Fill: =RGBA(221, 222, 226, 1)
+                    BorderThickness: =0
+            - img_BlockS:
+                Control: Image@2.2.3
+                Properties:
+                    X: =51
+                    Y: =49
+                    Width: =36
+                    Height: =48
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 48'>
+                               <text x='18' y='40' font-family='Georgia,serif' font-size='46'
+                                     font-weight='bold' fill='#F76900' text-anchor='middle'>S</text>
+                             </svg>"
+                        )
+            - lbl_LockupApp:
+                Control: Label@2.5.1
+                Properties:
+                    X: =101
+                    Y: =54
+                    Width: =200
+                    Height: =22
+                    Text: ="Syracuse University"
+                    Color: =gblTheme.Navy
+                    Size: =13
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontDisplay
+            - lbl_LockupUnit:
+                Control: Label@2.5.1
+                Properties:
+                    X: =101
+                    Y: =76
+                    Width: =200
+                    Height: =17
+                    Text: ="COMPLIANCE MATRIX"
+                    Color: =gblTheme.Navy
+                    Size: =8
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - btn_LockupOverlay:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =51
+                    Y: =49
+                    Width: =250
+                    Height: =48
+                    Text: =""
+                    Tooltip: ="Home"
+                    OnSelect: |
+                        =Set(gblMenu, "");
+                        Navigate(scr_Home, ScreenTransition.None)
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    PressedFill: =RGBA(0, 14, 84, 0.08)
+                    BorderThickness: =0
+
+            - img_NavIconHome:
+                Control: Image@2.2.3
+                Properties:
+                    X: =759
+                    Y: =63
+                    Width: =17
+                    Height: =17
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+                               <path d='M3 9 L10 3 L17 9 L17 17 L12 17 L12 12 L8 12 L8 17 L3 17 Z'
+                                     fill='none' stroke='#F76900' stroke-width='1.8'/>
+                             </svg>"
+                        )
+            - btn_NavHome:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =745
+                    Y: =49
+                    Width: =88
+                    Height: =48
+                    Text: ="   Home"
+                    Align: =Align.Center
+                    OnSelect: |
+                        =Set(gblMenu, "");
+                        Navigate(scr_Home, ScreenTransition.None)
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    PressedFill: =RGBA(0, 14, 84, 0.08)
+                    Color: =gblTheme.Navy
+                    HoverColor: =gblTheme.Navy
+                    PressedColor: =gblTheme.Navy
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - img_NavIconBrowse:
+                Control: Image@2.2.3
+                Properties:
+                    X: =850
+                    Y: =63
+                    Width: =17
+                    Height: =17
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+                               <rect x='3' y='3' width='6' height='6' fill='none' stroke='#F76900' stroke-width='1.8'/>
+                               <rect x='11' y='3' width='6' height='6' fill='none' stroke='#F76900' stroke-width='1.8'/>
+                               <rect x='3' y='11' width='6' height='6' fill='none' stroke='#F76900' stroke-width='1.8'/>
+                               <rect x='11' y='11' width='6' height='6' fill='none' stroke='#F76900' stroke-width='1.8'/>
+                             </svg>"
+                        )
+            - btn_NavBrowse:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =836
+                    Y: =49
+                    Width: =118
+                    Height: =48
+                    Text: ="   Browse"
+                    Align: =Align.Center
+                    OnSelect: =Set(gblMenu, If(gblMenu = "browse", "", "browse"))
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    PressedFill: =RGBA(0, 14, 84, 0.08)
+                    Color: =gblTheme.Navy
+                    HoverColor: =gblTheme.Navy
+                    PressedColor: =gblTheme.Navy
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - img_NavChevBrowse:
+                Control: Image@2.2.3
+                Properties:
+                    X: =935
+                    Y: =66
+                    Width: =13
+                    Height: =13
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>
+                               <path d='M4 6 L8 10 L12 6' fill='none' stroke='#000E54'
+                                     stroke-width='2.2' opacity='0.65'/>
+                             </svg>"
+                        )
+            - img_NavIconRisk:
+                Control: Image@2.2.3
+                Properties:
+                    X: =969
+                    Y: =63
+                    Width: =17
+                    Height: =17
+                    Visible: =Parent.IsAdmin
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+                               <path d='M3 17 L3 11 M8 17 L8 6 M13 17 L13 8 M18 17 L18 3'
+                                     fill='none' stroke='#F76900' stroke-width='2'/>
+                             </svg>"
+                        )
+            - btn_NavRisk:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =955
+                    Y: =49
+                    Width: =187
+                    Height: =48
+                    Visible: =Parent.IsAdmin
+                    Text: ="   Risk and Reporting"
+                    Align: =Align.Center
+                    OnSelect: =Set(gblMenu, If(gblMenu = "risk", "", "risk"))
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    PressedFill: =RGBA(0, 14, 84, 0.08)
+                    Color: =gblTheme.Navy
+                    HoverColor: =gblTheme.Navy
+                    PressedColor: =gblTheme.Navy
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - img_NavChevRisk:
+                Control: Image@2.2.3
+                Properties:
+                    X: =1123
+                    Y: =66
+                    Width: =13
+                    Height: =13
+                    Visible: =Parent.IsAdmin
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>
+                               <path d='M4 6 L8 10 L12 6' fill='none' stroke='#000E54'
+                                     stroke-width='2.2' opacity='0.65'/>
+                             </svg>"
+                        )
+            - img_NavIconExec:
+                Control: Image@2.2.3
+                Properties:
+                    X: =1159
+                    Y: =63
+                    Width: =17
+                    Height: =17
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+                               <circle cx='7' cy='7' r='3' fill='none' stroke='#F76900' stroke-width='1.8'/>
+                               <path d='M2 17 C2 13 12 13 12 17' fill='none' stroke='#F76900' stroke-width='1.8'/>
+                               <circle cx='14' cy='8' r='2.4' fill='none' stroke='#F76900' stroke-width='1.6'/>
+                             </svg>"
+                        )
+            - btn_NavExec:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =1145
+                    Y: =49
+                    Width: =146
+                    Height: =48
+                    Text: ="   Executive Team"
+                    Align: =Align.Center
+                    OnSelect: |
+                        =Set(gblMenu, "");
+                        Navigate(scr_ExecutiveTeam, ScreenTransition.None)
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    PressedFill: =RGBA(0, 14, 84, 0.08)
+                    Color: =gblTheme.Navy
+                    HoverColor: =gblTheme.Navy
+                    PressedColor: =gblTheme.Navy
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - rec_NavActive:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: |
+                        =Switch(
+                            Parent.ActiveScreen,
+                            "Home",           745,
+                            "Executive Team", 1145,
+                            "Functions",      836,
+                            "Topics",         836,
+                            "Areas",          836,
+                            "Deadlines",      836,
+                            "Directory",      836,
+                            "Gap Tracker",    955,
+                            "Risk Dashboard", 955,
+                            "Reporting",      955,
+                            745
+                        )
+                    Y: =93
+                    Width: |
+                        =Switch(
+                            Parent.ActiveScreen,
+                            "Home",           88,
+                            "Executive Team", 146,
+                            "Functions",      118,
+                            "Topics",         118,
+                            "Areas",          118,
+                            "Deadlines",      118,
+                            "Directory",      118,
+                            "Gap Tracker",    187,
+                            "Risk Dashboard", 187,
+                            "Reporting",      187,
+                            88
+                        )
+                    Height: =4
+                    Fill: =gblTheme.Orange
+                    BorderThickness: =0
+
+    cmp_NavMenus:
+        DefinitionType: CanvasComponent
+        Description: "Overlay dropdown panels for the Browse and Risk and Reporting nav items. Full screen so the panel is not clipped by the header; invisible and non blocking when gblMenu is empty."
+        AllowCustomization: true
+        AccessAppScope: true
+        CustomProperties:
+            OpenGapCount:
+                PropertyKind: Input
+                DisplayName: Open Gap Count
+                DataType: Number
+                Default: =0
+        Properties:
+            Height: =768
+            Width: =1366
+            Fill: =RGBA(0, 0, 0, 0)
+            Visible: =gblMenu <> ""
+        Children:
+
+            - btn_MenuScrim:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =Parent.Height
+                    Text: =""
+                    Tooltip: ="Close menu"
+                    OnSelect: =Set(gblMenu, "")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 0, 0, 0)
+                    PressedFill: =RGBA(0, 0, 0, 0)
+                    BorderThickness: =0
+
+            - rec_BrowseMenu:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =836
+                    Y: =98
+                    Width: =270
+                    Height: =353
+                    Visible: =gblMenu = "browse"
+                    Fill: =gblTheme.White
+                    BorderColor: =RGBA(221, 222, 226, 1)
+                    BorderThickness: =1
+            - gal_BrowseMenu:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =837
+                    Y: =99
+                    Width: =268
+                    Height: =340
+                    TemplateSize: =68
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Visible: =gblMenu = "browse"
+                    Items: |
+                        =Table(
+                            {MenuLabel: "Functions",  MenuSub: "All compliance obligations",       MenuKey: "Functions"},
+                            {MenuLabel: "Topics",     MenuSub: "13 topics and their areas",        MenuKey: "Topics"},
+                            {MenuLabel: "Areas",      MenuSub: "Grouped by compliance area",       MenuKey: "Areas"},
+                            {MenuLabel: "Deadlines",  MenuSub: "Upcoming and recurring due dates", MenuKey: "Deadlines"},
+                            {MenuLabel: "Directory",  MenuSub: "Owners, titles, units, contacts",  MenuKey: "Directory"}
+                        )
+                Children:
+                    - img_BrowseMenuDot:
+                        Control: Image@2.2.3
+                        Properties:
+                            X: =16
+                            Y: =22
+                            Width: =17
+                            Height: =17
+                            Image: |
+                                ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+                                       <path d='M3 5 L17 5 M3 10 L17 10 M3 15 L17 15'
+                                             fill='none' stroke='#F76900' stroke-width='2'/>
+                                     </svg>"
+                                )
+                    - lbl_BrowseMenuLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =43
+                            Y: =14
+                            Width: =Parent.TemplateWidth - 60
+                            Height: =22
+                            Text: =ThisItem.MenuLabel
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_BrowseMenuSub:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =43
+                            Y: =36
+                            Width: =Parent.TemplateWidth - 60
+                            Height: =20
+                            Text: =ThisItem.MenuSub
+                            Color: =RGBA(107, 114, 128, 1)
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - btn_BrowseMenuOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =68
+                            Text: =""
+                            Tooltip: =ThisItem.MenuLabel & ". " & ThisItem.MenuSub
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblMenu, "");
+                                Switch(
+                                    ThisItem.MenuKey,
+                                    "Functions", Navigate(scr_Functions, ScreenTransition.None),
+                                    "Topics",    Navigate(scr_Topics, ScreenTransition.None),
+                                    "Areas",     Navigate(scr_Areas, ScreenTransition.None),
+                                    "Deadlines", Navigate(scr_Deadlines, ScreenTransition.None),
+                                    "Directory", Navigate(scr_Directory, ScreenTransition.None)
+                                )
+
+            - rec_RiskMenu:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =955
+                    Y: =98
+                    Width: =290
+                    Height: =217
+                    Visible: =gblMenu = "risk"
+                    Fill: =gblTheme.White
+                    BorderColor: =RGBA(221, 222, 226, 1)
+                    BorderThickness: =1
+            - gal_RiskMenu:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =956
+                    Y: =99
+                    Width: =288
+                    Height: =204
+                    TemplateSize: =68
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Visible: =gblMenu = "risk"
+                    Items: |
+                        =Table(
+                            {MenuLabel: "Gap Tracker",    MenuSub: "Open gaps and closure workflow", MenuKey: "GapTracker"},
+                            {MenuLabel: "Risk Dashboard", MenuSub: "Heat map and risk rollups",      MenuKey: "RiskDashboard"},
+                            {MenuLabel: "Reporting",      MenuSub: "Power BI datasets and exports",  MenuKey: "Reporting"}
+                        )
+                Children:
+                    - img_RiskMenuDot:
+                        Control: Image@2.2.3
+                        Properties:
+                            X: =16
+                            Y: =22
+                            Width: =17
+                            Height: =17
+                            Image: |
+                                ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+                                       <path d='M10 3 L18 17 L2 17 Z' fill='none'
+                                             stroke='#F76900' stroke-width='1.8'/>
+                                       <path d='M10 8 L10 12' stroke='#F76900' stroke-width='1.8'/>
+                                     </svg>"
+                                )
+                    - lbl_RiskMenuLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =43
+                            Y: =14
+                            Width: =Parent.TemplateWidth - 100
+                            Height: =22
+                            Text: =ThisItem.MenuLabel
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_RiskMenuBadge:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 54
+                            Y: =14
+                            Width: =32
+                            Height: =22
+                            Text: =Parent.OpenGapCount
+                            Visible: =ThisItem.MenuKey = "GapTracker" && Parent.OpenGapCount > 0
+                            Fill: =gblTheme.High
+                            Color: =gblTheme.White
+                            Size: =9
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - lbl_RiskMenuSub:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =43
+                            Y: =36
+                            Width: =Parent.TemplateWidth - 60
+                            Height: =20
+                            Text: =ThisItem.MenuSub
+                            Color: =RGBA(107, 114, 128, 1)
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - btn_RiskMenuOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =68
+                            Text: =""
+                            Tooltip: =ThisItem.MenuLabel & ". " & ThisItem.MenuSub
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblMenu, "");
+                                Switch(
+                                    ThisItem.MenuKey,
+                                    "GapTracker",    Navigate(scr_GapTracker, ScreenTransition.None),
+                                    "RiskDashboard", Navigate(scr_RiskDashboard, ScreenTransition.None),
+                                    "Reporting",     Navigate(scr_Reporting, ScreenTransition.None)
+                                )
+
+    cmp_ChromeFooter:
+        DefinitionType: CanvasComponent
+        Description: "Navy site footer from the HTML mockup - orange top rule, wordmark, and two link columns. 1366x220."
+        AllowCustomization: true
+        AccessAppScope: true
+        CustomProperties:
+            Unused:
+                PropertyKind: Input
+                DisplayName: Unused
+                DataType: Text
+                Default: =""
+        Properties:
+            Height: =220
+            Width: =1366
+            Fill: =RGBA(0, 0, 0, 0)
+        Children:
+
+            - rec_FtrBg:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =220
+                    Fill: =gblTheme.Navy
+                    BorderThickness: =0
+            - rec_FtrTopRule:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =0
+                    Y: =0
+                    Width: =Parent.Width
+                    Height: =6
+                    Fill: =gblTheme.Orange
+                    BorderThickness: =0
+            - img_FtrWordmark:
+                Control: Image@2.2.3
+                Properties:
+                    X: =51
+                    Y: =38
+                    Width: =132
+                    Height: =26
+                    Image: |
+                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 132 26'>
+                               <text x='0' y='20' font-family='Georgia,serif' font-size='22'
+                                     font-weight='bold' fill='#FFFFFF'>S</text>
+                               <text x='18' y='19' font-family='Georgia,serif' font-size='15'
+                                     fill='#FFFFFF'>Syracuse University</text>
+                             </svg>"
+                        )
+            - lbl_FtrUnit:
+                Control: Label@2.5.1
+                Properties:
+                    X: =51
+                    Y: =80
+                    Width: =842
+                    Height: =18
+                    Text: ="COMPLIANCE AND ENTERPRISE RISK MANAGEMENT"
+                    Color: =gblTheme.White
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - lbl_FtrBrowseHead:
+                Control: Label@2.5.1
+                Properties:
+                    X: =925
+                    Y: =38
+                    Width: =80
+                    Height: =18
+                    Text: ="BROWSE"
+                    Color: =gblTheme.White
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - gal_FtrBrowse:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =925
+                    Y: =70
+                    Width: =84
+                    Height: =120
+                    TemplateSize: =29
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Items: |
+                        =Table(
+                            {LinkLabel: "Functions", LinkKey: "Functions"},
+                            {LinkLabel: "Topics",    LinkKey: "Topics"},
+                            {LinkLabel: "Deadlines", LinkKey: "Deadlines"},
+                            {LinkLabel: "Directory", LinkKey: "Directory"}
+                        )
+                Children:
+                    - btn_FtrBrowseLink:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =29
+                            Text: =ThisItem.LinkLabel
+                            Align: =Align.Left
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(255, 255, 255, 0.06)
+                            PressedFill: =RGBA(255, 255, 255, 0.12)
+                            Color: =RGBA(201, 210, 230, 1)
+                            HoverColor: =gblTheme.White
+                            PressedColor: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =11
+                            Font: =gblTheme.FontBody
+                            OnSelect: |
+                                =Set(gblMenu, "");
+                                Switch(
+                                    ThisItem.LinkKey,
+                                    "Functions", Navigate(scr_Functions, ScreenTransition.None),
+                                    "Topics",    Navigate(scr_Topics, ScreenTransition.None),
+                                    "Deadlines", Navigate(scr_Deadlines, ScreenTransition.None),
+                                    "Directory", Navigate(scr_Directory, ScreenTransition.None)
+                                )
+            - lbl_FtrResHead:
+                Control: Label@2.5.1
+                Properties:
+                    X: =1014
+                    Y: =38
+                    Width: =120
+                    Height: =18
+                    Text: ="RESOURCES"
+                    Color: =gblTheme.White
+                    Size: =9
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontBody
+            - gal_FtrResources:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =1014
+                    Y: =70
+                    Width: =120
+                    Height: =90
+                    TemplateSize: =29
+                    TemplatePadding: =0
+                    ShowScrollbar: =false
+                    Items: |
+                        =Table(
+                            {LinkLabel: "University Policies", LinkUrl: "https://policies.syr.edu"},
+                            {LinkLabel: "Report a Concern",    LinkUrl: "https://compliance.syr.edu"},
+                            {LinkLabel: "Power BI Reports",    LinkUrl: "https://app.powerbi.com"}
+                        )
+                Children:
+                    - btn_FtrResLink:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =29
+                            Text: =ThisItem.LinkLabel
+                            Align: =Align.Left
+                            OnSelect: =Launch(ThisItem.LinkUrl)
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(255, 255, 255, 0.06)
+                            PressedFill: =RGBA(255, 255, 255, 0.12)
+                            Color: =RGBA(201, 210, 230, 1)
+                            HoverColor: =gblTheme.White
+                            PressedColor: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =11
+                            Font: =gblTheme.FontBody
+            - lbl_FtrNote:
+                Control: Label@2.5.1
+                Properties:
+                    X: =1143
+                    Y: =38
+                    Width: =172
+                    Height: =54
+                    Text: ="Prototype with sample data. Production data is stored in Dataverse."
+                    Color: =RGBA(114, 134, 180, 1)
+                    Size: =9
+                    Font: =gblTheme.FontBody
