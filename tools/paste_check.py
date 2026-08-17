@@ -43,6 +43,7 @@ MANIFEST = json.loads(
 CONTROLS = MANIFEST["controls"]
 INSTANCES = MANIFEST["component_instances"]
 SCHEMA = MANIFEST["schema"]
+COMPONENT_DEF = MANIFEST.get("component_definition")
 
 VALID_ROOTS = {"Screens", "ComponentDefinitions", "App"}
 
@@ -182,6 +183,27 @@ def check_text(text: str, path: str, rep: Report, allow_comments: bool = False) 
                 rep.error(path, "Schema",
                           f"{name}.{pname} DataType {dt!r} invalid "
                           f"(valid: {SCHEMA['data_types']})")
+
+        # Definition-level Properties are not instance properties: Visible on a
+        # definition is PA2108. Output/OutputFunction custom properties carry
+        # their formula here, so they are allowed alongside the layout set.
+        cdef = COMPONENT_DEF
+        if cdef:
+            outputs = {
+                pn for pn, pr in (comp.get("CustomProperties") or {}).items()
+                if pr.get("PropertyKind") in ("Output", "OutputFunction")
+            }
+            allowed = set(cdef["known"]) | outputs
+            for pname in (comp.get("Properties") or {}):
+                why = cdef.get("rejected", {}).get(pname)
+                if why:
+                    rep.error(path, "Rule 4",
+                              f"{name}: {pname!r} on a component definition - {why}")
+                elif pname not in allowed:
+                    rep.warn(path, "Rule 4",
+                             f"{name}: {pname!r} on a component definition is not in "
+                             f"the verified inventory - confirm it pastes, then add it "
+                             f"to tools/control_properties.json")
 
     # -- Rule 4: properties belong to their control -------------------------
     _check_properties(lines, path, rep, in_block)

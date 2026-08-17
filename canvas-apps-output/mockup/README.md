@@ -64,8 +64,15 @@ to the value from the table:
         Y: =0
         Width: =Parent.Width
         Height: =Parent.Height
+        Visible: =gblMenu <> ""
         OpenGapCount: =gblOpenGapCount
 ```
+
+The `Visible` on `cmp_Menus` belongs on the **instance**, as written above.
+Putting it on the component definition raises PA2108: `Visible` is an
+instance property, not a definition one. The scrim inside the component
+carries the same condition as a second line of defence, so the menu still
+cannot swallow clicks if the instance-level `Visible` is left off.
 
 Paste this **inside `cnt_FooterSlot`** on every screen:
 
@@ -131,6 +138,17 @@ page `RGBA(247, 247, 248, 1)`, wash `RGBA(237, 238, 241, 1)`,
 line `RGBA(221, 222, 226, 1)`, line-strong `RGBA(196, 199, 206, 1)`,
 ink-soft `RGBA(59, 67, 88, 1)`, muted `RGBA(107, 114, 128, 1)`. Add them to
 `gblTheme` in `App.OnStart` if you would rather centralize them.
+
+## PA1017 on AllowCustomization is expected
+
+Studio reports `PA1017: The schema keyword 'AllowCustomization' is ignored
+in this context` once per component definition. It is a warning, not an
+error, and it is not worth acting on: `AllowCustomization` is listed under
+`component_required` in `tools/control_properties.json`, taken from the
+PowerApps-Tooling v3.0 schema, and all four existing components in
+`mockup/Components/` carry it and raise the same warning. Removing it would
+trip `paste_check`'s schema check for no gain. The keyword is meaningful in
+a component library and ignored inside an app.
 
 ## Known gaps
 

@@ -16,91 +16,260 @@
     "When a paste confirms a new property, add it here. When a paste rejects one,",
     "move it to 'rejected' with the error code so it can never come back."
   ],
-
   "controls": {
     "Label@2.5.1": {
-      "known": ["Align", "Color", "DisplayMode", "Fill", "Font", "FontWeight",
-                "Height", "Size", "Text", "VerticalAlign", "Visible", "Width",
-                "X", "Y"],
+      "known": [
+        "Align",
+        "Color",
+        "DisplayMode",
+        "Fill",
+        "Font",
+        "FontWeight",
+        "Height",
+        "Size",
+        "Text",
+        "VerticalAlign",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     },
     "Gallery@2.15.0": {
-      "known": ["Height", "Items", "ShowScrollbar", "TemplatePadding",
-                "TemplateSize", "Visible", "Width", "WrapCount", "X", "Y"],
+      "known": [
+        "Height",
+        "Items",
+        "ShowScrollbar",
+        "TemplatePadding",
+        "TemplateSize",
+        "Visible",
+        "Width",
+        "WrapCount",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     },
     "Classic/Button@2.2.0": {
-      "known": ["Align", "BorderColor", "BorderThickness", "Color",
-                "DisabledFill", "DisplayMode", "Fill", "Font", "FontWeight",
-                "Height", "HoverColor", "HoverFill", "OnSelect", "PressedColor",
-                "PressedFill", "Size", "Text", "Tooltip", "Visible", "Width",
-                "X", "Y"],
+      "known": [
+        "Align",
+        "BorderColor",
+        "BorderThickness",
+        "Color",
+        "DisabledFill",
+        "DisplayMode",
+        "Fill",
+        "Font",
+        "FontWeight",
+        "Height",
+        "HoverColor",
+        "HoverFill",
+        "OnSelect",
+        "PressedColor",
+        "PressedFill",
+        "Size",
+        "Text",
+        "Tooltip",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {
         "BorderRadius": "PA2108 - confirmed rejected in Studio"
       }
     },
     "Classic/TextInput@2.3.2": {
-      "known": ["BorderColor", "BorderThickness", "Color", "Default", "Fill",
-                "FocusedBorderColor", "FocusedBorderThickness", "Font", "Height",
-                "HintText", "HoverBorderColor", "Mode", "OnChange", "Size",
-                "Visible", "Width", "X", "Y"],
+      "known": [
+        "BorderColor",
+        "BorderThickness",
+        "Color",
+        "Default",
+        "Fill",
+        "FocusedBorderColor",
+        "FocusedBorderThickness",
+        "Font",
+        "Height",
+        "HintText",
+        "HoverBorderColor",
+        "Mode",
+        "OnChange",
+        "Size",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     },
     "Classic/DropDown@2.3.1": {
-      "known": ["BorderColor", "Default", "Font", "Height", "Items", "OnChange",
-                "Size", "Visible", "Width", "X", "Y"],
+      "known": [
+        "BorderColor",
+        "Default",
+        "Font",
+        "Height",
+        "Items",
+        "OnChange",
+        "Size",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     },
     "Classic/ComboBox@2.4.0": {
-      "known": ["BorderColor", "DefaultSelectedItems", "DisplayFields",
-                "FocusedBorderColor", "Font", "Height", "IsSearchable", "Items",
-                "SearchFields", "SelectMultiple", "Size", "Width", "X", "Y"],
+      "known": [
+        "BorderColor",
+        "DefaultSelectedItems",
+        "DisplayFields",
+        "FocusedBorderColor",
+        "Font",
+        "Height",
+        "IsSearchable",
+        "Items",
+        "SearchFields",
+        "SelectMultiple",
+        "Size",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     },
     "GroupContainer@1.5.0": {
-      "known": ["Fill", "Height", "LayoutDirection", "LayoutGap",
-                "LayoutOverflowY", "Visible", "Width", "X", "Y"],
+      "known": [
+        "Fill",
+        "Height",
+        "LayoutDirection",
+        "LayoutGap",
+        "LayoutOverflowY",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     },
     "Rectangle@2.3.0": {
-      "known": ["BorderColor", "BorderThickness", "Fill", "Height", "Visible",
-                "Width", "X", "Y"],
+      "known": [
+        "BorderColor",
+        "BorderThickness",
+        "Fill",
+        "Height",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {
         "BorderRadius": "PA2108 - confirmed rejected in Studio; the classic shape has no corner radius"
       }
     },
     "Image@2.2.3": {
-      "known": ["Height", "Image", "Visible", "Width", "X", "Y"],
+      "known": [
+        "Height",
+        "Image",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     },
     "PowerBI@1.4.0": {
-      "known": ["Height", "LoadingSpinner", "Report", "ShowFilterPane",
-                "ShowNavigationPane", "TileUrl", "Visible", "Width", "Workspace",
-                "X", "Y"],
+      "known": [
+        "Height",
+        "LoadingSpinner",
+        "Report",
+        "ShowFilterPane",
+        "ShowNavigationPane",
+        "TileUrl",
+        "Visible",
+        "Width",
+        "Workspace",
+        "X",
+        "Y"
+      ],
       "rejected": {}
     }
   },
-
   "component_instances": {
     "_note": "Custom properties on an embedded component, plus the layout properties every instance carries.",
-    "layout": ["X", "Y", "Width", "Height", "Visible"],
-    "cmp_RiskPill": ["Risk"],
-    "cmp_DuePill": ["DueDate", "IsComplete"],
-    "cmp_PageHead": ["Eyebrow", "Title", "Subtitle"],
-    "cmp_Header": ["ActiveScreen", "OpenGapCount"]
+    "layout": [
+      "X",
+      "Y",
+      "Width",
+      "Height",
+      "Visible"
+    ],
+    "cmp_RiskPill": [
+      "Risk"
+    ],
+    "cmp_DuePill": [
+      "DueDate",
+      "IsComplete"
+    ],
+    "cmp_PageHead": [
+      "Eyebrow",
+      "Title",
+      "Subtitle"
+    ],
+    "cmp_Header": [
+      "ActiveScreen",
+      "OpenGapCount"
+    ]
   },
-
   "schema": {
     "_note": "From microsoft/PowerApps-Tooling schemas/pa-yaml/v3.0/pa.schema.yaml.",
-    "root_keys": ["App", "Screens", "ComponentDefinitions", "DataSources",
-                  "EditorState"],
-    "component_required": ["DefinitionType", "Description", "AllowCustomization",
-                           "AccessAppScope", "CustomProperties", "Properties",
-                           "Children"],
-    "property_kinds": ["Input", "Output", "InputFunction", "OutputFunction",
-                       "Event", "Action"],
-    "data_types": ["Text", "Number", "Boolean", "DateAndTime", "Screen",
-                   "Record", "Table", "Image", "VideoOrAudio", "Color",
-                   "Currency"]
+    "root_keys": [
+      "App",
+      "Screens",
+      "ComponentDefinitions",
+      "DataSources",
+      "EditorState"
+    ],
+    "component_required": [
+      "DefinitionType",
+      "Description",
+      "AllowCustomization",
+      "AccessAppScope",
+      "CustomProperties",
+      "Properties",
+      "Children"
+    ],
+    "property_kinds": [
+      "Input",
+      "Output",
+      "InputFunction",
+      "OutputFunction",
+      "Event",
+      "Action"
+    ],
+    "data_types": [
+      "Text",
+      "Number",
+      "Boolean",
+      "DateAndTime",
+      "Screen",
+      "Record",
+      "Table",
+      "Image",
+      "VideoOrAudio",
+      "Color",
+      "Currency"
+    ]
+  },
+  "component_definition": {
+    "_note": "Properties allowed on a canvas component DEFINITION's Properties block, as opposed to an instance. Output and OutputFunction custom properties also appear here (their formula lives in this block) and are accepted dynamically.",
+    "known": [
+      "Height",
+      "Width",
+      "Fill"
+    ],
+    "rejected": {
+      "Visible": "PA2108 - confirmed rejected in Studio; Visible is an instance property, set it on the embedded component, not the definition"
+    }
   }
 }

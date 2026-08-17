@@ -421,7 +421,6 @@ ComponentDefinitions:
             Height: =768
             Width: =1366
             Fill: =RGBA(0, 0, 0, 0)
-            Visible: =gblMenu <> ""
         Children:
 
             - btn_MenuScrim:
@@ -433,6 +432,7 @@ ComponentDefinitions:
                     Height: =Parent.Height
                     Text: =""
                     Tooltip: ="Close menu"
+                    Visible: =gblMenu <> ""
                     OnSelect: =Set(gblMenu, "")
                     Fill: =RGBA(0, 0, 0, 0)
                     HoverFill: =RGBA(0, 0, 0, 0)
