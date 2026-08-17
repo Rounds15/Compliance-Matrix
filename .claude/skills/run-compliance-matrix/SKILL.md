@@ -53,7 +53,8 @@ pac --version        # Version: 2.11.2+g47bc199 (.NET 10.0.10)
 ## Run (agent path): render and screenshot a screen
 
 ```bash
-# Every screen, with control counts and how much of each resolved
+# Every screen, with control counts and how much of each resolved.
+# 1,353 controls across 14 screens; 1,268 labels draw real text.
 python3 .claude/skills/run-compliance-matrix/driver.py screens
 
 # One screen -> out/screens/scr_Home.html + out/screens/scr_Home.png
@@ -116,12 +117,17 @@ That render fills in the title, the code chip, the risk pill, and reveals the
 in-memory collections, so galleries bind to real rows and text resolves.
 
 ```bash
-# Production source: same geometry, but bound to Dataverse, so far more
-# unresolved text (scr_RiskDashboard goes from 19 to 500 unresolved refs).
-# Use it to check layout only.
+# Production source: same geometry, but bound to Dataverse, so a lot more text
+# has nothing to resolve against - 213 of 1,350 labels blank versus 85 of 1,353
+# from mockup/. Use it to check layout only.
 python3 .claude/skills/run-compliance-matrix/driver.py \
     --source solution/canvas/Src screens
 ```
+
+`screens` reports **drawn** vs **blank** per screen (labels rendered vs shown as
+a `{placeholder}`) and the count of **distinct** unresolved references, which is
+the same number `audit -v` lists. It is not an occurrence count - a gallery
+repeats one unreadable formula on every row.
 
 `mockup/` is **generated** - edit `solution/canvas/Src/` and regenerate, or your
 change is overwritten (see Gotchas).

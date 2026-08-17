@@ -1157,14 +1157,22 @@ def pick_screens(app: App, which: str) -> list[str]:
 def cmd_screens(app, args):
     print(f"{len(app.screens)} screens in {os.path.relpath(app.source, REPO)}"
           f"  ({APP_W}x{APP_H})\n")
-    print(f"  {'screen':<22} {'controls':>8} {'unresolved':>11}")
-    print("  " + "-" * 45)
+    print(f"  {'screen':<22} {'controls':>8} {'drawn':>6} {'blank':>6} "
+          f"{'unresolved':>11}")
+    print("  " + "-" * 58)
     for name in sorted(app.screens):
         lay = Layout(app, name)
         _, stats = build_html(lay)
+        # Distinct references, matching what `audit -v` lists. The raw
+        # occurrence count is much larger because a gallery repeats the same
+        # unreadable formula once per row.
+        distinct = len({u for _, _, u in lay.unresolved})
         print(f"  {name:<22} {stats['controls']:>8} "
-              f"{len(lay.unresolved):>11}")
-    print(f"\n  {len(app.components)} components: "
+              f"{stats['controls'] - stats['unresolved_text']:>6} "
+              f"{stats['unresolved_text']:>6} {distinct:>11}")
+    print(f"\n  drawn / blank counts labels rendered vs shown as a "
+          f"{{placeholder}}.")
+    print(f"  {len(app.components)} components: "
           + ", ".join(sorted(app.components)))
 
 
