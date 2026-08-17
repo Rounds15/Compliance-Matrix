@@ -7,3 +7,6 @@
 # a Linux pac build most people here do not have. Rebuild: tools/build_msapp.py
 !ComplianceMatrix.msapp
 __pycache__/
+
+# Rendered screen previews from .claude/skills/run-compliance-matrix/driver.py
+out/
