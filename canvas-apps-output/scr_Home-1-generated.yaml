@@ -1,0 +1,736 @@
+
+Screens:
+
+    scr_Home:
+        Properties:
+            Fill: =gblTheme.White
+            OnVisible: |
+                =// Deadline windows used by the figures band and the assignment rail.
+                Set(gblHomeUpcoming90,
+                    CountRows(
+                        Filter(
+                            dsDeadlines,
+                            su_complete = false,
+                            su_duedate >= gblToday,
+                            su_duedate <= DateAdd(gblToday, 90, TimeUnit.Days)
+                        )
+                    )
+                );
+                Set(gblHomeOverdue,
+                    CountRows(
+                        Filter(
+                            dsDeadlines,
+                            su_complete = false,
+                            su_duedate < gblToday
+                        )
+                    )
+                );
+                Set(gblOpenGapCount,
+                    CountRows(
+                        Filter(dsGaps, su_status <> "Closed")
+                    )
+                );
+                Set(gblFunctionCount, CountRows(dsFunctions));
+
+                // "Assigned to you" spans all three tiers of the ownership chain,
+                // so it reads from the junction table rather than the three fixed
+                // lookups. Blank directory row means nothing is assigned.
+                ClearCollect(
+                    colMyFunctions,
+                    If(
+                        IsBlank(gblMe),
+                        Blank(),
+                        ShowColumns(
+                            Filter(
+                                dsOwnership,
+                                su_person.su_compliancedirectoryid = gblMe.su_compliancedirectoryid
+                            ),
+                            "su_function"
+                        )
+                    )
+                );
+                // Assessments this person owns, so "assigned to you" reflects
+                // the review work as well as the obligations.
+                ClearCollect(
+                    colMyAssessments,
+                    If(
+                        IsBlank(gblMe),
+                        Blank(),
+                        Filter(
+                            dsAssessmentOwners,
+                            su_person.su_compliancedirectoryid
+                                = gblMe.su_compliancedirectoryid
+                        )
+                    )
+                );
+                // Guarded the same way as the two collections above. Without the
+                // IsBlank check this filter dereferences gblMe on a blank record
+                // when the signed-in user is not in the directory.
+                ClearCollect(
+                    colMyDeadlines,
+                    If(
+                        IsBlank(gblMe),
+                        Blank(),
+                        FirstN(
+                            SortByColumns(
+                                Filter(
+                                    dsDeadlines,
+                                    su_complete = false,
+                                    su_owner.su_compliancedirectoryid = gblMe.su_compliancedirectoryid
+                                ),
+                                "su_duedate",
+                                SortOrder.Ascending
+                            ),
+                            4
+                        )
+                    )
+                );
+
+        Children:
+
+            - cnt_HomeScroll:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                    X: =0
+                    Y: =104
+                    Width: =Parent.Width
+                    Height: =Parent.Height - 104
+                    Fill: =gblTheme.White
+                    LayoutDirection: =LayoutDirection.Vertical
+                    LayoutGap: =0
+                    LayoutOverflowY: =LayoutOverflow.Scroll
+                Children:
+
+                    - cnt_Hero:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =352
+                            Fill: =gblTheme.Navy
+                        Children:
+
+                            - lbl_HeroEyebrow:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =64
+                                    Y: =40
+                                    Width: =700
+                                    Height: =20
+                                    Text: ="OFFICE OF COMPLIANCE AND ENTERPRISE RISK MANAGEMENT"
+                                    Color: =gblTheme.OrangeLight
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_HeroTitle:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =64
+                                    Y: =68
+                                    Width: =620
+                                    Height: =128
+                                    Text: |
+                                        ="Who is responsible for what " & Char(10) & "and are we on top of it."
+                                    Color: =gblTheme.White
+                                    Size: =32
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontDisplay
+                            - lbl_HeroLede:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =64
+                                    Y: =204
+                                    Width: =620
+                                    Height: =56
+                                    Text: |
+                                        ="The Compliance Matrix maps every obligation Syracuse University carries to its owner, the law behind it, what it requires, when it is due, and the risk it carries."
+                                    Color: =RGBA(199, 210, 234, 1)
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - txt_HeroSearch:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    X: =64
+                                    Y: =276
+                                    Width: =470
+                                    Height: =46
+                                    Default: =""
+                                    HintText: ="Search a function, statute, citation, or owner"
+                                    BorderColor: =RGBA(255, 255, 255, 0.35)
+                                    BorderThickness: =1
+                                    Fill: =RGBA(255, 255, 255, 0.08)
+                                    Color: =gblTheme.White
+                                    HoverBorderColor: =gblTheme.Orange
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    FocusedBorderThickness: =2
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - btn_HeroSearch:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =542
+                                    Y: =276
+                                    Width: =120
+                                    Height: =46
+                                    Text: ="Search"
+                                    Tooltip: ="Search the compliance matrix"
+                                    OnSelect: |
+                                        =Set(
+                                            gblFilter,
+                                            {
+                                                Query: txt_HeroSearch.Text,
+                                                Topic: "All",
+                                                Risk: "All",
+                                                Area: "All"
+                                            }
+                                        );
+                                        Navigate(scr_Functions, ScreenTransition.None)
+                                    Fill: =gblTheme.Orange
+                                    HoverFill: =gblTheme.OrangeMedium
+                                    PressedFill: =gblTheme.OrangeDark
+                                    Color: =gblTheme.White
+                                    HoverColor: =gblTheme.White
+                                    PressedColor: =gblTheme.White
+                                    BorderThickness: =0
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - img_HeroBlockS:
+                                Control: Image@2.2.3
+                                Properties:
+                                    X: =Parent.Width - 330
+                                    Y: =46
+                                    Width: =260
+                                    Height: =260
+                                    Image: |
+                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 110'>
+                                               <text x='50' y='90' font-family='Georgia,serif' font-size='110'
+                                                     font-weight='bold' fill='#F76900' opacity='0.92'
+                                                     text-anchor='middle'>S</text>
+                                             </svg>"
+                                        )
+
+                    - cnt_Band:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =104
+                            Fill: =gblTheme.Surface
+                        Children:
+
+                            - gal_Figures:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =64
+                                    Y: =0
+                                    Width: =Parent.Width - 400
+                                    Height: =104
+                                    TemplateSize: =210
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =Table(
+                                            {FigValue: gblFunctionCount,   FigLabel: "Compliance functions", FigAlert: false},
+                                            {FigValue: CountRows(colRiskAreas), FigLabel: "Risk areas",        FigAlert: false},
+                                            {FigValue: gblHomeUpcoming90,  FigLabel: "Due within 90 days",   FigAlert: false},
+                                            {FigValue: gblHomeOverdue,     FigLabel: "Past due today",       FigAlert: true}
+                                        )
+                                Children:
+                                    - rec_FigAccent:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =18
+                                            Width: =28
+                                            Height: =3
+                                            Fill: |
+                                                =If(
+                                                    ThisItem.FigAlert && ThisItem.FigValue > 0,
+                                                    gblTheme.High,
+                                                    RGBA(0, 0, 0, 0)
+                                                )
+                                            BorderThickness: =0
+                                    - lbl_FigValue:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =28
+                                            Width: =Parent.TemplateWidth - 20
+                                            Height: =40
+                                            Text: =ThisItem.FigValue
+                                            Color: |
+                                                =If(
+                                                    ThisItem.FigAlert && ThisItem.FigValue > 0,
+                                                    gblTheme.High,
+                                                    gblTheme.Navy
+                                                )
+                                            Size: =26
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontDisplay
+                                    - lbl_FigLabel:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =68
+                                            Width: =Parent.TemplateWidth - 20
+                                            Height: =20
+                                            Text: =ThisItem.FigLabel
+                                            Color: |
+                                                =If(
+                                                    ThisItem.FigAlert && ThisItem.FigValue > 0,
+                                                    gblTheme.High,
+                                                    gblTheme.GrayDark
+                                                )
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                            - lbl_AsOf:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 300
+                                    Y: =22
+                                    Width: =236
+                                    Height: =60
+                                    Text: |
+                                        ="As of " & Text(gblToday, "mmm d, yyyy") & Char(10) &
+                                         "FY" & Text(
+                                             If(Month(gblToday) >= gblFiscalStartMonth,
+                                                Year(gblToday) + 1,
+                                                Year(gblToday)),
+                                             "00"
+                                         ) & " Q" & (RoundDown(Mod(Month(gblToday) + 5, 12) / 3, 0) + 1)
+                                    Color: =gblTheme.GrayDark
+                                    Size: =9
+                                    Align: =Align.Right
+                                    Font: =gblTheme.FontBody
+
+                    - cnt_Start:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =396
+                            Fill: =gblTheme.White
+                        Children:
+
+                            - lbl_StartHere:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =64
+                                    Y: =36
+                                    Width: =400
+                                    Height: =24
+                                    Text: ="START HERE"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_Destinations:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =64
+                                    Y: =68
+                                    Width: =Parent.Width - 128
+                                    Height: =316
+                                    TemplateSize: =(Parent.Width - 128) / 3 - 2
+                                    TemplatePadding: =16
+                                    WrapCount: =3
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =Table(
+                                            {
+                                                DestKey: "Functions",
+                                                DestTitle: "Compliance Functions",
+                                                DestBody: "Every obligation in the matrix with statute, owner, requirement, and risk rating.",
+                                                DestMeta: gblFunctionCount & " records"
+                                            },
+                                            {
+                                                DestKey: "RiskAreas",
+                                                DestTitle: "Risk Areas",
+                                                DestBody: "Browse by risk area, then domain, then the functions inside.",
+                                                DestMeta: CountRows(colRiskAreas) & " risk areas"
+                                            },
+                                            {
+                                                DestKey: "Domains",
+                                                DestTitle: "Domains",
+                                                DestBody: "See obligations grouped by domain, including domains with no coverage yet.",
+                                                DestMeta: "By unit"
+                                            },
+                                            {
+                                                DestKey: "Deadlines",
+                                                DestTitle: "Deadlines",
+                                                DestBody: "Filings, certifications, and reports on the calendar, with automatic reminders.",
+                                                DestMeta: gblHomeUpcoming90 & " in 90 days"
+                                            },
+                                            {
+                                                DestKey: "Directory",
+                                                DestTitle: "Owner Directory",
+                                                DestBody: "Every compliance owner, unit owner, and executive sponsor in the matrix.",
+                                                DestMeta: "Contacts"
+                                            },
+                                            {
+                                                DestKey: "RiskDashboard",
+                                                DestTitle: "Risk Dashboard",
+                                                DestBody: "Risk concentration by topic and unit, gap trends, and executive reporting.",
+                                                DestMeta: If(gblIsAdmin, "Administrator", "Restricted")
+                                            }
+                                        )
+                                Children:
+                                    - rec_DestCard:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =150
+                                            Fill: =gblTheme.White
+                                            BorderColor: =gblTheme.Border
+                                            BorderThickness: =1
+                                    - rec_DestAccent:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =4
+                                            Height: =150
+                                            Fill: =gblTheme.Orange
+                                            BorderThickness: =0
+                                    - lbl_DestTitle:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =20
+                                            Y: =16
+                                            Width: =Parent.TemplateWidth - 60
+                                            Height: =28
+                                            Text: =ThisItem.DestTitle
+                                            Color: =gblTheme.Navy
+                                            Size: =14
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontDisplay
+                                    - lbl_DestBody:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =20
+                                            Y: =48
+                                            Width: =Parent.TemplateWidth - 40
+                                            Height: =58
+                                            Text: =ThisItem.DestBody
+                                            Color: =gblTheme.GrayMid
+                                            Size: =11
+                                            Font: =gblTheme.FontBody
+                                    - lbl_DestMeta:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =20
+                                            Y: =112
+                                            Width: =Parent.TemplateWidth - 60
+                                            Height: =22
+                                            Text: =ThisItem.DestMeta
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - img_DestChevron:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 36
+                                            Y: =114
+                                            Width: =16
+                                            Height: =16
+                                            Image: |
+                                                ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>
+                                                       <path d='M6 3 L11 8 L6 13' fill='none' stroke='#D74100'
+                                                             stroke-width='2' stroke-linecap='square'/>
+                                                     </svg>"
+                                                )
+                                    - btn_DestOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =150
+                                            Text: =""
+                                            Tooltip: |
+                                                =ThisItem.DestTitle & ". " & ThisItem.DestBody
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                                            BorderThickness: =0
+                                            OnSelect: |
+                                                =Switch(
+                                                    ThisItem.DestKey,
+                                                    "Functions",     Navigate(scr_Functions, ScreenTransition.None),
+                                                    "RiskAreas",     Navigate(scr_RiskAreas, ScreenTransition.None),
+                                                    "Domains",       Navigate(scr_Domains, ScreenTransition.None),
+                                                    "Deadlines",     Navigate(scr_Deadlines, ScreenTransition.None),
+                                                    "Directory",     Navigate(scr_Directory, ScreenTransition.None),
+                                                    "RiskDashboard", Navigate(scr_RiskDashboard, ScreenTransition.None)
+                                                )
+
+                    - cnt_Assigned:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =340
+                            Fill: =gblTheme.White
+                        Children:
+
+                            - lbl_AssignedHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =64
+                                    Y: =36
+                                    Width: =500
+                                    Height: =24
+                                    Text: ="ASSIGNED TO YOU"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_AssignedWho:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 500
+                                    Y: =36
+                                    Width: =436
+                                    Height: =24
+                                    Text: |
+                                        =Coalesce(gblMe.su_name, User().FullName) & "  |  " &
+                                         Switch(
+                                             gblRole,
+                                             "Administrator", "Administrator",
+                                             "Executive",     "Executive",
+                                             "Compliance Owner"
+                                         ) &
+                                         If(
+                                             CountRows(colMyAssessments) = 0,
+                                             "",
+                                             "  |  " & CountRows(colMyAssessments) & " assessment(s)"
+                                         )
+                                    Color: =gblTheme.GrayDark
+                                    Size: =9
+                                    Align: =Align.Right
+                                    Font: =gblTheme.FontBody
+                            - gal_MyFunctions:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =64
+                                    Y: =68
+                                    Width: =(Parent.Width - 144) * 0.6
+                                    Height: =232
+                                    TemplateSize: =58
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Visible: =CountRows(colMyFunctions) > 0
+                                    Items: |
+                                        =FirstN(
+                                            Distinct(colMyFunctions, su_function),
+                                            5
+                                        )
+                                Children:
+                                    - lbl_MyFnName:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =8
+                                            Width: =Parent.TemplateWidth - 200
+                                            Height: =22
+                                            Text: =ThisItem.Value.su_name
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_MyFnSub:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =14
+                                            Y: =30
+                                            Width: =Parent.TemplateWidth - 200
+                                            Height: =18
+                                            Text: |
+                                                =ThisItem.Value.su_riskarea.su_name & "  |  " & ThisItem.Value.su_domain.su_name
+                                            Color: =gblTheme.GrayDark
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                                    - lbl_MyFnGapBadge:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 132
+                                            Y: =17
+                                            Width: =28
+                                            Height: =24
+                                            Text: =ThisItem.Value.su_opengapcount
+                                            Visible: =ThisItem.Value.su_opengapcount > 0
+                                            Fill: =gblTheme.High
+                                            Color: =gblTheme.White
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - rec_MyFnRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =57
+                                            Width: =Parent.TemplateWidth
+                                            Height: =1
+                                            Fill: =gblTheme.BorderSoft
+                                            BorderThickness: =0
+                                    - btn_MyFnOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =58
+                                            Text: =""
+                                            Tooltip: |
+                                                ="Open " & ThisItem.Value.su_name
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                                            BorderThickness: =0
+                                            OnSelect: |
+                                                =Set(gblSelectedFunction, ThisItem.Value);
+                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+                            - rec_NothingAssignedBox:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =64
+                                    Y: =68
+                                    Width: =(Parent.Width - 144) * 0.6
+                                    Height: =232
+                                    Fill: =gblTheme.Surface
+                                    BorderColor: =gblTheme.Border
+                                    BorderThickness: =1
+                                    Visible: =CountRows(colMyFunctions) = 0
+                            - lbl_NothingAssigned:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =64
+                                    Y: =154
+                                    Width: =(Parent.Width - 144) * 0.6
+                                    Height: =60
+                                    Text: |
+                                        ="Nothing assigned" & Char(10) &
+                                         "No functions list you in the ownership chain."
+                                    Color: =gblTheme.GrayDark
+                                    Size: =11
+                                    Align: =Align.Center
+                                    Font: =gblTheme.FontBody
+                                    Visible: =CountRows(colMyFunctions) = 0
+
+                            - rec_DeadlineRail:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =64 + (Parent.Width - 144) * 0.6 + 16
+                                    Y: =68
+                                    Width: =(Parent.Width - 144) * 0.4 - 16
+                                    Height: =232
+                                    Fill: =gblTheme.White
+                                    BorderColor: =gblTheme.Border
+                                    BorderThickness: =1
+                            - lbl_RailHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80 + (Parent.Width - 144) * 0.6 + 16
+                                    Y: =84
+                                    Width: =260
+                                    Height: =20
+                                    Text: ="YOUR NEXT DEADLINES"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =8
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_MyDeadlines:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =80 + (Parent.Width - 144) * 0.6 + 16
+                                    Y: =112
+                                    Width: =(Parent.Width - 144) * 0.4 - 48
+                                    Height: =116
+                                    TemplateSize: =58
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Visible: =CountRows(colMyDeadlines) > 0
+                                    Items: =colMyDeadlines
+                                Children:
+                                    - lbl_DlTitle:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =6
+                                            Width: =Parent.TemplateWidth - 116
+                                            Height: =20
+                                            Text: =ThisItem.su_name
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_DlSub:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =26
+                                            Width: =Parent.TemplateWidth - 116
+                                            Height: =28
+                                            Text: |
+                                                =Text(ThisItem.su_duedate, "mmm d, yyyy") & "  |  " &
+                                                 ThisItem.su_function.su_name
+                                            Color: =gblTheme.GrayDark
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                                    - btn_DlOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =58
+                                            Text: =""
+                                            Tooltip: |
+                                                ="Open " & ThisItem.su_name
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                                            BorderThickness: =0
+                                            OnSelect: |
+                                                =Set(gblSelectedFunction, ThisItem.su_function);
+                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+                            - lbl_RailEmpty:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80 + (Parent.Width - 144) * 0.6 + 16
+                                    Y: =140
+                                    Width: =(Parent.Width - 144) * 0.4 - 48
+                                    Height: =60
+                                    Text: |
+                                        ="Nothing due" & Char(10) &
+                                         "No open deadlines are assigned to you."
+                                    Color: =gblTheme.GrayDark
+                                    Size: =11
+                                    Align: =Align.Center
+                                    Font: =gblTheme.FontBody
+                                    Visible: =CountRows(colMyDeadlines) = 0
+                            - lbl_RailNote:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =80 + (Parent.Width - 144) * 0.6 + 16
+                                    Y: =236
+                                    Width: =(Parent.Width - 144) * 0.4 - 48
+                                    Height: =48
+                                    Text: |
+                                        ="Reminders are sent automatically at 90 days, 30 days, on the due date, and weekly once overdue."
+                                    Color: =gblTheme.GrayDark
+                                    Size: =9
+                                    Font: =gblTheme.FontBody
