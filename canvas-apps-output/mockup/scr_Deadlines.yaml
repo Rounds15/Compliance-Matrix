@@ -1,0 +1,679 @@
+
+Screens:
+
+    scr_Deadlines:
+        Properties:
+            Fill: =RGBA(247, 247, 248, 1)
+            OnVisible: |
+                =Set(gblMenu, "");
+                Set(gblDlView, "calendar");
+                Set(gblDlQuery, "");
+                Set(gblDlScope, "All deadlines");
+                Set(gblDlCadence, "All cadences");
+                Set(gblCalMonth, Date(Year(gblToday), Month(gblToday), 1));
+                Set(
+                    gblDlOverdue,
+                    CountRows(Filter(dsDeadlines, su_complete = false, su_duedate < gblToday))
+                );
+                Set(
+                    gblDlDue30,
+                    CountRows(
+                        Filter(
+                            dsDeadlines,
+                            su_complete = false,
+                            su_duedate >= gblToday,
+                            su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days)
+                        )
+                    )
+                )
+        Children:
+
+            - cnt_Scroll:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                    X: =0
+                    Y: =113
+                    Width: =Parent.Width
+                    Height: =Parent.Height - 113
+                    Fill: =RGBA(247, 247, 248, 1)
+                    LayoutDirection: =LayoutDirection.Vertical
+                    LayoutGap: =0
+                    LayoutOverflowY: =LayoutOverflow.Scroll
+                Children:
+
+                    - cnt_Head:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =355
+                            Fill: =RGBA(247, 247, 248, 1)
+                        Children:
+
+                            - lbl_Eyebrow:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =24
+                                    Width: =598
+                                    Height: =20
+                                    Text: ="BROWSE"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_Title:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =52
+                                    Width: =598
+                                    Height: =50
+                                    Text: ="Deadlines"
+                                    Color: =gblTheme.Navy
+                                    Size: =36
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontDisplay
+                            - lbl_Sub:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =110
+                                    Width: =598
+                                    Height: =60
+                                    Text: |
+                                        ="Every recurring and one-off due date in the matrix. Reminder emails go out automatically at 90 days, 30 days, on the due date, and weekly once overdue."
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =12
+                                    Font: =gblTheme.FontBody
+                            - lbl_PillOverdue:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 236
+                                    Y: =142
+                                    Width: =72
+                                    Height: =28
+                                    Text: =gblDlOverdue & " overdue"
+                                    Fill: =RGBA(251, 233, 233, 1)
+                                    Color: =RGBA(142, 20, 20, 1)
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - lbl_PillDue30:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 156
+                                    Y: =142
+                                    Width: =105
+                                    Height: =28
+                                    Text: =gblDlDue30 & " due in 30 days"
+                                    Fill: =RGBA(252, 243, 218, 1)
+                                    Color: =RGBA(124, 64, 8, 1)
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - rec_HeadRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =187
+                                    Width: =Parent.Width - 102
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+
+                            - txt_Search:
+                                Control: Classic/TextInput@2.3.2
+                                Properties:
+                                    X: =51
+                                    Y: =227
+                                    Width: =695
+                                    Height: =50
+                                    Default: =""
+                                    HintText: ="Search a deadline, function, or owner"
+                                    OnChange: =Set(gblDlQuery, txt_Search.Text)
+                                    Fill: =gblTheme.White
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                    BorderThickness: =1
+                                    HoverBorderColor: =gblTheme.Orange
+                                    FocusedBorderColor: =gblTheme.Orange
+                                    FocusedBorderThickness: =2
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - drp_Scope:
+                                Control: Classic/DropDown@2.3.1
+                                Properties:
+                                    X: =754
+                                    Y: =228
+                                    Width: =129
+                                    Height: =48
+                                    Items: |
+                                        =Table(
+                                            {Scope: "All deadlines"},
+                                            {Scope: "Mine"},
+                                            {Scope: "Overdue"},
+                                            {Scope: "Next 30 days"},
+                                            {Scope: "Next 90 days"}
+                                        )
+                                    Default: =gblDlScope
+                                    OnChange: =Set(gblDlScope, drp_Scope.Selected.Scope)
+                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - drp_Cadence:
+                                Control: Classic/DropDown@2.3.1
+                                Properties:
+                                    X: =891
+                                    Y: =228
+                                    Width: =145
+                                    Height: =48
+                                    Items: |
+                                        =Table(
+                                            {Cadence: "All cadences"},
+                                            {Cadence: "Annually"},
+                                            {Cadence: "Quarterly"},
+                                            {Cadence: "Monthly"},
+                                            {Cadence: "Event-Relative"}
+                                        )
+                                    Default: =gblDlCadence
+                                    OnChange: =Set(gblDlCadence, drp_Cadence.Selected.Cadence)
+                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+                            - lbl_Count:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =1044
+                                    Y: =227
+                                    Width: =60
+                                    Height: =50
+                                    Text: =CountRows(dsDeadlines) & " items"
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =11
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - btn_ViewCalendar:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 259
+                                    Y: =234
+                                    Width: =108
+                                    Height: =35
+                                    Text: ="Calendar"
+                                    OnSelect: =Set(gblDlView, "calendar")
+                                    Fill: =If(gblDlView = "calendar", gblTheme.Navy, RGBA(0, 0, 0, 0))
+                                    HoverFill: =If(gblDlView = "calendar", RGBA(32, 50, 153, 1), RGBA(0, 14, 84, 0.06))
+                                    PressedFill: =RGBA(0, 10, 60, 1)
+                                    Color: =If(gblDlView = "calendar", gblTheme.White, gblTheme.Navy)
+                                    HoverColor: =If(gblDlView = "calendar", gblTheme.White, gblTheme.Navy)
+                                    PressedColor: =gblTheme.White
+                                    BorderColor: =gblTheme.Navy
+                                    BorderThickness: =2
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - btn_ViewList:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 147
+                                    Y: =234
+                                    Width: =96
+                                    Height: =35
+                                    Text: ="List"
+                                    OnSelect: =Set(gblDlView, "list")
+                                    Fill: =If(gblDlView = "list", gblTheme.Navy, RGBA(0, 0, 0, 0))
+                                    HoverFill: =If(gblDlView = "list", RGBA(32, 50, 153, 1), RGBA(0, 14, 84, 0.06))
+                                    PressedFill: =RGBA(0, 10, 60, 1)
+                                    Color: =If(gblDlView = "list", gblTheme.White, gblTheme.Navy)
+                                    HoverColor: =If(gblDlView = "list", gblTheme.White, gblTheme.Navy)
+                                    PressedColor: =gblTheme.White
+                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                    BorderThickness: =1
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+
+                            - btn_PrevMonth:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =51
+                                    Y: =308
+                                    Width: =84
+                                    Height: =34
+                                    Visible: =gblDlView = "calendar"
+                                    Text: ="Previous"
+                                    OnSelect: =Set(gblCalMonth, DateAdd(gblCalMonth, -1, TimeUnit.Months))
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderColor: =gblTheme.Navy
+                                    BorderThickness: =2
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_CalMonth:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =145
+                                    Y: =309
+                                    Width: =600
+                                    Height: =33
+                                    Visible: =gblDlView = "calendar"
+                                    Text: =Text(gblCalMonth, "mmmm yyyy")
+                                    Color: =gblTheme.Navy
+                                    Size: =17
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontDisplay
+                            - lbl_CalMonthCount:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 620
+                                    Y: =309
+                                    Width: =280
+                                    Height: =33
+                                    Visible: =gblDlView = "calendar"
+                                    Text: |
+                                        =CountRows(
+                                            Filter(
+                                                dsDeadlines,
+                                                Month(su_duedate) = Month(gblCalMonth),
+                                                Year(su_duedate) = Year(gblCalMonth)
+                                            )
+                                        ) & " deadlines this month"
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =9
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - btn_Today:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 209
+                                    Y: =308
+                                    Width: =89
+                                    Height: =35
+                                    Visible: =gblDlView = "calendar"
+                                    Text: ="Today"
+                                    OnSelect: =Set(gblCalMonth, Date(Year(gblToday), Month(gblToday), 1))
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                    BorderThickness: =1
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - btn_NextMonth:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.Width - 111
+                                    Y: =308
+                                    Width: =60
+                                    Height: =34
+                                    Visible: =gblDlView = "calendar"
+                                    Text: ="Next"
+                                    OnSelect: =Set(gblCalMonth, DateAdd(gblCalMonth, 1, TimeUnit.Months))
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                    Color: =gblTheme.Navy
+                                    HoverColor: =gblTheme.Navy
+                                    PressedColor: =gblTheme.Navy
+                                    BorderColor: =gblTheme.Navy
+                                    BorderThickness: =2
+                                    Size: =11
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+
+                    - cnt_Calendar:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =740
+                            Fill: =RGBA(247, 247, 248, 1)
+                            Visible: =gblDlView = "calendar"
+                        Children:
+
+                            - rec_CalFrame:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =0
+                                    Width: =Parent.Width - 102
+                                    Height: =712
+                                    Fill: =RGBA(226, 229, 234, 1)
+                                    BorderColor: =RGBA(226, 229, 234, 1)
+                                    BorderThickness: =1
+                            - gal_CalDow:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =52
+                                    Y: =1
+                                    Width: =Parent.Width - 104
+                                    Height: =32
+                                    TemplateSize: =(Parent.Width - 104) / 7
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =Table(
+                                            {Dow: "Sun"}, {Dow: "Mon"}, {Dow: "Tue"}, {Dow: "Wed"},
+                                            {Dow: "Thu"}, {Dow: "Fri"}, {Dow: "Sat"}
+                                        )
+                                Children:
+                                    - lbl_Dow:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 1
+                                            Height: =32
+                                            Text: =Upper(ThisItem.Dow)
+                                            Fill: =gblTheme.Navy
+                                            Color: =gblTheme.White
+                                            Size: =8
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                            - gal_CalCells:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =52
+                                    Y: =33
+                                    Width: =Parent.Width - 104
+                                    Height: =678
+                                    TemplateSize: =(Parent.Width - 104) / 7
+                                    TemplatePadding: =0
+                                    WrapCount: =7
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =AddColumns(
+                                            Sequence(42, 0),
+                                            "CellDate",
+                                            DateAdd(
+                                                DateAdd(gblCalMonth, -(Weekday(gblCalMonth) - 1), TimeUnit.Days),
+                                                Value,
+                                                TimeUnit.Days
+                                            )
+                                        )
+                                Children:
+                                    - rec_Cell:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 1
+                                            Height: =112
+                                            Fill: |
+                                                =If(
+                                                    Month(ThisItem.CellDate) <> Month(gblCalMonth),
+                                                    RGBA(250, 251, 253, 1),
+                                                    gblTheme.White
+                                                )
+                                            BorderThickness: =0
+                                    - lbl_CellDay:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =8
+                                            Y: =6
+                                            Width: =40
+                                            Height: =20
+                                            Text: =Day(ThisItem.CellDate)
+                                            Color: |
+                                                =If(
+                                                    ThisItem.CellDate = gblToday,
+                                                    gblTheme.OrangeDark,
+                                                    If(
+                                                        Month(ThisItem.CellDate) <> Month(gblCalMonth),
+                                                        RGBA(173, 179, 184, 1),
+                                                        gblTheme.Navy
+                                                    )
+                                                )
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_CellItems:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =8
+                                            Y: =28
+                                            Width: =Parent.TemplateWidth - 18
+                                            Height: =78
+                                            Text: |
+                                                =Concat(
+                                                    FirstN(
+                                                        Filter(dsDeadlines, su_duedate = ThisItem.CellDate),
+                                                        3
+                                                    ),
+                                                    su_name & Char(10)
+                                                )
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =8
+                                            Font: =gblTheme.FontBody
+                                    - btn_CellOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 1
+                                            Height: =112
+                                            Text: =""
+                                            Tooltip: =Text(ThisItem.CellDate, "mmm d, yyyy")
+                                            OnSelect: |
+                                                =Set(gblDlView, "list");
+                                                Set(gblDlQuery, Text(ThisItem.CellDate, "mmm d, yyyy"))
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                                            BorderThickness: =0
+
+                    - cnt_List:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =740
+                            Fill: =RGBA(247, 247, 248, 1)
+                            Visible: =gblDlView = "list"
+                        Children:
+
+                            - gal_DlList:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =51
+                                    Y: =0
+                                    Width: =Parent.Width - 102
+                                    Height: =712
+                                    TemplateSize: =70
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Items: |
+                                        =SortByColumns(
+                                            Filter(
+                                                dsDeadlines,
+                                                IsBlank(gblDlQuery)
+                                                    || gblDlQuery in su_name
+                                                    || gblDlQuery in su_function.su_name,
+                                                gblDlCadence = "All cadences" || su_cadence = gblDlCadence,
+                                                Switch(
+                                                    gblDlScope,
+                                                    "Overdue",      su_complete = false && su_duedate < gblToday,
+                                                    "Next 30 days", su_duedate >= gblToday
+                                                                        && su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days),
+                                                    "Next 90 days", su_duedate >= gblToday
+                                                                        && su_duedate <= DateAdd(gblToday, 90, TimeUnit.Days),
+                                                    "Mine",         su_owner.su_compliancedirectoryid
+                                                                        = gblMe.su_compliancedirectoryid,
+                                                    true
+                                                )
+                                            ),
+                                            "su_duedate",
+                                            SortOrder.Ascending
+                                        )
+                                Children:
+                                    - rec_DlRow:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =70
+                                            Fill: =gblTheme.White
+                                            BorderColor: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =1
+                                    - lbl_DlDate:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =15
+                                            Y: =14
+                                            Width: =150
+                                            Height: =42
+                                            Text: |
+                                                =If(
+                                                    IsBlank(ThisItem.su_duedate),
+                                                    "No fixed date",
+                                                    Text(ThisItem.su_duedate, "mmm d, yyyy")
+                                                )
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Bold
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_DlTitle:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =180
+                                            Y: =12
+                                            Width: =Parent.TemplateWidth - 560
+                                            Height: =22
+                                            Text: =ThisItem.su_name
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_DlSub:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =180
+                                            Y: =34
+                                            Width: =Parent.TemplateWidth - 560
+                                            Height: =20
+                                            Text: |
+                                                =ThisItem.su_function.su_name & "  |  " & ThisItem.su_cadence
+                                            Color: =RGBA(107, 114, 128, 1)
+                                            Size: =9
+                                            Font: =gblTheme.FontBody
+                                    - lbl_DlOwner:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 360
+                                            Y: =14
+                                            Width: =200
+                                            Height: =42
+                                            Text: =ThisItem.su_owner.su_name
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =10
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_DlDuePill:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 140
+                                            Y: =21
+                                            Width: =125
+                                            Height: =28
+                                            Text: |
+                                                =If(
+                                                    ThisItem.su_complete,
+                                                    "Complete",
+                                                    If(
+                                                        IsBlank(ThisItem.su_duedate),
+                                                        "No fixed date",
+                                                        If(
+                                                            ThisItem.su_duedate < gblToday,
+                                                            "Overdue " & DateDiff(ThisItem.su_duedate, gblToday, TimeUnit.Days) & "d",
+                                                            "Due in " & DateDiff(gblToday, ThisItem.su_duedate, TimeUnit.Days) & "d"
+                                                        )
+                                                    )
+                                                )
+                                            Fill: |
+                                                =If(
+                                                    ThisItem.su_complete,
+                                                    RGBA(226, 244, 232, 1),
+                                                    If(
+                                                        IsBlank(ThisItem.su_duedate),
+                                                        RGBA(237, 238, 241, 1),
+                                                        If(
+                                                            ThisItem.su_duedate < gblToday,
+                                                            RGBA(251, 233, 233, 1),
+                                                            If(
+                                                                ThisItem.su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days),
+                                                                RGBA(252, 243, 218, 1),
+                                                                RGBA(226, 236, 250, 1)
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            Color: |
+                                                =If(
+                                                    ThisItem.su_complete,
+                                                    RGBA(21, 128, 61, 1),
+                                                    If(
+                                                        IsBlank(ThisItem.su_duedate),
+                                                        RGBA(107, 114, 128, 1),
+                                                        If(
+                                                            ThisItem.su_duedate < gblToday,
+                                                            RGBA(142, 20, 20, 1),
+                                                            If(
+                                                                ThisItem.su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days),
+                                                                RGBA(124, 64, 8, 1),
+                                                                RGBA(32, 50, 153, 1)
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - btn_DlOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =70
+                                            Text: =""
+                                            Tooltip: ="Open " & ThisItem.su_name
+                                            OnSelect: |
+                                                =Set(gblSelectedFunction, ThisItem.su_function);
+                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.06)
+                                            PressedFill: =RGBA(247, 105, 0, 0.12)
+                                            BorderThickness: =0
+
+                    - cnt_FooterSlot:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =220
+                            Fill: =RGBA(247, 247, 248, 1)

@@ -1,0 +1,219 @@
+
+Screens:
+
+    scr_Areas:
+        Properties:
+            Fill: =RGBA(247, 247, 248, 1)
+            OnVisible: |
+                =Set(gblMenu, "");
+                ClearCollect(
+                    colAreaRollup,
+                    AddColumns(
+                        Distinct(dsFunctions, su_domain.su_name),
+                        "TopicName", LookUp(dsFunctions, su_domain.su_name = Value).su_riskarea.su_name,
+                        "FnCount",   CountRows(Filter(dsFunctions, su_domain.su_name = Value)),
+                        "TopRisk",   If(
+                                         CountRows(Filter(dsFunctions, su_domain.su_name = Value, su_risk = "High")) > 0,
+                                         "High",
+                                         If(
+                                             CountRows(Filter(dsFunctions, su_domain.su_name = Value, su_risk = "Moderate")) > 0,
+                                             "Moderate",
+                                             If(
+                                                 CountRows(Filter(dsFunctions, su_domain.su_name = Value, su_risk = "Low")) > 0,
+                                                 "Low",
+                                                 "Unrated"
+                                             )
+                                         )
+                                     )
+                    )
+                )
+        Children:
+
+            - cnt_Scroll:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                    X: =0
+                    Y: =113
+                    Width: =Parent.Width
+                    Height: =Parent.Height - 113
+                    Fill: =RGBA(247, 247, 248, 1)
+                    LayoutDirection: =LayoutDirection.Vertical
+                    LayoutGap: =0
+                    LayoutOverflowY: =LayoutOverflow.Scroll
+                Children:
+
+                    - cnt_Head:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =188
+                            Fill: =RGBA(247, 247, 248, 1)
+                        Children:
+
+                            - lbl_Eyebrow:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =24
+                                    Width: =598
+                                    Height: =20
+                                    Text: ="BROWSE"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_Title:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =52
+                                    Width: =598
+                                    Height: =50
+                                    Text: ="Compliance Areas"
+                                    Color: =gblTheme.Navy
+                                    Size: =36
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontDisplay
+                            - lbl_Sub:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =110
+                                    Width: =598
+                                    Height: =60
+                                    Text: |
+                                        ="For users who think in areas rather than topics. Areas group related obligations inside a topic, and every area rolls up to the topic that owns it."
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =12
+                                    Font: =gblTheme.FontBody
+                            - rec_HeadRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =187
+                                    Width: =Parent.Width - 102
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+
+                    - cnt_Grid:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =480
+                            Fill: =RGBA(247, 247, 248, 1)
+                        Children:
+
+                            - gal_Areas:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =51
+                                    Y: =24
+                                    Width: =Parent.Width - 102
+                                    Height: =432
+                                    TemplateSize: =(Parent.Width - 102) / 4
+                                    TemplatePadding: =0
+                                    WrapCount: =4
+                                    ShowScrollbar: =true
+                                    Items: =SortByColumns(colAreaRollup, "Value", SortOrder.Ascending)
+                                Children:
+                                    - rec_AreaCard:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 16
+                                            Height: =123
+                                            Fill: =gblTheme.White
+                                            BorderColor: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =1
+                                    - rec_AreaBar:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 16
+                                            Height: =5
+                                            Fill: =gblTheme.Orange
+                                            BorderThickness: =0
+                                    - lbl_AreaTopic:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =17
+                                            Y: =22
+                                            Width: =Parent.TemplateWidth - 50
+                                            Height: =16
+                                            Text: =Upper(ThisItem.TopicName)
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =8
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_AreaName:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =17
+                                            Y: =43
+                                            Width: =Parent.TemplateWidth - 50
+                                            Height: =26
+                                            Text: =ThisItem.Value
+                                            Color: =gblTheme.Navy
+                                            Size: =17
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontDisplay
+                                    - lbl_AreaCount:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =17
+                                            Y: =85
+                                            Width: =160
+                                            Height: =21
+                                            Text: |
+                                                =ThisItem.FnCount & If(ThisItem.FnCount = 1, " function", " functions")
+                                            Color: =RGBA(107, 114, 128, 1)
+                                            Size: =11
+                                            Font: =gblTheme.FontBody
+                                    - rec_AreaRiskDot:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 41
+                                            Y: =98
+                                            Width: =8
+                                            Height: =8
+                                            Fill: |
+                                                =Switch(
+                                                    ThisItem.TopRisk,
+                                                    "High",     gblTheme.High,
+                                                    "Moderate", gblTheme.Moderate,
+                                                    "Low",      gblTheme.Low,
+                                                    gblTheme.Unrated
+                                                )
+                                            BorderThickness: =0
+                                    - btn_AreaOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 16
+                                            Height: =123
+                                            Text: =""
+                                            Tooltip: |
+                                                =ThisItem.Value & ". " & ThisItem.TopicName & ". Highest risk " & ThisItem.TopRisk
+                                            OnSelect: |
+                                                =Set(gblFilter, {Query: "", Topic: "All", Risk: "All", Area: ThisItem.Value});
+                                                Navigate(scr_Functions, ScreenTransition.None)
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.06)
+                                            PressedFill: =RGBA(247, 105, 0, 0.12)
+                                            BorderThickness: =0
+
+                    - cnt_FooterSlot:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =220
+                            Fill: =RGBA(247, 247, 248, 1)
