@@ -9,260 +9,295 @@ Screens:
                 Set(gblExecSel, Blank())
         Children:
 
-            - cnt_Scroll:
-                Control: GroupContainer@1.5.0
-                Variant: AutoLayout
+            - bodyGrid:
+                Control: FluidGrid@2.3.0
                 Properties:
+                    AcceptsFocus: =true
+                    BorderThickness: =0
                     X: =0
-                    Y: =113
+                    Y: =112
                     Width: =Parent.Width
-                    Height: =Parent.Height - 113
-                    Fill: =RGBA(247, 247, 248, 1)
-                    LayoutDirection: =LayoutDirection.Vertical
-                    LayoutGap: =0
-                    LayoutOverflowY: =LayoutOverflow.Scroll
+                    Height: =656
                 Children:
 
-                    - cnt_Head:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - HeadCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =188
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =0
                         Children:
 
-                            - lbl_Eyebrow:
-                                Control: Label@2.5.1
+                            - cnt_Head:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
                                 Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =598
-                                    Height: =20
-                                    Text: ="PORTFOLIO VIEW"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =10
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_Title:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =52
-                                    Width: =598
-                                    Height: =50
-                                    Text: ="Executive Team"
-                                    Color: =gblTheme.Navy
-                                    Size: =36
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_Sub:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =110
-                                    Width: =598
-                                    Height: =60
-                                    Text: |
-                                        ="Executive owners sit at the top of every ownership chain. Sorted by last name; photos come from the directory, with initials shown where no photo exists."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =12
-                                    Font: =gblTheme.FontBody
-                            - rec_HeadRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =187
-                                    Width: =Parent.Width - 102
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-
-                    - cnt_Grid:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =460
-                            Fill: =RGBA(247, 247, 248, 1)
-                        Children:
-
-                            - gal_Executives:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =Parent.Width - 102
-                                    Height: =412
-                                    TemplateSize: =(Parent.Width - 102) / 4
-                                    TemplatePadding: =0
-                                    WrapCount: =4
-                                    ShowScrollbar: =true
-                                    Items: =Filter(dsDirectory, su_isexecutive = true)
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
                                 Children:
-                                    - rec_ExecCard:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =190
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(221, 222, 226, 1)
-                                            BorderThickness: =1
-                                    - rec_ExecBar:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =5
-                                            Fill: =gblTheme.OrangeDark
-                                            BorderThickness: =0
-                                    - lbl_ExecAvatar:
+
+                                    - lbl_Eyebrow:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =17
-                                            Y: =47
-                                            Width: =54
-                                            Height: =54
-                                            Text: |
-                                                =Left(ThisItem.su_name, 1) &
-                                                 Mid(ThisItem.su_name, Find(" ", ThisItem.su_name & " ") + 1, 1)
-                                            Fill: |
-                                                =Switch(
-                                                    Mod(Len(ThisItem.su_name), 4),
-                                                    0, RGBA( 15, 118, 110, 1),
-                                                    1, RGBA(124,  58, 237, 1),
-                                                    2, RGBA( 43, 114, 215, 1),
-                                                    RGBA(32, 50, 153, 1)
-                                                )
-                                            Color: =gblTheme.White
-                                            Size: =16
+                                            X: =51
+                                            Y: =24
+                                            Width: =598
+                                            Height: =20
+                                            Text: ="PORTFOLIO VIEW"
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =10
                                             FontWeight: =FontWeight.Bold
-                                            Align: =Align.Center
-                                            VerticalAlign: =VerticalAlign.Middle
                                             Font: =gblTheme.FontBody
-                                    - lbl_ExecName:
+                                    - lbl_Title:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =83
-                                            Y: =26
-                                            Width: =Parent.TemplateWidth - 115
-                                            Height: =26
-                                            Text: =ThisItem.su_name
+                                            X: =51
+                                            Y: =52
+                                            Width: =598
+                                            Height: =50
+                                            Text: ="Executive Team"
                                             Color: =gblTheme.Navy
-                                            Size: =17
+                                            Size: =36
                                             FontWeight: =FontWeight.Bold
                                             Font: =gblTheme.FontDisplay
-                                    - lbl_ExecRole:
+                                    - lbl_Sub:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =83
-                                            Y: =56
-                                            Width: =Parent.TemplateWidth - 115
-                                            Height: =38
-                                            Text: =ThisItem.su_jobtitle
-                                            Color: =RGBA(91, 99, 115, 1)
-                                            Size: =9
-                                            Font: =gblTheme.FontBody
-                                    - lbl_ExecUnit:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =83
-                                            Y: =96
-                                            Width: =Parent.TemplateWidth - 115
-                                            Height: =20
-                                            Text: =ThisItem.su_unit
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =8
-                                            Font: =gblTheme.FontBody
-                                    - lbl_ExecHighCount:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =17
-                                            Y: =143
-                                            Width: =49
-                                            Height: =30
+                                            X: =51
+                                            Y: =110
+                                            Width: =598
+                                            Height: =60
                                             Text: |
-                                                =CountRows(
-                                                    Filter(
-                                                        dsFunctions,
-                                                        su_executiveowner.su_compliancedirectoryid
-                                                            = ThisItem.su_compliancedirectoryid,
-                                                        su_risk = "High"
-                                                    )
-                                                )
-                                            Visible: |
-                                                =CountRows(
-                                                    Filter(
-                                                        dsFunctions,
-                                                        su_executiveowner.su_compliancedirectoryid
-                                                            = ThisItem.su_compliancedirectoryid,
-                                                        su_risk = "High"
-                                                    )
-                                                ) > 0
-                                            Fill: =gblTheme.High
-                                            Color: =gblTheme.White
-                                            Size: =9
-                                            FontWeight: =FontWeight.Bold
-                                            Align: =Align.Center
-                                            VerticalAlign: =VerticalAlign.Middle
+                                                ="Executive owners sit at the top of every ownership chain. Sorted by last name; photos come from the directory, with initials shown where no photo exists."
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =12
                                             Font: =gblTheme.FontBody
-                                    - rec_ExecChip:
+                                    - rec_HeadRule:
                                         Control: Rectangle@2.3.0
                                         Properties:
-                                            X: =Parent.TemplateWidth - 118
-                                            Y: =143
-                                            Width: =86
-                                            Height: =30
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(196, 199, 206, 1)
-                                            BorderThickness: =1
-                                    - lbl_ExecChip:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 118
-                                            Y: =143
-                                            Width: =86
-                                            Height: =30
-                                            Text: |
-                                                =CountRows(
-                                                    Filter(
-                                                        dsFunctions,
-                                                        su_executiveowner.su_compliancedirectoryid
-                                                            = ThisItem.su_compliancedirectoryid
-                                                    )
-                                                ) & " in portfolio"
-                                            Color: =RGBA(59, 67, 88, 1)
-                                            Size: =10
-                                            Align: =Align.Center
-                                            VerticalAlign: =VerticalAlign.Middle
-                                            Font: =gblTheme.FontBody
-                                    - btn_ExecOverlay:
-                                        Control: Classic/Button@2.2.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =190
-                                            Text: =""
-                                            Tooltip: =ThisItem.su_name & ". " & ThisItem.su_jobtitle
-                                            OnSelect: =Set(gblExecSel, ThisItem)
-                                            Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.06)
-                                            PressedFill: =RGBA(247, 105, 0, 0.12)
+                                            X: =51
+                                            Y: =187
+                                            Width: =Parent.Width - 102
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
                                             BorderThickness: =0
 
-                    - cnt_FooterSlot:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - GridCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
-                            Height: =220
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Height: =460
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =1
+                        Children:
 
+                            - cnt_Grid:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                Children:
+
+                                    - gal_Executives:
+                                        Control: Gallery@2.15.0
+                                        Variant: Horizontal
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =Parent.Width - 102
+                                            Height: =412
+                                            TemplateSize: =(Parent.Width - 102) / 4
+                                            TemplatePadding: =0
+                                            WrapCount: =4
+                                            ShowScrollbar: =true
+                                            Items: =Filter(dsDirectory, su_isexecutive = true)
+                                        Children:
+                                            - rec_ExecCard:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =190
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - rec_ExecBar:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =5
+                                                    Fill: =gblTheme.OrangeDark
+                                                    BorderThickness: =0
+                                            - lbl_ExecAvatar:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =17
+                                                    Y: =47
+                                                    Width: =54
+                                                    Height: =54
+                                                    Text: |
+                                                        =Left(ThisItem.su_name, 1) &
+                                                         Mid(ThisItem.su_name, Find(" ", ThisItem.su_name & " ") + 1, 1)
+                                                    Fill: |
+                                                        =Switch(
+                                                            Mod(Len(ThisItem.su_name), 4),
+                                                            0, RGBA( 15, 118, 110, 1),
+                                                            1, RGBA(124,  58, 237, 1),
+                                                            2, RGBA( 43, 114, 215, 1),
+                                                            RGBA(32, 50, 153, 1)
+                                                        )
+                                                    Color: =gblTheme.White
+                                                    Size: =16
+                                                    FontWeight: =FontWeight.Bold
+                                                    Align: =Align.Center
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_ExecName:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =83
+                                                    Y: =26
+                                                    Width: =Parent.TemplateWidth - 115
+                                                    Height: =26
+                                                    Text: =ThisItem.su_name
+                                                    Color: =gblTheme.Navy
+                                                    Size: =17
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_ExecRole:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =83
+                                                    Y: =56
+                                                    Width: =Parent.TemplateWidth - 115
+                                                    Height: =38
+                                                    Text: =ThisItem.su_jobtitle
+                                                    Color: =RGBA(91, 99, 115, 1)
+                                                    Size: =9
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_ExecUnit:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =83
+                                                    Y: =96
+                                                    Width: =Parent.TemplateWidth - 115
+                                                    Height: =20
+                                                    Text: =ThisItem.su_unit
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =8
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_ExecHighCount:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =17
+                                                    Y: =143
+                                                    Width: =49
+                                                    Height: =30
+                                                    Text: |
+                                                        =CountRows(
+                                                            Filter(
+                                                                dsFunctions,
+                                                                su_executiveowner.su_compliancedirectoryid
+                                                                    = ThisItem.su_compliancedirectoryid,
+                                                                su_risk = "High"
+                                                            )
+                                                        )
+                                                    Visible: |
+                                                        =CountRows(
+                                                            Filter(
+                                                                dsFunctions,
+                                                                su_executiveowner.su_compliancedirectoryid
+                                                                    = ThisItem.su_compliancedirectoryid,
+                                                                su_risk = "High"
+                                                            )
+                                                        ) > 0
+                                                    Fill: =gblTheme.High
+                                                    Color: =gblTheme.White
+                                                    Size: =9
+                                                    FontWeight: =FontWeight.Bold
+                                                    Align: =Align.Center
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - rec_ExecChip:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 118
+                                                    Y: =143
+                                                    Width: =86
+                                                    Height: =30
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                                    BorderThickness: =1
+                                            - lbl_ExecChip:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 118
+                                                    Y: =143
+                                                    Width: =86
+                                                    Height: =30
+                                                    Text: |
+                                                        =CountRows(
+                                                            Filter(
+                                                                dsFunctions,
+                                                                su_executiveowner.su_compliancedirectoryid
+                                                                    = ThisItem.su_compliancedirectoryid
+                                                            )
+                                                        ) & " in portfolio"
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =10
+                                                    Align: =Align.Center
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - btn_ExecOverlay:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =190
+                                                    Text: =""
+                                                    Tooltip: =ThisItem.su_name & ". " & ThisItem.su_jobtitle
+                                                    OnSelect: =Set(gblExecSel, ThisItem)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(247, 105, 0, 0.06)
+                                                    PressedFill: =RGBA(247, 105, 0, 0.12)
+                                                    BorderThickness: =0
+
+                    - FooterSlotCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
+                            Height: =220
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =2
+                        Children:
+
+                            - cnt_FooterSlot:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
             - btn_Scrim:
                 Control: Classic/Button@2.2.0
                 Properties:

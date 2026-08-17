@@ -59,980 +59,1156 @@ Screens:
                 )
         Children:
 
-            - cnt_Scroll:
-                Control: GroupContainer@1.5.0
-                Variant: AutoLayout
+            - bodyGrid:
+                Control: FluidGrid@2.3.0
                 Properties:
+                    AcceptsFocus: =true
+                    BorderThickness: =0
                     X: =0
-                    Y: =113
+                    Y: =112
                     Width: =Parent.Width
-                    Height: =Parent.Height - 113
-                    Fill: =RGBA(247, 247, 248, 1)
-                    LayoutDirection: =LayoutDirection.Vertical
-                    LayoutGap: =0
-                    LayoutOverflowY: =LayoutOverflow.Scroll
+                    Height: =656
                 Children:
 
-                    - cnt_Hero:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - HeroCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
-                            Height: =552
-                            Fill: =gblTheme.Navy
+                            Height: =520
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =0
                         Children:
 
-                            - lbl_HeroEyebrow:
-                                Control: Label@2.5.1
+                            - heroBand:
+                                Control: GroupContainer@1.5.0
+                                Variant: AutoLayout
                                 Properties:
-                                    X: =51
-                                    Y: =48
-                                    Width: =Parent.Width - 102
-                                    Height: =20
-                                    Text: ="OFFICE OF COMPLIANCE AND ENTERPRISE RISK MANAGEMENT"
-                                    Color: =gblTheme.OrangeLight
-                                    Size: =10
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_HeroTitle:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =84
-                                    Width: =Parent.Width - 102
-                                    Height: =196
-                                    Text: |
-                                        ="Who is responsible for what" & Char(10) &
-                                         "and are we on top of it."
-                                    Color: =gblTheme.White
-                                    Size: =48
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_HeroLede:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =295
-                                    Width: =616
-                                    Height: =60
-                                    Text: |
-                                        ="The Compliance Matrix maps every obligation Syracuse University carries to its owner, the law behind it, what it requires, when it is due, and the risk it carries."
-                                    Color: =RGBA(199, 210, 234, 1)
-                                    Size: =15
-                                    Font: =gblTheme.FontBody
-                            - rec_SearchBox:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =379
-                                    Width: =660
-                                    Height: =60
-                                    Fill: =gblTheme.White
-                                    BorderThickness: =0
-                            - img_SearchIcon:
-                                Control: Image@2.2.3
-                                Properties:
-                                    X: =69
-                                    Y: =400
-                                    Width: =18
-                                    Height: =18
-                                    Image: |
-                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
-                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-                                               <circle cx='10' cy='10' r='7' fill='none' stroke='#707780' stroke-width='2'/>
-                                               <path d='M15 15 L21 21' stroke='#707780' stroke-width='2'/>
-                                             </svg>"
-                                        )
-                            - txt_HeroSearch:
-                                Control: Classic/TextInput@2.3.2
-                                Properties:
-                                    X: =99
-                                    Y: =389
-                                    Width: =500
-                                    Height: =40
-                                    Default: =""
-                                    HintText: ="Search a function, statute, citation, or owner"
-                                    Fill: =gblTheme.White
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    BorderColor: =gblTheme.White
-                                    BorderThickness: =0
-                                    HoverBorderColor: =gblTheme.White
-                                    FocusedBorderColor: =gblTheme.Orange
-                                    FocusedBorderThickness: =2
-                                    Size: =12
-                                    Font: =gblTheme.FontBody
-                            - btn_HeroSearch:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =606
-                                    Y: =389
-                                    Width: =97
-                                    Height: =40
-                                    Text: ="Search"
-                                    OnSelect: |
-                                        =Set(
-                                            gblFilter,
-                                            {
-                                                Query: txt_HeroSearch.Text,
-                                                Topic: "All",
-                                                Risk: "All",
-                                                Area: "All"
-                                            }
-                                        );
-                                        Navigate(scr_Functions, ScreenTransition.None)
-                                    Fill: =gblTheme.Orange
-                                    HoverFill: =RGBA(255, 67, 27, 1)
-                                    PressedFill: =gblTheme.OrangeDark
-                                    Color: =gblTheme.White
-                                    HoverColor: =gblTheme.White
-                                    PressedColor: =gblTheme.White
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - btn_LinkDue:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =51
-                                    Y: =463
-                                    Width: =160
-                                    Height: =25
-                                    Text: ="What is coming due"
-                                    Align: =Align.Left
-                                    OnSelect: =Navigate(scr_Deadlines, ScreenTransition.None)
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(255, 255, 255, 0.08)
-                                    PressedFill: =RGBA(255, 255, 255, 0.15)
-                                    Color: =gblTheme.White
-                                    HoverColor: =gblTheme.OrangeLight
-                                    PressedColor: =gblTheme.OrangeLight
-                                    BorderThickness: =0
-                                    Size: =11
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - rec_LinkDueRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =489
-                                    Width: =138
-                                    Height: =1
-                                    Fill: =RGBA(255, 255, 255, 0.4)
-                                    BorderThickness: =0
-                            - btn_LinkTopic:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =213
-                                    Y: =463
-                                    Width: =140
-                                    Height: =25
-                                    Text: ="Browse by topic"
-                                    Align: =Align.Left
-                                    OnSelect: =Navigate(scr_Topics, ScreenTransition.None)
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(255, 255, 255, 0.08)
-                                    PressedFill: =RGBA(255, 255, 255, 0.15)
-                                    Color: =gblTheme.White
-                                    HoverColor: =gblTheme.OrangeLight
-                                    PressedColor: =gblTheme.OrangeLight
-                                    BorderThickness: =0
-                                    Size: =11
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - rec_LinkTopicRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =213
-                                    Y: =489
-                                    Width: =119
-                                    Height: =1
-                                    Fill: =RGBA(255, 255, 255, 0.4)
-                                    BorderThickness: =0
-                            - btn_LinkGaps:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =356
-                                    Y: =463
-                                    Width: =150
-                                    Height: =25
-                                    Text: ="Open gaps (" & gblOpenGapCount & ")"
-                                    Align: =Align.Left
-                                    OnSelect: =Navigate(scr_GapTracker, ScreenTransition.None)
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(255, 255, 255, 0.08)
-                                    PressedFill: =RGBA(255, 255, 255, 0.15)
-                                    Color: =gblTheme.White
-                                    HoverColor: =gblTheme.OrangeLight
-                                    PressedColor: =gblTheme.OrangeLight
-                                    BorderThickness: =0
-                                    Size: =11
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - rec_LinkGapsRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =356
-                                    Y: =489
-                                    Width: =117
-                                    Height: =1
-                                    Fill: =RGBA(255, 255, 255, 0.4)
-                                    BorderThickness: =0
-
-                    - cnt_Band:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =115
-                            Fill: =gblTheme.Orange
-                        Children:
-
-                            - gal_Figures:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =51
-                                    Y: =0
-                                    Width: =720
-                                    Height: =115
-                                    TemplateSize: =180
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =false
-                                    Items: |
-                                        =Table(
-                                            {FigValue: gblFunctionCount,  FigLabel: "COMPLIANCE FUNCTIONS"},
-                                            {FigValue: gblTopicCount,     FigLabel: "COMPLIANCE TOPICS"},
-                                            {FigValue: gblHomeUpcoming90, FigLabel: "DUE WITHIN 90 DAYS"},
-                                            {FigValue: gblHomeOverdue,    FigLabel: "PAST DUE TODAY"}
-                                        )
+                                    Fill: =gblTheme.Navy
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =16
+                                    PaddingTop: =44
+                                    PaddingBottom: =44
+                                    PaddingLeft: =Max(28, (Parent.Width - 1320) / 2)
+                                    PaddingRight: =Max(28, (Parent.Width - 1320) / 2)
                                 Children:
-                                    - lbl_FigValue:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =0
-                                            Y: =24
-                                            Width: =Parent.TemplateWidth - 10
-                                            Height: =46
-                                            Text: =ThisItem.FigValue
-                                            Color: =gblTheme.White
-                                            Size: =34
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontDisplay
-                                    - lbl_FigLabel:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =0
-                                            Y: =72
-                                            Width: =Parent.TemplateWidth - 10
-                                            Height: =19
-                                            Text: =ThisItem.FigLabel
-                                            Color: =gblTheme.White
-                                            Size: =9
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontBody
-                            - lbl_AsOf:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =Parent.Width - 157
-                                    Y: =38
-                                    Width: =106
-                                    Height: =39
-                                    Text: |
-                                        ="As of " & Text(gblToday, "mmm d, yyyy") & Char(10) &
-                                         "FY" & Text(
-                                             If(Month(gblToday) >= gblFiscalStartMonth,
-                                                Year(gblToday) + 1,
-                                                Year(gblToday)),
-                                             "00"
-                                         ) & " Q" & (RoundDown(Mod(Month(gblToday) + 5, 12) / 3, 0) + 1)
-                                    Color: =gblTheme.White
-                                    Size: =11
-                                    Align: =Align.Right
-                                    Font: =gblTheme.FontBody
 
-                    - cnt_Start:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =517
-                            Fill: =RGBA(247, 247, 248, 1)
-                        Children:
-
-                            - lbl_StartHere:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =56
-                                    Width: =110
-                                    Height: =42
-                                    Text: ="Start here"
-                                    Color: =gblTheme.Navy
-                                    Size: =21
-                                    Font: =gblTheme.FontDisplay
-                            - rec_StartUnderline:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =98
-                                    Width: =80
-                                    Height: =4
-                                    Fill: =gblTheme.Orange
-                                    BorderThickness: =0
-                            - rec_StartRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =171
-                                    Y: =84
-                                    Width: =Parent.Width - 349
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - lbl_StartRight:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =Parent.Width - 177
-                                    Y: =70
-                                    Width: =126
-                                    Height: =21
-                                    Text: ="Six ways into the matrix"
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =11
-                                    Align: =Align.Right
-                                    Font: =gblTheme.FontBody
-                            - gal_Destinations:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =51
-                                    Y: =125
-                                    Width: =Parent.Width - 102
-                                    Height: =360
-                                    TemplateSize: =(Parent.Width - 102) / 4
-                                    TemplatePadding: =0
-                                    WrapCount: =4
-                                    ShowScrollbar: =false
-                                    Items: |
-                                        =Table(
-                                            {
-                                                DestKey: "Functions",
-                                                DestTitle: "Compliance Functions",
-                                                DestBody: "Every obligation in the matrix with statute, owner, requirement, and risk rating.",
-                                                DestMeta: gblFunctionCount & " RECORDS"
-                                            },
-                                            {
-                                                DestKey: "Topics",
-                                                DestTitle: "Topics",
-                                                DestBody: "Browse by compliance topic: research, health and safety, privacy, Title IX, and more.",
-                                                DestMeta: gblTopicCount & " TOPICS"
-                                            },
-                                            {
-                                                DestKey: "Areas",
-                                                DestTitle: "Functional Areas",
-                                                DestBody: "See obligations grouped by the university unit that carries them.",
-                                                DestMeta: "BY UNIT"
-                                            },
-                                            {
-                                                DestKey: "Deadlines",
-                                                DestTitle: "Deadlines",
-                                                DestBody: "Filings, certifications, and reports on the calendar, with automatic reminders.",
-                                                DestMeta: gblHomeUpcoming90 & " IN 90 DAYS"
-                                            },
-                                            {
-                                                DestKey: "Directory",
-                                                DestTitle: "Owner Directory",
-                                                DestBody: "Every compliance owner, unit owner, and executive sponsor in the matrix.",
-                                                DestMeta: "CONTACTS"
-                                            },
-                                            {
-                                                DestKey: "RiskDashboard",
-                                                DestTitle: "Risk Dashboard",
-                                                DestBody: "Risk concentration by topic and unit, gap trends, and executive reporting.",
-                                                DestMeta: If(gblIsAdmin, "ADMINISTRATOR", "RESTRICTED")
-                                            }
-                                        )
-                                Children:
-                                    - rec_DestCard:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =172
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(221, 222, 226, 1)
-                                            BorderThickness: =1
-                                    - rec_DestTopBar:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =5
-                                            Fill: =gblTheme.Orange
-                                            BorderThickness: =0
-                                    - lbl_DestTitle:
+                                    - lbl_HeroEyebrow:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =17
-                                            Y: =21
-                                            Width: =Parent.TemplateWidth - 50
-                                            Height: =23
-                                            Text: =ThisItem.DestTitle
-                                            Color: =gblTheme.Navy
-                                            Size: =15
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontDisplay
-                                    - lbl_DestBody:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =17
-                                            Y: =52
-                                            Width: =Parent.TemplateWidth - 50
-                                            Height: =76
-                                            Text: =ThisItem.DestBody
-                                            Color: =RGBA(59, 67, 88, 1)
-                                            Size: =11
-                                            Font: =gblTheme.FontBody
-                                    - lbl_DestMeta:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =17
-                                            Y: =136
-                                            Width: =Parent.TemplateWidth - 80
-                                            Height: =19
-                                            Text: =ThisItem.DestMeta
-                                            Color: =gblTheme.OrangeDark
-                                            Size: =9
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontBody
-                                    - img_DestArrow:
-                                        Control: Image@2.2.3
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 56
-                                            Y: =138
-                                            Width: =14
-                                            Height: =14
-                                            Image: |
-                                                ="data:image/svg+xml;utf8, " & EncodeUrl(
-                                                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>
-                                                       <path d='M2 8 L13 8 M9 4 L13 8 L9 12' fill='none'
-                                                             stroke='#D74100' stroke-width='2' stroke-linecap='square'/>
-                                                     </svg>"
-                                                )
-                                    - btn_DestOverlay:
-                                        Control: Classic/Button@2.2.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =172
-                                            Text: =""
-                                            Tooltip: =ThisItem.DestTitle & ". " & ThisItem.DestBody
-                                            Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.06)
-                                            PressedFill: =RGBA(247, 105, 0, 0.12)
-                                            BorderThickness: =0
-                                            OnSelect: |
-                                                =Switch(
-                                                    ThisItem.DestKey,
-                                                    "Functions",     Navigate(scr_Functions, ScreenTransition.None),
-                                                    "Topics",        Navigate(scr_Topics, ScreenTransition.None),
-                                                    "Areas",         Navigate(scr_Areas, ScreenTransition.None),
-                                                    "Deadlines",     Navigate(scr_Deadlines, ScreenTransition.None),
-                                                    "Directory",     Navigate(scr_Directory, ScreenTransition.None),
-                                                    "RiskDashboard", Navigate(scr_RiskDashboard, ScreenTransition.None)
-                                                )
-
-                    - cnt_Assigned:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =565
-                            Fill: =RGBA(247, 247, 248, 1)
-                        Children:
-
-                            - lbl_AssignedHead:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =0
-                                    Width: =180
-                                    Height: =42
-                                    Text: ="Assigned to you"
-                                    Color: =gblTheme.Navy
-                                    Size: =21
-                                    Font: =gblTheme.FontDisplay
-                            - rec_AssignedUnderline:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =42
-                                    Width: =80
-                                    Height: =4
-                                    Fill: =gblTheme.Orange
-                                    BorderThickness: =0
-                            - rec_AssignedRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =236
-                                    Y: =28
-                                    Width: =Parent.Width - 431
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - lbl_AssignedWho:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =Parent.Width - 345
-                                    Y: =14
-                                    Width: =294
-                                    Height: =21
-                                    Text: |
-                                        =Coalesce(gblMe.su_name, User().FullName) & "  |  " &
-                                         Coalesce(gblRole, "Compliance Owner")
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =11
-                                    Align: =Align.Right
-                                    Font: =gblTheme.FontBody
-
-                            - rec_AssignedPanel:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =69
-                                    Width: =759
-                                    Height: =400
-                                    Fill: =gblTheme.White
-                                    BorderColor: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =1
-                            - gal_MyFunctions:
-                                Control: Gallery@2.15.0
-                                Variant: Vertical
-                                Properties:
-                                    X: =52
-                                    Y: =70
-                                    Width: =757
-                                    Height: =240
-                                    TemplateSize: =80
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =true
-                                    Visible: =CountRows(colMyFunctions) > 0
-                                    Items: =FirstN(Distinct(colMyFunctions, su_function), 5)
-                                Children:
-                                    - lbl_FnName:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =18
-                                            Y: =18
-                                            Width: =Parent.TemplateWidth - 180
-                                            Height: =24
-                                            Text: =ThisItem.Value.su_name
-                                            Color: =gblTheme.Navy
-                                            Size: =12
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontBody
-                                    - lbl_FnSub:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =18
-                                            Y: =42
-                                            Width: =Parent.TemplateWidth - 180
-                                            Height: =21
-                                            Text: |
-                                                =ThisItem.Value.su_riskarea.su_name & "  |  " &
-                                                 ThisItem.Value.su_domain.su_name
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =11
-                                            Font: =gblTheme.FontBody
-                                    - lbl_FnGapBadge:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 148
-                                            Y: =29
-                                            Width: =22
-                                            Height: =22
-                                            Text: =ThisItem.Value.su_opengapcount
-                                            Visible: =ThisItem.Value.su_opengapcount > 0
-                                            Fill: =gblTheme.High
-                                            Color: =gblTheme.White
-                                            Size: =9
-                                            FontWeight: =FontWeight.Bold
-                                            Align: =Align.Center
-                                            VerticalAlign: =VerticalAlign.Middle
-                                            Font: =gblTheme.FontBody
-                                    - lbl_FnRisk:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 110
-                                            Y: =27
-                                            Width: =92
-                                            Height: =26
-                                            Text: |
-                                                =If(IsBlank(ThisItem.Value.su_risk), "UNRATED", Upper(ThisItem.Value.su_risk))
-                                            Fill: |
-                                                =Switch(
-                                                    ThisItem.Value.su_risk,
-                                                    "High",     gblTheme.High,
-                                                    "Moderate", gblTheme.Moderate,
-                                                    "Low",      gblTheme.Low,
-                                                    gblTheme.Unrated
-                                                )
-                                            Color: =gblTheme.White
-                                            Size: =9
-                                            FontWeight: =FontWeight.Bold
-                                            Align: =Align.Center
-                                            VerticalAlign: =VerticalAlign.Middle
-                                            Font: =gblTheme.FontBody
-                                    - rec_FnRule:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =79
-                                            Width: =Parent.TemplateWidth
-                                            Height: =1
-                                            Fill: =RGBA(238, 240, 244, 1)
-                                            BorderThickness: =0
-                                    - btn_FnOverlay:
-                                        Control: Classic/Button@2.2.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth
-                                            Height: =80
-                                            Text: =""
-                                            Tooltip: ="Open " & ThisItem.Value.su_name
-                                            OnSelect: |
-                                                =Set(gblSelectedFunction, ThisItem.Value);
-                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
-                                            Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.06)
-                                            PressedFill: =RGBA(247, 105, 0, 0.12)
-                                            BorderThickness: =0
-                            - lbl_NothingAssigned:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =52
-                                    Y: =160
-                                    Width: =757
-                                    Height: =60
-                                    Text: |
-                                        ="Nothing assigned" & Char(10) &
-                                         "No functions list you in the ownership chain."
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =12
-                                    Align: =Align.Center
-                                    Visible: =CountRows(colMyFunctions) = 0
-                                    Font: =gblTheme.FontBody
-                            - lbl_EndOfList:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =52
-                                    Y: =310
-                                    Width: =757
-                                    Height: =38
-                                    Text: ="END OF LIST"
-                                    Fill: =RGBA(250, 251, 253, 1)
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =8
-                                    FontWeight: =FontWeight.Bold
-                                    Align: =Align.Center
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Font: =gblTheme.FontBody
-
-                            - rec_DeadlinePanel:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =826
-                                    Y: =69
-                                    Width: =Parent.Width - 877
-                                    Height: =400
-                                    Fill: =gblTheme.White
-                                    BorderColor: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =1
-                            - lbl_RailHead:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =843
-                                    Y: =86
-                                    Width: =455
-                                    Height: =18
-                                    Text: ="YOUR NEXT DEADLINES"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =9
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - gal_MyDeadlines:
-                                Control: Gallery@2.15.0
-                                Variant: Vertical
-                                Properties:
-                                    X: =843
-                                    Y: =116
-                                    Width: =Parent.Width - 911
-                                    Height: =243
-                                    TemplateSize: =81
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =true
-                                    Visible: =CountRows(colMyDeadlines) > 0
-                                    Items: =colMyDeadlines
-                                Children:
-                                    - lbl_DlTitle:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =0
-                                            Y: =9
-                                            Width: =Parent.TemplateWidth - 110
-                                            Height: =18
-                                            Text: =ThisItem.su_name
-                                            Color: =gblTheme.Navy
-                                            Size: =11
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontBody
-                                    - lbl_DlDate:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =0
-                                            Y: =27
-                                            Width: =Parent.TemplateWidth - 110
-                                            Height: =21
-                                            Text: |
-                                                =If(
-                                                    IsBlank(ThisItem.su_duedate),
-                                                    "No fixed date",
-                                                    Text(ThisItem.su_duedate, "mmm d, yyyy")
-                                                ) & "  |  " & ThisItem.su_cadence
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =11
-                                            Font: =gblTheme.FontBody
-                                    - lbl_DlFn:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =0
-                                            Y: =50
-                                            Width: =Parent.TemplateWidth - 110
-                                            Height: =21
-                                            Text: =ThisItem.su_function.su_name
-                                            Color: =RGBA(59, 67, 88, 1)
-                                            Size: =11
-                                            FontWeight: =FontWeight.Semibold
-                                            Font: =gblTheme.FontBody
-                                    - lbl_DlPill:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 94
-                                            Y: =26
-                                            Width: =77
-                                            Height: =28
-                                            Text: |
-                                                =If(
-                                                    IsBlank(ThisItem.su_duedate),
-                                                    "No date",
-                                                    If(
-                                                        ThisItem.su_duedate < gblToday,
-                                                        "Overdue " & DateDiff(ThisItem.su_duedate, gblToday, TimeUnit.Days) & "d",
-                                                        "Due in " & DateDiff(gblToday, ThisItem.su_duedate, TimeUnit.Days) & "d"
-                                                    )
-                                                )
-                                            Fill: |
-                                                =If(
-                                                    IsBlank(ThisItem.su_duedate),
-                                                    RGBA(237, 238, 241, 1),
-                                                    If(
-                                                        ThisItem.su_duedate < gblToday,
-                                                        RGBA(251, 233, 233, 1),
-                                                        If(
-                                                            ThisItem.su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days),
-                                                            RGBA(252, 243, 218, 1),
-                                                            RGBA(230, 238, 251, 1)
-                                                        )
-                                                    )
-                                                )
-                                            Color: |
-                                                =If(
-                                                    IsBlank(ThisItem.su_duedate),
-                                                    RGBA(107, 114, 128, 1),
-                                                    If(
-                                                        ThisItem.su_duedate < gblToday,
-                                                        RGBA(142, 20, 20, 1),
-                                                        If(
-                                                            ThisItem.su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days),
-                                                            RGBA(124, 64, 8, 1),
-                                                            RGBA(32, 50, 153, 1)
-                                                        )
-                                                    )
-                                                )
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =20
+                                            Text: ="OFFICE OF COMPLIANCE AND ENTERPRISE RISK MANAGEMENT"
+                                            Color: =gblTheme.OrangeLight
                                             Size: =10
                                             FontWeight: =FontWeight.Bold
-                                            Align: =Align.Center
-                                            VerticalAlign: =VerticalAlign.Middle
                                             Font: =gblTheme.FontBody
-                                    - rec_DlRule:
-                                        Control: Rectangle@2.3.0
+                                    - cnt_HeroCopy:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
                                         Properties:
-                                            X: =0
-                                            Y: =80
-                                            Width: =Parent.TemplateWidth
-                                            Height: =1
-                                            Fill: =RGBA(238, 240, 244, 1)
-                                            BorderThickness: =0
-                                    - btn_DlOverlay:
-                                        Control: Classic/Button@2.2.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth
-                                            Height: =81
-                                            Text: =""
-                                            Tooltip: ="Open " & ThisItem.su_name
-                                            OnSelect: |
-                                                =Set(gblSelectedFunction, ThisItem.su_function);
-                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =276
                                             Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.06)
-                                            PressedFill: =RGBA(247, 105, 0, 0.12)
-                                            BorderThickness: =0
-                            - lbl_RailEmpty:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =843
-                                    Y: =180
-                                    Width: =Parent.Width - 911
-                                    Height: =60
-                                    Text: |
-                                        ="Nothing due" & Char(10) &
-                                         "No open deadlines are assigned to you."
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =12
-                                    Align: =Align.Center
-                                    Visible: =CountRows(colMyDeadlines) = 0
-                                    Font: =gblTheme.FontBody
-                            - rec_RailNoteAccent:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =843
-                                    Y: =373
-                                    Width: =4
-                                    Height: =79
-                                    Fill: =gblTheme.Navy
-                                    BorderThickness: =0
-                            - lbl_RailNote:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =863
-                                    Y: =373
-                                    Width: =Parent.Width - 931
-                                    Height: =79
-                                    Text: |
-                                        ="Reminders are sent automatically at 90 days, 30 days, on the due date, and weekly once overdue."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =11
-                                    Font: =gblTheme.FontBody
+                                        Children:
 
-                    - cnt_Prompts:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                                            - lbl_HeroTitle:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.Width - 340
+                                                    Height: =196
+                                                    Text: |
+                                                        ="Who is responsible for what" & Char(10) &
+                                                         "and are we on top of it."
+                                                    Color: =gblTheme.White
+                                                    Size: =48
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_HeroLede:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =0
+                                                    Y: =206
+                                                    Width: =616
+                                                    Height: =60
+                                                    Text: |
+                                                        ="The Compliance Matrix maps every obligation Syracuse University carries to its owner, the law behind it, what it requires, when it is due, and the risk it carries."
+                                                    Color: =RGBA(199, 210, 234, 1)
+                                                    Size: =15
+                                                    Font: =gblTheme.FontBody
+                                            - img_HeroBlockS:
+                                                Control: Image@2.2.3
+                                                Properties:
+                                                    X: =Parent.Width - 268
+                                                    Y: =8
+                                                    Width: =260
+                                                    Height: =260
+                                                    Image: |
+                                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 110'>
+                                                               <text x='50' y='90' font-family='Georgia,serif' font-size='110'
+                                                                     font-weight='bold' fill='#F76900' opacity='0.92'
+                                                                     text-anchor='middle'>S</text>
+                                                             </svg>"
+                                                        )
+                                    - cnt_SearchRow:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =60
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                        Children:
+
+                                            - rec_SearchBox:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =660
+                                                    Height: =60
+                                                    Fill: =gblTheme.White
+                                                    BorderThickness: =0
+                                            - img_SearchIcon:
+                                                Control: Image@2.2.3
+                                                Properties:
+                                                    X: =18
+                                                    Y: =21
+                                                    Width: =18
+                                                    Height: =18
+                                                    Image: |
+                                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+                                                               <circle cx='10' cy='10' r='7' fill='none' stroke='#707780' stroke-width='2'/>
+                                                               <path d='M15 15 L21 21' stroke='#707780' stroke-width='2'/>
+                                                             </svg>"
+                                                        )
+                                            - txt_HeroSearch:
+                                                Control: Classic/TextInput@2.3.2
+                                                Properties:
+                                                    X: =48
+                                                    Y: =10
+                                                    Width: =500
+                                                    Height: =40
+                                                    Default: =""
+                                                    HintText: ="Search a function, statute, citation, or owner"
+                                                    Fill: =gblTheme.White
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    BorderColor: =gblTheme.White
+                                                    BorderThickness: =0
+                                                    HoverBorderColor: =gblTheme.White
+                                                    FocusedBorderColor: =gblTheme.Orange
+                                                    FocusedBorderThickness: =2
+                                                    Size: =12
+                                                    Font: =gblTheme.FontBody
+                                            - btn_HeroSearch:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =555
+                                                    Y: =10
+                                                    Width: =97
+                                                    Height: =40
+                                                    Text: ="Search"
+                                                    OnSelect: |
+                                                        =Set(
+                                                            gblFilter,
+                                                            {
+                                                                Query: txt_HeroSearch.Text,
+                                                                Topic: "All",
+                                                                Risk: "All",
+                                                                Area: "All"
+                                                            }
+                                                        );
+                                                        Navigate(scr_Functions, ScreenTransition.None)
+                                                    Fill: =gblTheme.Orange
+                                                    HoverFill: =RGBA(255, 67, 27, 1)
+                                                    PressedFill: =gblTheme.OrangeDark
+                                                    Color: =gblTheme.White
+                                                    HoverColor: =gblTheme.White
+                                                    PressedColor: =gblTheme.White
+                                                    BorderThickness: =0
+                                                    Size: =12
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                    - cnt_LinksRow:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =28
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                        Children:
+
+                                            - rec_LinkDueRule:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =26
+                                                    Width: =138
+                                                    Height: =1
+                                                    Fill: =RGBA(255, 255, 255, 0.4)
+                                                    BorderThickness: =0
+                                            - rec_LinkTopicRule:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =168
+                                                    Y: =26
+                                                    Width: =119
+                                                    Height: =1
+                                                    Fill: =RGBA(255, 255, 255, 0.4)
+                                                    BorderThickness: =0
+                                            - rec_LinkGapsRule:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =316
+                                                    Y: =26
+                                                    Width: =117
+                                                    Height: =1
+                                                    Fill: =RGBA(255, 255, 255, 0.4)
+                                                    BorderThickness: =0
+                                            - btn_LinkDue:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =160
+                                                    Height: =25
+                                                    Text: ="What is coming due"
+                                                    Align: =Align.Left
+                                                    OnSelect: =Navigate(scr_Deadlines, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(255, 255, 255, 0.08)
+                                                    PressedFill: =RGBA(255, 255, 255, 0.15)
+                                                    Color: =gblTheme.White
+                                                    HoverColor: =gblTheme.OrangeLight
+                                                    PressedColor: =gblTheme.OrangeLight
+                                                    BorderThickness: =0
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                            - btn_LinkTopic:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =168
+                                                    Y: =0
+                                                    Width: =140
+                                                    Height: =25
+                                                    Text: ="Browse by topic"
+                                                    Align: =Align.Left
+                                                    OnSelect: =Navigate(scr_Topics, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(255, 255, 255, 0.08)
+                                                    PressedFill: =RGBA(255, 255, 255, 0.15)
+                                                    Color: =gblTheme.White
+                                                    HoverColor: =gblTheme.OrangeLight
+                                                    PressedColor: =gblTheme.OrangeLight
+                                                    BorderThickness: =0
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                            - btn_LinkGaps:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =316
+                                                    Y: =0
+                                                    Width: =150
+                                                    Height: =25
+                                                    Text: ="Open gaps (" & gblOpenGapCount & ")"
+                                                    Align: =Align.Left
+                                                    OnSelect: =Navigate(scr_GapTracker, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(255, 255, 255, 0.08)
+                                                    PressedFill: =RGBA(255, 255, 255, 0.15)
+                                                    Color: =gblTheme.White
+                                                    HoverColor: =gblTheme.OrangeLight
+                                                    PressedColor: =gblTheme.OrangeLight
+                                                    BorderThickness: =0
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+
+                    - FiguresCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
-                            Height: =264
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Height: =115
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =1
                         Children:
 
-                            - lbl_WrongHead:
-                                Control: Label@2.5.1
+                            - figuresBand:
+                                Control: GroupContainer@1.5.0
+                                Variant: AutoLayout
                                 Properties:
-                                    X: =51
-                                    Y: =0
-                                    Width: =616
-                                    Height: =40
-                                    Text: ="Something look wrong?"
-                                    Color: =gblTheme.Navy
-                                    Size: =18
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_WrongBody:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =48
-                                    Width: =409
-                                    Height: =60
-                                    Text: |
-                                        ="Owners can flag any record for review from its detail page. The compliance office responds within five business days."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =12
-                                    Font: =gblTheme.FontBody
-                            - btn_FindToFlag:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =51
-                                    Y: =124
-                                    Width: =195
-                                    Height: =44
-                                    Text: ="Find a record to flag"
-                                    OnSelect: |
-                                        =Set(gblFilter, {Query: "", Topic: "All", Risk: "All", Area: "All"});
-                                        Navigate(scr_Functions, ScreenTransition.None)
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.06)
-                                    PressedFill: =RGBA(0, 14, 84, 0.12)
-                                    Color: =gblTheme.Navy
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderColor: =gblTheme.Navy
-                                    BorderThickness: =2
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_NewHead:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =699
-                                    Y: =0
-                                    Width: =616
-                                    Height: =40
-                                    Text: ="New to the matrix?"
-                                    Color: =gblTheme.Navy
-                                    Size: =18
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_NewBody:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =699
-                                    Y: =48
-                                    Width: =409
-                                    Height: =60
-                                    Text: |
-                                        ="Start with the topic view to see how obligations are organized, then check the directory for the owner of a given area."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =12
-                                    Font: =gblTheme.FontBody
-                            - btn_OpenDirectory:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =699
-                                    Y: =124
-                                    Width: =189
-                                    Height: =44
-                                    Text: ="Open the directory"
-                                    OnSelect: =Navigate(scr_Directory, ScreenTransition.None)
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.06)
-                                    PressedFill: =RGBA(0, 14, 84, 0.12)
-                                    Color: =gblTheme.Navy
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderColor: =gblTheme.Navy
-                                    BorderThickness: =2
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
+                                    Fill: =gblTheme.Orange
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =0
+                                    PaddingTop: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =Max(28, (Parent.Width - 1320) / 2)
+                                    PaddingRight: =Max(28, (Parent.Width - 1320) / 2)
+                                Children:
 
-                    - cnt_FooterSlot:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                                    - cnt_FiguresRow:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =115
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                        Children:
+
+                                            - gal_Figures:
+                                                Control: Gallery@2.15.0
+                                                Variant: Horizontal
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =720
+                                                    Height: =115
+                                                    TemplateSize: =180
+                                                    TemplatePadding: =0
+                                                    ShowScrollbar: =false
+                                                    Items: |
+                                                        =Table(
+                                                            {FigValue: gblFunctionCount,  FigLabel: "COMPLIANCE FUNCTIONS"},
+                                                            {FigValue: gblTopicCount,     FigLabel: "COMPLIANCE TOPICS"},
+                                                            {FigValue: gblHomeUpcoming90, FigLabel: "DUE WITHIN 90 DAYS"},
+                                                            {FigValue: gblHomeOverdue,    FigLabel: "PAST DUE TODAY"}
+                                                        )
+                                                Children:
+                                                    - lbl_FigValue:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =24
+                                                            Width: =Parent.TemplateWidth - 10
+                                                            Height: =46
+                                                            Text: =ThisItem.FigValue
+                                                            Color: =gblTheme.White
+                                                            Size: =34
+                                                            FontWeight: =FontWeight.Bold
+                                                            Font: =gblTheme.FontDisplay
+                                                    - lbl_FigLabel:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =72
+                                                            Width: =Parent.TemplateWidth - 10
+                                                            Height: =19
+                                                            Text: =ThisItem.FigLabel
+                                                            Color: =gblTheme.White
+                                                            Size: =9
+                                                            FontWeight: =FontWeight.Bold
+                                                            Font: =gblTheme.FontBody
+                                            - lbl_AsOf:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width - 106
+                                                    Y: =38
+                                                    Width: =106
+                                                    Height: =39
+                                                    Text: |
+                                                        ="As of " & Text(gblToday, "mmm d, yyyy") & Char(10) &
+                                                         "FY" & Text(
+                                                             If(Month(gblToday) >= gblFiscalStartMonth,
+                                                                Year(gblToday) + 1,
+                                                                Year(gblToday)),
+                                                             "00"
+                                                         ) & " Q" & (RoundDown(Mod(Month(gblToday) + 5, 12) / 3, 0) + 1)
+                                                    Color: =gblTheme.White
+                                                    Size: =11
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontBody
+
+                    - StartCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
+                            Height: =517
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =2
+                        Children:
+
+                            - startBand:
+                                Control: GroupContainer@1.5.0
+                                Variant: AutoLayout
+                                Properties:
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =16
+                                    PaddingTop: =44
+                                    PaddingBottom: =44
+                                    PaddingLeft: =Max(28, (Parent.Width - 1320) / 2)
+                                    PaddingRight: =Max(28, (Parent.Width - 1320) / 2)
+                                Children:
+
+                                    - cnt_StartHead:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =53
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                        Children:
+
+                                            - lbl_StartHere:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =110
+                                                    Height: =42
+                                                    Text: ="Start here"
+                                                    Color: =gblTheme.Navy
+                                                    Size: =21
+                                                    Font: =gblTheme.FontDisplay
+                                            - rec_StartUnderline:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =42
+                                                    Width: =80
+                                                    Height: =4
+                                                    Fill: =gblTheme.Orange
+                                                    BorderThickness: =0
+                                            - rec_StartRule:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =120
+                                                    Y: =28
+                                                    Width: =Parent.Width - 300
+                                                    Height: =1
+                                                    Fill: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =0
+                                            - lbl_StartRight:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width - 160
+                                                    Y: =14
+                                                    Width: =160
+                                                    Height: =21
+                                                    Text: ="Six ways into the matrix"
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =11
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontBody
+                                    - gal_Destinations:
+                                        Control: Gallery@2.15.0
+                                        Variant: Horizontal
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =360
+                                            TemplateSize: =(Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2) / 4
+                                            TemplatePadding: =0
+                                            WrapCount: =4
+                                            ShowScrollbar: =false
+                                            Items: |
+                                                =Table(
+                                                    {
+                                                        DestKey: "Functions",
+                                                        DestTitle: "Compliance Functions",
+                                                        DestBody: "Every obligation in the matrix with statute, owner, requirement, and risk rating.",
+                                                        DestMeta: gblFunctionCount & " RECORDS"
+                                                    },
+                                                    {
+                                                        DestKey: "Topics",
+                                                        DestTitle: "Topics",
+                                                        DestBody: "Browse by compliance topic: research, health and safety, privacy, Title IX, and more.",
+                                                        DestMeta: gblTopicCount & " TOPICS"
+                                                    },
+                                                    {
+                                                        DestKey: "Areas",
+                                                        DestTitle: "Functional Areas",
+                                                        DestBody: "See obligations grouped by the university unit that carries them.",
+                                                        DestMeta: "BY UNIT"
+                                                    },
+                                                    {
+                                                        DestKey: "Deadlines",
+                                                        DestTitle: "Deadlines",
+                                                        DestBody: "Filings, certifications, and reports on the calendar, with automatic reminders.",
+                                                        DestMeta: gblHomeUpcoming90 & " IN 90 DAYS"
+                                                    },
+                                                    {
+                                                        DestKey: "Directory",
+                                                        DestTitle: "Owner Directory",
+                                                        DestBody: "Every compliance owner, unit owner, and executive sponsor in the matrix.",
+                                                        DestMeta: "CONTACTS"
+                                                    },
+                                                    {
+                                                        DestKey: "RiskDashboard",
+                                                        DestTitle: "Risk Dashboard",
+                                                        DestBody: "Risk concentration by topic and unit, gap trends, and executive reporting.",
+                                                        DestMeta: If(gblIsAdmin, "ADMINISTRATOR", "RESTRICTED")
+                                                    }
+                                                )
+                                        Children:
+                                            - rec_DestCard:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =172
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - rec_DestTopBar:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =5
+                                                    Fill: =gblTheme.Orange
+                                                    BorderThickness: =0
+                                            - lbl_DestTitle:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =17
+                                                    Y: =21
+                                                    Width: =Parent.TemplateWidth - 50
+                                                    Height: =23
+                                                    Text: =ThisItem.DestTitle
+                                                    Color: =gblTheme.Navy
+                                                    Size: =15
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_DestBody:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =17
+                                                    Y: =52
+                                                    Width: =Parent.TemplateWidth - 50
+                                                    Height: =76
+                                                    Text: =ThisItem.DestBody
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =11
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_DestMeta:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =17
+                                                    Y: =136
+                                                    Width: =Parent.TemplateWidth - 80
+                                                    Height: =19
+                                                    Text: =ThisItem.DestMeta
+                                                    Color: =gblTheme.OrangeDark
+                                                    Size: =9
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                            - img_DestArrow:
+                                                Control: Image@2.2.3
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 56
+                                                    Y: =138
+                                                    Width: =14
+                                                    Height: =14
+                                                    Image: |
+                                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>
+                                                               <path d='M2 8 L13 8 M9 4 L13 8 L9 12' fill='none'
+                                                                     stroke='#D74100' stroke-width='2' stroke-linecap='square'/>
+                                                             </svg>"
+                                                        )
+                                            - btn_DestOverlay:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =172
+                                                    Text: =""
+                                                    Tooltip: =ThisItem.DestTitle & ". " & ThisItem.DestBody
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(247, 105, 0, 0.06)
+                                                    PressedFill: =RGBA(247, 105, 0, 0.12)
+                                                    BorderThickness: =0
+                                                    OnSelect: |
+                                                        =Switch(
+                                                            ThisItem.DestKey,
+                                                            "Functions",     Navigate(scr_Functions, ScreenTransition.None),
+                                                            "Topics",        Navigate(scr_Topics, ScreenTransition.None),
+                                                            "Areas",         Navigate(scr_Areas, ScreenTransition.None),
+                                                            "Deadlines",     Navigate(scr_Deadlines, ScreenTransition.None),
+                                                            "Directory",     Navigate(scr_Directory, ScreenTransition.None),
+                                                            "RiskDashboard", Navigate(scr_RiskDashboard, ScreenTransition.None)
+                                                        )
+
+                    - AssignedCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
+                            Height: =557
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =3
+                        Children:
+
+                            - assignedBand:
+                                Control: GroupContainer@1.5.0
+                                Variant: AutoLayout
+                                Properties:
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =16
+                                    PaddingTop: =44
+                                    PaddingBottom: =44
+                                    PaddingLeft: =Max(28, (Parent.Width - 1320) / 2)
+                                    PaddingRight: =Max(28, (Parent.Width - 1320) / 2)
+                                Children:
+
+                                    - cnt_AssignedHead:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =53
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                        Children:
+
+                                            - lbl_AssignedHead:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =180
+                                                    Height: =42
+                                                    Text: ="Assigned to you"
+                                                    Color: =gblTheme.Navy
+                                                    Size: =21
+                                                    Font: =gblTheme.FontDisplay
+                                            - rec_AssignedUnderline:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =42
+                                                    Width: =80
+                                                    Height: =4
+                                                    Fill: =gblTheme.Orange
+                                                    BorderThickness: =0
+                                            - rec_AssignedRule:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =190
+                                                    Y: =28
+                                                    Width: =Parent.Width - 490
+                                                    Height: =1
+                                                    Fill: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =0
+                                            - lbl_AssignedWho:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width - 294
+                                                    Y: =14
+                                                    Width: =294
+                                                    Height: =21
+                                                    Text: |
+                                                        =Coalesce(gblMe.su_name, User().FullName) & "  |  " &
+                                                         Coalesce(gblRole, "Compliance Owner")
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =11
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontBody
+                                    - cnt_AssignedRails:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =400
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                        Children:
+
+                                            - rec_AssignedPanel:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.Width * 0.58
+                                                    Height: =400
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - gal_MyFunctions:
+                                                Control: Gallery@2.15.0
+                                                Variant: Vertical
+                                                Properties:
+                                                    X: =1
+                                                    Y: =1
+                                                    Width: =Parent.Width * 0.58 - 2
+                                                    Height: =240
+                                                    TemplateSize: =80
+                                                    TemplatePadding: =0
+                                                    ShowScrollbar: =false
+                                                    Visible: =CountRows(colMyFunctions) > 0
+                                                    Items: =FirstN(Distinct(colMyFunctions, su_function), 5)
+                                                Children:
+                                                    - lbl_FnName:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =18
+                                                            Y: =18
+                                                            Width: =Parent.TemplateWidth - 180
+                                                            Height: =24
+                                                            Text: =ThisItem.Value.su_name
+                                                            Color: =gblTheme.Navy
+                                                            Size: =12
+                                                            FontWeight: =FontWeight.Bold
+                                                            Font: =gblTheme.FontBody
+                                                    - lbl_FnSub:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =18
+                                                            Y: =42
+                                                            Width: =Parent.TemplateWidth - 180
+                                                            Height: =21
+                                                            Text: |
+                                                                =ThisItem.Value.su_riskarea.su_name & "  |  " &
+                                                                 ThisItem.Value.su_domain.su_name
+                                                            Color: =RGBA(107, 114, 128, 1)
+                                                            Size: =11
+                                                            Font: =gblTheme.FontBody
+                                                    - lbl_FnGapBadge:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =Parent.TemplateWidth - 148
+                                                            Y: =29
+                                                            Width: =22
+                                                            Height: =22
+                                                            Text: =ThisItem.Value.su_opengapcount
+                                                            Visible: =ThisItem.Value.su_opengapcount > 0
+                                                            Fill: =gblTheme.High
+                                                            Color: =gblTheme.White
+                                                            Size: =9
+                                                            FontWeight: =FontWeight.Bold
+                                                            Align: =Align.Center
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Font: =gblTheme.FontBody
+                                                    - lbl_FnRisk:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =Parent.TemplateWidth - 110
+                                                            Y: =27
+                                                            Width: =92
+                                                            Height: =26
+                                                            Text: |
+                                                                =If(IsBlank(ThisItem.Value.su_risk), "UNRATED", Upper(ThisItem.Value.su_risk))
+                                                            Fill: |
+                                                                =Switch(
+                                                                    ThisItem.Value.su_risk,
+                                                                    "High",     gblTheme.High,
+                                                                    "Moderate", gblTheme.Moderate,
+                                                                    "Low",      gblTheme.Low,
+                                                                    gblTheme.Unrated
+                                                                )
+                                                            Color: =gblTheme.White
+                                                            Size: =9
+                                                            FontWeight: =FontWeight.Bold
+                                                            Align: =Align.Center
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Font: =gblTheme.FontBody
+                                                    - rec_FnRule:
+                                                        Control: Rectangle@2.3.0
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =79
+                                                            Width: =Parent.TemplateWidth
+                                                            Height: =1
+                                                            Fill: =RGBA(238, 240, 244, 1)
+                                                            BorderThickness: =0
+                                                    - btn_FnOverlay:
+                                                        Control: Classic/Button@2.2.0
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =0
+                                                            Width: =Parent.TemplateWidth
+                                                            Height: =80
+                                                            Text: =""
+                                                            Tooltip: ="Open " & ThisItem.Value.su_name
+                                                            OnSelect: |
+                                                                =Set(gblSelectedFunction, ThisItem.Value);
+                                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            HoverFill: =RGBA(247, 105, 0, 0.06)
+                                                            PressedFill: =RGBA(247, 105, 0, 0.12)
+                                                            BorderThickness: =0
+                                            - lbl_NothingAssigned:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =1
+                                                    Y: =90
+                                                    Width: =Parent.Width * 0.58 - 2
+                                                    Height: =60
+                                                    Text: |
+                                                        ="Nothing assigned" & Char(10) &
+                                                         "No functions list you in the ownership chain."
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =12
+                                                    Align: =Align.Center
+                                                    Visible: =CountRows(colMyFunctions) = 0
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_EndOfList:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =1
+                                                    Y: =241
+                                                    Width: =Parent.Width * 0.58 - 2
+                                                    Height: =38
+                                                    Text: ="END OF LIST"
+                                                    Fill: =RGBA(250, 251, 253, 1)
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =8
+                                                    FontWeight: =FontWeight.Bold
+                                                    Align: =Align.Center
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - rec_DeadlinePanel:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =Parent.Width * 0.58 + 16
+                                                    Y: =0
+                                                    Width: =Parent.Width * 0.42 - 16
+                                                    Height: =400
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - lbl_RailHead:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width * 0.58 + 33
+                                                    Y: =17
+                                                    Width: =300
+                                                    Height: =18
+                                                    Text: ="YOUR NEXT DEADLINES"
+                                                    Color: =gblTheme.OrangeDark
+                                                    Size: =9
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                            - gal_MyDeadlines:
+                                                Control: Gallery@2.15.0
+                                                Variant: Vertical
+                                                Properties:
+                                                    X: =Parent.Width * 0.58 + 33
+                                                    Y: =47
+                                                    Width: =Parent.Width * 0.42 - 50
+                                                    Height: =243
+                                                    TemplateSize: =81
+                                                    TemplatePadding: =0
+                                                    ShowScrollbar: =false
+                                                    Visible: =CountRows(colMyDeadlines) > 0
+                                                    Items: =colMyDeadlines
+                                                Children:
+                                                    - lbl_DlTitle:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =9
+                                                            Width: =Parent.TemplateWidth - 110
+                                                            Height: =18
+                                                            Text: =ThisItem.su_name
+                                                            Color: =gblTheme.Navy
+                                                            Size: =11
+                                                            FontWeight: =FontWeight.Bold
+                                                            Font: =gblTheme.FontBody
+                                                    - lbl_DlDate:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =27
+                                                            Width: =Parent.TemplateWidth - 110
+                                                            Height: =21
+                                                            Text: |
+                                                                =If(
+                                                                    IsBlank(ThisItem.su_duedate),
+                                                                    "No fixed date",
+                                                                    Text(ThisItem.su_duedate, "mmm d, yyyy")
+                                                                ) & "  |  " & ThisItem.su_cadence
+                                                            Color: =RGBA(107, 114, 128, 1)
+                                                            Size: =11
+                                                            Font: =gblTheme.FontBody
+                                                    - lbl_DlFn:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =50
+                                                            Width: =Parent.TemplateWidth - 110
+                                                            Height: =21
+                                                            Text: =ThisItem.su_function.su_name
+                                                            Color: =RGBA(59, 67, 88, 1)
+                                                            Size: =11
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Font: =gblTheme.FontBody
+                                                    - lbl_DlPill:
+                                                        Control: Label@2.5.1
+                                                        Properties:
+                                                            X: =Parent.TemplateWidth - 94
+                                                            Y: =26
+                                                            Width: =77
+                                                            Height: =28
+                                                            Text: |
+                                                                =If(
+                                                                    IsBlank(ThisItem.su_duedate),
+                                                                    "No date",
+                                                                    If(
+                                                                        ThisItem.su_duedate < gblToday,
+                                                                        "Overdue " & DateDiff(ThisItem.su_duedate, gblToday, TimeUnit.Days) & "d",
+                                                                        "Due in " & DateDiff(gblToday, ThisItem.su_duedate, TimeUnit.Days) & "d"
+                                                                    )
+                                                                )
+                                                            Fill: |
+                                                                =If(
+                                                                    IsBlank(ThisItem.su_duedate),
+                                                                    RGBA(237, 238, 241, 1),
+                                                                    If(
+                                                                        ThisItem.su_duedate < gblToday,
+                                                                        RGBA(251, 233, 233, 1),
+                                                                        If(
+                                                                            ThisItem.su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days),
+                                                                            RGBA(252, 243, 218, 1),
+                                                                            RGBA(230, 238, 251, 1)
+                                                                        )
+                                                                    )
+                                                                )
+                                                            Color: |
+                                                                =If(
+                                                                    IsBlank(ThisItem.su_duedate),
+                                                                    RGBA(107, 114, 128, 1),
+                                                                    If(
+                                                                        ThisItem.su_duedate < gblToday,
+                                                                        RGBA(142, 20, 20, 1),
+                                                                        If(
+                                                                            ThisItem.su_duedate <= DateAdd(gblToday, 30, TimeUnit.Days),
+                                                                            RGBA(124, 64, 8, 1),
+                                                                            RGBA(32, 50, 153, 1)
+                                                                        )
+                                                                    )
+                                                                )
+                                                            Size: =10
+                                                            FontWeight: =FontWeight.Bold
+                                                            Align: =Align.Center
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Font: =gblTheme.FontBody
+                                                    - rec_DlRule:
+                                                        Control: Rectangle@2.3.0
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =80
+                                                            Width: =Parent.TemplateWidth
+                                                            Height: =1
+                                                            Fill: =RGBA(238, 240, 244, 1)
+                                                            BorderThickness: =0
+                                                    - btn_DlOverlay:
+                                                        Control: Classic/Button@2.2.0
+                                                        Properties:
+                                                            X: =0
+                                                            Y: =0
+                                                            Width: =Parent.TemplateWidth
+                                                            Height: =81
+                                                            Text: =""
+                                                            Tooltip: ="Open " & ThisItem.su_name
+                                                            OnSelect: |
+                                                                =Set(gblSelectedFunction, ThisItem.su_function);
+                                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            HoverFill: =RGBA(247, 105, 0, 0.06)
+                                                            PressedFill: =RGBA(247, 105, 0, 0.12)
+                                                            BorderThickness: =0
+                                            - lbl_RailEmpty:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width * 0.58 + 33
+                                                    Y: =110
+                                                    Width: =Parent.Width * 0.42 - 50
+                                                    Height: =60
+                                                    Text: |
+                                                        ="Nothing due" & Char(10) &
+                                                         "No open deadlines are assigned to you."
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =12
+                                                    Align: =Align.Center
+                                                    Visible: =CountRows(colMyDeadlines) = 0
+                                                    Font: =gblTheme.FontBody
+                                            - rec_RailNoteAccent:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =Parent.Width * 0.58 + 33
+                                                    Y: =304
+                                                    Width: =4
+                                                    Height: =79
+                                                    Fill: =gblTheme.Navy
+                                                    BorderThickness: =0
+                                            - lbl_RailNote:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width * 0.58 + 53
+                                                    Y: =304
+                                                    Width: =Parent.Width * 0.42 - 70
+                                                    Height: =79
+                                                    Text: |
+                                                        ="Reminders are sent automatically at 90 days, 30 days, on the due date, and weekly once overdue."
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =11
+                                                    Font: =gblTheme.FontBody
+
+                    - PromptsCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
+                            Height: =256
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =4
+                        Children:
+
+                            - promptsBand:
+                                Control: GroupContainer@1.5.0
+                                Variant: AutoLayout
+                                Properties:
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =0
+                                    PaddingTop: =44
+                                    PaddingBottom: =44
+                                    PaddingLeft: =Max(28, (Parent.Width - 1320) / 2)
+                                    PaddingRight: =Max(28, (Parent.Width - 1320) / 2)
+                                Children:
+
+                                    - cnt_PromptsRow:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                            Width: =Parent.Width - Max(28, (Parent.Width - 1320) / 2) * 2
+                                            Height: =168
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                        Children:
+
+                                            - lbl_WrongHead:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.Width / 2 - 40
+                                                    Height: =40
+                                                    Text: ="Something look wrong?"
+                                                    Color: =gblTheme.Navy
+                                                    Size: =18
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_WrongBody:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =0
+                                                    Y: =48
+                                                    Width: =409
+                                                    Height: =60
+                                                    Text: |
+                                                        ="Owners can flag any record for review from its detail page. The compliance office responds within five business days."
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =12
+                                                    Font: =gblTheme.FontBody
+                                            - btn_FindToFlag:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =124
+                                                    Width: =195
+                                                    Height: =44
+                                                    Text: ="Find a record to flag"
+                                                    OnSelect: |
+                                                        =Set(gblFilter, {Query: "", Topic: "All", Risk: "All", Area: "All"});
+                                                        Navigate(scr_Functions, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                                    Color: =gblTheme.Navy
+                                                    HoverColor: =gblTheme.Navy
+                                                    PressedColor: =gblTheme.Navy
+                                                    BorderColor: =gblTheme.Navy
+                                                    BorderThickness: =2
+                                                    Size: =12
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_NewHead:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width / 2
+                                                    Y: =0
+                                                    Width: =Parent.Width / 2 - 40
+                                                    Height: =40
+                                                    Text: ="New to the matrix?"
+                                                    Color: =gblTheme.Navy
+                                                    Size: =18
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_NewBody:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.Width / 2
+                                                    Y: =48
+                                                    Width: =409
+                                                    Height: =60
+                                                    Text: |
+                                                        ="Start with the topic view to see how obligations are organized, then check the directory for the owner of a given area."
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =12
+                                                    Font: =gblTheme.FontBody
+                                            - btn_OpenDirectory:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =Parent.Width / 2
+                                                    Y: =124
+                                                    Width: =189
+                                                    Height: =44
+                                                    Text: ="Open the directory"
+                                                    OnSelect: =Navigate(scr_Directory, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                                    Color: =gblTheme.Navy
+                                                    HoverColor: =gblTheme.Navy
+                                                    PressedColor: =gblTheme.Navy
+                                                    BorderColor: =gblTheme.Navy
+                                                    BorderThickness: =2
+                                                    Size: =12
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+
+                    - FooterCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
                             Height: =220
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =5
+                        Children:
+
+                            - cnt_FooterSlot:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =gblTheme.Navy

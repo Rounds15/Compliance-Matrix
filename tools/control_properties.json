@@ -14,7 +14,13 @@
     "ship silently.",
     "",
     "When a paste confirms a new property, add it here. When a paste rejects one,",
-    "move it to 'rejected' with the error code so it can never come back."
+    "move it to 'rejected' with the error code so it can never come back.",
+    "",
+    "FluidGrid@2.3.0 and DataCard@1.0.2 were added for the scrollable-screen",
+    "pattern in canvas-apps-output/mockup/. Their 'known' lists are the",
+    "properties that pattern emits, NOT a confirmed inventory - no screen in",
+    "this repo used either control before. Confirm with a paste, then trim or",
+    "extend these lists."
   ],
   "controls": {
     "Label@2.5.1": {
@@ -145,6 +151,10 @@
         "LayoutDirection",
         "LayoutGap",
         "LayoutOverflowY",
+        "PaddingBottom",
+        "PaddingLeft",
+        "PaddingRight",
+        "PaddingTop",
         "Visible",
         "Width",
         "X",
@@ -189,6 +199,29 @@
         "Visible",
         "Width",
         "Workspace",
+        "X",
+        "Y"
+      ],
+      "rejected": {}
+    },
+    "FluidGrid@2.3.0": {
+      "known": [
+        "AcceptsFocus",
+        "BorderThickness",
+        "Height",
+        "Visible",
+        "Width",
+        "X",
+        "Y"
+      ],
+      "rejected": {}
+    },
+    "DataCard@1.0.2": {
+      "known": [
+        "Height",
+        "Visible",
+        "Width",
+        "WidthFit",
         "X",
         "Y"
       ],

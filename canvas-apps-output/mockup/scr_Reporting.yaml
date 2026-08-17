@@ -9,695 +9,735 @@ Screens:
                 Set(gblRptTab, "embed")
         Children:
 
-            - cnt_Scroll:
-                Control: GroupContainer@1.5.0
-                Variant: AutoLayout
+            - bodyGrid:
+                Control: FluidGrid@2.3.0
                 Properties:
+                    AcceptsFocus: =true
+                    BorderThickness: =0
                     X: =0
-                    Y: =113
+                    Y: =112
                     Width: =Parent.Width
-                    Height: =Parent.Height - 113
-                    Fill: =RGBA(247, 247, 248, 1)
-                    LayoutDirection: =LayoutDirection.Vertical
-                    LayoutGap: =0
-                    LayoutOverflowY: =LayoutOverflow.Scroll
+                    Height: =656
                 Children:
 
-                    - cnt_Head:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - HeadCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =263
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =0
                         Children:
 
-                            - lbl_Eyebrow:
-                                Control: Label@2.5.1
+                            - cnt_Head:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
                                 Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =598
-                                    Height: =20
-                                    Text: ="RISK AND REPORTING  |  ADMINISTRATOR"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =10
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_Title:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =52
-                                    Width: =598
-                                    Height: =50
-                                    Text: ="Reporting"
-                                    Color: =gblTheme.Navy
-                                    Size: =36
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_Sub:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =110
-                                    Width: =598
-                                    Height: =60
-                                    Text: |
-                                        ="The matrix is the system of record; Power BI is the visualization layer. Reports connect straight to the Dataverse tables, so what leadership sees is never a stale copy."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =12
-                                    Font: =gblTheme.FontBody
-                            - btn_OpenPbi:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =Parent.Width - 251
-                                    Y: =126
-                                    Width: =200
-                                    Height: =44
-                                    Text: ="Open in Power BI"
-                                    OnSelect: =Launch("https://app.powerbi.com")
-                                    Fill: =gblTheme.OrangeDark
-                                    HoverFill: =gblTheme.Orange
-                                    PressedFill: =RGBA(180, 55, 0, 1)
-                                    Color: =gblTheme.White
-                                    HoverColor: =gblTheme.White
-                                    PressedColor: =gblTheme.White
-                                    BorderColor: =gblTheme.OrangeDark
-                                    BorderThickness: =2
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - rec_HeadRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =187
-                                    Width: =Parent.Width - 102
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-
-                            - btn_TabEmbed:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =51
-                                    Y: =211
-                                    Width: =149
-                                    Height: =52
-                                    Text: ="Embedded report"
-                                    OnSelect: =Set(gblRptTab, "embed")
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.04)
-                                    PressedFill: =RGBA(0, 14, 84, 0.08)
-                                    Color: =If(gblRptTab = "embed", gblTheme.Navy, RGBA(107, 114, 128, 1))
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - btn_TabData:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =202
-                                    Y: =211
-                                    Width: =195
-                                    Height: =52
-                                    Text: ="Datasets and connection"
-                                    OnSelect: =Set(gblRptTab, "data")
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.04)
-                                    PressedFill: =RGBA(0, 14, 84, 0.08)
-                                    Color: =If(gblRptTab = "data", gblTheme.Navy, RGBA(107, 114, 128, 1))
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - btn_TabExport:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =399
-                                    Y: =211
-                                    Width: =87
-                                    Height: =52
-                                    Text: ="Exports"
-                                    OnSelect: =Set(gblRptTab, "export")
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.04)
-                                    PressedFill: =RGBA(0, 14, 84, 0.08)
-                                    Color: =If(gblRptTab = "export", gblTheme.Navy, RGBA(107, 114, 128, 1))
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - rec_TabRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =262
-                                    Width: =Parent.Width - 102
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - rec_TabActive:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =Switch(gblRptTab, "embed", 51, "data", 202, "export", 399, 51)
-                                    Y: =259
-                                    Width: =Switch(gblRptTab, "embed", 149, "data", 195, "export", 87, 149)
-                                    Height: =4
-                                    Fill: =gblTheme.Orange
-                                    BorderThickness: =0
-
-                    - cnt_Embed:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =511
-                            Fill: =RGBA(247, 247, 248, 1)
-                            Visible: =gblRptTab = "embed"
-                        Children:
-
-                            - rec_PbiFrame:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =Parent.Width - 102
-                                    Height: =340
-                                    Fill: =gblTheme.White
-                                    BorderColor: =RGBA(196, 199, 206, 1)
-                                    BorderThickness: =2
-                            - img_PbiChart:
-                                Control: Image@2.2.3
-                                Properties:
-                                    X: =(Parent.Width - 38) / 2
-                                    Y: =69
-                                    Width: =38
-                                    Height: =38
-                                    Image: |
-                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
-                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-                                               <path d='M4 20 L4 13 M9 20 L9 7 M14 20 L14 10 M19 20 L19 4'
-                                                     fill='none' stroke='#ADB3B8' stroke-width='2'/>
-                                             </svg>"
-                                        )
-                            - lbl_PbiTitle:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =123
-                                    Width: =Parent.Width - 102
-                                    Height: =26
-                                    Text: ="Power BI report renders here"
-                                    Color: =gblTheme.Navy
-                                    Size: =13
-                                    FontWeight: =FontWeight.Bold
-                                    Align: =Align.Center
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_PbiBody:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =(Parent.Width - 400) / 2
-                                    Y: =165
-                                    Width: =400
-                                    Height: =90
-                                    Text: |
-                                        ="In the deployed app this frame hosts the Compliance Executive Overview report, embedded with row-level security so each viewer sees only the portfolio they own. Filters set on this page pass through to the report."
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =11
-                                    Align: =Align.Center
-                                    Font: =gblTheme.FontBody
-                            - gal_PbiChips:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =397
-                                    Y: =289
-                                    Width: =Parent.Width - 794
-                                    Height: =30
-                                    TemplateSize: =190
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =false
-                                    Items: |
-                                        =Table(
-                                            {ChipText: "Workspace: Compliance and ERM"},
-                                            {ChipText: "Refresh: every 3 hours"},
-                                            {ChipText: "RLS: by ownership chain"}
-                                        )
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
                                 Children:
-                                    - rec_Chip:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 8
-                                            Height: =30
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(196, 199, 206, 1)
-                                            BorderThickness: =1
-                                    - lbl_Chip:
+
+                                    - lbl_Eyebrow:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =10
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 28
-                                            Height: =30
-                                            Text: =ThisItem.ChipText
-                                            Color: =RGBA(59, 67, 88, 1)
+                                            X: =51
+                                            Y: =24
+                                            Width: =598
+                                            Height: =20
+                                            Text: ="RISK AND REPORTING  |  ADMINISTRATOR"
+                                            Color: =gblTheme.OrangeDark
                                             Size: =10
-                                            VerticalAlign: =VerticalAlign.Middle
+                                            FontWeight: =FontWeight.Bold
                                             Font: =gblTheme.FontBody
-                            - gal_PbiReports:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =51
-                                    Y: =378
-                                    Width: =Parent.Width - 102
-                                    Height: =133
-                                    TemplateSize: =(Parent.Width - 102) / 3
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =false
-                                    Items: |
-                                        =Table(
-                                            {RptTitle: "Compliance Executive Overview", RptBody: "Portfolio risk, gap counts, and deadline health for the senior leadership team."},
-                                            {RptTitle: "Deadline Health",               RptBody: "Overdue and upcoming obligations by unit, with reminder-response rates."},
-                                            {RptTitle: "Gap Aging",                     RptBody: "Open gaps by severity and days-open, with closure throughput over time."}
-                                        )
-                                Children:
-                                    - rec_RptCard:
+                                    - lbl_Title:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =51
+                                            Y: =52
+                                            Width: =598
+                                            Height: =50
+                                            Text: ="Reporting"
+                                            Color: =gblTheme.Navy
+                                            Size: =36
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontDisplay
+                                    - lbl_Sub:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =51
+                                            Y: =110
+                                            Width: =598
+                                            Height: =60
+                                            Text: |
+                                                ="The matrix is the system of record; Power BI is the visualization layer. Reports connect straight to the Dataverse tables, so what leadership sees is never a stale copy."
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =12
+                                            Font: =gblTheme.FontBody
+                                    - btn_OpenPbi:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =Parent.Width - 251
+                                            Y: =126
+                                            Width: =200
+                                            Height: =44
+                                            Text: ="Open in Power BI"
+                                            OnSelect: =Launch("https://app.powerbi.com")
+                                            Fill: =gblTheme.OrangeDark
+                                            HoverFill: =gblTheme.Orange
+                                            PressedFill: =RGBA(180, 55, 0, 1)
+                                            Color: =gblTheme.White
+                                            HoverColor: =gblTheme.White
+                                            PressedColor: =gblTheme.White
+                                            BorderColor: =gblTheme.OrangeDark
+                                            BorderThickness: =2
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - rec_HeadRule:
                                         Control: Rectangle@2.3.0
                                         Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 15
-                                            Height: =133
+                                            X: =51
+                                            Y: =187
+                                            Width: =Parent.Width - 102
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =0
+
+                                    - btn_TabEmbed:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =51
+                                            Y: =211
+                                            Width: =149
+                                            Height: =52
+                                            Text: ="Embedded report"
+                                            OnSelect: =Set(gblRptTab, "embed")
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                                            PressedFill: =RGBA(0, 14, 84, 0.08)
+                                            Color: =If(gblRptTab = "embed", gblTheme.Navy, RGBA(107, 114, 128, 1))
+                                            HoverColor: =gblTheme.Navy
+                                            PressedColor: =gblTheme.Navy
+                                            BorderThickness: =0
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - btn_TabData:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =202
+                                            Y: =211
+                                            Width: =195
+                                            Height: =52
+                                            Text: ="Datasets and connection"
+                                            OnSelect: =Set(gblRptTab, "data")
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                                            PressedFill: =RGBA(0, 14, 84, 0.08)
+                                            Color: =If(gblRptTab = "data", gblTheme.Navy, RGBA(107, 114, 128, 1))
+                                            HoverColor: =gblTheme.Navy
+                                            PressedColor: =gblTheme.Navy
+                                            BorderThickness: =0
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - btn_TabExport:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =399
+                                            Y: =211
+                                            Width: =87
+                                            Height: =52
+                                            Text: ="Exports"
+                                            OnSelect: =Set(gblRptTab, "export")
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                                            PressedFill: =RGBA(0, 14, 84, 0.08)
+                                            Color: =If(gblRptTab = "export", gblTheme.Navy, RGBA(107, 114, 128, 1))
+                                            HoverColor: =gblTheme.Navy
+                                            PressedColor: =gblTheme.Navy
+                                            BorderThickness: =0
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - rec_TabRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =262
+                                            Width: =Parent.Width - 102
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =0
+                                    - rec_TabActive:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =Switch(gblRptTab, "embed", 51, "data", 202, "export", 399, 51)
+                                            Y: =259
+                                            Width: =Switch(gblRptTab, "embed", 149, "data", 195, "export", 87, 149)
+                                            Height: =4
+                                            Fill: =gblTheme.Orange
+                                            BorderThickness: =0
+
+                    - ViewsCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
+                            Height: =511
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =1
+                        Children:
+
+                            - cnt_Embed:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =511
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Visible: =gblRptTab = "embed"
+                                Children:
+
+                                    - rec_PbiFrame:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =Parent.Width - 102
+                                            Height: =340
                                             Fill: =gblTheme.White
-                                            BorderColor: =RGBA(221, 222, 226, 1)
-                                            BorderThickness: =1
-                                    - img_RptIcon:
+                                            BorderColor: =RGBA(196, 199, 206, 1)
+                                            BorderThickness: =2
+                                    - img_PbiChart:
                                         Control: Image@2.2.3
                                         Properties:
-                                            X: =15
-                                            Y: =15
-                                            Width: =17
-                                            Height: =17
+                                            X: =(Parent.Width - 38) / 2
+                                            Y: =69
+                                            Width: =38
+                                            Height: =38
                                             Image: |
                                                 ="data:image/svg+xml;utf8, " & EncodeUrl(
                                                     "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
                                                        <path d='M4 20 L4 13 M9 20 L9 7 M14 20 L14 10 M19 20 L19 4'
-                                                             fill='none' stroke='#F76900' stroke-width='2'/>
+                                                             fill='none' stroke='#ADB3B8' stroke-width='2'/>
                                                      </svg>"
                                                 )
-                                    - lbl_RptTitle:
+                                    - lbl_PbiTitle:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =41
-                                            Y: =13
-                                            Width: =Parent.TemplateWidth - 60
-                                            Height: =22
-                                            Text: =ThisItem.RptTitle
+                                            X: =51
+                                            Y: =123
+                                            Width: =Parent.Width - 102
+                                            Height: =26
+                                            Text: ="Power BI report renders here"
                                             Color: =gblTheme.Navy
-                                            Size: =11
+                                            Size: =13
                                             FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
                                             Font: =gblTheme.FontDisplay
-                                    - lbl_RptBody:
+                                    - lbl_PbiBody:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =15
-                                            Y: =43
-                                            Width: =Parent.TemplateWidth - 45
-                                            Height: =42
-                                            Text: =ThisItem.RptBody
-                                            Color: =RGBA(91, 99, 115, 1)
-                                            Size: =10
-                                            Font: =gblTheme.FontBody
-                                    - btn_RptOpen:
-                                        Control: Classic/Button@2.2.0
-                                        Properties:
-                                            X: =15
-                                            Y: =93
-                                            Width: =120
-                                            Height: =24
-                                            Text: ="Open report"
-                                            Align: =Align.Left
-                                            OnSelect: =Launch("https://app.powerbi.com")
-                                            Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.08)
-                                            PressedFill: =RGBA(247, 105, 0, 0.15)
-                                            Color: =gblTheme.OrangeDark
-                                            HoverColor: =gblTheme.Orange
-                                            PressedColor: =gblTheme.OrangeDark
-                                            BorderThickness: =0
-                                            Size: =10
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontBody
-
-                    - cnt_Data:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =511
-                            Fill: =RGBA(247, 247, 248, 1)
-                            Visible: =gblRptTab = "data"
-                        Children:
-
-                            - rec_NoteBar:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =Parent.Width - 102
-                                    Height: =66
-                                    Fill: =RGBA(237, 238, 241, 1)
-                                    BorderThickness: =0
-                            - rec_NoteAccent:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =4
-                                    Height: =66
-                                    Fill: =gblTheme.Navy
-                                    BorderThickness: =0
-                            - lbl_Note:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =71
-                                    Y: =32
-                                    Width: =Parent.Width - 142
-                                    Height: =50
-                                    Text: |
-                                        ="Connection. Power BI Desktop, Get Data, Dataverse, environment URL, then select the tables below. Publish to the Compliance and ERM workspace and schedule refresh; no intermediate export is required."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =11
-                                    Font: =gblTheme.FontBody
-                            - rec_TblHead:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =106
-                                    Width: =Parent.Width - 102
-                                    Height: =40
-                                    Fill: =RGBA(237, 238, 241, 1)
-                                    BorderThickness: =0
-                            - lbl_ColTable:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =65
-                                    Y: =106
-                                    Width: =240
-                                    Height: =40
-                                    Text: ="TABLE"
-                                    Color: =gblTheme.Navy
-                                    Size: =9
-                                    FontWeight: =FontWeight.Bold
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Font: =gblTheme.FontBody
-                            - lbl_ColLogical:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =325
-                                    Y: =106
-                                    Width: =260
-                                    Height: =40
-                                    Text: ="LOGICAL NAME"
-                                    Color: =gblTheme.Navy
-                                    Size: =9
-                                    FontWeight: =FontWeight.Bold
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Font: =gblTheme.FontBody
-                            - lbl_ColContents:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =605
-                                    Y: =106
-                                    Width: =520
-                                    Height: =40
-                                    Text: ="CONTENTS"
-                                    Color: =gblTheme.Navy
-                                    Size: =9
-                                    FontWeight: =FontWeight.Bold
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Font: =gblTheme.FontBody
-                            - lbl_ColVolume:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =1145
-                                    Y: =106
-                                    Width: =160
-                                    Height: =40
-                                    Text: ="VOLUME"
-                                    Color: =gblTheme.Navy
-                                    Size: =9
-                                    FontWeight: =FontWeight.Bold
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Font: =gblTheme.FontBody
-                            - gal_Datasets:
-                                Control: Gallery@2.15.0
-                                Variant: Vertical
-                                Properties:
-                                    X: =51
-                                    Y: =146
-                                    Width: =Parent.Width - 102
-                                    Height: =232
-                                    TemplateSize: =58
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =false
-                                    Items: |
-                                        =Table(
-                                            {DsName: "Compliance Functions", DsLogical: "su_compliancefunction", DsContents: "One row per obligation with the full ownership chain, statute, cadence, and risk rating.", DsVolume: CountRows(dsFunctions) & " rows"},
-                                            {DsName: "Compliance Deadlines", DsLogical: "su_compliancedeadline", DsContents: "One row per due date, joined to its function; carries cadence, completion flag, and copied owner fields.", DsVolume: CountRows(dsDeadlines) & " rows"},
-                                            {DsName: "Compliance Gaps",      DsLogical: "su_compliancegap",      DsContents: "Open and closed gaps with severity, opened and closed dates, and closure notes.", DsVolume: CountRows(dsGaps) & " rows"},
-                                            {DsName: "Compliance Directory", DsLogical: "su_compliancedirectory", DsContents: "People layer: name, title, unit, email, phone, location.", DsVolume: CountRows(dsDirectory) & " rows"}
-                                        )
-                                Children:
-                                    - lbl_DsName:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =14
-                                            Y: =0
-                                            Width: =240
-                                            Height: =57
-                                            Text: =ThisItem.DsName
-                                            Color: =gblTheme.Navy
-                                            Size: =10
-                                            FontWeight: =FontWeight.Bold
-                                            VerticalAlign: =VerticalAlign.Middle
-                                            Font: =gblTheme.FontBody
-                                    - lbl_DsLogical:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =274
-                                            Y: =0
-                                            Width: =260
-                                            Height: =57
-                                            Text: =ThisItem.DsLogical
-                                            Color: =RGBA(32, 50, 153, 1)
-                                            Size: =10
-                                            VerticalAlign: =VerticalAlign.Middle
-                                            Font: =gblTheme.FontBody
-                                    - lbl_DsContents:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =554
-                                            Y: =8
-                                            Width: =520
-                                            Height: =42
-                                            Text: =ThisItem.DsContents
-                                            Color: =RGBA(91, 99, 115, 1)
-                                            Size: =10
-                                            Font: =gblTheme.FontBody
-                                    - lbl_DsVolume:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =1094
-                                            Y: =0
-                                            Width: =160
-                                            Height: =57
-                                            Text: =ThisItem.DsVolume
+                                            X: =(Parent.Width - 400) / 2
+                                            Y: =165
+                                            Width: =400
+                                            Height: =90
+                                            Text: |
+                                                ="In the deployed app this frame hosts the Compliance Executive Overview report, embedded with row-level security so each viewer sees only the portfolio they own. Filters set on this page pass through to the report."
                                             Color: =RGBA(107, 114, 128, 1)
-                                            Size: =10
+                                            Size: =11
+                                            Align: =Align.Center
+                                            Font: =gblTheme.FontBody
+                                    - gal_PbiChips:
+                                        Control: Gallery@2.15.0
+                                        Variant: Horizontal
+                                        Properties:
+                                            X: =397
+                                            Y: =289
+                                            Width: =Parent.Width - 794
+                                            Height: =30
+                                            TemplateSize: =190
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =false
+                                            Items: |
+                                                =Table(
+                                                    {ChipText: "Workspace: Compliance and ERM"},
+                                                    {ChipText: "Refresh: every 3 hours"},
+                                                    {ChipText: "RLS: by ownership chain"}
+                                                )
+                                        Children:
+                                            - rec_Chip:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 8
+                                                    Height: =30
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                                    BorderThickness: =1
+                                            - lbl_Chip:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =10
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 28
+                                                    Height: =30
+                                                    Text: =ThisItem.ChipText
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =10
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                    - gal_PbiReports:
+                                        Control: Gallery@2.15.0
+                                        Variant: Horizontal
+                                        Properties:
+                                            X: =51
+                                            Y: =378
+                                            Width: =Parent.Width - 102
+                                            Height: =133
+                                            TemplateSize: =(Parent.Width - 102) / 3
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =false
+                                            Items: |
+                                                =Table(
+                                                    {RptTitle: "Compliance Executive Overview", RptBody: "Portfolio risk, gap counts, and deadline health for the senior leadership team."},
+                                                    {RptTitle: "Deadline Health",               RptBody: "Overdue and upcoming obligations by unit, with reminder-response rates."},
+                                                    {RptTitle: "Gap Aging",                     RptBody: "Open gaps by severity and days-open, with closure throughput over time."}
+                                                )
+                                        Children:
+                                            - rec_RptCard:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 15
+                                                    Height: =133
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - img_RptIcon:
+                                                Control: Image@2.2.3
+                                                Properties:
+                                                    X: =15
+                                                    Y: =15
+                                                    Width: =17
+                                                    Height: =17
+                                                    Image: |
+                                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+                                                               <path d='M4 20 L4 13 M9 20 L9 7 M14 20 L14 10 M19 20 L19 4'
+                                                                     fill='none' stroke='#F76900' stroke-width='2'/>
+                                                             </svg>"
+                                                        )
+                                            - lbl_RptTitle:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =41
+                                                    Y: =13
+                                                    Width: =Parent.TemplateWidth - 60
+                                                    Height: =22
+                                                    Text: =ThisItem.RptTitle
+                                                    Color: =gblTheme.Navy
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_RptBody:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =15
+                                                    Y: =43
+                                                    Width: =Parent.TemplateWidth - 45
+                                                    Height: =42
+                                                    Text: =ThisItem.RptBody
+                                                    Color: =RGBA(91, 99, 115, 1)
+                                                    Size: =10
+                                                    Font: =gblTheme.FontBody
+                                            - btn_RptOpen:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =15
+                                                    Y: =93
+                                                    Width: =120
+                                                    Height: =24
+                                                    Text: ="Open report"
+                                                    Align: =Align.Left
+                                                    OnSelect: =Launch("https://app.powerbi.com")
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(247, 105, 0, 0.08)
+                                                    PressedFill: =RGBA(247, 105, 0, 0.15)
+                                                    Color: =gblTheme.OrangeDark
+                                                    HoverColor: =gblTheme.Orange
+                                                    PressedColor: =gblTheme.OrangeDark
+                                                    BorderThickness: =0
+                                                    Size: =10
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+
+                            - cnt_Data:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =511
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Visible: =gblRptTab = "data"
+                                Children:
+
+                                    - rec_NoteBar:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =Parent.Width - 102
+                                            Height: =66
+                                            Fill: =RGBA(237, 238, 241, 1)
+                                            BorderThickness: =0
+                                    - rec_NoteAccent:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =4
+                                            Height: =66
+                                            Fill: =gblTheme.Navy
+                                            BorderThickness: =0
+                                    - lbl_Note:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =71
+                                            Y: =32
+                                            Width: =Parent.Width - 142
+                                            Height: =50
+                                            Text: |
+                                                ="Connection. Power BI Desktop, Get Data, Dataverse, environment URL, then select the tables below. Publish to the Compliance and ERM workspace and schedule refresh; no intermediate export is required."
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =11
+                                            Font: =gblTheme.FontBody
+                                    - rec_TblHead:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =106
+                                            Width: =Parent.Width - 102
+                                            Height: =40
+                                            Fill: =RGBA(237, 238, 241, 1)
+                                            BorderThickness: =0
+                                    - lbl_ColTable:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =65
+                                            Y: =106
+                                            Width: =240
+                                            Height: =40
+                                            Text: ="TABLE"
+                                            Color: =gblTheme.Navy
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
                                             VerticalAlign: =VerticalAlign.Middle
                                             Font: =gblTheme.FontBody
-                                    - rec_DsRule:
+                                    - lbl_ColLogical:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =325
+                                            Y: =106
+                                            Width: =260
+                                            Height: =40
+                                            Text: ="LOGICAL NAME"
+                                            Color: =gblTheme.Navy
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_ColContents:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =605
+                                            Y: =106
+                                            Width: =520
+                                            Height: =40
+                                            Text: ="CONTENTS"
+                                            Color: =gblTheme.Navy
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_ColVolume:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =1145
+                                            Y: =106
+                                            Width: =160
+                                            Height: =40
+                                            Text: ="VOLUME"
+                                            Color: =gblTheme.Navy
+                                            Size: =9
+                                            FontWeight: =FontWeight.Bold
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - gal_Datasets:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                            X: =51
+                                            Y: =146
+                                            Width: =Parent.Width - 102
+                                            Height: =232
+                                            TemplateSize: =58
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =false
+                                            Items: |
+                                                =Table(
+                                                    {DsName: "Compliance Functions", DsLogical: "su_compliancefunction", DsContents: "One row per obligation with the full ownership chain, statute, cadence, and risk rating.", DsVolume: CountRows(dsFunctions) & " rows"},
+                                                    {DsName: "Compliance Deadlines", DsLogical: "su_compliancedeadline", DsContents: "One row per due date, joined to its function; carries cadence, completion flag, and copied owner fields.", DsVolume: CountRows(dsDeadlines) & " rows"},
+                                                    {DsName: "Compliance Gaps",      DsLogical: "su_compliancegap",      DsContents: "Open and closed gaps with severity, opened and closed dates, and closure notes.", DsVolume: CountRows(dsGaps) & " rows"},
+                                                    {DsName: "Compliance Directory", DsLogical: "su_compliancedirectory", DsContents: "People layer: name, title, unit, email, phone, location.", DsVolume: CountRows(dsDirectory) & " rows"}
+                                                )
+                                        Children:
+                                            - lbl_DsName:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =14
+                                                    Y: =0
+                                                    Width: =240
+                                                    Height: =57
+                                                    Text: =ThisItem.DsName
+                                                    Color: =gblTheme.Navy
+                                                    Size: =10
+                                                    FontWeight: =FontWeight.Bold
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_DsLogical:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =274
+                                                    Y: =0
+                                                    Width: =260
+                                                    Height: =57
+                                                    Text: =ThisItem.DsLogical
+                                                    Color: =RGBA(32, 50, 153, 1)
+                                                    Size: =10
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_DsContents:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =554
+                                                    Y: =8
+                                                    Width: =520
+                                                    Height: =42
+                                                    Text: =ThisItem.DsContents
+                                                    Color: =RGBA(91, 99, 115, 1)
+                                                    Size: =10
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_DsVolume:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =1094
+                                                    Y: =0
+                                                    Width: =160
+                                                    Height: =57
+                                                    Text: =ThisItem.DsVolume
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =10
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - rec_DsRule:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =57
+                                                    Width: =Parent.TemplateWidth
+                                                    Height: =1
+                                                    Fill: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =0
+                                    - rec_RelPanel:
                                         Control: Rectangle@2.3.0
                                         Properties:
-                                            X: =0
-                                            Y: =57
-                                            Width: =Parent.TemplateWidth
-                                            Height: =1
-                                            Fill: =RGBA(221, 222, 226, 1)
-                                            BorderThickness: =0
-                            - rec_RelPanel:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =392
-                                    Width: =(Parent.Width - 117) / 2
-                                    Height: =119
-                                    Fill: =gblTheme.White
-                                    BorderColor: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =1
-                            - lbl_RelHead:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =66
-                                    Y: =404
-                                    Width: =300
-                                    Height: =20
-                                    Text: ="RELATIONSHIPS"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =9
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_RelBody:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =66
-                                    Y: =428
-                                    Width: =(Parent.Width - 117) / 2 - 30
-                                    Height: =70
-                                    Text: |
-                                        ="Deadlines to Functions on su_FunctionId (many-to-one)" & Char(10) &
-                                         "Gaps to Functions on su_FunctionId (many-to-one)" & Char(10) &
-                                         "Functions to Directory on three owner lookups"
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =10
-                                    Font: =gblTheme.FontBody
-                            - rec_MeasPanel:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =(Parent.Width - 117) / 2 + 66
-                                    Y: =392
-                                    Width: =(Parent.Width - 117) / 2
-                                    Height: =119
-                                    Fill: =gblTheme.White
-                                    BorderColor: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =1
-                            - lbl_MeasHead:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =(Parent.Width - 117) / 2 + 81
-                                    Y: =404
-                                    Width: =300
-                                    Height: =20
-                                    Text: ="MEASURES TO DEFINE"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =9
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_MeasBody:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =(Parent.Width - 117) / 2 + 81
-                                    Y: =428
-                                    Width: =(Parent.Width - 117) / 2 - 30
-                                    Height: =70
-                                    Text: |
-                                        ="Open Gap Count, Gap Aging Days" & Char(10) &
-                                         "Overdue Deadlines, On-Time Completion percent" & Char(10) &
-                                         "Fiscal calendar starts July 1, mark a custom date table"
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =10
-                                    Font: =gblTheme.FontBody
-
-                    - cnt_Export:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =511
-                            Fill: =RGBA(247, 247, 248, 1)
-                            Visible: =gblRptTab = "export"
-                        Children:
-
-                            - gal_Exports:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =Parent.Width - 102
-                                    Height: =340
-                                    TemplateSize: =(Parent.Width - 102) / 3
-                                    TemplatePadding: =0
-                                    WrapCount: =3
-                                    ShowScrollbar: =false
-                                    Items: |
-                                        =Table(
-                                            {ExTitle: "Full matrix (CSV)",              ExBody: "All functions with the complete column set, for offline review or audit request."},
-                                            {ExTitle: "Deadline calendar (ICS)",        ExBody: "Subscribe to due dates in Outlook; regenerated on each change."},
-                                            {ExTitle: "Gap register (XLSX)",            ExBody: "Open and closed gaps with severity, aging, and closure notes."},
-                                            {ExTitle: "Executive portfolio pack (PDF)", ExBody: "One page per executive owner, generated from the current data."}
-                                        )
-                                Children:
-                                    - rec_ExCard:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 15
-                                            Height: =160
+                                            X: =51
+                                            Y: =392
+                                            Width: =(Parent.Width - 117) / 2
+                                            Height: =119
                                             Fill: =gblTheme.White
                                             BorderColor: =RGBA(221, 222, 226, 1)
                                             BorderThickness: =1
-                                    - lbl_ExTitle:
+                                    - lbl_RelHead:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =15
-                                            Y: =15
-                                            Width: =Parent.TemplateWidth - 45
-                                            Height: =24
-                                            Text: =ThisItem.ExTitle
-                                            Color: =gblTheme.Navy
-                                            Size: =11
+                                            X: =66
+                                            Y: =404
+                                            Width: =300
+                                            Height: =20
+                                            Text: ="RELATIONSHIPS"
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =9
                                             FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontDisplay
-                                    - lbl_ExBody:
+                                            Font: =gblTheme.FontBody
+                                    - lbl_RelBody:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =15
-                                            Y: =45
-                                            Width: =Parent.TemplateWidth - 45
-                                            Height: =54
-                                            Text: =ThisItem.ExBody
-                                            Color: =RGBA(91, 99, 115, 1)
+                                            X: =66
+                                            Y: =428
+                                            Width: =(Parent.Width - 117) / 2 - 30
+                                            Height: =70
+                                            Text: |
+                                                ="Deadlines to Functions on su_FunctionId (many-to-one)" & Char(10) &
+                                                 "Gaps to Functions on su_FunctionId (many-to-one)" & Char(10) &
+                                                 "Functions to Directory on three owner lookups"
+                                            Color: =RGBA(59, 67, 88, 1)
                                             Size: =10
                                             Font: =gblTheme.FontBody
-                                    - btn_ExGenerate:
-                                        Control: Classic/Button@2.2.0
+                                    - rec_MeasPanel:
+                                        Control: Rectangle@2.3.0
                                         Properties:
-                                            X: =15
-                                            Y: =109
-                                            Width: =110
-                                            Height: =36
-                                            Text: ="Generate"
-                                            OnSelect: =Notify("Export queued. The file will be emailed when it is ready.", NotificationType.Information)
-                                            Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(0, 14, 84, 0.06)
-                                            PressedFill: =RGBA(0, 14, 84, 0.12)
-                                            Color: =gblTheme.Navy
-                                            HoverColor: =gblTheme.Navy
-                                            PressedColor: =gblTheme.Navy
-                                            BorderColor: =gblTheme.Navy
-                                            BorderThickness: =2
-                                            Size: =10
+                                            X: =(Parent.Width - 117) / 2 + 66
+                                            Y: =392
+                                            Width: =(Parent.Width - 117) / 2
+                                            Height: =119
+                                            Fill: =gblTheme.White
+                                            BorderColor: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =1
+                                    - lbl_MeasHead:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =(Parent.Width - 117) / 2 + 81
+                                            Y: =404
+                                            Width: =300
+                                            Height: =20
+                                            Text: ="MEASURES TO DEFINE"
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =9
                                             FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_MeasBody:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =(Parent.Width - 117) / 2 + 81
+                                            Y: =428
+                                            Width: =(Parent.Width - 117) / 2 - 30
+                                            Height: =70
+                                            Text: |
+                                                ="Open Gap Count, Gap Aging Days" & Char(10) &
+                                                 "Overdue Deadlines, On-Time Completion percent" & Char(10) &
+                                                 "Fiscal calendar starts July 1, mark a custom date table"
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =10
                                             Font: =gblTheme.FontBody
 
-                    - cnt_FooterSlot:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                            - cnt_Export:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =511
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Visible: =gblRptTab = "export"
+                                Children:
+
+                                    - gal_Exports:
+                                        Control: Gallery@2.15.0
+                                        Variant: Horizontal
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =Parent.Width - 102
+                                            Height: =340
+                                            TemplateSize: =(Parent.Width - 102) / 3
+                                            TemplatePadding: =0
+                                            WrapCount: =3
+                                            ShowScrollbar: =false
+                                            Items: |
+                                                =Table(
+                                                    {ExTitle: "Full matrix (CSV)",              ExBody: "All functions with the complete column set, for offline review or audit request."},
+                                                    {ExTitle: "Deadline calendar (ICS)",        ExBody: "Subscribe to due dates in Outlook; regenerated on each change."},
+                                                    {ExTitle: "Gap register (XLSX)",            ExBody: "Open and closed gaps with severity, aging, and closure notes."},
+                                                    {ExTitle: "Executive portfolio pack (PDF)", ExBody: "One page per executive owner, generated from the current data."}
+                                                )
+                                        Children:
+                                            - rec_ExCard:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 15
+                                                    Height: =160
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - lbl_ExTitle:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =15
+                                                    Y: =15
+                                                    Width: =Parent.TemplateWidth - 45
+                                                    Height: =24
+                                                    Text: =ThisItem.ExTitle
+                                                    Color: =gblTheme.Navy
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_ExBody:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =15
+                                                    Y: =45
+                                                    Width: =Parent.TemplateWidth - 45
+                                                    Height: =54
+                                                    Text: =ThisItem.ExBody
+                                                    Color: =RGBA(91, 99, 115, 1)
+                                                    Size: =10
+                                                    Font: =gblTheme.FontBody
+                                            - btn_ExGenerate:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =15
+                                                    Y: =109
+                                                    Width: =110
+                                                    Height: =36
+                                                    Text: ="Generate"
+                                                    OnSelect: =Notify("Export queued. The file will be emailed when it is ready.", NotificationType.Information)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(0, 14, 84, 0.06)
+                                                    PressedFill: =RGBA(0, 14, 84, 0.12)
+                                                    Color: =gblTheme.Navy
+                                                    HoverColor: =gblTheme.Navy
+                                                    PressedColor: =gblTheme.Navy
+                                                    BorderColor: =gblTheme.Navy
+                                                    BorderThickness: =2
+                                                    Size: =10
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+
+                    - FooterSlotCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =220
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =2
+                        Children:
+
+                            - cnt_FooterSlot:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)

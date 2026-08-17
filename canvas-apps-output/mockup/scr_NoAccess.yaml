@@ -7,103 +7,126 @@ Screens:
             OnVisible: =Set(gblMenu, "")
         Children:
 
-            - cnt_Scroll:
-                Control: GroupContainer@1.5.0
-                Variant: AutoLayout
+            - bodyGrid:
+                Control: FluidGrid@2.3.0
                 Properties:
+                    AcceptsFocus: =true
+                    BorderThickness: =0
                     X: =0
-                    Y: =113
+                    Y: =112
                     Width: =Parent.Width
-                    Height: =Parent.Height - 113
-                    Fill: =RGBA(247, 247, 248, 1)
-                    LayoutDirection: =LayoutDirection.Vertical
-                    LayoutGap: =0
-                    LayoutOverflowY: =LayoutOverflow.Scroll
+                    Height: =656
                 Children:
 
-                    - cnt_Body:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - BodyCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =430
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =0
                         Children:
 
-                            - rec_Panel:
-                                Control: Rectangle@2.3.0
+                            - cnt_Body:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
                                 Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =Parent.Width - 102
-                                    Height: =366
-                                    Fill: =gblTheme.White
-                                    BorderColor: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =1
-                            - img_Shield:
-                                Control: Image@2.2.3
-                                Properties:
-                                    X: =(Parent.Width - 38) / 2
-                                    Y: =73
-                                    Width: =38
-                                    Height: =38
-                                    Image: |
-                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
-                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-                                               <path d='M12 2 L21 6 L21 12 C21 17 12 22 12 22 C12 22 3 17 3 12 L3 6 Z'
-                                                     fill='none' stroke='#ADB3B8' stroke-width='1.8'/>
-                                             </svg>"
-                                        )
-                            - lbl_Title:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =76
-                                    Y: =131
-                                    Width: =Parent.Width - 152
-                                    Height: =52
-                                    Text: ="Administrator access required"
-                                    Color: =gblTheme.Navy
-                                    Size: =27
-                                    Align: =Align.Center
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_Body:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =(Parent.Width - 480) / 2
-                                    Y: =189
-                                    Width: =480
-                                    Height: =90
-                                    Text: |
-                                        ="Risk and Reporting is limited to compliance office staff listed in the app administrators table. Switch the role selector in the header to Administrator to see these screens."
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =11
-                                    Align: =Align.Center
-                                    Font: =gblTheme.FontBody
-                            - btn_BackHome:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =(Parent.Width - 151) / 2
-                                    Y: =297
-                                    Width: =151
-                                    Height: =44
-                                    Text: ="Back to Home"
-                                    OnSelect: =Navigate(scr_Home, ScreenTransition.None)
-                                    Fill: =gblTheme.Navy
-                                    HoverFill: =RGBA(32, 50, 153, 1)
-                                    PressedFill: =RGBA(0, 10, 60, 1)
-                                    Color: =gblTheme.White
-                                    HoverColor: =gblTheme.White
-                                    PressedColor: =gblTheme.White
-                                    BorderColor: =gblTheme.Navy
-                                    BorderThickness: =2
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                Children:
 
-                    - cnt_FooterSlot:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                                    - rec_Panel:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =Parent.Width - 102
+                                            Height: =366
+                                            Fill: =gblTheme.White
+                                            BorderColor: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =1
+                                    - img_Shield:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                            X: =(Parent.Width - 38) / 2
+                                            Y: =73
+                                            Width: =38
+                                            Height: =38
+                                            Image: |
+                                                ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+                                                       <path d='M12 2 L21 6 L21 12 C21 17 12 22 12 22 C12 22 3 17 3 12 L3 6 Z'
+                                                             fill='none' stroke='#ADB3B8' stroke-width='1.8'/>
+                                                     </svg>"
+                                                )
+                                    - lbl_Title:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =76
+                                            Y: =131
+                                            Width: =Parent.Width - 152
+                                            Height: =52
+                                            Text: ="Administrator access required"
+                                            Color: =gblTheme.Navy
+                                            Size: =27
+                                            Align: =Align.Center
+                                            Font: =gblTheme.FontDisplay
+                                    - lbl_Body:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =(Parent.Width - 480) / 2
+                                            Y: =189
+                                            Width: =480
+                                            Height: =90
+                                            Text: |
+                                                ="Risk and Reporting is limited to compliance office staff listed in the app administrators table. Switch the role selector in the header to Administrator to see these screens."
+                                            Color: =RGBA(107, 114, 128, 1)
+                                            Size: =11
+                                            Align: =Align.Center
+                                            Font: =gblTheme.FontBody
+                                    - btn_BackHome:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =(Parent.Width - 151) / 2
+                                            Y: =297
+                                            Width: =151
+                                            Height: =44
+                                            Text: ="Back to Home"
+                                            OnSelect: =Navigate(scr_Home, ScreenTransition.None)
+                                            Fill: =gblTheme.Navy
+                                            HoverFill: =RGBA(32, 50, 153, 1)
+                                            PressedFill: =RGBA(0, 10, 60, 1)
+                                            Color: =gblTheme.White
+                                            HoverColor: =gblTheme.White
+                                            PressedColor: =gblTheme.White
+                                            BorderColor: =gblTheme.Navy
+                                            BorderThickness: =2
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+
+                    - FooterSlotCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =220
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =1
+                        Children:
+
+                            - cnt_FooterSlot:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)

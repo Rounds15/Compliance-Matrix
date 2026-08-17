@@ -18,7 +18,7 @@ ComponentDefinitions:
                 DataType: Boolean
                 Default: =true
         Properties:
-            Height: =113
+            Height: =112
             Width: =1366
             Fill: =RGBA(0, 0, 0, 0)
         Children:
@@ -127,14 +127,14 @@ ComponentDefinitions:
                     X: =0
                     Y: =34
                     Width: =Parent.Width
-                    Height: =79
+                    Height: =78
                     Fill: =gblTheme.White
                     BorderThickness: =0
             - rec_HdrRule:
                 Control: Rectangle@2.3.0
                 Properties:
                     X: =0
-                    Y: =112
+                    Y: =111
                     Width: =Parent.Width
                     Height: =1
                     Fill: =RGBA(221, 222, 226, 1)

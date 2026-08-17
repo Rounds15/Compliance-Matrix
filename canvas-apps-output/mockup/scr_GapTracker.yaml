@@ -26,552 +26,601 @@ Screens:
                 Set(gblGapTopicMax, Max(colGapByTopic, GapCount))
         Children:
 
-            - cnt_Scroll:
-                Control: GroupContainer@1.5.0
-                Variant: AutoLayout
+            - bodyGrid:
+                Control: FluidGrid@2.3.0
                 Properties:
+                    AcceptsFocus: =true
+                    BorderThickness: =0
                     X: =0
-                    Y: =113
+                    Y: =112
                     Width: =Parent.Width
-                    Height: =Parent.Height - 113
-                    Fill: =RGBA(247, 247, 248, 1)
-                    LayoutDirection: =LayoutDirection.Vertical
-                    LayoutGap: =0
-                    LayoutOverflowY: =LayoutOverflow.Scroll
+                    Height: =656
                 Children:
 
-                    - cnt_Head:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - HeadCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =373
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =0
                         Children:
 
-                            - lbl_Eyebrow:
-                                Control: Label@2.5.1
+                            - cnt_Head:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
                                 Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =598
-                                    Height: =20
-                                    Text: ="RISK AND REPORTING  |  ADMINISTRATOR"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =10
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_Title:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =52
-                                    Width: =598
-                                    Height: =50
-                                    Text: ="Gap Tracker"
-                                    Color: =gblTheme.Navy
-                                    Size: =36
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_Sub:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =110
-                                    Width: =598
-                                    Height: =60
-                                    Text: |
-                                        ="Every open compliance gap across the inventory, with severity, age, and the owner responsible for closing it."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =12
-                                    Font: =gblTheme.FontBody
-                            - lbl_PillOpen:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =Parent.Width - 185
-                                    Y: =142
-                                    Width: =63
-                                    Height: =28
-                                    Text: =gblGapOpen & " open"
-                                    Fill: =RGBA(251, 233, 233, 1)
-                                    Color: =RGBA(142, 20, 20, 1)
-                                    Size: =10
-                                    FontWeight: =FontWeight.Bold
-                                    Align: =Align.Center
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Font: =gblTheme.FontBody
-                            - lbl_PillClosed:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =Parent.Width - 114
-                                    Y: =142
-                                    Width: =63
-                                    Height: =28
-                                    Text: =gblGapClosed & " closed"
-                                    Fill: =RGBA(228, 244, 232, 1)
-                                    Color: =RGBA(21, 128, 61, 1)
-                                    Size: =10
-                                    FontWeight: =FontWeight.Bold
-                                    Align: =Align.Center
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Font: =gblTheme.FontBody
-                            - rec_HeadRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =187
-                                    Width: =Parent.Width - 102
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - gal_Stats:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =51
-                                    Y: =211
-                                    Width: =Parent.Width - 102
-                                    Height: =130
-                                    TemplateSize: =(Parent.Width - 102) / 4
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =false
-                                    Items: |
-                                        =Table(
-                                            {
-                                                StatValue: CountRows(Filter(dsGaps, su_status <> "Closed", su_severity = "High")),
-                                                StatLabel: "HIGH SEVERITY",
-                                                StatNote:  "Immediate attention",
-                                                StatTone:  "bad"
-                                            },
-                                            {
-                                                StatValue: CountRows(Filter(dsGaps, su_status <> "Closed", su_severity = "Moderate")),
-                                                StatLabel: "MODERATE SEVERITY",
-                                                StatNote:  "Scheduled remediation",
-                                                StatTone:  "warn"
-                                            },
-                                            {
-                                                StatValue: CountRows(Filter(dsGaps, su_status <> "Closed", su_severity = "Low")),
-                                                StatLabel: "LOW SEVERITY",
-                                                StatNote:  "Tracked, not urgent",
-                                                StatTone:  ""
-                                            },
-                                            {
-                                                StatValue: RoundDown(Average(Filter(dsGaps, su_status <> "Closed"), su_daysopen), 0),
-                                                StatLabel: "AVERAGE DAYS OPEN",
-                                                StatNote:  "Across open gaps",
-                                                StatTone:  ""
-                                            }
-                                        )
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
                                 Children:
-                                    - rec_StatTile:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =130
-                                            Fill: =RGBA(237, 238, 241, 1)
-                                            BorderThickness: =0
-                                    - lbl_StatValue:
+
+                                    - lbl_Eyebrow:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =24
-                                            Y: =16
-                                            Width: =Parent.TemplateWidth - 64
-                                            Height: =44
-                                            Text: =ThisItem.StatValue
-                                            Color: |
-                                                =Switch(
-                                                    ThisItem.StatTone,
-                                                    "bad",  gblTheme.High,
-                                                    "warn", gblTheme.Moderate,
-                                                    gblTheme.Navy
-                                                )
-                                            Size: =33
+                                            X: =51
+                                            Y: =24
+                                            Width: =598
+                                            Height: =20
+                                            Text: ="RISK AND REPORTING  |  ADMINISTRATOR"
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =10
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_Title:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =51
+                                            Y: =52
+                                            Width: =598
+                                            Height: =50
+                                            Text: ="Gap Tracker"
+                                            Color: =gblTheme.Navy
+                                            Size: =36
                                             FontWeight: =FontWeight.Bold
                                             Font: =gblTheme.FontDisplay
-                                    - lbl_StatLabel:
+                                    - lbl_Sub:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =24
-                                            Y: =68
-                                            Width: =Parent.TemplateWidth - 64
-                                            Height: =21
-                                            Text: =ThisItem.StatLabel
-                                            Color: =gblTheme.Navy
-                                            Size: =11
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontBody
-                                    - lbl_StatNote:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =24
-                                            Y: =93
-                                            Width: =Parent.TemplateWidth - 64
-                                            Height: =21
-                                            Text: =ThisItem.StatNote
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =11
-                                            Font: =gblTheme.FontBody
-
-                    - cnt_ByTopic:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =400
-                            Fill: =RGBA(247, 247, 248, 1)
-                        Children:
-
-                            - lbl_SecHead:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =0
-                                    Width: =222
-                                    Height: =42
-                                    Text: ="Open gaps by topic"
-                                    Color: =gblTheme.Navy
-                                    Size: =21
-                                    Font: =gblTheme.FontDisplay
-                            - rec_SecUnderline:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =42
-                                    Width: =80
-                                    Height: =4
-                                    Fill: =gblTheme.Orange
-                                    BorderThickness: =0
-                            - rec_SecRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =273
-                                    Y: =28
-                                    Width: =Parent.Width - 324
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - rec_TopicPanel:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =69
-                                    Width: =Parent.Width - 102
-                                    Height: =317
-                                    Fill: =gblTheme.White
-                                    BorderColor: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =1
-                            - gal_ByTopic:
-                                Control: Gallery@2.15.0
-                                Variant: Vertical
-                                Properties:
-                                    X: =68
-                                    Y: =86
-                                    Width: =Parent.Width - 136
-                                    Height: =283
-                                    TemplateSize: =32
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =true
-                                    Items: =SortByColumns(colGapByTopic, "GapCount", SortOrder.Descending)
-                                Children:
-                                    - lbl_TopicName:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =0
-                                            Y: =4
-                                            Width: =180
-                                            Height: =23
-                                            Text: =ThisItem.Value
-                                            Color: =RGBA(59, 67, 88, 1)
-                                            Size: =11
-                                            Font: =gblTheme.FontBody
-                                    - rec_TopicTrack:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =196
-                                            Y: =6
-                                            Width: =Parent.TemplateWidth - 260
-                                            Height: =18
-                                            Fill: =RGBA(237, 238, 241, 1)
-                                            BorderThickness: =0
-                                    - rec_TopicFill:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =196
-                                            Y: =6
-                                            Width: |
-                                                =(Parent.TemplateWidth - 260) *
-                                                 (ThisItem.GapCount / Max(gblGapTopicMax, 1))
-                                            Height: =18
-                                            Fill: =gblTheme.OrangeDark
-                                            BorderThickness: =0
-                                    - lbl_TopicCount:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 52
-                                            Y: =4
-                                            Width: =52
-                                            Height: =23
-                                            Text: =ThisItem.GapCount
-                                            Color: =gblTheme.Navy
-                                            Size: =11
-                                            FontWeight: =FontWeight.Bold
-                                            Align: =Align.Right
-                                            Font: =gblTheme.FontBody
-
-                    - cnt_Gaps:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =900
-                            Fill: =RGBA(247, 247, 248, 1)
-                        Children:
-
-                            - btn_TabOpen:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =51
-                                    Y: =7
-                                    Width: =137
-                                    Height: =52
-                                    Text: ="Open gaps (" & gblGapOpen & ")"
-                                    OnSelect: =Set(gblGapTab, "open")
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.04)
-                                    PressedFill: =RGBA(0, 14, 84, 0.08)
-                                    Color: =If(gblGapTab = "open", gblTheme.Navy, RGBA(107, 114, 128, 1))
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - btn_TabClosed:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =190
-                                    Y: =7
-                                    Width: =103
-                                    Height: =52
-                                    Text: ="Closed (" & gblGapClosed & ")"
-                                    OnSelect: =Set(gblGapTab, "closed")
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.04)
-                                    PressedFill: =RGBA(0, 14, 84, 0.08)
-                                    Color: =If(gblGapTab = "closed", gblTheme.Navy, RGBA(107, 114, 128, 1))
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - rec_TabRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =58
-                                    Width: =Parent.Width - 102
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - rec_TabActive:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =If(gblGapTab = "open", 51, 190)
-                                    Y: =55
-                                    Width: =If(gblGapTab = "open", 137, 103)
-                                    Height: =4
-                                    Fill: =gblTheme.Orange
-                                    BorderThickness: =0
-                            - gal_Gaps:
-                                Control: Gallery@2.15.0
-                                Variant: Vertical
-                                Properties:
-                                    X: =51
-                                    Y: =83
-                                    Width: =Parent.Width - 102
-                                    Height: =800
-                                    TemplateSize: =116
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =true
-                                    Items: |
-                                        =SortByColumns(
-                                            Filter(
-                                                dsGaps,
-                                                If(gblGapTab = "open", su_status <> "Closed", su_status = "Closed")
-                                            ),
-                                            "su_openeddate",
-                                            SortOrder.Descending
-                                        )
-                                Children:
-                                    - rec_GapCard:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth
-                                            Height: =108
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(221, 222, 226, 1)
-                                            BorderThickness: =1
-                                    - rec_GapAccent:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =5
-                                            Height: =108
-                                            Fill: |
-                                                =Switch(
-                                                    ThisItem.su_severity,
-                                                    "High",     gblTheme.High,
-                                                    "Moderate", gblTheme.Moderate,
-                                                    "Low",      gblTheme.Low,
-                                                    gblTheme.Unrated
-                                                )
-                                            BorderThickness: =0
-                                    - lbl_GapSeverity:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =20
-                                            Y: =14
-                                            Width: =92
-                                            Height: =26
+                                            X: =51
+                                            Y: =110
+                                            Width: =598
+                                            Height: =60
                                             Text: |
-                                                =If(IsBlank(ThisItem.su_severity), "UNRATED", Upper(ThisItem.su_severity))
-                                            Fill: |
-                                                =Switch(
-                                                    ThisItem.su_severity,
-                                                    "High",     gblTheme.High,
-                                                    "Moderate", gblTheme.Moderate,
-                                                    "Low",      gblTheme.Low,
-                                                    gblTheme.Unrated
-                                                )
-                                            Color: =gblTheme.White
-                                            Size: =9
+                                                ="Every open compliance gap across the inventory, with severity, age, and the owner responsible for closing it."
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =12
+                                            Font: =gblTheme.FontBody
+                                    - lbl_PillOpen:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =Parent.Width - 185
+                                            Y: =142
+                                            Width: =63
+                                            Height: =28
+                                            Text: =gblGapOpen & " open"
+                                            Fill: =RGBA(251, 233, 233, 1)
+                                            Color: =RGBA(142, 20, 20, 1)
+                                            Size: =10
                                             FontWeight: =FontWeight.Bold
                                             Align: =Align.Center
                                             VerticalAlign: =VerticalAlign.Middle
                                             Font: =gblTheme.FontBody
-                                    - lbl_GapMeta:
+                                    - lbl_PillClosed:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =124
-                                            Y: =14
-                                            Width: =Parent.TemplateWidth - 300
-                                            Height: =26
-                                            Text: |
-                                                =ThisItem.su_gapcode & "  |  " & ThisItem.su_status &
-                                                 "  |  opened " & Text(ThisItem.su_openeddate, "mmm d, yyyy") &
-                                                 "  |  " & ThisItem.su_daysopen & " days open"
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =9
+                                            X: =Parent.Width - 114
+                                            Y: =142
+                                            Width: =63
+                                            Height: =28
+                                            Text: =gblGapClosed & " closed"
+                                            Fill: =RGBA(228, 244, 232, 1)
+                                            Color: =RGBA(21, 128, 61, 1)
+                                            Size: =10
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
                                             VerticalAlign: =VerticalAlign.Middle
                                             Font: =gblTheme.FontBody
-                                    - lbl_GapTitle:
+                                    - rec_HeadRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =187
+                                            Width: =Parent.Width - 102
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =0
+                                    - gal_Stats:
+                                        Control: Gallery@2.15.0
+                                        Variant: Horizontal
+                                        Properties:
+                                            X: =51
+                                            Y: =211
+                                            Width: =Parent.Width - 102
+                                            Height: =130
+                                            TemplateSize: =(Parent.Width - 102) / 4
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =false
+                                            Items: |
+                                                =Table(
+                                                    {
+                                                        StatValue: CountRows(Filter(dsGaps, su_status <> "Closed", su_severity = "High")),
+                                                        StatLabel: "HIGH SEVERITY",
+                                                        StatNote:  "Immediate attention",
+                                                        StatTone:  "bad"
+                                                    },
+                                                    {
+                                                        StatValue: CountRows(Filter(dsGaps, su_status <> "Closed", su_severity = "Moderate")),
+                                                        StatLabel: "MODERATE SEVERITY",
+                                                        StatNote:  "Scheduled remediation",
+                                                        StatTone:  "warn"
+                                                    },
+                                                    {
+                                                        StatValue: CountRows(Filter(dsGaps, su_status <> "Closed", su_severity = "Low")),
+                                                        StatLabel: "LOW SEVERITY",
+                                                        StatNote:  "Tracked, not urgent",
+                                                        StatTone:  ""
+                                                    },
+                                                    {
+                                                        StatValue: RoundDown(Average(Filter(dsGaps, su_status <> "Closed"), su_daysopen), 0),
+                                                        StatLabel: "AVERAGE DAYS OPEN",
+                                                        StatNote:  "Across open gaps",
+                                                        StatTone:  ""
+                                                    }
+                                                )
+                                        Children:
+                                            - rec_StatTile:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =130
+                                                    Fill: =RGBA(237, 238, 241, 1)
+                                                    BorderThickness: =0
+                                            - lbl_StatValue:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =24
+                                                    Y: =16
+                                                    Width: =Parent.TemplateWidth - 64
+                                                    Height: =44
+                                                    Text: =ThisItem.StatValue
+                                                    Color: |
+                                                        =Switch(
+                                                            ThisItem.StatTone,
+                                                            "bad",  gblTheme.High,
+                                                            "warn", gblTheme.Moderate,
+                                                            gblTheme.Navy
+                                                        )
+                                                    Size: =33
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_StatLabel:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =24
+                                                    Y: =68
+                                                    Width: =Parent.TemplateWidth - 64
+                                                    Height: =21
+                                                    Text: =ThisItem.StatLabel
+                                                    Color: =gblTheme.Navy
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_StatNote:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =24
+                                                    Y: =93
+                                                    Width: =Parent.TemplateWidth - 64
+                                                    Height: =21
+                                                    Text: =ThisItem.StatNote
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =11
+                                                    Font: =gblTheme.FontBody
+
+                    - ByTopicCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
+                            Height: =400
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =1
+                        Children:
+
+                            - cnt_ByTopic:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                Children:
+
+                                    - lbl_SecHead:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =20
-                                            Y: =42
-                                            Width: =Parent.TemplateWidth - 240
-                                            Height: =24
-                                            Text: =ThisItem.su_name
+                                            X: =51
+                                            Y: =0
+                                            Width: =222
+                                            Height: =42
+                                            Text: ="Open gaps by topic"
                                             Color: =gblTheme.Navy
+                                            Size: =21
+                                            Font: =gblTheme.FontDisplay
+                                    - rec_SecUnderline:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =42
+                                            Width: =80
+                                            Height: =4
+                                            Fill: =gblTheme.Orange
+                                            BorderThickness: =0
+                                    - rec_SecRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =273
+                                            Y: =28
+                                            Width: =Parent.Width - 324
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =0
+                                    - rec_TopicPanel:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =69
+                                            Width: =Parent.Width - 102
+                                            Height: =317
+                                            Fill: =gblTheme.White
+                                            BorderColor: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =1
+                                    - gal_ByTopic:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                            X: =68
+                                            Y: =86
+                                            Width: =Parent.Width - 136
+                                            Height: =283
+                                            TemplateSize: =32
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =true
+                                            Items: =SortByColumns(colGapByTopic, "GapCount", SortOrder.Descending)
+                                        Children:
+                                            - lbl_TopicName:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =0
+                                                    Y: =4
+                                                    Width: =180
+                                                    Height: =23
+                                                    Text: =ThisItem.Value
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =11
+                                                    Font: =gblTheme.FontBody
+                                            - rec_TopicTrack:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =196
+                                                    Y: =6
+                                                    Width: =Parent.TemplateWidth - 260
+                                                    Height: =18
+                                                    Fill: =RGBA(237, 238, 241, 1)
+                                                    BorderThickness: =0
+                                            - rec_TopicFill:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =196
+                                                    Y: =6
+                                                    Width: |
+                                                        =(Parent.TemplateWidth - 260) *
+                                                         (ThisItem.GapCount / Max(gblGapTopicMax, 1))
+                                                    Height: =18
+                                                    Fill: =gblTheme.OrangeDark
+                                                    BorderThickness: =0
+                                            - lbl_TopicCount:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 52
+                                                    Y: =4
+                                                    Width: =52
+                                                    Height: =23
+                                                    Text: =ThisItem.GapCount
+                                                    Color: =gblTheme.Navy
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Bold
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontBody
+
+                    - GapsCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
+                            Height: =900
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =2
+                        Children:
+
+                            - cnt_Gaps:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                Children:
+
+                                    - btn_TabOpen:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =51
+                                            Y: =7
+                                            Width: =137
+                                            Height: =52
+                                            Text: ="Open gaps (" & gblGapOpen & ")"
+                                            OnSelect: =Set(gblGapTab, "open")
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                                            PressedFill: =RGBA(0, 14, 84, 0.08)
+                                            Color: =If(gblGapTab = "open", gblTheme.Navy, RGBA(107, 114, 128, 1))
+                                            HoverColor: =gblTheme.Navy
+                                            PressedColor: =gblTheme.Navy
+                                            BorderThickness: =0
                                             Size: =12
                                             FontWeight: =FontWeight.Bold
                                             Font: =gblTheme.FontBody
-                                    - lbl_GapNote:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =20
-                                            Y: =66
-                                            Width: =Parent.TemplateWidth - 240
-                                            Height: =36
-                                            Text: |
-                                                =ThisItem.su_function.su_name & "  |  " &
-                                                 If(gblGapTab = "closed", ThisItem.su_closenote, ThisItem.su_note)
-                                            Color: =RGBA(59, 67, 88, 1)
-                                            Size: =10
-                                            Font: =gblTheme.FontBody
-                                    - lbl_GapOwner:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 212
-                                            Y: =42
-                                            Width: =190
-                                            Height: =24
-                                            Text: =Coalesce(ThisItem.su_owner.su_name, "Unassigned")
-                                            Color: =RGBA(59, 67, 88, 1)
-                                            Size: =10
-                                            Align: =Align.Right
-                                            Font: =gblTheme.FontBody
-                                    - lbl_GapTarget:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 212
-                                            Y: =66
-                                            Width: =190
-                                            Height: =22
-                                            Text: |
-                                                ="Target " & ThisItem.su_targetquarter & " " & ThisItem.su_targetfy
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =9
-                                            Align: =Align.Right
-                                            Font: =gblTheme.FontBody
-                                    - btn_GapOverlay:
+                                    - btn_TabClosed:
                                         Control: Classic/Button@2.2.0
                                         Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth
-                                            Height: =108
-                                            Text: =""
-                                            Tooltip: =ThisItem.su_gapcode & ". " & ThisItem.su_name
-                                            OnSelect: |
-                                                =Set(
-                                                    gblSelectedFunction,
-                                                    LookUp(
-                                                        dsFunctions,
-                                                        su_compliancefunctionid
-                                                            = ThisItem.su_function.su_compliancefunctionid
-                                                    )
-                                                );
-                                                Navigate(scr_FunctionDetail, ScreenTransition.None)
+                                            X: =190
+                                            Y: =7
+                                            Width: =103
+                                            Height: =52
+                                            Text: ="Closed (" & gblGapClosed & ")"
+                                            OnSelect: =Set(gblGapTab, "closed")
                                             Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.06)
-                                            PressedFill: =RGBA(247, 105, 0, 0.12)
+                                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                                            PressedFill: =RGBA(0, 14, 84, 0.08)
+                                            Color: =If(gblGapTab = "closed", gblTheme.Navy, RGBA(107, 114, 128, 1))
+                                            HoverColor: =gblTheme.Navy
+                                            PressedColor: =gblTheme.Navy
                                             BorderThickness: =0
-                            - lbl_GapsEmpty:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =160
-                                    Width: =Parent.Width - 102
-                                    Height: =60
-                                    Text: |
-                                        =If(
-                                            gblGapTab = "open",
-                                            "No open gaps. Every finding on the register has been closed.",
-                                            "No closed gaps yet."
-                                        )
-                                    Color: =RGBA(107, 114, 128, 1)
-                                    Size: =12
-                                    Align: =Align.Center
-                                    Font: =gblTheme.FontBody
-                                    Visible: |
-                                        =CountRows(
-                                            Filter(
-                                                dsGaps,
-                                                If(gblGapTab = "open", su_status <> "Closed", su_status = "Closed")
-                                            )
-                                        ) = 0
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - rec_TabRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =58
+                                            Width: =Parent.Width - 102
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =0
+                                    - rec_TabActive:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =If(gblGapTab = "open", 51, 190)
+                                            Y: =55
+                                            Width: =If(gblGapTab = "open", 137, 103)
+                                            Height: =4
+                                            Fill: =gblTheme.Orange
+                                            BorderThickness: =0
+                                    - gal_Gaps:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                            X: =51
+                                            Y: =83
+                                            Width: =Parent.Width - 102
+                                            Height: =800
+                                            TemplateSize: =116
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =true
+                                            Items: |
+                                                =SortByColumns(
+                                                    Filter(
+                                                        dsGaps,
+                                                        If(gblGapTab = "open", su_status <> "Closed", su_status = "Closed")
+                                                    ),
+                                                    "su_openeddate",
+                                                    SortOrder.Descending
+                                                )
+                                        Children:
+                                            - rec_GapCard:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth
+                                                    Height: =108
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - rec_GapAccent:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =5
+                                                    Height: =108
+                                                    Fill: |
+                                                        =Switch(
+                                                            ThisItem.su_severity,
+                                                            "High",     gblTheme.High,
+                                                            "Moderate", gblTheme.Moderate,
+                                                            "Low",      gblTheme.Low,
+                                                            gblTheme.Unrated
+                                                        )
+                                                    BorderThickness: =0
+                                            - lbl_GapSeverity:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =20
+                                                    Y: =14
+                                                    Width: =92
+                                                    Height: =26
+                                                    Text: |
+                                                        =If(IsBlank(ThisItem.su_severity), "UNRATED", Upper(ThisItem.su_severity))
+                                                    Fill: |
+                                                        =Switch(
+                                                            ThisItem.su_severity,
+                                                            "High",     gblTheme.High,
+                                                            "Moderate", gblTheme.Moderate,
+                                                            "Low",      gblTheme.Low,
+                                                            gblTheme.Unrated
+                                                        )
+                                                    Color: =gblTheme.White
+                                                    Size: =9
+                                                    FontWeight: =FontWeight.Bold
+                                                    Align: =Align.Center
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_GapMeta:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =124
+                                                    Y: =14
+                                                    Width: =Parent.TemplateWidth - 300
+                                                    Height: =26
+                                                    Text: |
+                                                        =ThisItem.su_gapcode & "  |  " & ThisItem.su_status &
+                                                         "  |  opened " & Text(ThisItem.su_openeddate, "mmm d, yyyy") &
+                                                         "  |  " & ThisItem.su_daysopen & " days open"
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =9
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_GapTitle:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =20
+                                                    Y: =42
+                                                    Width: =Parent.TemplateWidth - 240
+                                                    Height: =24
+                                                    Text: =ThisItem.su_name
+                                                    Color: =gblTheme.Navy
+                                                    Size: =12
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_GapNote:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =20
+                                                    Y: =66
+                                                    Width: =Parent.TemplateWidth - 240
+                                                    Height: =36
+                                                    Text: |
+                                                        =ThisItem.su_function.su_name & "  |  " &
+                                                         If(gblGapTab = "closed", ThisItem.su_closenote, ThisItem.su_note)
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =10
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_GapOwner:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 212
+                                                    Y: =42
+                                                    Width: =190
+                                                    Height: =24
+                                                    Text: =Coalesce(ThisItem.su_owner.su_name, "Unassigned")
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =10
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_GapTarget:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 212
+                                                    Y: =66
+                                                    Width: =190
+                                                    Height: =22
+                                                    Text: |
+                                                        ="Target " & ThisItem.su_targetquarter & " " & ThisItem.su_targetfy
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =9
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontBody
+                                            - btn_GapOverlay:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth
+                                                    Height: =108
+                                                    Text: =""
+                                                    Tooltip: =ThisItem.su_gapcode & ". " & ThisItem.su_name
+                                                    OnSelect: |
+                                                        =Set(
+                                                            gblSelectedFunction,
+                                                            LookUp(
+                                                                dsFunctions,
+                                                                su_compliancefunctionid
+                                                                    = ThisItem.su_function.su_compliancefunctionid
+                                                            )
+                                                        );
+                                                        Navigate(scr_FunctionDetail, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(247, 105, 0, 0.06)
+                                                    PressedFill: =RGBA(247, 105, 0, 0.12)
+                                                    BorderThickness: =0
+                                    - lbl_GapsEmpty:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =51
+                                            Y: =160
+                                            Width: =Parent.Width - 102
+                                            Height: =60
+                                            Text: |
+                                                =If(
+                                                    gblGapTab = "open",
+                                                    "No open gaps. Every finding on the register has been closed.",
+                                                    "No closed gaps yet."
+                                                )
+                                            Color: =RGBA(107, 114, 128, 1)
+                                            Size: =12
+                                            Align: =Align.Center
+                                            Font: =gblTheme.FontBody
+                                            Visible: |
+                                                =CountRows(
+                                                    Filter(
+                                                        dsGaps,
+                                                        If(gblGapTab = "open", su_status <> "Closed", su_status = "Closed")
+                                                    )
+                                                ) = 0
 
-                    - cnt_FooterSlot:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - FooterSlotCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =220
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =3
+                        Children:
+
+                            - cnt_FooterSlot:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)

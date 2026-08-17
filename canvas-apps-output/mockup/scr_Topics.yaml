@@ -26,384 +26,422 @@ Screens:
                 )
         Children:
 
-            - cnt_Scroll:
-                Control: GroupContainer@1.5.0
-                Variant: AutoLayout
+            - bodyGrid:
+                Control: FluidGrid@2.3.0
                 Properties:
+                    AcceptsFocus: =true
+                    BorderThickness: =0
                     X: =0
-                    Y: =113
+                    Y: =112
                     Width: =Parent.Width
-                    Height: =Parent.Height - 113
-                    Fill: =RGBA(247, 247, 248, 1)
-                    LayoutDirection: =LayoutDirection.Vertical
-                    LayoutGap: =0
-                    LayoutOverflowY: =LayoutOverflow.Scroll
+                    Height: =656
                 Children:
 
-                    - cnt_Head:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - HeadCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
                             Height: =263
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =0
                         Children:
 
-                            - lbl_Eyebrow:
-                                Control: Label@2.5.1
+                            - cnt_Head:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
                                 Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =598
-                                    Height: =20
-                                    Text: ="BROWSE"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =10
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - lbl_Title:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =52
-                                    Width: =598
-                                    Height: =50
-                                    Text: ="Topics"
-                                    Color: =gblTheme.Navy
-                                    Size: =36
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontDisplay
-                            - lbl_Sub:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =51
-                                    Y: =110
-                                    Width: =598
-                                    Height: =60
-                                    Text: |
-                                        ="Thirteen top-level topics organize the matrix. Drill into a topic to see the compliance areas inside it, then the obligations in each area."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =12
-                                    Font: =gblTheme.FontBody
-                            - rec_HeadRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =187
-                                    Width: =Parent.Width - 102
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - btn_TabTopics:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =51
-                                    Y: =211
-                                    Width: =77
-                                    Height: =52
-                                    Text: ="Topics"
-                                    OnSelect: =Set(gblTopicTab, "topics")
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.04)
-                                    PressedFill: =RGBA(0, 14, 84, 0.08)
-                                    Color: =If(gblTopicTab = "topics", gblTheme.Navy, RGBA(107, 114, 128, 1))
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - btn_TabStatutes:
-                                Control: Classic/Button@2.2.0
-                                Properties:
-                                    X: =130
-                                    Y: =211
-                                    Width: =90
-                                    Height: =52
-                                    Text: ="Statutes"
-                                    OnSelect: =Set(gblTopicTab, "statutes")
-                                    Fill: =RGBA(0, 0, 0, 0)
-                                    HoverFill: =RGBA(0, 14, 84, 0.04)
-                                    PressedFill: =RGBA(0, 14, 84, 0.08)
-                                    Color: =If(gblTopicTab = "statutes", gblTheme.Navy, RGBA(107, 114, 128, 1))
-                                    HoverColor: =gblTheme.Navy
-                                    PressedColor: =gblTheme.Navy
-                                    BorderThickness: =0
-                                    Size: =12
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
-                            - rec_TabRule:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =262
-                                    Width: =Parent.Width - 102
-                                    Height: =1
-                                    Fill: =RGBA(221, 222, 226, 1)
-                                    BorderThickness: =0
-                            - rec_TabActive:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =If(gblTopicTab = "topics", 51, 130)
-                                    Y: =259
-                                    Width: =If(gblTopicTab = "topics", 77, 90)
-                                    Height: =4
-                                    Fill: =gblTheme.Orange
-                                    BorderThickness: =0
-
-                    - cnt_TopicGrid:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =460
-                            Fill: =RGBA(247, 247, 248, 1)
-                            Visible: =gblTopicTab = "topics"
-                        Children:
-
-                            - gal_Topics:
-                                Control: Gallery@2.15.0
-                                Variant: Horizontal
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =Parent.Width - 102
-                                    Height: =412
-                                    TemplateSize: =(Parent.Width - 102) / 4
-                                    TemplatePadding: =0
-                                    WrapCount: =4
-                                    ShowScrollbar: =true
-                                    Items: =SortByColumns(colTopicRollup, "FnCount", SortOrder.Descending)
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
                                 Children:
-                                    - rec_TopicCard:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =115
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(221, 222, 226, 1)
-                                            BorderThickness: =1
-                                    - rec_TopicBar:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: |
-                                                =(Parent.TemplateWidth - 16) *
-                                                 (ThisItem.FnCount / Max(gblTopicMax, 1))
-                                            Height: =5
-                                            Fill: =gblTheme.OrangeDark
-                                            BorderThickness: =0
-                                    - lbl_TopicName:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =17
-                                            Y: =22
-                                            Width: =Parent.TemplateWidth - 50
-                                            Height: =26
-                                            Text: =ThisItem.Value
-                                            Color: =gblTheme.Navy
-                                            Size: =17
-                                            FontWeight: =FontWeight.Bold
-                                            Font: =gblTheme.FontDisplay
-                                    - lbl_TopicAreas:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =17
-                                            Y: =77
-                                            Width: =160
-                                            Height: =21
-                                            Text: |
-                                                =ThisItem.AreaCount & If(ThisItem.AreaCount = 1, " compliance area", " compliance areas")
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =11
-                                            Font: =gblTheme.FontBody
-                                    - lbl_TopicCount:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 106
-                                            Y: =64
-                                            Width: =90
-                                            Height: =34
-                                            Text: =ThisItem.FnCount
-                                            Color: =gblTheme.Navy
-                                            Size: =26
-                                            FontWeight: =FontWeight.Bold
-                                            Align: =Align.Right
-                                            Font: =gblTheme.FontDisplay
-                                    - btn_TopicOverlay:
-                                        Control: Classic/Button@2.2.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth - 16
-                                            Height: =115
-                                            Text: =""
-                                            Tooltip: =ThisItem.Value & ". " & ThisItem.FnCount & " obligations"
-                                            OnSelect: |
-                                                =Set(gblFilter, {Query: "", Topic: ThisItem.Value, Risk: "All", Area: "All"});
-                                                Navigate(scr_Functions, ScreenTransition.None)
-                                            Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.06)
-                                            PressedFill: =RGBA(247, 105, 0, 0.12)
-                                            BorderThickness: =0
 
-                    - cnt_StatuteList:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
-                        Properties:
-                            Width: =Parent.Width
-                            Height: =460
-                            Fill: =RGBA(247, 247, 248, 1)
-                            Visible: =gblTopicTab = "statutes"
-                        Children:
-
-                            - rec_NoteBar:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =Parent.Width - 102
-                                    Height: =52
-                                    Fill: =RGBA(237, 238, 241, 1)
-                                    BorderThickness: =0
-                            - rec_NoteAccent:
-                                Control: Rectangle@2.3.0
-                                Properties:
-                                    X: =51
-                                    Y: =24
-                                    Width: =4
-                                    Height: =52
-                                    Fill: =gblTheme.Navy
-                                    BorderThickness: =0
-                            - lbl_Note:
-                                Control: Label@2.5.1
-                                Properties:
-                                    X: =71
-                                    Y: =32
-                                    Width: =Parent.Width - 142
-                                    Height: =36
-                                    Text: |
-                                        ="Deduplicated. " & CountRows(colStatutes) &
-                                         " distinct statutes govern the functions in the matrix; many obligations cite the same law. Open a statute to see every function that references it."
-                                    Color: =RGBA(59, 67, 88, 1)
-                                    Size: =11
-                                    Font: =gblTheme.FontBody
-                            - gal_Statutes:
-                                Control: Gallery@2.15.0
-                                Variant: Vertical
-                                Properties:
-                                    X: =51
-                                    Y: =92
-                                    Width: =Parent.Width - 102
-                                    Height: =344
-                                    TemplateSize: =64
-                                    TemplatePadding: =0
-                                    ShowScrollbar: =true
-                                    Items: =SortByColumns(colStatutes, "FnCount", SortOrder.Descending)
-                                Children:
-                                    - rec_StatuteRow:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth
-                                            Height: =64
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(221, 222, 226, 1)
-                                            BorderThickness: =1
-                                    - img_StatuteIcon:
-                                        Control: Image@2.2.3
-                                        Properties:
-                                            X: =15
-                                            Y: =23
-                                            Width: =17
-                                            Height: =17
-                                            Image: |
-                                                ="data:image/svg+xml;utf8, " & EncodeUrl(
-                                                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-                                                       <path d='M12 3 L12 21 M5 7 L19 7 M5 7 L2 14 L8 14 Z M19 7 L16 14 L22 14 Z'
-                                                             fill='none' stroke='#F76900' stroke-width='1.7'/>
-                                                     </svg>"
-                                                )
-                                    - lbl_StatuteName:
+                                    - lbl_Eyebrow:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =44
-                                            Y: =10
-                                            Width: =Parent.TemplateWidth - 220
-                                            Height: =22
-                                            Text: =ThisItem.Value
-                                            Color: =gblTheme.Navy
-                                            Size: =11
-                                            FontWeight: =FontWeight.Semibold
-                                            Font: =gblTheme.FontBody
-                                    - lbl_StatuteCitations:
-                                        Control: Label@2.5.1
-                                        Properties:
-                                            X: =44
-                                            Y: =32
-                                            Width: =Parent.TemplateWidth - 220
+                                            X: =51
+                                            Y: =24
+                                            Width: =598
                                             Height: =20
-                                            Text: |
-                                                =Concat(
-                                                    Distinct(
-                                                        Filter(dsFunctions, su_statute = ThisItem.Value),
-                                                        su_citation
-                                                    ),
-                                                    Value,
-                                                    "  |  "
-                                                )
-                                            Color: =RGBA(107, 114, 128, 1)
-                                            Size: =9
+                                            Text: ="BROWSE"
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =10
+                                            FontWeight: =FontWeight.Bold
                                             Font: =gblTheme.FontBody
-                                    - rec_StatuteChip:
-                                        Control: Rectangle@2.3.0
-                                        Properties:
-                                            X: =Parent.TemplateWidth - 150
-                                            Y: =18
-                                            Width: =110
-                                            Height: =28
-                                            Fill: =gblTheme.White
-                                            BorderColor: =RGBA(196, 199, 206, 1)
-                                            BorderThickness: =1
-                                    - lbl_StatuteChip:
+                                    - lbl_Title:
                                         Control: Label@2.5.1
                                         Properties:
-                                            X: =Parent.TemplateWidth - 150
-                                            Y: =18
-                                            Width: =110
-                                            Height: =28
+                                            X: =51
+                                            Y: =52
+                                            Width: =598
+                                            Height: =50
+                                            Text: ="Topics"
+                                            Color: =gblTheme.Navy
+                                            Size: =36
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontDisplay
+                                    - lbl_Sub:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =51
+                                            Y: =110
+                                            Width: =598
+                                            Height: =60
                                             Text: |
-                                                =ThisItem.FnCount & If(ThisItem.FnCount = 1, " function", " functions")
+                                                ="Thirteen top-level topics organize the matrix. Drill into a topic to see the compliance areas inside it, then the obligations in each area."
                                             Color: =RGBA(59, 67, 88, 1)
-                                            Size: =10
-                                            Align: =Align.Center
-                                            VerticalAlign: =VerticalAlign.Middle
+                                            Size: =12
                                             Font: =gblTheme.FontBody
-                                    - btn_StatuteOverlay:
+                                    - rec_HeadRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =187
+                                            Width: =Parent.Width - 102
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =0
+                                    - btn_TabTopics:
                                         Control: Classic/Button@2.2.0
                                         Properties:
-                                            X: =0
-                                            Y: =0
-                                            Width: =Parent.TemplateWidth
-                                            Height: =64
-                                            Text: =""
-                                            Tooltip: ="Show functions citing " & ThisItem.Value
-                                            OnSelect: |
-                                                =Set(gblFilter, {Query: ThisItem.Value, Topic: "All", Risk: "All", Area: "All"});
-                                                Navigate(scr_Functions, ScreenTransition.None)
+                                            X: =51
+                                            Y: =211
+                                            Width: =77
+                                            Height: =52
+                                            Text: ="Topics"
+                                            OnSelect: =Set(gblTopicTab, "topics")
                                             Fill: =RGBA(0, 0, 0, 0)
-                                            HoverFill: =RGBA(247, 105, 0, 0.06)
-                                            PressedFill: =RGBA(247, 105, 0, 0.12)
+                                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                                            PressedFill: =RGBA(0, 14, 84, 0.08)
+                                            Color: =If(gblTopicTab = "topics", gblTheme.Navy, RGBA(107, 114, 128, 1))
+                                            HoverColor: =gblTheme.Navy
+                                            PressedColor: =gblTheme.Navy
+                                            BorderThickness: =0
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - btn_TabStatutes:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =130
+                                            Y: =211
+                                            Width: =90
+                                            Height: =52
+                                            Text: ="Statutes"
+                                            OnSelect: =Set(gblTopicTab, "statutes")
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(0, 14, 84, 0.04)
+                                            PressedFill: =RGBA(0, 14, 84, 0.08)
+                                            Color: =If(gblTopicTab = "statutes", gblTheme.Navy, RGBA(107, 114, 128, 1))
+                                            HoverColor: =gblTheme.Navy
+                                            PressedColor: =gblTheme.Navy
+                                            BorderThickness: =0
+                                            Size: =12
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - rec_TabRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =262
+                                            Width: =Parent.Width - 102
+                                            Height: =1
+                                            Fill: =RGBA(221, 222, 226, 1)
+                                            BorderThickness: =0
+                                    - rec_TabActive:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =If(gblTopicTab = "topics", 51, 130)
+                                            Y: =259
+                                            Width: =If(gblTopicTab = "topics", 77, 90)
+                                            Height: =4
+                                            Fill: =gblTheme.Orange
                                             BorderThickness: =0
 
-                    - cnt_FooterSlot:
-                        Control: GroupContainer@1.5.0
-                        Variant: ManualLayout
+                    - ViewsCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
                         Properties:
-                            Width: =Parent.Width
+                            Height: =460
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =1
+                        Children:
+
+                            - cnt_TopicGrid:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =460
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Visible: =gblTopicTab = "topics"
+                                Children:
+
+                                    - gal_Topics:
+                                        Control: Gallery@2.15.0
+                                        Variant: Horizontal
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =Parent.Width - 102
+                                            Height: =412
+                                            TemplateSize: =(Parent.Width - 102) / 4
+                                            TemplatePadding: =0
+                                            WrapCount: =4
+                                            ShowScrollbar: =true
+                                            Items: =SortByColumns(colTopicRollup, "FnCount", SortOrder.Descending)
+                                        Children:
+                                            - rec_TopicCard:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =115
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - rec_TopicBar:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: |
+                                                        =(Parent.TemplateWidth - 16) *
+                                                         (ThisItem.FnCount / Max(gblTopicMax, 1))
+                                                    Height: =5
+                                                    Fill: =gblTheme.OrangeDark
+                                                    BorderThickness: =0
+                                            - lbl_TopicName:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =17
+                                                    Y: =22
+                                                    Width: =Parent.TemplateWidth - 50
+                                                    Height: =26
+                                                    Text: =ThisItem.Value
+                                                    Color: =gblTheme.Navy
+                                                    Size: =17
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontDisplay
+                                            - lbl_TopicAreas:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =17
+                                                    Y: =77
+                                                    Width: =160
+                                                    Height: =21
+                                                    Text: |
+                                                        =ThisItem.AreaCount & If(ThisItem.AreaCount = 1, " compliance area", " compliance areas")
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =11
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_TopicCount:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 106
+                                                    Y: =64
+                                                    Width: =90
+                                                    Height: =34
+                                                    Text: =ThisItem.FnCount
+                                                    Color: =gblTheme.Navy
+                                                    Size: =26
+                                                    FontWeight: =FontWeight.Bold
+                                                    Align: =Align.Right
+                                                    Font: =gblTheme.FontDisplay
+                                            - btn_TopicOverlay:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth - 16
+                                                    Height: =115
+                                                    Text: =""
+                                                    Tooltip: =ThisItem.Value & ". " & ThisItem.FnCount & " obligations"
+                                                    OnSelect: |
+                                                        =Set(gblFilter, {Query: "", Topic: ThisItem.Value, Risk: "All", Area: "All"});
+                                                        Navigate(scr_Functions, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(247, 105, 0, 0.06)
+                                                    PressedFill: =RGBA(247, 105, 0, 0.12)
+                                                    BorderThickness: =0
+
+                            - cnt_StatuteList:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =460
+                                    Fill: =RGBA(247, 247, 248, 1)
+                                    Visible: =gblTopicTab = "statutes"
+                                Children:
+
+                                    - rec_NoteBar:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =Parent.Width - 102
+                                            Height: =52
+                                            Fill: =RGBA(237, 238, 241, 1)
+                                            BorderThickness: =0
+                                    - rec_NoteAccent:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =51
+                                            Y: =24
+                                            Width: =4
+                                            Height: =52
+                                            Fill: =gblTheme.Navy
+                                            BorderThickness: =0
+                                    - lbl_Note:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =71
+                                            Y: =32
+                                            Width: =Parent.Width - 142
+                                            Height: =36
+                                            Text: |
+                                                ="Deduplicated. " & CountRows(colStatutes) &
+                                                 " distinct statutes govern the functions in the matrix; many obligations cite the same law. Open a statute to see every function that references it."
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =11
+                                            Font: =gblTheme.FontBody
+                                    - gal_Statutes:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                            X: =51
+                                            Y: =92
+                                            Width: =Parent.Width - 102
+                                            Height: =344
+                                            TemplateSize: =64
+                                            TemplatePadding: =0
+                                            ShowScrollbar: =true
+                                            Items: =SortByColumns(colStatutes, "FnCount", SortOrder.Descending)
+                                        Children:
+                                            - rec_StatuteRow:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth
+                                                    Height: =64
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                                    BorderThickness: =1
+                                            - img_StatuteIcon:
+                                                Control: Image@2.2.3
+                                                Properties:
+                                                    X: =15
+                                                    Y: =23
+                                                    Width: =17
+                                                    Height: =17
+                                                    Image: |
+                                                        ="data:image/svg+xml;utf8, " & EncodeUrl(
+                                                            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+                                                               <path d='M12 3 L12 21 M5 7 L19 7 M5 7 L2 14 L8 14 Z M19 7 L16 14 L22 14 Z'
+                                                                     fill='none' stroke='#F76900' stroke-width='1.7'/>
+                                                             </svg>"
+                                                        )
+                                            - lbl_StatuteName:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =44
+                                                    Y: =10
+                                                    Width: =Parent.TemplateWidth - 220
+                                                    Height: =22
+                                                    Text: =ThisItem.Value
+                                                    Color: =gblTheme.Navy
+                                                    Size: =11
+                                                    FontWeight: =FontWeight.Semibold
+                                                    Font: =gblTheme.FontBody
+                                            - lbl_StatuteCitations:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =44
+                                                    Y: =32
+                                                    Width: =Parent.TemplateWidth - 220
+                                                    Height: =20
+                                                    Text: |
+                                                        =Concat(
+                                                            Distinct(
+                                                                Filter(dsFunctions, su_statute = ThisItem.Value),
+                                                                su_citation
+                                                            ),
+                                                            Value,
+                                                            "  |  "
+                                                        )
+                                                    Color: =RGBA(107, 114, 128, 1)
+                                                    Size: =9
+                                                    Font: =gblTheme.FontBody
+                                            - rec_StatuteChip:
+                                                Control: Rectangle@2.3.0
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 150
+                                                    Y: =18
+                                                    Width: =110
+                                                    Height: =28
+                                                    Fill: =gblTheme.White
+                                                    BorderColor: =RGBA(196, 199, 206, 1)
+                                                    BorderThickness: =1
+                                            - lbl_StatuteChip:
+                                                Control: Label@2.5.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 150
+                                                    Y: =18
+                                                    Width: =110
+                                                    Height: =28
+                                                    Text: |
+                                                        =ThisItem.FnCount & If(ThisItem.FnCount = 1, " function", " functions")
+                                                    Color: =RGBA(59, 67, 88, 1)
+                                                    Size: =10
+                                                    Align: =Align.Center
+                                                    VerticalAlign: =VerticalAlign.Middle
+                                                    Font: =gblTheme.FontBody
+                                            - btn_StatuteOverlay:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =0
+                                                    Y: =0
+                                                    Width: =Parent.TemplateWidth
+                                                    Height: =64
+                                                    Text: =""
+                                                    Tooltip: ="Show functions citing " & ThisItem.Value
+                                                    OnSelect: |
+                                                        =Set(gblFilter, {Query: ThisItem.Value, Topic: "All", Risk: "All", Area: "All"});
+                                                        Navigate(scr_Functions, ScreenTransition.None)
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    HoverFill: =RGBA(247, 105, 0, 0.06)
+                                                    PressedFill: =RGBA(247, 105, 0, 0.12)
+                                                    BorderThickness: =0
+
+                    - FooterSlotCard:
+                        Control: DataCard@1.0.2
+                        Variant: BlankCard
+                        Properties:
                             Height: =220
-                            Fill: =RGBA(247, 247, 248, 1)
+                            Width: =1366
+                            WidthFit: =true
+                            X: =0
+                            Y: =2
+                        Children:
+
+                            - cnt_FooterSlot:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
+                                Properties:
+                                    X: =0
+                                    Y: =0
+                                    Width: =Parent.Width
+                                    Height: =Parent.Height
+                                    Fill: =RGBA(247, 247, 248, 1)
