@@ -1,0 +1,647 @@
+
+Screens:
+
+    scr_RiskDashboard:
+        Properties:
+            Fill: =RGBA(247, 247, 248, 1)
+            OnVisible: |
+                =Set(gblMenu, "");
+                Set(gblFnTotal, CountRows(dsFunctions));
+                ClearCollect(
+                    colHeat,
+                    AddColumns(
+                        Distinct(dsFunctions, su_riskarea.su_name),
+                        "HighN",     CountRows(Filter(dsFunctions, su_riskarea.su_name = Value, su_risk = "High")),
+                        "ModerateN", CountRows(Filter(dsFunctions, su_riskarea.su_name = Value, su_risk = "Moderate")),
+                        "LowN",      CountRows(Filter(dsFunctions, su_riskarea.su_name = Value, su_risk = "Low")),
+                        "UnratedN",  CountRows(Filter(dsFunctions, su_riskarea.su_name = Value, IsBlank(su_risk))),
+                        "TotalN",    CountRows(Filter(dsFunctions, su_riskarea.su_name = Value))
+                    )
+                );
+                ClearCollect(
+                    colHighByTopic,
+                    AddColumns(
+                        Distinct(Filter(dsFunctions, su_risk = "High"), su_riskarea.su_name),
+                        "HighCount", CountRows(Filter(dsFunctions, su_risk = "High", su_riskarea.su_name = Value))
+                    )
+                );
+                Set(gblHighTopicMax, Max(colHighByTopic, HighCount))
+        Children:
+
+            - cnt_Scroll:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                    X: =0
+                    Y: =113
+                    Width: =Parent.Width
+                    Height: =Parent.Height - 113
+                    Fill: =RGBA(247, 247, 248, 1)
+                    LayoutDirection: =LayoutDirection.Vertical
+                    LayoutGap: =0
+                    LayoutOverflowY: =LayoutOverflow.Scroll
+                Children:
+
+                    - cnt_Head:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =373
+                            Fill: =RGBA(247, 247, 248, 1)
+                        Children:
+
+                            - lbl_Eyebrow:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =24
+                                    Width: =598
+                                    Height: =20
+                                    Text: ="RISK AND REPORTING  |  ADMINISTRATOR"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - lbl_Title:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =52
+                                    Width: =598
+                                    Height: =50
+                                    Text: ="Risk Dashboard"
+                                    Color: =gblTheme.Navy
+                                    Size: =36
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontDisplay
+                            - lbl_Sub:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =110
+                                    Width: =598
+                                    Height: =60
+                                    Text: |
+                                        ="The executive risk picture: where the highest rated obligations sit, which topics carry them, and what is still unrated."
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =12
+                                    Font: =gblTheme.FontBody
+                            - rec_HeadRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =187
+                                    Width: =Parent.Width - 102
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - gal_Stats:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =51
+                                    Y: =211
+                                    Width: =Parent.Width - 102
+                                    Height: =130
+                                    TemplateSize: =(Parent.Width - 102) / 4
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =Table(
+                                            {
+                                                StatValue: CountRows(Filter(dsFunctions, su_risk = "High")),
+                                                StatLabel: "HIGH RISK",
+                                                StatNote:  Round(CountRows(Filter(dsFunctions, su_risk = "High")) / Max(gblFnTotal, 1) * 100, 0) & " percent of the inventory",
+                                                StatTone:  "bad"
+                                            },
+                                            {
+                                                StatValue: CountRows(Filter(dsFunctions, su_risk = "Moderate")),
+                                                StatLabel: "MODERATE RISK",
+                                                StatNote:  Round(CountRows(Filter(dsFunctions, su_risk = "Moderate")) / Max(gblFnTotal, 1) * 100, 0) & " percent of the inventory",
+                                                StatTone:  "warn"
+                                            },
+                                            {
+                                                StatValue: CountRows(Filter(dsFunctions, su_risk = "Low")),
+                                                StatLabel: "LOW RISK",
+                                                StatNote:  Round(CountRows(Filter(dsFunctions, su_risk = "Low")) / Max(gblFnTotal, 1) * 100, 0) & " percent of the inventory",
+                                                StatTone:  ""
+                                            },
+                                            {
+                                                StatValue: CountRows(Filter(dsFunctions, IsBlank(su_risk))),
+                                                StatLabel: "UNRATED",
+                                                StatNote:  "Risk is not yet recorded",
+                                                StatTone:  "muted"
+                                            }
+                                        )
+                                Children:
+                                    - rec_StatTile:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth - 16
+                                            Height: =130
+                                            Fill: =RGBA(237, 238, 241, 1)
+                                            BorderThickness: =0
+                                    - lbl_StatValue:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =24
+                                            Y: =16
+                                            Width: =Parent.TemplateWidth - 64
+                                            Height: =44
+                                            Text: =ThisItem.StatValue
+                                            Color: |
+                                                =Switch(
+                                                    ThisItem.StatTone,
+                                                    "bad",   gblTheme.High,
+                                                    "warn",  gblTheme.Moderate,
+                                                    "muted", RGBA(107, 114, 128, 1),
+                                                    gblTheme.Navy
+                                                )
+                                            Size: =33
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontDisplay
+                                    - lbl_StatLabel:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =24
+                                            Y: =68
+                                            Width: =Parent.TemplateWidth - 64
+                                            Height: =21
+                                            Text: =ThisItem.StatLabel
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_StatNote:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =24
+                                            Y: =93
+                                            Width: =Parent.TemplateWidth - 64
+                                            Height: =21
+                                            Text: =ThisItem.StatNote
+                                            Color: =RGBA(107, 114, 128, 1)
+                                            Size: =11
+                                            Font: =gblTheme.FontBody
+
+                    - cnt_Heat:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =977
+                            Fill: =RGBA(247, 247, 248, 1)
+                        Children:
+
+                            - lbl_SecHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =51
+                                    Y: =0
+                                    Width: =344
+                                    Height: =42
+                                    Text: |
+                                        ="Heat map: topic by risk rating"
+                                    Color: =gblTheme.Navy
+                                    Size: =21
+                                    Font: =gblTheme.FontDisplay
+                            - rec_SecUnderline:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =42
+                                    Width: =80
+                                    Height: =4
+                                    Fill: =gblTheme.Orange
+                                    BorderThickness: =0
+                            - rec_SecRule:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =395
+                                    Y: =28
+                                    Width: =Parent.Width - 602
+                                    Height: =1
+                                    Fill: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =0
+                            - lbl_SecNote:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =Parent.Width - 191
+                                    Y: =16
+                                    Width: =140
+                                    Height: =18
+                                    Text: ="select a cell to list the functions"
+                                    Color: =RGBA(107, 114, 128, 1)
+                                    Size: =9
+                                    Align: =Align.Right
+                                    Font: =gblTheme.FontBody
+                            - rec_HeatPanel:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =69
+                                    Width: =Parent.Width - 102
+                                    Height: =887
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_HeatColTopic:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =70
+                                    Y: =88
+                                    Width: =233
+                                    Height: =32
+                                    Text: ="TOPIC"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - gal_HeatCols:
+                                Control: Gallery@2.15.0
+                                Variant: Horizontal
+                                Properties:
+                                    X: =303
+                                    Y: =88
+                                    Width: =808
+                                    Height: =32
+                                    TemplateSize: =202
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =Table(
+                                            {ColLabel: "HIGH"},
+                                            {ColLabel: "MODERATE"},
+                                            {ColLabel: "LOW"},
+                                            {ColLabel: "UNRATED"}
+                                        )
+                                Children:
+                                    - lbl_HeatCol:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =Parent.TemplateWidth
+                                            Height: =32
+                                            Text: =ThisItem.ColLabel
+                                            Color: =gblTheme.Navy
+                                            Size: =10
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                            - lbl_HeatColTotal:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =1111
+                                    Y: =88
+                                    Width: =185
+                                    Height: =32
+                                    Text: ="TOTAL"
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Align: =Align.Center
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Font: =gblTheme.FontBody
+                            - gal_HeatRows:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =70
+                                    Y: =121
+                                    Width: =Parent.Width - 140
+                                    Height: =820
+                                    TemplateSize: =60
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Items: =SortByColumns(colHeat, "TotalN", SortOrder.Descending)
+                                Children:
+                                    - lbl_HeatTopic:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =233
+                                            Height: =58
+                                            Text: =ThisItem.Value
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_HeatHigh:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =235
+                                            Y: =0
+                                            Width: =200
+                                            Height: =58
+                                            Text: =If(ThisItem.HighN = 0, ".", ThisItem.HighN)
+                                            Fill: =If(ThisItem.HighN = 0, RGBA(237, 238, 241, 1), gblTheme.High)
+                                            Color: =If(ThisItem.HighN = 0, RGBA(173, 179, 184, 1), gblTheme.White)
+                                            Size: =15
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_HeatModerate:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =437
+                                            Y: =0
+                                            Width: =200
+                                            Height: =58
+                                            Text: =If(ThisItem.ModerateN = 0, ".", ThisItem.ModerateN)
+                                            Fill: =If(ThisItem.ModerateN = 0, RGBA(237, 238, 241, 1), gblTheme.Moderate)
+                                            Color: =If(ThisItem.ModerateN = 0, RGBA(173, 179, 184, 1), gblTheme.White)
+                                            Size: =15
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_HeatLow:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =639
+                                            Y: =0
+                                            Width: =200
+                                            Height: =58
+                                            Text: =If(ThisItem.LowN = 0, ".", ThisItem.LowN)
+                                            Fill: =If(ThisItem.LowN = 0, RGBA(237, 238, 241, 1), gblTheme.Low)
+                                            Color: =If(ThisItem.LowN = 0, RGBA(173, 179, 184, 1), gblTheme.White)
+                                            Size: =15
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_HeatUnrated:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =841
+                                            Y: =0
+                                            Width: =200
+                                            Height: =58
+                                            Text: =If(ThisItem.UnratedN = 0, ".", ThisItem.UnratedN)
+                                            Fill: =If(ThisItem.UnratedN = 0, RGBA(237, 238, 241, 1), gblTheme.Unrated)
+                                            Color: =If(ThisItem.UnratedN = 0, RGBA(173, 179, 184, 1), gblTheme.White)
+                                            Size: =15
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - lbl_HeatTotal:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =1043
+                                            Y: =0
+                                            Width: =183
+                                            Height: =58
+                                            Text: =ThisItem.TotalN
+                                            Fill: =RGBA(241, 243, 246, 1)
+                                            Color: =gblTheme.Navy
+                                            Size: =15
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Center
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
+                                    - btn_HeatRowOverlay:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Width: =233
+                                            Height: =58
+                                            Text: =""
+                                            Tooltip: ="List the functions in " & ThisItem.Value
+                                            OnSelect: |
+                                                =Set(gblFilter, {Query: "", Topic: ThisItem.Value, Risk: "All", Area: "All"});
+                                                Navigate(scr_Functions, ScreenTransition.None)
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            HoverFill: =RGBA(247, 105, 0, 0.08)
+                                            PressedFill: =RGBA(247, 105, 0, 0.15)
+                                            BorderThickness: =0
+
+                    - cnt_Breakdown:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =509
+                            Fill: =RGBA(247, 247, 248, 1)
+                        Children:
+
+                            - rec_LeftPanel:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =51
+                                    Y: =0
+                                    Width: =624
+                                    Height: =413
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_LeftHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =68
+                                    Y: =17
+                                    Width: =590
+                                    Height: =20
+                                    Text: ="HIGH RISK BY TOPIC"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_HighByTopic:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =68
+                                    Y: =49
+                                    Width: =590
+                                    Height: =347
+                                    TemplateSize: =32
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =true
+                                    Items: =SortByColumns(colHighByTopic, "HighCount", SortOrder.Descending)
+                                Children:
+                                    - lbl_HbtName:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =4
+                                            Width: =180
+                                            Height: =23
+                                            Text: =ThisItem.Value
+                                            Color: =RGBA(59, 67, 88, 1)
+                                            Size: =11
+                                            Font: =gblTheme.FontBody
+                                    - rec_HbtTrack:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =196
+                                            Y: =6
+                                            Width: =326
+                                            Height: =18
+                                            Fill: =RGBA(237, 238, 241, 1)
+                                            BorderThickness: =0
+                                    - rec_HbtFill:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =196
+                                            Y: =6
+                                            Width: =326 * (ThisItem.HighCount / Max(gblHighTopicMax, 1))
+                                            Height: =18
+                                            Fill: =gblTheme.High
+                                            BorderThickness: =0
+                                    - lbl_HbtCount:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =538
+                                            Y: =4
+                                            Width: =52
+                                            Height: =23
+                                            Text: =ThisItem.HighCount
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Right
+                                            Font: =gblTheme.FontBody
+                            - rec_RightPanel:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =691
+                                    Y: =0
+                                    Width: =Parent.Width - 742
+                                    Height: =413
+                                    Fill: =gblTheme.White
+                                    BorderColor: =RGBA(221, 222, 226, 1)
+                                    BorderThickness: =1
+                            - lbl_RightHead:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =708
+                                    Y: =17
+                                    Width: =590
+                                    Height: =20
+                                    Text: ="EXPOSURE AT A GLANCE"
+                                    Color: =gblTheme.OrangeDark
+                                    Size: =10
+                                    FontWeight: =FontWeight.Bold
+                                    Font: =gblTheme.FontBody
+                            - gal_Exposure:
+                                Control: Gallery@2.15.0
+                                Variant: Vertical
+                                Properties:
+                                    X: =708
+                                    Y: =49
+                                    Width: =Parent.Width - 776
+                                    Height: =170
+                                    TemplateSize: =34
+                                    TemplatePadding: =0
+                                    ShowScrollbar: =false
+                                    Items: |
+                                        =Table(
+                                            {
+                                                KpiLabel: "Functions with an open gap",
+                                                KpiValue: CountRows(Distinct(Filter(dsGaps, su_status <> "Closed"), su_function.su_name))
+                                            },
+                                            {
+                                                KpiLabel: "High risk functions with an open gap",
+                                                KpiValue: CountRows(
+                                                    Filter(
+                                                        dsGaps,
+                                                        su_status <> "Closed",
+                                                        su_function.su_risk = "High"
+                                                    )
+                                                )
+                                            },
+                                            {
+                                                KpiLabel: "Overdue deadlines",
+                                                KpiValue: CountRows(Filter(dsDeadlines, su_complete = false, su_duedate < gblToday))
+                                            },
+                                            {
+                                                KpiLabel: "Due this fiscal quarter",
+                                                KpiValue: CountRows(
+                                                    Filter(
+                                                        dsDeadlines,
+                                                        su_complete = false,
+                                                        su_duedate >= gblToday,
+                                                        su_duedate <= DateAdd(gblToday, 90, TimeUnit.Days)
+                                                    )
+                                                )
+                                            },
+                                            {
+                                                KpiLabel: "Functions with no risk rating",
+                                                KpiValue: CountRows(Filter(dsFunctions, IsBlank(su_risk)))
+                                            }
+                                        )
+                                Children:
+                                    - lbl_KpiLabel:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =4
+                                            Width: =Parent.TemplateWidth - 60
+                                            Height: =23
+                                            Text: =ThisItem.KpiLabel
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_KpiValue:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =Parent.TemplateWidth - 56
+                                            Y: =4
+                                            Width: =56
+                                            Height: =23
+                                            Text: =ThisItem.KpiValue
+                                            Color: =gblTheme.Navy
+                                            Size: =11
+                                            FontWeight: =FontWeight.Bold
+                                            Align: =Align.Right
+                                            Font: =gblTheme.FontBody
+                                    - rec_KpiRule:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                            X: =0
+                                            Y: =33
+                                            Width: =Parent.TemplateWidth
+                                            Height: =1
+                                            Fill: =RGBA(238, 240, 244, 1)
+                                            BorderThickness: =0
+                            - rec_NoteAccent:
+                                Control: Rectangle@2.3.0
+                                Properties:
+                                    X: =708
+                                    Y: =223
+                                    Width: =4
+                                    Height: =79
+                                    Fill: =gblTheme.Navy
+                                    BorderThickness: =0
+                            - lbl_Note:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =728
+                                    Y: =223
+                                    Width: =Parent.Width - 796
+                                    Height: =79
+                                    Text: |
+                                        ="Percentages reflect the " & gblFnTotal &
+                                         " functions currently loaded. Unrated is a first-class band: su_risk is recommended rather than required, so a blank rating means the risk has not been assessed, not that it is low."
+                                    Color: =RGBA(59, 67, 88, 1)
+                                    Size: =11
+                                    Font: =gblTheme.FontBody
+
+                    - cnt_FooterSlot:
+                        Control: GroupContainer@1.5.0
+                        Variant: ManualLayout
+                        Properties:
+                            Width: =Parent.Width
+                            Height: =220
+                            Fill: =RGBA(247, 247, 248, 1)
