@@ -52,6 +52,7 @@ tools/
   fix_yaml_comments.py         Normalizes // vs # comment syntax
   build_mockup.py              canvas source -> mockup/ (runs without Dataverse)
   build_msapp.py               mockup/ -> ComplianceMatrix.msapp (binary app)
+  build_skill_brief.py         mockup/ -> docs/CANVAS-UI-GEN-BRIEF.md
   paste_check.py               Studio paste contract, Rules 1-6
   control_properties.json      Per-control-version property manifest
   DefaultTheme.json            Canvas default theme, needed to pack an msapp
