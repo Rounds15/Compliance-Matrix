@@ -1,0 +1,73 @@
+/* Syracuse University brand fonts */
+@font-face {
+  font-family: 'Sherman Sans';
+  src: url("1513b155-7d4c-4218-89fe-194f4ee81dca") format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Sherman Sans';
+  src: url("72a6de52-d505-4082-8fb9-a4b27582f8a0") format('opentype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Sherman Sans';
+  src: url("107768f6-b583-4106-9e78-759fa53c5a0a") format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Sherman Sans';
+  src: url("d04fc298-d4b5-4cc7-af0b-e98df7f1a4b5") format('opentype');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Sherman Serif';
+  src: url("23262b0e-c591-45eb-8f9c-e379d91e2485") format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Sherman Serif';
+  src: url("b3e78881-3e21-4735-8c7c-03edc25c4b66") format('opentype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Sherman Serif';
+  src: url("b69f4ba2-24f3-4eb9-8fa9-fde8a7aa6f40") format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Sherman Serif';
+  src: url("e2a82bf6-9794-4626-bac8-48263d400b27") format('opentype');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Syracuse Block';
+  src: url("2de89346-cba5-449f-9fbe-87e604238d58") format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Syracuse Block';
+  src: url("2942d53d-502f-4af6-b475-bb0dec723c3d") format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Syracuse Block';
+  src: url("7fee0e0a-b53f-44b8-bebd-4e831f46910c") format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Syracuse Block';
+  src: url("1148ac4d-c8ce-4a87-b322-fb1c4d548142") format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}

@@ -235,6 +235,43 @@ def check_paste_contract() -> None:
             print(f"  ok    {label}: {n} block(s) paste-ready")
 
 
+def check_design_extract() -> None:
+    """design/src, design/css and design/assets are extracted from the
+    standalone HTML bundle. Re-extract and compare, so an edit to a generated
+    file - or a re-exported bundle nobody re-extracted - is caught here rather
+    than being mistaken for the design of record."""
+    print("\nDesign source extract")
+    sys.path.insert(0, str(ROOT / "tools"))
+    from extract_design import (  # noqa: PLC0415
+        BUNDLE, ExtractError, collect, load_bundle, normalize,
+    )
+
+    if not pathlib.Path(BUNDLE).exists():
+        notes.append("design bundle not present - nothing to cross-check")
+        print("  skip  design/Compliance_Matrix_standalone.html not present")
+        return
+
+    try:
+        files, _ = collect(*load_bundle(BUNDLE))
+    except ExtractError as exc:
+        fail(f"design bundle unreadable: {exc}")
+        return
+
+    stale = []
+    for rel, text in sorted(files.items()):
+        path = ROOT / "design" / rel
+        if not path.exists():
+            stale.append(f"design/{rel} missing")
+        elif normalize(path.read_text(encoding="utf-8")) != normalize(text):
+            stale.append(f"design/{rel} differs from the bundle")
+    for item in stale:
+        fail(item)
+    if stale:
+        notes.append("run tools/extract_design.py to refresh design/")
+    else:
+        print(f"  ok    {len(files)} extracted file(s) match the bundle")
+
+
 def check_seed_refs(loaded: dict[pathlib.Path, object]) -> None:
     """Every seed cross-reference must resolve to an alternate key that exists."""
     print("\nSeed referential integrity")
@@ -379,6 +416,7 @@ def main() -> int:
     check_comment_syntax()
     check_components(loaded)
     check_paste_contract()
+    check_design_extract()
     check_schema_refs(loaded)
     check_seed_refs(loaded)
     check_navigation(loaded)
