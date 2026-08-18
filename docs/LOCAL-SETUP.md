@@ -14,7 +14,28 @@ https://github.com/Rounds15/Compliance-Matrix.git
 ```
 
 Pick a folder, open it when prompted, then switch to the working branch:
-**Ctrl+Shift+P** → `Git: Checkout to...` → `claude/compliance-matrix-power-platform-5fvkrp`
+**Ctrl+Shift+P** → `Git: Checkout to...` → `claude/design-to-power-apps-zlmld6`
+
+**Already cloned?** Pull before anything else. A checkout that predates a branch
+is indistinguishable from a missing file — `tools/build_msapp.py` and the
+`design/` tree only exist from mid-August on, and the VS Code tasks reference
+them.
+
+```powershell
+git fetch origin claude/design-to-power-apps-zlmld6
+git checkout claude/design-to-power-apps-zlmld6
+git pull origin claude/design-to-power-apps-zlmld6
+```
+
+`tools/` should list nine files afterwards: `build_mockup.py`,
+`build_msapp.py`, `build_seed.py`, `build_skill_brief.py`,
+`build_solution.py`, `extract_design.py`, `fix_yaml_comments.py`,
+`paste_check.py`, `validate.py`, plus `control_properties.json` and
+`DefaultTheme.json`.
+
+Earlier branches — `claude/compliance-matrix-power-platform-5fvkrp` and the two
+`claude/canvas-apps-ui-gen-*` — are history. They do not carry the ownership
+manage mode, the statutes tab, or `design/`.
 
 ---
 
