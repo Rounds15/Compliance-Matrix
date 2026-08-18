@@ -99,11 +99,18 @@ Everything is wired to VS Code tasks. **Ctrl+Shift+P** → `Tasks: Run Task`:
 | `1. Generate solution source` | schema YAML → `solution/src/**/Entity.xml` |
 | `2. Validate YAML and XML` | Static checks across every source file |
 | `3. Pack solution` | `solution/src` → `ComplianceMatrix.zip` |
-| `4. Pack canvas app` | `solution/canvas` → `ComplianceMatrix.msapp` |
+| `4a. Generate mockup source` | `solution/canvas` → `mockup/**.pa.yaml` |
+| `4. Build canvas app (.msapp)` | `mockup/` → `ComplianceMatrix.msapp` |
 | `5. Import solution to environment` | Pushes the zip and publishes |
 
-Tasks 3 and 5 depend on task 1, so running **5** alone does the whole chain.
-**Ctrl+Shift+B** runs task 1 on its own.
+Tasks 3 and 5 depend on task 1, and task 4 depends on 4a, so running **5** or
+**4** alone does the whole chain. **Ctrl+Shift+B** runs task 1 on its own.
+
+Task 4 runs `tools/build_msapp.py`, not `pac canvas pack` on `solution/canvas`
+directly — that fails with `System.FormatException` because the packer wants a
+`.msapr` companion only Studio emits. `docs/MSAPP-BUILD.md` has the detail; the
+short version is that it is not a pac version problem and upgrading pac will not
+change it.
 
 Run **task 2 first**. It catches structural problems in seconds that would
 otherwise surface as an opaque packer error.

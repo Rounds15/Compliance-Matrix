@@ -240,7 +240,7 @@ tab** (47 controls across `scr_FunctionDetail` and `scr_RiskAreas`). It was not
 rebuilt with them because packing needs the `pac` CLI, which was not available
 where they were written. Rebuild before using the binary for visual work:
 `python3 tools/build_mockup.py && python3 tools/build_msapp.py`, or VS Code task
-**4. Pack canvas app**. The YAML source is current either way.
+**4. Build canvas app (.msapp)**. The YAML source is current either way.
 
 **Not verified — needs a real environment.** `pac solution pack` and the
 Dataverse import have not been run. Control `@version` strings may need bumping

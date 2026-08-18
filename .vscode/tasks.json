@@ -41,15 +41,28 @@
       "presentation": { "reveal": "always", "panel": "shared", "clear": true }
     },
     {
-      "label": "4. Pack canvas app",
-      "detail": "solution/canvas -> ComplianceMatrix.msapp",
+      // Two steps, and both are required. build_mockup.py rebinds the screens
+      // to in-memory collections; build_msapp.py converts that tree to the
+      // classic layout and calls `pac canvas pack --layout Experimental`.
+      //
+      // Calling `pac canvas pack` on solution/canvas directly does NOT work -
+      // it wants a .msapr companion that only Studio emits. That is not a pac
+      // version problem and upgrading will not fix it. See docs/MSAPP-BUILD.md.
+      "label": "4. Build canvas app (.msapp)",
+      "detail": "solution/canvas -> mockup/ -> ComplianceMatrix.msapp (needs pac)",
       "type": "shell",
-      "command": "pac",
-      "args": [
-        "canvas", "pack",
-        "--sources", "solution/canvas",
-        "--msapp", "ComplianceMatrix.msapp"
-      ],
+      "command": "python",
+      "args": ["tools/build_msapp.py"],
+      "problemMatcher": [],
+      "dependsOn": "4a. Generate mockup source",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "4a. Generate mockup source",
+      "detail": "solution/canvas -> mockup/**.pa.yaml (no pac, no Dataverse)",
+      "type": "shell",
+      "command": "python",
+      "args": ["tools/build_mockup.py"],
       "problemMatcher": [],
       "presentation": { "reveal": "always", "panel": "shared", "clear": true }
     },
