@@ -3456,6 +3456,14 @@ Screens:
                 =Set(gblFdMode, "read");
                 Set(gblFdPanel, "");
                 Set(gblFdToast, "");
+                // Manage mode turns the ownership chain from a read-only roster
+                // into an editor. Off on every arrival - an administrator who
+                // left it on for one function should not silently be editing
+                // the next one.
+                Set(gblFdManage, false);
+                Set(gblFdAddRole, Blank());
+                Set(gblFdAddRoleLabel, "");
+                Set(gblFdNewPerson, Blank());
                 // Working copy so Cancel can discard without touching Dataverse.
                 Set(gblFdDraft, gblSelectedFunction);
                 Set(
@@ -4089,13 +4097,414 @@ Screens:
                             FontWeight: =FontWeight.Semibold
                             Font: =gblTheme.FontBody
 
+            - cnt_PersonPanel:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                    X: =0
+                    Y: =306
+                    Width: =Parent.Width
+                    Height: =310
+                    Fill: =ColorFade(gblTheme.Navy, 0.96)
+                    Visible: =gblFdPanel = "person"
+                Children:
+                    - lbl_PersonPanelTitle:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =18
+                            Width: =600
+                            Height: =26
+                            Text: ="Add someone to the " & Lower(gblFdAddRoleLabel) & " role"
+                            Color: =gblTheme.Navy
+                            Size: =13
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontDisplay
+                    - lbl_PersonPanelHint:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =46
+                            Width: =600
+                            Height: =22
+                            Text: ="Search the Compliance Directory by name or email."
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - txt_PersonSearch:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =64
+                            Y: =72
+                            Width: =400
+                            Height: =36
+                            Default: =""
+                            HintText: ="Search by name or email"
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.Orange
+                            Size: =11
+                            Font: =gblTheme.FontBody
+                    - drp_PersonSubrole:
+                        Control: Classic/DropDown@2.3.1
+                        Properties:
+                            X: =476
+                            Y: =72
+                            Width: =150
+                            Height: =36
+                            Items: =["Support", "Advisory", "Primary"]
+                            BorderColor: =gblTheme.Border
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - lbl_PersonSubroleLabel:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =476
+                            Y: =52
+                            Width: =150
+                            Height: =18
+                            Text: ="Weight on this role"
+                            Color: =gblTheme.GrayMid
+                            Size: =8
+                            Font: =gblTheme.FontBody
+                    - gal_PersonResults:
+                        Control: Gallery@2.15.0
+                        Variant: Vertical
+                        Properties:
+                            X: =64
+                            Y: =118
+                            Width: =562
+                            Height: =140
+                            TemplateSize: =46
+                            TemplatePadding: =0
+                            ShowScrollbar: =true
+                            Items: |
+                                =If(
+                                    Len(Trim(txt_PersonSearch.Text)) < 2,
+                                    Blank(),
+                                    FirstN(
+                                        Filter(
+                                            dsDirectory,
+                                            su_active = true,
+                                            StartsWith(su_name, Trim(txt_PersonSearch.Text))
+                                                || StartsWith(su_email, Trim(txt_PersonSearch.Text))
+                                        ),
+                                        6
+                                    )
+                                )
+                        Children:
+                            - lbl_PersonResultName:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =4
+                                    Y: =4
+                                    Width: =Parent.TemplateWidth - 130
+                                    Height: =20
+                                    Text: =ThisItem.su_name
+                                    Color: =gblTheme.Navy
+                                    Size: =10
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                            - lbl_PersonResultSub:
+                                Control: Label@2.5.1
+                                Properties:
+                                    X: =4
+                                    Y: =23
+                                    Width: =Parent.TemplateWidth - 130
+                                    Height: =18
+                                    Text: |
+                                        =ThisItem.su_jobtitle & "  |  " & ThisItem.su_email
+                                    Color: =gblTheme.GrayMid
+                                    Size: =8
+                                    Font: =gblTheme.FontBody
+                            - btn_PersonResultAdd:
+                                Control: Classic/Button@2.2.0
+                                Properties:
+                                    X: =Parent.TemplateWidth - 122
+                                    Y: =8
+                                    Width: =118
+                                    Height: =30
+                                    Text: |
+                                        ="Add as " & Lower(drp_PersonSubrole.Selected.Value)
+                                    DisplayMode: |
+                                        =If(
+                                            IsBlank(gblFdAddRole),
+                                            DisplayMode.Disabled,
+                                            DisplayMode.Edit
+                                        )
+                                    OnSelect: |
+                                        =If(
+                                            !IsBlank(
+                                                LookUp(
+                                                    colFdOwnership,
+                                                    su_role = gblFdAddRole
+                                                        && su_person.su_compliancedirectoryid
+                                                            = ThisItem.su_compliancedirectoryid
+                                                )
+                                            ),
+                                            Set(
+                                                gblFdToast,
+                                                ThisItem.su_name & " already holds this role."
+                                            ),
+                                            Collect(
+                                                dsOwnership,
+                                                {
+                                                    su_name: ThisItem.su_name & " - " &
+                                                             gblFdAddRoleLabel & " - " &
+                                                             gblSelectedFunction.su_functioncode,
+                                                    su_function: gblSelectedFunction,
+                                                    su_person: ThisItem,
+                                                    su_role: gblFdAddRole,
+                                                    su_subrole: Switch(
+                                                        drp_PersonSubrole.Selected.Value,
+                                                        "Primary",  "Primary",
+                                                        "Advisory", "Advisory",
+                                                        "Support"
+                                                    )
+                                                }
+                                            );
+                                            ClearCollect(
+                                                colFdOwnership,
+                                                Filter(
+                                                    dsOwnership,
+                                                    su_function.su_compliancefunctionid
+                                                        = gblSelectedFunction.su_compliancefunctionid
+                                                )
+                                            );
+                                            Reset(txt_PersonSearch);
+                                            Set(gblFdPanel, "");
+                                            Set(
+                                                gblFdToast,
+                                                ThisItem.su_name & " added as " &
+                                                Lower(drp_PersonSubrole.Selected.Value) &
+                                                " on the " & Lower(gblFdAddRoleLabel) & " role."
+                                            )
+                                        )
+                                    Fill: =gblTheme.Navy
+                                    HoverFill: =gblTheme.BlueMedium
+                                    Color: =gblTheme.White
+                                    BorderThickness: =0
+                                    Size: =9
+                                    FontWeight: =FontWeight.Semibold
+                                    Font: =gblTheme.FontBody
+                    - lbl_PersonNoMatch:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =64
+                            Y: =122
+                            Width: =562
+                            Height: =40
+                            Visible: |
+                                =Len(Trim(txt_PersonSearch.Text)) >= 2
+                                    && CountRows(gal_PersonResults.AllItems) = 0
+                            Text: |
+                                ="No one in the Compliance Directory matches that. Record them on the right, or search by their @syr.edu address."
+                            Color: =gblTheme.GrayMid
+                            Size: =10
+                            Font: =gblTheme.FontBody
+
+                    - rec_PersonNewRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =664
+                            Y: =60
+                            Width: =1
+                            Height: =210
+                            Fill: =gblTheme.Border
+                            BorderThickness: =0
+                    - lbl_PersonNewHead:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =700
+                            Y: =18
+                            Width: =520
+                            Height: =26
+                            Text: ="Not in the Compliance Directory?"
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - lbl_PersonNewHint:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =700
+                            Y: =44
+                            Width: =520
+                            Height: =24
+                            Text: |
+                                ="Recording them here adds a directory row and assigns the role in one step."
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - txt_PersonNewName:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =700
+                            Y: =74
+                            Width: =250
+                            Height: =34
+                            Default: =""
+                            HintText: ="Full name"
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.Orange
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - txt_PersonNewEmail:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =962
+                            Y: =74
+                            Width: =250
+                            Height: =34
+                            Default: =""
+                            HintText: ="name@syr.edu"
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.Orange
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - txt_PersonNewTitle:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =700
+                            Y: =116
+                            Width: =250
+                            Height: =34
+                            Default: =""
+                            HintText: ="Job title"
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.Orange
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - txt_PersonNewUnit:
+                        Control: Classic/TextInput@2.3.2
+                        Properties:
+                            X: =962
+                            Y: =116
+                            Width: =250
+                            Height: =34
+                            Default: =""
+                            HintText: ="Unit or office"
+                            BorderColor: =gblTheme.Border
+                            FocusedBorderColor: =gblTheme.Orange
+                            Size: =10
+                            Font: =gblTheme.FontBody
+                    - btn_PersonNewAdd:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =700
+                            Y: =162
+                            Width: =260
+                            Height: =38
+                            Text: ="Add to the directory and assign"
+                            DisplayMode: |
+                                =If(
+                                    IsBlank(Trim(txt_PersonNewName.Text))
+                                        || !("@" in txt_PersonNewEmail.Text)
+                                        || IsBlank(gblFdAddRole),
+                                    DisplayMode.Disabled,
+                                    DisplayMode.Edit
+                                )
+                            OnSelect: |
+                                =Set(gblFdNewEmail, Lower(Trim(txt_PersonNewEmail.Text)));
+                                If(
+                                    IsBlank(
+                                        LookUp(
+                                            dsDirectory,
+                                            Lower(su_email) = gblFdNewEmail
+                                        )
+                                    ),
+                                    Collect(
+                                        dsDirectory,
+                                        {
+                                            su_name: Trim(txt_PersonNewName.Text),
+                                            su_email: gblFdNewEmail,
+                                            su_jobtitle: Trim(txt_PersonNewTitle.Text),
+                                            su_unit: Trim(txt_PersonNewUnit.Text),
+                                            su_active: true
+                                        }
+                                    )
+                                );
+                                // Read the row back rather than using what the
+                                // write returned, so the create and reuse paths
+                                // end up holding the same thing.
+                                Set(
+                                    gblFdNewPerson,
+                                    LookUp(
+                                        dsDirectory,
+                                        Lower(su_email) = gblFdNewEmail
+                                    )
+                                );
+                                Collect(
+                                    dsOwnership,
+                                    {
+                                        su_name: gblFdNewPerson.su_name & " - " &
+                                                 gblFdAddRoleLabel & " - " &
+                                                 gblSelectedFunction.su_functioncode,
+                                        su_function: gblSelectedFunction,
+                                        su_person: gblFdNewPerson,
+                                        su_role: gblFdAddRole,
+                                        su_subrole: Switch(
+                                            drp_PersonSubrole.Selected.Value,
+                                            "Primary",  "Primary",
+                                            "Advisory", "Advisory",
+                                            "Support"
+                                        )
+                                    }
+                                );
+                                ClearCollect(
+                                    colFdOwnership,
+                                    Filter(
+                                        dsOwnership,
+                                        su_function.su_compliancefunctionid
+                                            = gblSelectedFunction.su_compliancefunctionid
+                                    )
+                                );
+                                Reset(txt_PersonNewName);
+                                Reset(txt_PersonNewEmail);
+                                Reset(txt_PersonNewTitle);
+                                Reset(txt_PersonNewUnit);
+                                Set(gblFdPanel, "");
+                                Set(
+                                    gblFdToast,
+                                    gblFdNewPerson.su_name &
+                                    " is in the Compliance Directory and assigned as " &
+                                    Lower(drp_PersonSubrole.Selected.Value) & " on the " &
+                                    Lower(gblFdAddRoleLabel) & " role."
+                                )
+                            Fill: =gblTheme.Orange
+                            HoverFill: =gblTheme.OrangeMedium
+                            DisabledFill: =gblTheme.GrayLight
+                            Color: =gblTheme.White
+                            BorderThickness: =0
+                            Size: =10
+                            FontWeight: =FontWeight.Bold
+                            Font: =gblTheme.FontBody
+                    - btn_PersonCancel:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =64
+                            Y: =264
+                            Width: =100
+                            Height: =36
+                            Text: ="Cancel"
+                            OnSelect: |
+                                =Reset(txt_PersonSearch);
+                                Set(gblFdPanel, "")
+                            Fill: =RGBA(0, 0, 0, 0)
+                            Color: =gblTheme.Navy
+                            BorderColor: =gblTheme.Navy
+                            BorderThickness: =1
+                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                            Size: =10
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+
             - cnt_FdMain:
                 Control: GroupContainer@1.5.0
                 Variant: ManualLayout
                 Properties:
                     X: =64
                     Y: |
-                        =306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, 0) + 24
+                        =306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, gblFdPanel = "person", 310, 0) + 24
                     Width: =Parent.Width - 480
                     Height: =Parent.Height - 400
                     Fill: =RGBA(0, 0, 0, 0)
@@ -4331,21 +4740,70 @@ Screens:
                                             DueDate: =ThisItem.su_duedate
                                             IsComplete: =ThisItem.su_complete
 
-                            - lbl_FdOwnershipHead:
-                                Control: Label@2.5.1
+                            - cnt_FdOwnershipHead:
+                                Control: GroupContainer@1.5.0
+                                Variant: ManualLayout
                                 Properties:
-                                    Height: =26
+                                    Height: =30
                                     Width: =Parent.Width
-                                    Text: ="OWNERSHIP CHAIN"
-                                    Color: =gblTheme.OrangeDark
-                                    Size: =8
-                                    FontWeight: =FontWeight.Bold
-                                    Font: =gblTheme.FontBody
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                Children:
+                                    - lbl_FdOwnershipHead:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =0
+                                            Y: =0
+                                            Height: =26
+                                            Width: =Parent.Width - 340
+                                            Text: |
+                                                ="OWNERSHIP CHAIN" &
+                                                 If(gblFdManage, " - MANAGING PEOPLE", "")
+                                            Color: =gblTheme.OrangeDark
+                                            Size: =8
+                                            FontWeight: =FontWeight.Bold
+                                            Font: =gblTheme.FontBody
+                                    - btn_FdManagePeople:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =Parent.Width - 150
+                                            Y: =0
+                                            Width: =150
+                                            Height: =30
+                                            Visible: =gblIsAdmin && gblFdMode = "read"
+                                            Text: |
+                                                =If(gblFdManage, "Done", "Manage people")
+                                            OnSelect: |
+                                                =Set(gblFdManage, !gblFdManage);
+                                                Set(gblFdAddRole, Blank());
+                                                Set(gblFdAddRoleLabel, "");
+                                                If(gblFdPanel = "person", Set(gblFdPanel, ""))
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            Color: =gblTheme.Navy
+                                            BorderColor: =gblTheme.Navy
+                                            BorderThickness: =1
+                                            HoverFill: =RGBA(0, 14, 84, 0.06)
+                                            Size: =9
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
+                                    - lbl_FdManageHint:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                            X: =Parent.Width - 340
+                                            Y: =4
+                                            Width: =184
+                                            Height: =22
+                                            Visible: =gblFdManage
+                                            Text: ="Changes save immediately"
+                                            Color: =gblTheme.GrayMid
+                                            Size: =8
+                                            Align: =Align.Right
+                                            VerticalAlign: =VerticalAlign.Middle
+                                            Font: =gblTheme.FontBody
                             - gal_FdOwnership:
                                 Control: Gallery@2.15.0
                                 Variant: Horizontal
                                 Properties:
-                                    Height: =230
+                                    Height: =If(gblFdManage, 272, 230)
                                     Width: =Parent.Width
                                     TemplateSize: =Parent.Width / 3 - 8
                                     TemplatePadding: =12
@@ -4375,7 +4833,7 @@ Screens:
                                             X: =0
                                             Y: =0
                                             Width: =Parent.TemplateWidth
-                                            Height: =220
+                                            Height: =If(gblFdManage, 262, 220)
                                             Fill: =gblTheme.Surface
                                             BorderColor: =gblTheme.Border
                                             BorderThickness: =1
@@ -4421,7 +4879,12 @@ Screens:
                                                 Properties:
                                                     X: =4
                                                     Y: =4
-                                                    Width: =Parent.TemplateWidth - 78
+                                                    Width: |
+                                                        =If(
+                                                            gblFdManage,
+                                                            Parent.TemplateWidth - 130,
+                                                            Parent.TemplateWidth - 78
+                                                        )
                                                     Height: =18
                                                     Text: =ThisItem.su_person.su_name
                                                     Color: =gblTheme.Navy
@@ -4433,7 +4896,12 @@ Screens:
                                                 Properties:
                                                     X: =4
                                                     Y: =22
-                                                    Width: =Parent.TemplateWidth - 78
+                                                    Width: |
+                                                        =If(
+                                                            gblFdManage,
+                                                            Parent.TemplateWidth - 130,
+                                                            Parent.TemplateWidth - 78
+                                                        )
                                                     Height: =26
                                                     Text: =ThisItem.su_person.su_jobtitle
                                                     Color: =gblTheme.GrayMid
@@ -4446,6 +4914,7 @@ Screens:
                                                     Y: =12
                                                     Width: =68
                                                     Height: =22
+                                                    Visible: =!gblFdManage
                                                     Text: |
                                                         =Switch(
                                                             ThisItem.su_subrole,
@@ -4472,6 +4941,121 @@ Screens:
                                                     Align: =Align.Center
                                                     VerticalAlign: =VerticalAlign.Middle
                                                     Font: =gblTheme.FontBody
+                                            - drp_FdPersonSubrole:
+                                                Control: Classic/DropDown@2.3.1
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 126
+                                                    Y: =10
+                                                    Width: =92
+                                                    Height: =30
+                                                    Visible: =gblFdManage
+                                                    Items: |
+                                                        =["Primary", "Advisory", "Support"]
+                                                    Default: |
+                                                        =Switch(
+                                                            ThisItem.su_subrole,
+                                                            "Primary",  "Primary",
+                                                            "Advisory", "Advisory",
+                                                            "Support"
+                                                        )
+                                                    OnChange: |
+                                                        =Patch(
+                                                            dsOwnership,
+                                                            LookUp(
+                                                                dsOwnership,
+                                                                su_functionownershipid
+                                                                    = ThisItem.su_functionownershipid
+                                                            ),
+                                                            {
+                                                                su_subrole: Switch(
+                                                                    drp_FdPersonSubrole.Selected.Value,
+                                                                    "Primary",  "Primary",
+                                                                    "Advisory", "Advisory",
+                                                                    "Support"
+                                                                )
+                                                            }
+                                                        );
+                                                        ClearCollect(
+                                                            colFdOwnership,
+                                                            Filter(
+                                                                dsOwnership,
+                                                                su_function.su_compliancefunctionid
+                                                                    = gblSelectedFunction.su_compliancefunctionid
+                                                            )
+                                                        );
+                                                        Set(
+                                                            gblFdToast,
+                                                            ThisItem.su_person.su_name & " is now " &
+                                                            Lower(drp_FdPersonSubrole.Selected.Value) &
+                                                            " on this role."
+                                                        )
+                                                    BorderColor: =gblTheme.Border
+                                                    Size: =8
+                                                    Font: =gblTheme.FontBody
+                                            - btn_FdPersonRemove:
+                                                Control: Classic/Button@2.2.0
+                                                Properties:
+                                                    X: =Parent.TemplateWidth - 30
+                                                    Y: =12
+                                                    Width: =26
+                                                    Height: =26
+                                                    Visible: =gblFdManage
+                                                    Text: ="X"
+                                                    Tooltip: |
+                                                        ="Remove " & ThisItem.su_person.su_name &
+                                                         " from this role"
+                                                    OnSelect: |
+                                                        =Remove(
+                                                            dsOwnership,
+                                                            LookUp(
+                                                                dsOwnership,
+                                                                su_functionownershipid
+                                                                    = ThisItem.su_functionownershipid
+                                                            )
+                                                        );
+                                                        ClearCollect(
+                                                            colFdOwnership,
+                                                            Filter(
+                                                                dsOwnership,
+                                                                su_function.su_compliancefunctionid
+                                                                    = gblSelectedFunction.su_compliancefunctionid
+                                                            )
+                                                        );
+                                                        Set(
+                                                            gblFdToast,
+                                                            ThisItem.su_person.su_name &
+                                                            " removed from the ownership chain."
+                                                        )
+                                                    Fill: =RGBA(0, 0, 0, 0)
+                                                    Color: =gblTheme.GrayMid
+                                                    HoverFill: =ColorFade(gblTheme.High, 0.88)
+                                                    HoverColor: =gblTheme.High
+                                                    BorderColor: =gblTheme.Border
+                                                    BorderThickness: =1
+                                                    Size: =9
+                                                    FontWeight: =FontWeight.Bold
+                                                    Font: =gblTheme.FontBody
+                                    - btn_FdAddPerson:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                            X: =10
+                                            Y: =220
+                                            Width: =Parent.TemplateWidth - 20
+                                            Height: =32
+                                            Visible: =gblFdManage
+                                            Text: ="+ Add person"
+                                            OnSelect: |
+                                                =Set(gblFdAddRole, ThisItem.RoleKey);
+                                                Set(gblFdAddRoleLabel, ThisItem.RoleLabel);
+                                                Set(gblFdPanel, "person")
+                                            Fill: =RGBA(0, 0, 0, 0)
+                                            Color: =gblTheme.OrangeDark
+                                            BorderColor: =gblTheme.OrangeDark
+                                            BorderThickness: =1
+                                            HoverFill: =RGBA(215, 65, 0, 0.06)
+                                            Size: =9
+                                            FontWeight: =FontWeight.Semibold
+                                            Font: =gblTheme.FontBody
                                     - lbl_FdRoleEmpty:
                                         Control: Label@2.5.1
                                         Properties:
@@ -4953,7 +5537,7 @@ Screens:
                 Properties:
                     X: =Parent.Width - 396
                     Y: |
-                        =306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, 0) + 24
+                        =306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, gblFdPanel = "person", 310, 0) + 24
                     Width: =332
                     Height: =Parent.Height - 400
                     Fill: =RGBA(0, 0, 0, 0)
@@ -7368,7 +7952,45 @@ Screens:
             OnVisible: |
                 =Set(gblRiskAreaSel, Blank());
                 Set(gblRaDomainSel, Blank());
-                ClearCollect(colAllFunctions, dsFunctions)
+                Set(gblRaTab, "areas");
+                Set(gblRaStatuteSel, "");
+                ClearCollect(colAllFunctions, dsFunctions);
+
+                // Deduplicated statutes, most-cited first. GroupBy is not
+                // delegable, so this groups the collection rather than the
+                // table - which is why colAllFunctions is collected above and
+                // not filtered per tile. At 392 functions that is every row;
+                // past the data row limit (Settings > General > Data row limit,
+                // max 2,000) it would need a Dataverse view or a rollup.
+                ClearCollect(
+                    colRaStatutes,
+                    SortByColumns(
+                        AddColumns(
+                            GroupBy(
+                                ShowColumns(
+                                    Filter(colAllFunctions, !IsBlank(su_statute)),
+                                    "su_statute",
+                                    "su_citation",
+                                    "su_statuteurl"
+                                ),
+                                "su_statute",
+                                "StatuteFunctions"
+                            ),
+                            "FunctionCount",
+                            CountRows(StatuteFunctions),
+                            "Citations",
+                            Concat(
+                                Distinct(StatuteFunctions, su_citation),
+                                Value,
+                                "   |   "
+                            ),
+                            "StatuteUrl",
+                            First(StatuteFunctions).su_statuteurl
+                        ),
+                        "FunctionCount",
+                        SortOrder.Descending
+                    )
+                )
 
         Children:
 
@@ -7440,6 +8062,8 @@ Screens:
                         )
                     Subtitle: |
                         =If(
+                            IsBlank(gblRiskAreaSel) && gblRaTab = "statutes",
+                            "The same obligations, grouped by the law behind them.",
                             IsBlank(gblRiskAreaSel),
                             "Thirteen risk areas organize the matrix. Drill into one to see its domains, then the functions inside.",
                             IsBlank(gblRaDomainSel),
@@ -7463,19 +8087,76 @@ Screens:
                             ) & " functions in this domain."
                         )
 
+            - btn_RaTabAreas:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =272
+                    Width: =120
+                    Height: =36
+                    Text: ="Risk areas"
+                    Visible: =IsBlank(gblRiskAreaSel)
+                    OnSelect: =Set(gblRaTab, "areas")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    Color: |
+                        =If(gblRaTab = "areas", gblTheme.Navy, gblTheme.GrayMid)
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - btn_RaTabStatutes:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =184
+                    Y: =272
+                    Width: =120
+                    Height: =36
+                    Text: ="Statutes"
+                    Visible: =IsBlank(gblRiskAreaSel)
+                    OnSelect: =Set(gblRaTab, "statutes"); Set(gblRaStatuteSel, "")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    Color: |
+                        =If(gblRaTab = "statutes", gblTheme.Navy, gblTheme.GrayMid)
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - rec_RaTabRule:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =64
+                    Y: =306
+                    Width: =Parent.Width - 128
+                    Height: =1
+                    Fill: =gblTheme.Border
+                    BorderThickness: =0
+                    Visible: =IsBlank(gblRiskAreaSel)
+            - rec_RaTabActive:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =If(gblRaTab = "areas", 64, 184)
+                    Y: =304
+                    Width: =120
+                    Height: =3
+                    Fill: =gblTheme.Orange
+                    BorderThickness: =0
+                    Visible: =IsBlank(gblRiskAreaSel)
+
             - gal_RiskAreaTiles:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
                 Properties:
                     X: =64
-                    Y: =286
+                    Y: =322
                     Width: =Parent.Width - 128
-                    Height: =Parent.Height - 330
+                    Height: =Parent.Height - 366
                     TemplateSize: =(Parent.Width - 128) / 4 - 4
                     TemplatePadding: =16
                     WrapCount: =4
                     ShowScrollbar: =true
-                    Visible: =IsBlank(gblRiskAreaSel)
+                    Visible: =IsBlank(gblRiskAreaSel) && gblRaTab = "areas"
                     Items: =colRiskAreas
                 Children:
                     - rec_RaTile:
@@ -7580,7 +8261,7 @@ Screens:
                     Fill: =ColorFade(gblTheme.GrayMid, 0.92)
                     BorderThickness: =0
                     Visible: |
-                        =IsBlank(gblRiskAreaSel)
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "areas"
                             && CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) > 0
             - btn_RaUnassigned:
                 Control: Classic/Button@2.2.0
@@ -7590,7 +8271,7 @@ Screens:
                     Width: =Parent.Width - 128
                     Height: =44
                     Visible: |
-                        =IsBlank(gblRiskAreaSel)
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "areas"
                             && CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) > 0
                     Text: |
                         =CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) &
@@ -7605,6 +8286,254 @@ Screens:
                     Size: =10
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
+
+            - lbl_RaStatuteNote:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =322
+                    Width: =Parent.Width - 128
+                    Height: =38
+                    Visible: =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                    Text: |
+                        =CountRows(colRaStatutes) &
+                         " distinct statutes govern the matrix - many obligations cite the same law. Select one to see every function that answers to it." &
+                         With(
+                             {
+                                 n: CountRows(
+                                     Filter(colAllFunctions, IsBlank(su_statute))
+                                 )
+                             },
+                             If(n = 0, "", "  " & n & " function(s) have no statute recorded.")
+                         )
+                    Color: =gblTheme.GrayMid
+                    Size: =10
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            - gal_RaStatutes:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =368
+                    Width: =(Parent.Width - 128) * 0.46
+                    Height: =Parent.Height - 412
+                    TemplateSize: =70
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                    Items: =colRaStatutes
+                Children:
+                    - rec_RaStatuteRow:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =69
+                            Fill: |
+                                =If(
+                                    ThisItem.su_statute = gblRaStatuteSel,
+                                    ColorFade(gblTheme.Orange, 0.93),
+                                    gblTheme.White
+                                )
+                            BorderColor: =gblTheme.BorderSoft
+                            BorderThickness: =1
+                    - rec_RaStatuteMark:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =3
+                            Height: =69
+                            Fill: =gblTheme.Orange
+                            BorderThickness: =0
+                            Visible: =ThisItem.su_statute = gblRaStatuteSel
+                    - lbl_RaStatuteName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =8
+                            Width: =Parent.TemplateWidth - 96
+                            Height: =22
+                            Text: =ThisItem.su_statute
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_RaStatuteCitations:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =30
+                            Width: =Parent.TemplateWidth - 96
+                            Height: =32
+                            Text: =ThisItem.Citations
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_RaStatuteCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 82
+                            Y: =22
+                            Width: =68
+                            Height: =24
+                            Text: =ThisItem.FunctionCount
+                            Fill: =ColorFade(gblTheme.Navy, 0.9)
+                            Color: =gblTheme.Navy
+                            Size: =9
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - btn_RaStatuteOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =69
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblRaStatuteSel, ThisItem.su_statute)
+
+            - lbl_RaStatutePrompt:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 20
+                    Y: =368
+                    Width: =(Parent.Width - 128) * 0.54 - 20
+                    Height: =60
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && IsBlank(gblRaStatuteSel)
+                    Text: ="Select a statute to see the functions that cite it."
+                    Color: =gblTheme.GrayLight
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - lbl_RaStatuteSelName:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 20
+                    Y: =362
+                    Width: =(Parent.Width - 128) * 0.54 - 20
+                    Height: =46
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && !IsBlank(gblRaStatuteSel)
+                    Text: =gblRaStatuteSel
+                    Color: =gblTheme.Navy
+                    Size: =14
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontDisplay
+            - btn_RaStatuteLaunch:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 16
+                    Y: =408
+                    Width: =180
+                    Height: =30
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && !IsBlank(
+                                LookUp(colRaStatutes, su_statute = gblRaStatuteSel).StatuteUrl
+                            )
+                    Text: ="Open the statute"
+                    OnSelect: |
+                        =Launch(
+                            LookUp(colRaStatutes, su_statute = gblRaStatuteSel).StatuteUrl
+                        )
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    BorderThickness: =0
+                    Align: =Align.Left
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - gal_RaStatuteFunctions:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 20
+                    Y: =444
+                    Width: =(Parent.Width - 128) * 0.54 - 20
+                    Height: =Parent.Height - 488
+                    TemplateSize: =62
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && !IsBlank(gblRaStatuteSel)
+                    Items: =Filter(colAllFunctions, su_statute = gblRaStatuteSel)
+                Children:
+                    - lbl_RaStFnName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =4
+                            Y: =8
+                            Width: =Parent.TemplateWidth - 110
+                            Height: =22
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_RaStFnSub:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =4
+                            Y: =30
+                            Width: =Parent.TemplateWidth - 110
+                            Height: =20
+                            Text: |
+                                =ThisItem.su_riskarea.su_name & "  |  " &
+                                 ThisItem.su_citation
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - cmp_RaStFnRisk:
+                        Control: cmp_RiskPill
+                        Properties:
+                            X: =Parent.TemplateWidth - 96
+                            Y: =19
+                            Width: =74
+                            Height: =24
+                            Risk: |
+                                =Switch(
+                                    ThisItem.su_risk,
+                                    "High",     "High",
+                                    "Moderate", "Moderate",
+                                    "Low",      "Low",
+                                    ""
+                                )
+                    - rec_RaStFnRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =61
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                    - btn_RaStFnOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =61
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedFunction, ThisItem);
+                                Navigate(scr_FunctionDetail, ScreenTransition.None)
 
             - gal_RaDomains:
                 Control: Gallery@2.15.0

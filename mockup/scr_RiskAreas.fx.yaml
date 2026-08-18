@@ -7,7 +7,45 @@ Screens:
             OnVisible: |
                 =Set(gblRiskAreaSel, Blank());
                 Set(gblRaDomainSel, Blank());
-                ClearCollect(colAllFunctions, dsFunctions)
+                Set(gblRaTab, "areas");
+                Set(gblRaStatuteSel, "");
+                ClearCollect(colAllFunctions, dsFunctions);
+
+                // Deduplicated statutes, most-cited first. GroupBy is not
+                // delegable, so this groups the collection rather than the
+                // table - which is why colAllFunctions is collected above and
+                // not filtered per tile. At 392 functions that is every row;
+                // past the data row limit (Settings > General > Data row limit,
+                // max 2,000) it would need a Dataverse view or a rollup.
+                ClearCollect(
+                    colRaStatutes,
+                    SortByColumns(
+                        AddColumns(
+                            GroupBy(
+                                ShowColumns(
+                                    Filter(colAllFunctions, !IsBlank(su_statute)),
+                                    "su_statute",
+                                    "su_citation",
+                                    "su_statuteurl"
+                                ),
+                                "su_statute",
+                                "StatuteFunctions"
+                            ),
+                            "FunctionCount",
+                            CountRows(StatuteFunctions),
+                            "Citations",
+                            Concat(
+                                Distinct(StatuteFunctions, su_citation),
+                                Value,
+                                "   |   "
+                            ),
+                            "StatuteUrl",
+                            First(StatuteFunctions).su_statuteurl
+                        ),
+                        "FunctionCount",
+                        SortOrder.Descending
+                    )
+                )
 
         Children:
 
@@ -79,6 +117,8 @@ Screens:
                         )
                     Subtitle: |
                         =If(
+                            IsBlank(gblRiskAreaSel) && gblRaTab = "statutes",
+                            "The same obligations, grouped by the law behind them.",
                             IsBlank(gblRiskAreaSel),
                             "Thirteen risk areas organize the matrix. Drill into one to see its domains, then the functions inside.",
                             IsBlank(gblRaDomainSel),
@@ -102,19 +142,76 @@ Screens:
                             ) & " functions in this domain."
                         )
 
+            - btn_RaTabAreas:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64
+                    Y: =272
+                    Width: =120
+                    Height: =36
+                    Text: ="Risk areas"
+                    Visible: =IsBlank(gblRiskAreaSel)
+                    OnSelect: =Set(gblRaTab, "areas")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    Color: |
+                        =If(gblRaTab = "areas", gblTheme.Navy, gblTheme.GrayMid)
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - btn_RaTabStatutes:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =184
+                    Y: =272
+                    Width: =120
+                    Height: =36
+                    Text: ="Statutes"
+                    Visible: =IsBlank(gblRiskAreaSel)
+                    OnSelect: =Set(gblRaTab, "statutes"); Set(gblRaStatuteSel, "")
+                    Fill: =RGBA(0, 0, 0, 0)
+                    HoverFill: =RGBA(0, 14, 84, 0.04)
+                    Color: |
+                        =If(gblRaTab = "statutes", gblTheme.Navy, gblTheme.GrayMid)
+                    BorderThickness: =0
+                    Size: =11
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - rec_RaTabRule:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =64
+                    Y: =306
+                    Width: =Parent.Width - 128
+                    Height: =1
+                    Fill: =gblTheme.Border
+                    BorderThickness: =0
+                    Visible: =IsBlank(gblRiskAreaSel)
+            - rec_RaTabActive:
+                Control: Rectangle@2.3.0
+                Properties:
+                    X: =If(gblRaTab = "areas", 64, 184)
+                    Y: =304
+                    Width: =120
+                    Height: =3
+                    Fill: =gblTheme.Orange
+                    BorderThickness: =0
+                    Visible: =IsBlank(gblRiskAreaSel)
+
             - gal_RiskAreaTiles:
                 Control: Gallery@2.15.0
                 Variant: Horizontal
                 Properties:
                     X: =64
-                    Y: =286
+                    Y: =322
                     Width: =Parent.Width - 128
-                    Height: =Parent.Height - 330
+                    Height: =Parent.Height - 366
                     TemplateSize: =(Parent.Width - 128) / 4 - 4
                     TemplatePadding: =16
                     WrapCount: =4
                     ShowScrollbar: =true
-                    Visible: =IsBlank(gblRiskAreaSel)
+                    Visible: =IsBlank(gblRiskAreaSel) && gblRaTab = "areas"
                     Items: =colRiskAreas
                 Children:
                     - rec_RaTile:
@@ -219,7 +316,7 @@ Screens:
                     Fill: =ColorFade(gblTheme.GrayMid, 0.92)
                     BorderThickness: =0
                     Visible: |
-                        =IsBlank(gblRiskAreaSel)
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "areas"
                             && CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) > 0
             - btn_RaUnassigned:
                 Control: Classic/Button@2.2.0
@@ -229,7 +326,7 @@ Screens:
                     Width: =Parent.Width - 128
                     Height: =44
                     Visible: |
-                        =IsBlank(gblRiskAreaSel)
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "areas"
                             && CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) > 0
                     Text: |
                         =CountRows(Filter(colAllFunctions, IsBlank(su_riskarea))) &
@@ -244,6 +341,254 @@ Screens:
                     Size: =10
                     FontWeight: =FontWeight.Semibold
                     Font: =gblTheme.FontBody
+
+            - lbl_RaStatuteNote:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64
+                    Y: =322
+                    Width: =Parent.Width - 128
+                    Height: =38
+                    Visible: =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                    Text: |
+                        =CountRows(colRaStatutes) &
+                         " distinct statutes govern the matrix - many obligations cite the same law. Select one to see every function that answers to it." &
+                         With(
+                             {
+                                 n: CountRows(
+                                     Filter(colAllFunctions, IsBlank(su_statute))
+                                 )
+                             },
+                             If(n = 0, "", "  " & n & " function(s) have no statute recorded.")
+                         )
+                    Color: =gblTheme.GrayMid
+                    Size: =10
+                    VerticalAlign: =VerticalAlign.Middle
+                    Font: =gblTheme.FontBody
+
+            - gal_RaStatutes:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64
+                    Y: =368
+                    Width: =(Parent.Width - 128) * 0.46
+                    Height: =Parent.Height - 412
+                    TemplateSize: =70
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                    Items: =colRaStatutes
+                Children:
+                    - rec_RaStatuteRow:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =69
+                            Fill: |
+                                =If(
+                                    ThisItem.su_statute = gblRaStatuteSel,
+                                    ColorFade(gblTheme.Orange, 0.93),
+                                    gblTheme.White
+                                )
+                            BorderColor: =gblTheme.BorderSoft
+                            BorderThickness: =1
+                    - rec_RaStatuteMark:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =3
+                            Height: =69
+                            Fill: =gblTheme.Orange
+                            BorderThickness: =0
+                            Visible: =ThisItem.su_statute = gblRaStatuteSel
+                    - lbl_RaStatuteName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =8
+                            Width: =Parent.TemplateWidth - 96
+                            Height: =22
+                            Text: =ThisItem.su_statute
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_RaStatuteCitations:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =14
+                            Y: =30
+                            Width: =Parent.TemplateWidth - 96
+                            Height: =32
+                            Text: =ThisItem.Citations
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - lbl_RaStatuteCount:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =Parent.TemplateWidth - 82
+                            Y: =22
+                            Width: =68
+                            Height: =24
+                            Text: =ThisItem.FunctionCount
+                            Fill: =ColorFade(gblTheme.Navy, 0.9)
+                            Color: =gblTheme.Navy
+                            Size: =9
+                            FontWeight: =FontWeight.Bold
+                            Align: =Align.Center
+                            VerticalAlign: =VerticalAlign.Middle
+                            Font: =gblTheme.FontBody
+                    - btn_RaStatuteOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =69
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: =Set(gblRaStatuteSel, ThisItem.su_statute)
+
+            - lbl_RaStatutePrompt:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 20
+                    Y: =368
+                    Width: =(Parent.Width - 128) * 0.54 - 20
+                    Height: =60
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && IsBlank(gblRaStatuteSel)
+                    Text: ="Select a statute to see the functions that cite it."
+                    Color: =gblTheme.GrayLight
+                    Size: =11
+                    Font: =gblTheme.FontBody
+            - lbl_RaStatuteSelName:
+                Control: Label@2.5.1
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 20
+                    Y: =362
+                    Width: =(Parent.Width - 128) * 0.54 - 20
+                    Height: =46
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && !IsBlank(gblRaStatuteSel)
+                    Text: =gblRaStatuteSel
+                    Color: =gblTheme.Navy
+                    Size: =14
+                    FontWeight: =FontWeight.Bold
+                    Font: =gblTheme.FontDisplay
+            - btn_RaStatuteLaunch:
+                Control: Classic/Button@2.2.0
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 16
+                    Y: =408
+                    Width: =180
+                    Height: =30
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && !IsBlank(
+                                LookUp(colRaStatutes, su_statute = gblRaStatuteSel).StatuteUrl
+                            )
+                    Text: ="Open the statute"
+                    OnSelect: |
+                        =Launch(
+                            LookUp(colRaStatutes, su_statute = gblRaStatuteSel).StatuteUrl
+                        )
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Color: =gblTheme.OrangeDark
+                    HoverFill: =RGBA(215, 65, 0, 0.06)
+                    BorderThickness: =0
+                    Align: =Align.Left
+                    Size: =10
+                    FontWeight: =FontWeight.Semibold
+                    Font: =gblTheme.FontBody
+            - gal_RaStatuteFunctions:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                    X: =64 + (Parent.Width - 128) * 0.46 + 20
+                    Y: =444
+                    Width: =(Parent.Width - 128) * 0.54 - 20
+                    Height: =Parent.Height - 488
+                    TemplateSize: =62
+                    TemplatePadding: =0
+                    ShowScrollbar: =true
+                    Visible: |
+                        =IsBlank(gblRiskAreaSel) && gblRaTab = "statutes"
+                            && !IsBlank(gblRaStatuteSel)
+                    Items: =Filter(colAllFunctions, su_statute = gblRaStatuteSel)
+                Children:
+                    - lbl_RaStFnName:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =4
+                            Y: =8
+                            Width: =Parent.TemplateWidth - 110
+                            Height: =22
+                            Text: =ThisItem.su_name
+                            Color: =gblTheme.Navy
+                            Size: =11
+                            FontWeight: =FontWeight.Semibold
+                            Font: =gblTheme.FontBody
+                    - lbl_RaStFnSub:
+                        Control: Label@2.5.1
+                        Properties:
+                            X: =4
+                            Y: =30
+                            Width: =Parent.TemplateWidth - 110
+                            Height: =20
+                            Text: |
+                                =ThisItem.su_riskarea.su_name & "  |  " &
+                                 ThisItem.su_citation
+                            Color: =gblTheme.GrayMid
+                            Size: =9
+                            Font: =gblTheme.FontBody
+                    - cmp_RaStFnRisk:
+                        Control: cmp_RiskPill
+                        Properties:
+                            X: =Parent.TemplateWidth - 96
+                            Y: =19
+                            Width: =74
+                            Height: =24
+                            Risk: |
+                                =Switch(
+                                    ThisItem.su_risk,
+                                    "High",     "High",
+                                    "Moderate", "Moderate",
+                                    "Low",      "Low",
+                                    ""
+                                )
+                    - rec_RaStFnRule:
+                        Control: Rectangle@2.3.0
+                        Properties:
+                            X: =0
+                            Y: =61
+                            Width: =Parent.TemplateWidth
+                            Height: =1
+                            Fill: =gblTheme.BorderSoft
+                            BorderThickness: =0
+                    - btn_RaStFnOverlay:
+                        Control: Classic/Button@2.2.0
+                        Properties:
+                            X: =0
+                            Y: =0
+                            Width: =Parent.TemplateWidth
+                            Height: =61
+                            Text: =""
+                            Fill: =RGBA(0, 0, 0, 0)
+                            HoverFill: =RGBA(0, 14, 84, 0.03)
+                            BorderThickness: =0
+                            OnSelect: |
+                                =Set(gblSelectedFunction, ThisItem);
+                                Navigate(scr_FunctionDetail, ScreenTransition.None)
 
             - gal_RaDomains:
                 Control: Gallery@2.15.0

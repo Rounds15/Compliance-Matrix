@@ -595,7 +595,7 @@ cnt_ExecDialog           (Parent.Width - 800) / 2    (Parent.Height - 600) / 2  
 
 </details>
 
-### scr_FunctionDetail  (110 controls)
+### scr_FunctionDetail  (136 controls)
 
 **Purpose.** Record detail and edit view for one function, plus its deadlines, ownership, and flags. The largest screen in the app.
 
@@ -636,6 +636,26 @@ Paste target: b (new screen)
   │   ├── lbl_GapPanelNote [Label]
   │   ├── btn_GapSubmit [Classic/Button]
   │   └── btn_GapCancel [Classic/Button]
+  ├── cnt_PersonPanel [GroupContainer, ManualLayout]
+  │   ├── lbl_PersonPanelTitle [Label]
+  │   ├── lbl_PersonPanelHint [Label]
+  │   ├── txt_PersonSearch [Classic/TextInput]
+  │   ├── drp_PersonSubrole [Classic/DropDown]
+  │   ├── lbl_PersonSubroleLabel [Label]
+  │   ├── gal_PersonResults [Gallery, Vertical, items-cols: su_name|su_jobtitle|su_email|su_compliancedirectoryid, active-var: CurrentPersonResultsID, active-col: su_email]
+  │   │   ├── lbl_PersonResultName [Label, gallery-child]
+  │   │   ├── lbl_PersonResultSub [Label, gallery-child]
+  │   │   └── btn_PersonResultAdd [Classic/Button, gallery-child]
+  │   ├── lbl_PersonNoMatch [Label]
+  │   ├── rec_PersonNewRule [Rectangle]
+  │   ├── lbl_PersonNewHead [Label]
+  │   ├── lbl_PersonNewHint [Label]
+  │   ├── txt_PersonNewName [Classic/TextInput]
+  │   ├── txt_PersonNewEmail [Classic/TextInput]
+  │   ├── txt_PersonNewTitle [Classic/TextInput]
+  │   ├── txt_PersonNewUnit [Classic/TextInput]
+  │   ├── btn_PersonNewAdd [Classic/Button]
+  │   └── btn_PersonCancel [Classic/Button]
   ├── cnt_FdMain [GroupContainer, ManualLayout]
   │   ├── rec_FdFlagBanner [Rectangle]
   │   ├── lbl_FdFlagBannerText [Label]
@@ -655,15 +675,21 @@ Paste target: b (new screen)
   │   │   │   ├── lbl_FdDlTitle [Label, gallery-child]
   │   │   │   ├── lbl_FdDlSub [Label, gallery-child]
   │   │   │   └── cmp_FdDlPill [Component: cmp_DuePill, gallery-child]
-  │   │   ├── lbl_FdOwnershipHead [Label]
-  │   │   ├── gal_FdOwnership [Gallery, Horizontal, items-cols: RoleLabel|RoleNote|RoleKey|su_person.su_name|su_person.su_jobtitle|su_subrole, active-var: CurrentFdOwnershipID, active-col: RoleLabel]
+  │   │   ├── cnt_FdOwnershipHead [GroupContainer, ManualLayout]
+  │   │   │   ├── lbl_FdOwnershipHead [Label]
+  │   │   │   ├── btn_FdManagePeople [Classic/Button]
+  │   │   │   └── lbl_FdManageHint [Label]
+  │   │   ├── gal_FdOwnership [Gallery, Horizontal, items-cols: RoleLabel|RoleNote|RoleKey|su_person.su_name|su_person.su_jobtitle|su_subrole|su_functionownershipid, active-var: CurrentFdOwnershipID, active-col: su_functionownershipid]
   │   │   │   ├── rec_FdRoleCard [Rectangle, card, gallery-child]
   │   │   │   ├── lbl_FdRoleLabel [Label, gallery-child]
   │   │   │   ├── lbl_FdRoleNote [Label, gallery-child]
-  │   │   │   ├── gal_FdRolePeople [Gallery, Vertical, items-cols: RoleKey|su_person.su_name|su_person.su_jobtitle|su_subrole, active-var: CurrentFdRolePeopleID, active-col: RoleKey, gallery-child]
+  │   │   │   ├── gal_FdRolePeople [Gallery, Vertical, items-cols: RoleKey|su_person.su_name|su_person.su_jobtitle|su_subrole|su_functionownershipid, active-var: CurrentFdRolePeopleID, active-col: su_functionownershipid, gallery-child]
   │   │   │   │   ├── lbl_FdPersonName [Label, gallery-child]
   │   │   │   │   ├── lbl_FdPersonTitle [Label, gallery-child]
-  │   │   │   │   └── lbl_FdPersonSubrole [Label, gallery-child]
+  │   │   │   │   ├── lbl_FdPersonSubrole [Label, gallery-child]
+  │   │   │   │   ├── drp_FdPersonSubrole [Classic/DropDown, gallery-child]
+  │   │   │   │   └── btn_FdPersonRemove [Classic/Button, gallery-child]
+  │   │   │   ├── btn_FdAddPerson [Classic/Button, gallery-child]
   │   │   │   └── lbl_FdRoleEmpty [Label, gallery-child]
   │   │   ├── lbl_FdGapHead [Label]
   │   │   ├── gal_FdGaps [Gallery, Vertical, items-cols: su_status|su_severity|su_gapcode|su_openeddate|su_daysopen|su_assessment.su_assessmentcode|su_name|su_closenote|su_note, active-var: CurrentFdGapsID, active-col: su_gapcode]
@@ -720,118 +746,144 @@ Paste target: b (new screen)
 <details><summary>Geometry - use these values, do not re-derive them</summary>
 
 ```
-control                       X                               Y                                                                    Width                       Height
-----------------------------  ------------------------------  -------------------------------------------------------------------  --------------------------  ---------------------------------------------
-cmp_HeaderFd                  0                               0                                                                    Parent.Width                104
-btn_FdBack                    64                              116                                                                  130                         32
-lbl_FdCrumb                   200                             116                                                                  700                         32
-rec_FdHead                    0                               156                                                                  Parent.Width                150
-rec_FdHeadRule                0                               303                                                                  Parent.Width                3
-lbl_FdEyebrow                 64                              174                                                                  800                         20
-lbl_FdTitle                   64                              198                                                                  Parent.Width - 460          56
-cmp_FdRisk                    64                              262                                                                  74                          24
-lbl_FdCode                    148                             262                                                                  90                          24
-lbl_FdGapCount                248                             262                                                                  104                         24
-lbl_FdFlagged                 362                             262                                                                  140                         24
-btn_FdSave                    Parent.Width - 360              252                                                                  150                         40
-btn_FdCancel                  Parent.Width - 198              252                                                                  110                         40
-cnt_FlagPanel                 0                               306                                                                  Parent.Width                222
-  lbl_FlagPanelTitle          64                              18                                                                   600                         26
-  lbl_FlagPanelLabel          64                              50                                                                   600                         20
-  txt_FlagReason              64                              72                                                                   Parent.Width - 460          70
-  lbl_FlagPanelNote           64                              148                                                                  Parent.Width - 460          20
-  btn_FlagSubmit              64                              174                                                                  130                         38
-  btn_FlagCancel              206                             174                                                                  100                         38
-cnt_GapPanel                  0                               306                                                                  Parent.Width                270
-  lbl_GapPanelTitle           64                              18                                                                   600                         26
-  lbl_GapSummaryLabel         64                              50                                                                   400                         20
-  txt_GapTitle                64                              72                                                                   Parent.Width - 640          42
-  lbl_GapSeverityLabel        Parent.Width - 560              50                                                                   180                         20
-  drp_GapSeverity             Parent.Width - 560              72                                                                   180                         42
-  lbl_GapDetailLabel          64                              122                                                                  400                         20
-  txt_GapNote                 64                              144                                                                  Parent.Width - 460          62
-  lbl_GapPanelNote            64                              212                                                                  Parent.Width - 460          18
-  btn_GapSubmit               64                              236                                                                  120                         38
-  btn_GapCancel               196                             236                                                                  100                         38
-cnt_FdMain                    64                              306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, 0) + 24  Parent.Width - 480          Parent.Height - 400
-  rec_FdFlagBanner            0                               0                                                                    Parent.Width                78
-  lbl_FdFlagBannerText        16                              10                                                                   Parent.Width - 180          58
-  btn_FdClearFlag             Parent.Width - 150              22                                                                   134                         34
-  cnt_FdRead                  0                               If(IsBlank(gblFdFlag), 0, 94)                                        Parent.Width                Parent.Height - If(IsBlank(gblFdFlag), 0, 94)
-    lbl_FdStatuteHead                                                                                                              Parent.Width                26
-    lbl_FdStatuteBody                                                                                                              Parent.Width                74
-    btn_FdStatuteLink                                                                                                              200                         32
-    lbl_FdObligationHead                                                                                                           Parent.Width                26
-    lbl_FdObligationBody                                                                                                           Parent.Width                96
-    lbl_FdReportingHead                                                                                                            Parent.Width                26
-    lbl_FdReportingBody                                                                                                            Parent.Width                64
-    lbl_FdCadenceHead                                                                                                              Parent.Width                26
-    lbl_FdCadenceBody                                                                                                              Parent.Width                44
-    gal_FdDeadlines                                                                                                                Parent.Width                Min(CountRows(colFdDeadlines) * 54, 216)
-      rec_FdDlBox             0                               0                                                                    Parent.TemplateWidth        48
-      lbl_FdDlTitle           14                              5                                                                    Parent.TemplateWidth - 140  20
-      lbl_FdDlSub             14                              25                                                                   Parent.TemplateWidth - 140  18
-      cmp_FdDlPill            Parent.TemplateWidth - 118      12                                                                   104                         24
-    lbl_FdOwnershipHead                                                                                                            Parent.Width                26
-    gal_FdOwnership                                                                                                                Parent.Width                230
-      rec_FdRoleCard          0                               0                                                                    Parent.TemplateWidth        220
-      lbl_FdRoleLabel         14                              12                                                                   Parent.TemplateWidth - 28   22
-      lbl_FdRoleNote          14                              34                                                                   Parent.TemplateWidth - 28   20
-      gal_FdRolePeople        10                              58                                                                   Parent.TemplateWidth - 20   154
-        lbl_FdPersonName      4                               4                                                                    Parent.TemplateWidth - 78   18
-        lbl_FdPersonTitle     4                               22                                                                   Parent.TemplateWidth - 78   26
-        lbl_FdPersonSubrole   Parent.TemplateWidth - 72       12                                                                   68                          22
-      lbl_FdRoleEmpty         14                              100                                                                  Parent.TemplateWidth - 28   40
-    lbl_FdGapHead                                                                                                                  Parent.Width                26
-    gal_FdGaps                                                                                                                     Parent.Width                Min(Max(CountRows(colFdGaps), 1) * 96, 300)
-      rec_FdGapBox            0                               0                                                                    Parent.TemplateWidth        88
-      rec_FdGapAccent         0                               0                                                                    3                           88
-      lbl_FdGapStatus         14                              8                                                                    70                          20
-      lbl_FdGapMeta           92                              8                                                                    Parent.TemplateWidth - 110  20
-      lbl_FdGapTitle          14                              30                                                                   Parent.TemplateWidth - 28   20
-      lbl_FdGapNote           14                              50                                                                   Parent.TemplateWidth - 28   34
-    lbl_FdGapEmpty                                                                                                                 Parent.Width                60
-    lbl_FdResourceHead                                                                                                             Parent.Width                26
-    btn_FdResourceLink                                                                                                             Parent.Width                34
-  cnt_FdEdit                  0                               If(IsBlank(gblFdFlag), 0, 94)                                        Parent.Width                Parent.Height - If(IsBlank(gblFdFlag), 0, 94)
-    lbl_FdEditNote                                                                                                                 Parent.Width                44
-    lbl_FdNameLabel                                                                                                                Parent.Width                20
-    txt_FdName                                                                                                                     Parent.Width                42
-    lbl_FdRiskLabel                                                                                                                Parent.Width                20
-    drp_FdRisk                                                                                                                     260                         42
-    lbl_FdAreaLabel                                                                                                                Parent.Width                20
-    drp_FdDomain                                                                                                                   Parent.Width                42
-    lbl_FdRiskAreaEcho                                                                                                             Parent.Width                22
-    lbl_FdStatuteLabel                                                                                                             Parent.Width                20
-    txt_FdStatute                                                                                                                  Parent.Width                42
-    lbl_FdCitationLabel                                                                                                            Parent.Width                20
-    txt_FdCitation                                                                                                                 Parent.Width                42
-    lbl_FdStatuteUrlLabel                                                                                                          Parent.Width                20
-    txt_FdStatuteUrl                                                                                                               Parent.Width                42
-    lbl_FdDescLabel                                                                                                                Parent.Width                20
-    txt_FdDescription                                                                                                              Parent.Width                110
-    lbl_FdReportingLabel                                                                                                           Parent.Width                20
-    txt_FdReporting                                                                                                                Parent.Width                90
-    lbl_FdCadenceLabel                                                                                                             Parent.Width                20
-    txt_FdDeadlineNarrative                                                                                                        Parent.Width                70
-    lbl_FdResourceLabelLabel                                                                                                       Parent.Width                20
-    txt_FdResourceLabel                                                                                                            Parent.Width                42
-    lbl_FdResourceUrlLabel                                                                                                         Parent.Width                20
-    txt_FdResourceUrl                                                                                                              Parent.Width                42
-cnt_FdRail                    Parent.Width - 396              306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, 0) + 24  332                         Parent.Height - 400
-  lbl_RailStatusHead                                                                                                               Parent.Width                24
-  lbl_RailStatusBody                                                                                                               Parent.Width                126
-  lbl_RailActionHead                                                                                                               Parent.Width                24
-  btn_RailEdit                                                                                                                     Parent.Width                38
-  btn_RailFlag                                                                                                                     Parent.Width                38
-  btn_RailLogGap                                                                                                                   Parent.Width                38
-  lbl_RailCounselHead                                                                                                              Parent.Width                24
-  lbl_RailCounselBody                                                                                                              Parent.Width                134
-  btn_RailCounselEmail                                                                                                             Parent.Width                38
-rec_FdToast                   (Parent.Width - 560) / 2        Parent.Height - 84                                                   560                         52
-rec_FdToastAccent             (Parent.Width - 560) / 2        Parent.Height - 84                                                   4                           52
-lbl_FdToast                   (Parent.Width - 560) / 2 + 18   Parent.Height - 84                                                   500                         52
-btn_FdToastDismiss            (Parent.Width - 560) / 2 + 510  Parent.Height - 84                                                   46                          52
+control                       X                               Y                                                                                                Width                                                                                 Height
+----------------------------  ------------------------------  -----------------------------------------------------------------------------------------------  ------------------------------------------------------------------------------------  ---------------------------------------------
+cmp_HeaderFd                  0                               0                                                                                                Parent.Width                                                                          104
+btn_FdBack                    64                              116                                                                                              130                                                                                   32
+lbl_FdCrumb                   200                             116                                                                                              700                                                                                   32
+rec_FdHead                    0                               156                                                                                              Parent.Width                                                                          150
+rec_FdHeadRule                0                               303                                                                                              Parent.Width                                                                          3
+lbl_FdEyebrow                 64                              174                                                                                              800                                                                                   20
+lbl_FdTitle                   64                              198                                                                                              Parent.Width - 460                                                                    56
+cmp_FdRisk                    64                              262                                                                                              74                                                                                    24
+lbl_FdCode                    148                             262                                                                                              90                                                                                    24
+lbl_FdGapCount                248                             262                                                                                              104                                                                                   24
+lbl_FdFlagged                 362                             262                                                                                              140                                                                                   24
+btn_FdSave                    Parent.Width - 360              252                                                                                              150                                                                                   40
+btn_FdCancel                  Parent.Width - 198              252                                                                                              110                                                                                   40
+cnt_FlagPanel                 0                               306                                                                                              Parent.Width                                                                          222
+  lbl_FlagPanelTitle          64                              18                                                                                               600                                                                                   26
+  lbl_FlagPanelLabel          64                              50                                                                                               600                                                                                   20
+  txt_FlagReason              64                              72                                                                                               Parent.Width - 460                                                                    70
+  lbl_FlagPanelNote           64                              148                                                                                              Parent.Width - 460                                                                    20
+  btn_FlagSubmit              64                              174                                                                                              130                                                                                   38
+  btn_FlagCancel              206                             174                                                                                              100                                                                                   38
+cnt_GapPanel                  0                               306                                                                                              Parent.Width                                                                          270
+  lbl_GapPanelTitle           64                              18                                                                                               600                                                                                   26
+  lbl_GapSummaryLabel         64                              50                                                                                               400                                                                                   20
+  txt_GapTitle                64                              72                                                                                               Parent.Width - 640                                                                    42
+  lbl_GapSeverityLabel        Parent.Width - 560              50                                                                                               180                                                                                   20
+  drp_GapSeverity             Parent.Width - 560              72                                                                                               180                                                                                   42
+  lbl_GapDetailLabel          64                              122                                                                                              400                                                                                   20
+  txt_GapNote                 64                              144                                                                                              Parent.Width - 460                                                                    62
+  lbl_GapPanelNote            64                              212                                                                                              Parent.Width - 460                                                                    18
+  btn_GapSubmit               64                              236                                                                                              120                                                                                   38
+  btn_GapCancel               196                             236                                                                                              100                                                                                   38
+cnt_PersonPanel               0                               306                                                                                              Parent.Width                                                                          310
+  lbl_PersonPanelTitle        64                              18                                                                                               600                                                                                   26
+  lbl_PersonPanelHint         64                              46                                                                                               600                                                                                   22
+  txt_PersonSearch            64                              72                                                                                               400                                                                                   36
+  drp_PersonSubrole           476                             72                                                                                               150                                                                                   36
+  lbl_PersonSubroleLabel      476                             52                                                                                               150                                                                                   18
+  gal_PersonResults           64                              118                                                                                              562                                                                                   140
+    lbl_PersonResultName      4                               4                                                                                                Parent.TemplateWidth - 130                                                            20
+    lbl_PersonResultSub       4                               23                                                                                               Parent.TemplateWidth - 130                                                            18
+    btn_PersonResultAdd       Parent.TemplateWidth - 122      8                                                                                                118                                                                                   30
+  lbl_PersonNoMatch           64                              122                                                                                              562                                                                                   40
+  rec_PersonNewRule           664                             60                                                                                               1                                                                                     210
+  lbl_PersonNewHead           700                             18                                                                                               520                                                                                   26
+  lbl_PersonNewHint           700                             44                                                                                               520                                                                                   24
+  txt_PersonNewName           700                             74                                                                                               250                                                                                   34
+  txt_PersonNewEmail          962                             74                                                                                               250                                                                                   34
+  txt_PersonNewTitle          700                             116                                                                                              250                                                                                   34
+  txt_PersonNewUnit           962                             116                                                                                              250                                                                                   34
+  btn_PersonNewAdd            700                             162                                                                                              260                                                                                   38
+  btn_PersonCancel            64                              264                                                                                              100                                                                                   36
+cnt_FdMain                    64                              306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, gblFdPanel = "person", 310, 0) + 24  Parent.Width - 480                                                                    Parent.Height - 400
+  rec_FdFlagBanner            0                               0                                                                                                Parent.Width                                                                          78
+  lbl_FdFlagBannerText        16                              10                                                                                               Parent.Width - 180                                                                    58
+  btn_FdClearFlag             Parent.Width - 150              22                                                                                               134                                                                                   34
+  cnt_FdRead                  0                               If(IsBlank(gblFdFlag), 0, 94)                                                                    Parent.Width                                                                          Parent.Height - If(IsBlank(gblFdFlag), 0, 94)
+    lbl_FdStatuteHead                                                                                                                                          Parent.Width                                                                          26
+    lbl_FdStatuteBody                                                                                                                                          Parent.Width                                                                          74
+    btn_FdStatuteLink                                                                                                                                          200                                                                                   32
+    lbl_FdObligationHead                                                                                                                                       Parent.Width                                                                          26
+    lbl_FdObligationBody                                                                                                                                       Parent.Width                                                                          96
+    lbl_FdReportingHead                                                                                                                                        Parent.Width                                                                          26
+    lbl_FdReportingBody                                                                                                                                        Parent.Width                                                                          64
+    lbl_FdCadenceHead                                                                                                                                          Parent.Width                                                                          26
+    lbl_FdCadenceBody                                                                                                                                          Parent.Width                                                                          44
+    gal_FdDeadlines                                                                                                                                            Parent.Width                                                                          Min(CountRows(colFdDeadlines) * 54, 216)
+      rec_FdDlBox             0                               0                                                                                                Parent.TemplateWidth                                                                  48
+      lbl_FdDlTitle           14                              5                                                                                                Parent.TemplateWidth - 140                                                            20
+      lbl_FdDlSub             14                              25                                                                                               Parent.TemplateWidth - 140                                                            18
+      cmp_FdDlPill            Parent.TemplateWidth - 118      12                                                                                               104                                                                                   24
+    cnt_FdOwnershipHead                                                                                                                                        Parent.Width                                                                          30
+      lbl_FdOwnershipHead     0                               0                                                                                                Parent.Width - 340                                                                    26
+      btn_FdManagePeople      Parent.Width - 150              0                                                                                                150                                                                                   30
+      lbl_FdManageHint        Parent.Width - 340              4                                                                                                184                                                                                   22
+    gal_FdOwnership                                                                                                                                            Parent.Width                                                                          If(gblFdManage, 272, 230)
+      rec_FdRoleCard          0                               0                                                                                                Parent.TemplateWidth                                                                  If(gblFdManage, 262, 220)
+      lbl_FdRoleLabel         14                              12                                                                                               Parent.TemplateWidth - 28                                                             22
+      lbl_FdRoleNote          14                              34                                                                                               Parent.TemplateWidth - 28                                                             20
+      gal_FdRolePeople        10                              58                                                                                               Parent.TemplateWidth - 20                                                             154
+        lbl_FdPersonName      4                               4                                                                                                If(     gblFdManage,     Parent.TemplateWidth - 130,     Parent.TemplateWidth - 78 )  18
+        lbl_FdPersonTitle     4                               22                                                                                               If(     gblFdManage,     Parent.TemplateWidth - 130,     Parent.TemplateWidth - 78 )  26
+        lbl_FdPersonSubrole   Parent.TemplateWidth - 72       12                                                                                               68                                                                                    22
+        drp_FdPersonSubrole   Parent.TemplateWidth - 126      10                                                                                               92                                                                                    30
+        btn_FdPersonRemove    Parent.TemplateWidth - 30       12                                                                                               26                                                                                    26
+      btn_FdAddPerson         10                              220                                                                                              Parent.TemplateWidth - 20                                                             32
+      lbl_FdRoleEmpty         14                              100                                                                                              Parent.TemplateWidth - 28                                                             40
+    lbl_FdGapHead                                                                                                                                              Parent.Width                                                                          26
+    gal_FdGaps                                                                                                                                                 Parent.Width                                                                          Min(Max(CountRows(colFdGaps), 1) * 96, 300)
+      rec_FdGapBox            0                               0                                                                                                Parent.TemplateWidth                                                                  88
+      rec_FdGapAccent         0                               0                                                                                                3                                                                                     88
+      lbl_FdGapStatus         14                              8                                                                                                70                                                                                    20
+      lbl_FdGapMeta           92                              8                                                                                                Parent.TemplateWidth - 110                                                            20
+      lbl_FdGapTitle          14                              30                                                                                               Parent.TemplateWidth - 28                                                             20
+      lbl_FdGapNote           14                              50                                                                                               Parent.TemplateWidth - 28                                                             34
+    lbl_FdGapEmpty                                                                                                                                             Parent.Width                                                                          60
+    lbl_FdResourceHead                                                                                                                                         Parent.Width                                                                          26
+    btn_FdResourceLink                                                                                                                                         Parent.Width                                                                          34
+  cnt_FdEdit                  0                               If(IsBlank(gblFdFlag), 0, 94)                                                                    Parent.Width                                                                          Parent.Height - If(IsBlank(gblFdFlag), 0, 94)
+    lbl_FdEditNote                                                                                                                                             Parent.Width                                                                          44
+    lbl_FdNameLabel                                                                                                                                            Parent.Width                                                                          20
+    txt_FdName                                                                                                                                                 Parent.Width                                                                          42
+    lbl_FdRiskLabel                                                                                                                                            Parent.Width                                                                          20
+    drp_FdRisk                                                                                                                                                 260                                                                                   42
+    lbl_FdAreaLabel                                                                                                                                            Parent.Width                                                                          20
+    drp_FdDomain                                                                                                                                               Parent.Width                                                                          42
+    lbl_FdRiskAreaEcho                                                                                                                                         Parent.Width                                                                          22
+    lbl_FdStatuteLabel                                                                                                                                         Parent.Width                                                                          20
+    txt_FdStatute                                                                                                                                              Parent.Width                                                                          42
+    lbl_FdCitationLabel                                                                                                                                        Parent.Width                                                                          20
+    txt_FdCitation                                                                                                                                             Parent.Width                                                                          42
+    lbl_FdStatuteUrlLabel                                                                                                                                      Parent.Width                                                                          20
+    txt_FdStatuteUrl                                                                                                                                           Parent.Width                                                                          42
+    lbl_FdDescLabel                                                                                                                                            Parent.Width                                                                          20
+    txt_FdDescription                                                                                                                                          Parent.Width                                                                          110
+    lbl_FdReportingLabel                                                                                                                                       Parent.Width                                                                          20
+    txt_FdReporting                                                                                                                                            Parent.Width                                                                          90
+    lbl_FdCadenceLabel                                                                                                                                         Parent.Width                                                                          20
+    txt_FdDeadlineNarrative                                                                                                                                    Parent.Width                                                                          70
+    lbl_FdResourceLabelLabel                                                                                                                                   Parent.Width                                                                          20
+    txt_FdResourceLabel                                                                                                                                        Parent.Width                                                                          42
+    lbl_FdResourceUrlLabel                                                                                                                                     Parent.Width                                                                          20
+    txt_FdResourceUrl                                                                                                                                          Parent.Width                                                                          42
+cnt_FdRail                    Parent.Width - 396              306 + If(gblFdPanel = "flag", 222, gblFdPanel = "gap", 270, gblFdPanel = "person", 310, 0) + 24  332                                                                                   Parent.Height - 400
+  lbl_RailStatusHead                                                                                                                                           Parent.Width                                                                          24
+  lbl_RailStatusBody                                                                                                                                           Parent.Width                                                                          126
+  lbl_RailActionHead                                                                                                                                           Parent.Width                                                                          24
+  btn_RailEdit                                                                                                                                                 Parent.Width                                                                          38
+  btn_RailFlag                                                                                                                                                 Parent.Width                                                                          38
+  btn_RailLogGap                                                                                                                                               Parent.Width                                                                          38
+  lbl_RailCounselHead                                                                                                                                          Parent.Width                                                                          24
+  lbl_RailCounselBody                                                                                                                                          Parent.Width                                                                          134
+  btn_RailCounselEmail                                                                                                                                         Parent.Width                                                                          38
+rec_FdToast                   (Parent.Width - 560) / 2        Parent.Height - 84                                                                               560                                                                                   52
+rec_FdToastAccent             (Parent.Width - 560) / 2        Parent.Height - 84                                                                               4                                                                                     52
+lbl_FdToast                   (Parent.Width - 560) / 2 + 18   Parent.Height - 84                                                                               500                                                                                   52
+btn_FdToastDismiss            (Parent.Width - 560) / 2 + 510  Parent.Height - 84                                                                               46                                                                                    52
 ```
 
 </details>
@@ -1209,7 +1261,7 @@ lbl_RptModelNote    64                  672                              Parent.
 
 </details>
 
-### scr_RiskAreas  (27 controls)
+### scr_RiskAreas  (48 controls)
 
 **Purpose.** Thirteen risk areas with counts and risk distribution.
 
@@ -1223,6 +1275,10 @@ Paste target: b (new screen)
   ├── btn_RaCrumbRoot [Classic/Button]
   ├── btn_RaCrumbArea [Classic/Button]
   ├── cmp_RaHead [Component: cmp_PageHead]
+  ├── btn_RaTabAreas [Classic/Button]
+  ├── btn_RaTabStatutes [Classic/Button]
+  ├── rec_RaTabRule [Rectangle]
+  ├── rec_RaTabActive [Rectangle]
   ├── gal_RiskAreaTiles [Gallery, Horizontal, items-cols: su_colorhex|su_name|su_riskareaid, active-var: CurrentRiskAreaTilesID, active-col: su_riskareaid]
   │   ├── rec_RaTile [Rectangle, gallery-child]
   │   ├── rec_RaTileBar [Rectangle, gallery-child]
@@ -1232,6 +1288,23 @@ Paste target: b (new screen)
   │   └── btn_RaTileOverlay [Classic/Button, transparent overlay, gallery-child]
   ├── rec_RaUnassigned [Rectangle]
   ├── btn_RaUnassigned [Classic/Button]
+  ├── lbl_RaStatuteNote [Label]
+  ├── gal_RaStatutes [Gallery, Vertical, items-cols: su_statute|Citations|FunctionCount, active-var: CurrentRaStatutesID, active-col: su_statute]
+  │   ├── rec_RaStatuteRow [Rectangle, gallery-child]
+  │   ├── rec_RaStatuteMark [Rectangle, gallery-child]
+  │   ├── lbl_RaStatuteName [Label, gallery-child]
+  │   ├── lbl_RaStatuteCitations [Label, gallery-child]
+  │   ├── lbl_RaStatuteCount [Label, gallery-child]
+  │   └── btn_RaStatuteOverlay [Classic/Button, transparent overlay, gallery-child]
+  ├── lbl_RaStatutePrompt [Label]
+  ├── lbl_RaStatuteSelName [Label]
+  ├── btn_RaStatuteLaunch [Classic/Button]
+  ├── gal_RaStatuteFunctions [Gallery, Vertical, items-cols: su_name|su_riskarea.su_name|su_citation|su_risk, active-var: CurrentRaStatuteFunctionsID, active-col: su_name]
+  │   ├── lbl_RaStFnName [Label, gallery-child]
+  │   ├── lbl_RaStFnSub [Label, gallery-child]
+  │   ├── cmp_RaStFnRisk [Component: cmp_RiskPill, gallery-child]
+  │   ├── rec_RaStFnRule [Rectangle, gallery-child]
+  │   └── btn_RaStFnOverlay [Classic/Button, transparent overlay, gallery-child]
   ├── gal_RaDomains [Gallery, Horizontal, items-cols: su_name|su_owner.su_name|su_domainid, active-var: CurrentRaDomainsID, active-col: su_domainid]
   │   ├── rec_RaDomainTile [Rectangle, gallery-child]
   │   ├── rec_RaDomainBar [Rectangle, gallery-child]
@@ -1251,35 +1324,56 @@ Paste target: b (new screen)
 <details><summary>Geometry - use these values, do not re-derive them</summary>
 
 ```
-control                X                           Y                   Width                       Height
----------------------  --------------------------  ------------------  --------------------------  -------------------
-cmp_HeaderRiskAreas    0                           0                   Parent.Width                104
-btn_RaCrumbRoot        64                          116                 100                         30
-btn_RaCrumbArea        170                         116                 300                         30
-cmp_RaHead             64                          152                 Parent.Width - 128          124
-gal_RiskAreaTiles      64                          286                 Parent.Width - 128          Parent.Height - 330
-  rec_RaTile           0                           0                   Parent.TemplateWidth        148
-  rec_RaTileBar        0                           0                   Parent.TemplateWidth        5
-  lbl_RaTileName       16                          22                  Parent.TemplateWidth - 32   58
-  lbl_RaTileDomains    16                          104                 Parent.TemplateWidth - 100  28
-  lbl_RaTileCount      Parent.TemplateWidth - 84   98                  68                          38
-  btn_RaTileOverlay    0                           0                   Parent.TemplateWidth        148
-rec_RaUnassigned       64                          Parent.Height - 84  Parent.Width - 128          44
-btn_RaUnassigned       64                          Parent.Height - 84  Parent.Width - 128          44
-gal_RaDomains          64                          286                 Parent.Width - 128          Parent.Height - 330
-  rec_RaDomainTile     0                           0                   Parent.TemplateWidth        134
-  rec_RaDomainBar      0                           0                   Parent.TemplateWidth        5
-  lbl_RaDomainName     16                          22                  Parent.TemplateWidth - 32   54
-  lbl_RaDomainOwner    16                          78                  Parent.TemplateWidth - 32   20
-  lbl_RaDomainCount    16                          100                 Parent.TemplateWidth - 32   24
-  btn_RaDomainOverlay  0                           0                   Parent.TemplateWidth        134
-gal_RaFunctions        64                          286                 Parent.Width - 128          Parent.Height - 330
-  lbl_RaFnName         14                          10                  Parent.TemplateWidth - 320  22
-  lbl_RaFnSub          14                          32                  Parent.TemplateWidth - 320  18
-  lbl_RaFnOwner        Parent.TemplateWidth - 290  10                  180                         40
-  cmp_RaFnRisk         Parent.TemplateWidth - 96   19                  74                          24
-  rec_RaFnRule         0                           61                  Parent.TemplateWidth        1
-  btn_RaFnOverlay      0                           0                   Parent.TemplateWidth        62
+control                   X                                      Y                   Width                             Height
+------------------------  -------------------------------------  ------------------  --------------------------------  -------------------
+cmp_HeaderRiskAreas       0                                      0                   Parent.Width                      104
+btn_RaCrumbRoot           64                                     116                 100                               30
+btn_RaCrumbArea           170                                    116                 300                               30
+cmp_RaHead                64                                     152                 Parent.Width - 128                124
+btn_RaTabAreas            64                                     272                 120                               36
+btn_RaTabStatutes         184                                    272                 120                               36
+rec_RaTabRule             64                                     306                 Parent.Width - 128                1
+rec_RaTabActive           If(gblRaTab = "areas", 64, 184)        304                 120                               3
+gal_RiskAreaTiles         64                                     322                 Parent.Width - 128                Parent.Height - 366
+  rec_RaTile              0                                      0                   Parent.TemplateWidth              148
+  rec_RaTileBar           0                                      0                   Parent.TemplateWidth              5
+  lbl_RaTileName          16                                     22                  Parent.TemplateWidth - 32         58
+  lbl_RaTileDomains       16                                     104                 Parent.TemplateWidth - 100        28
+  lbl_RaTileCount         Parent.TemplateWidth - 84              98                  68                                38
+  btn_RaTileOverlay       0                                      0                   Parent.TemplateWidth              148
+rec_RaUnassigned          64                                     Parent.Height - 84  Parent.Width - 128                44
+btn_RaUnassigned          64                                     Parent.Height - 84  Parent.Width - 128                44
+lbl_RaStatuteNote         64                                     322                 Parent.Width - 128                38
+gal_RaStatutes            64                                     368                 (Parent.Width - 128) * 0.46       Parent.Height - 412
+  rec_RaStatuteRow        0                                      0                   Parent.TemplateWidth              69
+  rec_RaStatuteMark       0                                      0                   3                                 69
+  lbl_RaStatuteName       14                                     8                   Parent.TemplateWidth - 96         22
+  lbl_RaStatuteCitations  14                                     30                  Parent.TemplateWidth - 96         32
+  lbl_RaStatuteCount      Parent.TemplateWidth - 82              22                  68                                24
+  btn_RaStatuteOverlay    0                                      0                   Parent.TemplateWidth              69
+lbl_RaStatutePrompt       64 + (Parent.Width - 128) * 0.46 + 20  368                 (Parent.Width - 128) * 0.54 - 20  60
+lbl_RaStatuteSelName      64 + (Parent.Width - 128) * 0.46 + 20  362                 (Parent.Width - 128) * 0.54 - 20  46
+btn_RaStatuteLaunch       64 + (Parent.Width - 128) * 0.46 + 16  408                 180                               30
+gal_RaStatuteFunctions    64 + (Parent.Width - 128) * 0.46 + 20  444                 (Parent.Width - 128) * 0.54 - 20  Parent.Height - 488
+  lbl_RaStFnName          4                                      8                   Parent.TemplateWidth - 110        22
+  lbl_RaStFnSub           4                                      30                  Parent.TemplateWidth - 110        20
+  cmp_RaStFnRisk          Parent.TemplateWidth - 96              19                  74                                24
+  rec_RaStFnRule          0                                      61                  Parent.TemplateWidth              1
+  btn_RaStFnOverlay       0                                      0                   Parent.TemplateWidth              61
+gal_RaDomains             64                                     286                 Parent.Width - 128                Parent.Height - 330
+  rec_RaDomainTile        0                                      0                   Parent.TemplateWidth              134
+  rec_RaDomainBar         0                                      0                   Parent.TemplateWidth              5
+  lbl_RaDomainName        16                                     22                  Parent.TemplateWidth - 32         54
+  lbl_RaDomainOwner       16                                     78                  Parent.TemplateWidth - 32         20
+  lbl_RaDomainCount       16                                     100                 Parent.TemplateWidth - 32         24
+  btn_RaDomainOverlay     0                                      0                   Parent.TemplateWidth              134
+gal_RaFunctions           64                                     286                 Parent.Width - 128                Parent.Height - 330
+  lbl_RaFnName            14                                     10                  Parent.TemplateWidth - 320        22
+  lbl_RaFnSub             14                                     32                  Parent.TemplateWidth - 320        18
+  lbl_RaFnOwner           Parent.TemplateWidth - 290             10                  180                               40
+  cmp_RaFnRisk            Parent.TemplateWidth - 96              19                  74                                24
+  rec_RaFnRule            0                                      61                  Parent.TemplateWidth              1
+  btn_RaFnOverlay         0                                      0                   Parent.TemplateWidth              62
 ```
 
 </details>

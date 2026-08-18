@@ -65,8 +65,10 @@ solution is right and this file is history:
 | `FunctionsScreen` | `scr_Functions` |
 | `FunctionDetailScreen` | `scr_FunctionDetail` |
 | `FunctionOverlay` (modal variant of the same record) | folded into `scr_FunctionDetail` — canvas navigates, it does not stack modals |
-| `Topics` | `scr_RiskAreas` |
+| `Topics` | `scr_RiskAreas`, risk areas tab |
+| `StatuteView` | `scr_RiskAreas`, statutes tab |
 | `Areas` | `scr_Domains` |
+| `OwnershipChain`, `PersonPicker` | manage mode on `scr_FunctionDetail` |
 | `Deadlines` + `DeadlineCalendar` | `scr_Deadlines` |
 | `Directory` | `scr_Directory` |
 | `ExecutiveTeam` | `scr_ExecutiveTeam` |
@@ -80,17 +82,29 @@ solution is right and this file is history:
 
 ## What did not carry over
 
-Recorded so the difference is a decision rather than a discovery:
+Recorded so the difference is a decision rather than a discovery.
 
-- **`OwnershipChain` manage mode and `PersonPicker`.** The prototype can add and
-  remove people on a role, change a sub-role, look someone up in Active
-  Directory and create a Compliance Directory record from the hit. The canvas
-  `gal_FdOwnership` renders the same three-tier chain but is **read-only** — it
-  never patches `su_functionownership`. The table, its alternate key and the
-  sub-role choice set all exist, so this is app work, not schema work.
-- **`StatuteView`** — the by-statute grouping under Topics. Statute and citation
-  are searchable and displayed on `scr_Functions`, but there is no screen that
-  groups by them.
+Closed since:
+
+- **`OwnershipChain` manage mode and `PersonPicker`** → manage mode on
+  `scr_FunctionDetail`. Add and remove people on a role, change a sub-role
+  weight, and record someone who is not in the directory yet. Two deliberate
+  differences from the prototype. It writes on every action rather than holding
+  a local `chain` in state, because a canvas screen has no unmount to save on.
+  And the prototype's Active Directory lookup is not here: that is
+  `Office365Users.SearchUserV2` on `btn_PersonNewAdd`, and adding it would put a
+  connection dependency on an app that otherwise needs only Dataverse and would
+  break the connector-free mockup. The directory is the authority either way, so
+  the panel writes the `su_compliancedirectory` row directly — reusing an
+  existing row when the email already matches, since `su_email` is an alternate
+  key.
+- **`StatuteView`** → the Statutes tab on `scr_RiskAreas`, deduplicated and
+  most-cited first. Master/detail rather than the prototype's accordion: one
+  gallery has one `TemplateSize` for every row, so a row cannot grow to hold its
+  children.
+
+Still open:
+
 - **The brand fonts.** `App.fx.yaml` sets `FontDisplay` and `FontBody` to
   Verdana, which is the fallback the prototype's own `--font-display` stack
   names. Sherman Sans, Sherman Serif and Syracuse Block cannot load in a canvas

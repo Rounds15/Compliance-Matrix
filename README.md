@@ -77,6 +77,17 @@ pack step, no pasting. How it is built, and why the modern `pac canvas pack
 
 \* Administrator only.
 
+`RiskAreas` carries two tabs: the risk area drill, and the same obligations
+grouped by the statute behind them, deduplicated — many functions cite the same
+law, and "what does this law require of us" is not a question the risk-area
+drill can answer.
+
+`FunctionDetail` has a manage mode on the ownership chain, for administrators in
+read mode. It adds and removes people on a role, changes a sub-role weight, and
+records someone who is not in the Compliance Directory yet — one directory row
+and one assignment in a single step. Every change writes immediately; there is
+no draft to cancel, and the panel says so.
+
 ---
 
 ## Data model
@@ -223,6 +234,13 @@ is always accountable. Fixing them is a data exercise in the source lists.
 `ComplianceMatrix.msapp` — 14 screens, 4 components, 504 controls — and `pac
 canvas unpack` reads it back without error, which is Microsoft's own reader
 confirming the archive is internally consistent.
+
+⚠️ **The committed `.msapp` predates the ownership manage mode and the statutes
+tab** (47 controls across `scr_FunctionDetail` and `scr_RiskAreas`). It was not
+rebuilt with them because packing needs the `pac` CLI, which was not available
+where they were written. Rebuild before using the binary for visual work:
+`python3 tools/build_mockup.py && python3 tools/build_msapp.py`, or VS Code task
+**4. Pack canvas app**. The YAML source is current either way.
 
 **Not verified — needs a real environment.** `pac solution pack` and the
 Dataverse import have not been run. Control `@version` strings may need bumping
