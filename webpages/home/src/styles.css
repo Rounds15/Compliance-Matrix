@@ -1,0 +1,32 @@
+/* ---------------------------------------------------------------------------
+ * Compliance Matrix home page - supplemental CSS
+ * -------------------------------------------------------------------------
+ * Optional. The page renders correctly without it; this only smooths the
+ * moment a figure is replaced and keeps long numbers from reflowing the tile.
+ *
+ * Paste into the site's theme CSS (Design Studio > Styling > custom CSS) or add
+ * it as a web file. Do not put it in the page copy - the editor strips <style>.
+ * ------------------------------------------------------------------------ */
+
+.cm-metric {
+  font-variant-numeric: tabular-nums;
+  transition: opacity 120ms ease-in;
+}
+
+/* Until the query answers, the static figure sits at full opacity - there is
+   no loading state to see, because there is nothing missing. */
+.cm-metric[data-cm-state="live"] {
+  opacity: 1;
+}
+
+/* A figure that could not be refreshed. Visually identical on purpose: the
+   number is still correct as of the last publish, and a visitor has no use for
+   our plumbing. The hook is here so QA can spot it from the console or a
+   stylesheet override during testing. */
+.cm-metric[data-cm-state="fallback"] {
+  opacity: 1;
+}
+
+[data-cm-updated]:empty {
+  display: none;
+}

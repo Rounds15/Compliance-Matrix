@@ -20,6 +20,7 @@ each tool is actually better:
 |---|---|---|
 | **Canvas app** | Current state, drill-through to the record, all write actions (edit, flag, log gap, close gap, manage ownership) | Interactive, always live, writes back |
 | **Power BI** | Aggregation over time, gap-aging curves, deadline-health trends, executive distribution | Canvas cannot do historical analysis well |
+| **Portal home page** | What the matrix is, and six live figures summarising it | Nobody opens a canvas app to find out what the office does |
 
 The Power BI report is embedded on the Reporting screen and filtered by the
 signed-in user, so the embedded view matches the app's own "assigned to you".
@@ -45,8 +46,15 @@ solution/
                                (see Components/README.md for the schema rules)
     scr_*.fx.yaml              14 screens
   src/                         Generated solution source (pac solution pack)
+webpages/home/                 Power Pages home page
+  metrics.yaml                 What each figure on the page counts, in both
+                               Dataverse and SharePoint terms
+  src/                         Design source, client runtime, supplemental CSS
+  dist/                        Generated: Liquid web template, page copy,
+                               cm-metrics.js, preview.html, setup values
 tools/
   build_solution.py            schema YAML  ->  solution source XML
+  build_webpage.py             home page source -> webpages/home/dist/
   build_seed.py                dataverse_import CSVs -> seed YAML
   validate.py                  Static checks across every source file
   fix_yaml_comments.py         Normalizes // vs # comment syntax
@@ -122,6 +130,30 @@ people leave); rollups drive the open-gap badge and next due date; deadline
 `su_owner` and `su_risk` stay denormalized from the parent function.
 
 Full column dictionary with descriptions: `solution/schema/dataverse-schema.yaml`.
+
+---
+
+## Home page
+
+The portal home page carries six figures: functions, risk areas, named owners,
+deadlines, statutes, executive owners. They were typed into the markup, so they
+were wrong the week after they were written. They now come from Dataverse.
+
+Two deployment paths ship, both generated from one design source and one metric
+registry: a **Liquid web template** that computes the figures with FetchXML
+aggregates server-side (recommended: no JavaScript, no Web API setup), and
+**page copy plus a script** for sites where a web template is not an option.
+The script also speaks SharePoint REST, which is only reachable when the page is
+served from the same SharePoint origin.
+
+Every figure ships in the markup as its own text. A missing table permission, a
+blocked script, or a failed query leaves the approved number in place rather
+than a zero or a spinner.
+
+Open `webpages/home/dist/preview.html` to see it, and
+[`webpages/home/README.md`](webpages/home/README.md) to deploy it. Note that the
+live counts will not match the copy that is on the site today: the seed carries
+392 functions and 144 deadlines against the page's 391 and 320.
 
 ---
 

@@ -1,0 +1,123 @@
+# =============================================================================
+# Home page metrics - one definition per number on the page
+# =============================================================================
+# This file is the single source of truth for every live figure on the
+# Compliance Matrix home page. tools/build_webpage.py reads it and emits:
+#
+#   dist/home.webtemplate.html   Liquid fetchxml queries (server-rendered)
+#   dist/cm-metrics.js           Web API / SharePoint REST queries (client-side)
+#
+# Change a query here, rebuild, and both backends stay in step. Never edit the
+# generated files.
+#
+# Per metric:
+#   label       Human name, used in comments and the preview caption
+#   fallback    The number that ships in the markup. It is what a visitor sees
+#               if the query fails or is never wired up, so keep it honest -
+#               these are the figures from the approved page copy.
+#   dataverse   Dataverse table + column. aggregate: count | countdistinct
+#                 entity/set/id  logical name, Web API entity set, primary key
+#                 column         what countdistinct counts (logical name)
+#                 webapifield    same column as the Web API returns it - a
+#                                lookup comes back as _<name>_value
+#                 filter         optional { column, value } equality filter
+#                 activeonly     add statecode eq 0 (default true)
+#   sharepoint  List title + internal field name, same aggregate vocabulary.
+#               Only reachable when the page is served from the same SharePoint
+#               origin - see README, "Choosing a backend".
+# =============================================================================
+
+metrics:
+
+  functions:
+    label: Compliance Functions
+    fallback: 391
+    dataverse:
+      entity: su_compliancefunction
+      set: su_compliancefunctions
+      id: su_compliancefunctionid
+      aggregate: count
+    sharepoint:
+      list: Functions
+      aggregate: count
+
+  riskareas:
+    label: Risk Areas
+    fallback: 13
+    dataverse:
+      entity: su_riskarea
+      set: su_riskareas
+      id: su_riskareaid
+      aggregate: count
+    sharepoint:
+      list: RiskAreas
+      aggregate: count
+
+  owners:
+    label: Named Owners
+    fallback: 148
+    # Distinct people across the ownership junction, which is the authority for
+    # who is in charge of what. Not the directory row count: the directory also
+    # holds people who carry no current assignment.
+    dataverse:
+      entity: su_functionownership
+      set: su_functionownerships
+      id: su_functionownershipid
+      aggregate: countdistinct
+      column: su_person
+      webapifield: _su_person_value
+    sharepoint:
+      list: FunctionOwners
+      aggregate: countdistinct
+      field: PersonID
+
+  deadlines:
+    label: Deadlines tracked
+    fallback: 320
+    dataverse:
+      entity: su_compliancedeadline
+      set: su_compliancedeadlines
+      id: su_compliancedeadlineid
+      aggregate: count
+    sharepoint:
+      list: Deadlines
+      aggregate: count
+
+  statutes:
+    label: Governing statutes mapped
+    fallback: 209
+    # countdistinct ignores nulls, so functions with no statute recorded drop
+    # out rather than counting as one shared blank.
+    dataverse:
+      entity: su_compliancefunction
+      set: su_compliancefunctions
+      id: su_compliancefunctionid
+      aggregate: countdistinct
+      column: su_statute
+      webapifield: su_statute
+    sharepoint:
+      list: Functions
+      aggregate: countdistinct
+      field: Statute
+
+  executives:
+    label: Executive owners
+    fallback: 16
+    # Distinct people holding the Executive Owner tier (su_ownershiprole
+    # 100000030). The alternative reading is su_compliancedirectory where
+    # su_isexecutive is true - that is the standing executive team, which is a
+    # different number. This page means "people accountable at cabinet level
+    # for at least one obligation".
+    dataverse:
+      entity: su_functionownership
+      set: su_functionownerships
+      id: su_functionownershipid
+      aggregate: countdistinct
+      column: su_person
+      webapifield: _su_person_value
+      filter: { column: su_role, value: 100000030 }
+    sharepoint:
+      list: FunctionOwners
+      aggregate: countdistinct
+      field: PersonID
+      filter: { field: Role, value: Executive Owner }

@@ -13,6 +13,8 @@ Checks, in order:
   7. component definitions match the pa.yaml v3.0 schema - required properties,
      and the PropertyKind / DataType enums, which Studio reports only as an
      unexplained PA1001 with a line and column
+  8. webpages/home/dist matches a fresh build, and every home page figure has a
+     query behind it in both the Liquid and the JavaScript output
 
 This is a static check. It cannot verify Power Fx semantics, control @version
 strings, or delegation behaviour - only `pac` and a real environment can.
@@ -235,6 +237,51 @@ def check_paste_contract() -> None:
             print(f"  ok    {label}: {n} block(s) paste-ready")
 
 
+def check_webpage() -> None:
+    """The generated home page must match its source, metrics, and runtime."""
+    print("\nHome page build")
+    home = ROOT / "webpages" / "home"
+    if not home.exists():
+        print("  skip  webpages/home not present")
+        return
+    try:
+        import build_webpage
+    except Exception as exc:  # noqa: BLE001 - report, do not abort the run
+        fail(f"tools/build_webpage.py did not import: {exc}")
+        return
+    try:
+        files = build_webpage.build_all()
+    except SystemExit as exc:
+        fail(f"home page sources: {exc}")
+        return
+
+    stale = [
+        name for name, text in files.items()
+        if not (build_webpage.DIST / name).exists()
+        or (build_webpage.DIST / name).read_text(encoding="utf-8") != text
+    ]
+    if stale:
+        fail("webpages/home/dist is out of date (" + ", ".join(sorted(stale)) +
+             ") - run python3 tools/build_webpage.py")
+    else:
+        ok(f"{len(files)} generated home page files current")
+
+    # Every figure the markup shows must have a query behind it in both the
+    # server-rendered and the client-side output, or one path silently ships
+    # a stale number.
+    metrics = build_webpage.load_metrics()
+    liquid = files["home.webtemplate.html"]
+    pagecopy = files["home.pagecopy.html"]
+    script = files["cm-metrics.js"]
+    for key in metrics:
+        if f"{{% fetchxml cm_{key}_q %}}" not in liquid:
+            fail(f"{key}: no fetchxml query in the web template")
+        if f'data-cm-metric="{key}"' not in pagecopy:
+            fail(f"{key}: no render target in the page copy")
+        if f'key: "{key}"' not in script:
+            fail(f"{key}: no query definition in cm-metrics.js")
+
+
 def check_seed_refs(loaded: dict[pathlib.Path, object]) -> None:
     """Every seed cross-reference must resolve to an alternate key that exists."""
     print("\nSeed referential integrity")
@@ -381,6 +428,7 @@ def main() -> int:
     check_paste_contract()
     check_schema_refs(loaded)
     check_seed_refs(loaded)
+    check_webpage()
     check_navigation(loaded)
     check_xml()
 
