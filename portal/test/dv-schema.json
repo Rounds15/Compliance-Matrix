@@ -1,0 +1,179 @@
+{
+ "su_appadmin": {
+  "columns": {
+   "su_active": "Boolean",
+   "su_name": "String",
+   "su_person": "lookup:su_compliancedirectory",
+   "su_role": "Choice"
+  },
+  "id": "su_appadminid",
+  "set": "su_appadmins"
+ },
+ "su_assessment": {
+  "columns": {
+   "su_approverstext": "String",
+   "su_assessmentcode": "String",
+   "su_assessmentdate": "DateTime",
+   "su_currentholder": "String",
+   "su_domain": "lookup:su_domain",
+   "su_fileurl": "String",
+   "su_followupround": "Integer",
+   "su_keycontrolsmissing": "Integer",
+   "su_name": "String",
+   "su_risk": "Choice",
+   "su_status": "Choice",
+   "su_unit": "String"
+  },
+  "id": "su_assessmentid",
+  "set": "su_assessments"
+ },
+ "su_assessmentowner": {
+  "columns": {
+   "su_assessment": "lookup:su_assessment",
+   "su_name": "String",
+   "su_person": "lookup:su_compliancedirectory",
+   "su_role": "Choice"
+  },
+  "id": "su_assessmentownerid",
+  "set": "su_assessmentowners"
+ },
+ "su_compliancedeadline": {
+  "columns": {
+   "su_cadence": "Choice",
+   "su_complete": "Boolean",
+   "su_completeddate": "DateTime",
+   "su_deadlinetype": "Choice",
+   "su_duedate": "DateTime",
+   "su_dueday": "Integer",
+   "su_duemonthnum": "Integer",
+   "su_function": "lookup:su_compliancefunction",
+   "su_name": "String",
+   "su_notes": "Memo",
+   "su_offsetunit": "Choice",
+   "su_offsetvalue": "Integer",
+   "su_owner": "lookup:su_compliancedirectory",
+   "su_risk": "Choice",
+   "su_triggerevent": "String"
+  },
+  "id": "su_compliancedeadlineid",
+  "set": "su_compliancedeadlines"
+ },
+ "su_compliancedirectory": {
+  "columns": {
+   "su_active": "Boolean",
+   "su_email": "String",
+   "su_isexecutive": "Boolean",
+   "su_jobtitle": "String",
+   "su_location": "String",
+   "su_name": "String",
+   "su_netid": "String",
+   "su_phone": "String",
+   "su_systemuser": "lookup:systemuser",
+   "su_unit": "String"
+  },
+  "id": "su_compliancedirectoryid",
+  "set": "su_compliancedirectorys"
+ },
+ "su_compliancefunction": {
+  "columns": {
+   "su_citation": "String",
+   "su_complianceowner": "lookup:su_compliancedirectory",
+   "su_deadlinenarrative": "Memo",
+   "su_description": "Memo",
+   "su_domain": "lookup:su_domain",
+   "su_executiveowner": "lookup:su_compliancedirectory",
+   "su_functioncode": "String",
+   "su_isflagged": "Boolean",
+   "su_lastreviewed": "DateTime",
+   "su_name": "String",
+   "su_reporting": "Memo",
+   "su_resourcelabel": "String",
+   "su_resourceurl": "String",
+   "su_risk": "Choice",
+   "su_riskarea": "lookup:su_riskarea",
+   "su_statute": "String",
+   "su_statuteurl": "String",
+   "su_unitowner": "lookup:su_compliancedirectory"
+  },
+  "id": "su_compliancefunctionid",
+  "set": "su_compliancefunctions"
+ },
+ "su_compliancegap": {
+  "columns": {
+   "su_assessment": "lookup:su_assessment",
+   "su_closedby": "lookup:su_compliancedirectory",
+   "su_closeddate": "DateTime",
+   "su_closenote": "Memo",
+   "su_function": "lookup:su_compliancefunction",
+   "su_gapcode": "String",
+   "su_name": "String",
+   "su_note": "Memo",
+   "su_openeddate": "DateTime",
+   "su_owner": "lookup:su_compliancedirectory",
+   "su_severity": "Choice",
+   "su_status": "Choice",
+   "su_targetfy": "String",
+   "su_targetquarter": "String"
+  },
+  "id": "su_compliancegapid",
+  "set": "su_compliancegaps"
+ },
+ "su_counselassignment": {
+  "columns": {
+   "su_attorney": "lookup:su_compliancedirectory",
+   "su_isdefault": "Boolean",
+   "su_name": "String",
+   "su_riskarea": "lookup:su_riskarea"
+  },
+  "id": "su_counselassignmentid",
+  "set": "su_counselassignments"
+ },
+ "su_domain": {
+  "columns": {
+   "su_domaincode": "String",
+   "su_name": "String",
+   "su_owner": "lookup:su_compliancedirectory",
+   "su_riskarea": "lookup:su_riskarea"
+  },
+  "id": "su_domainid",
+  "set": "su_domains"
+ },
+ "su_functionflag": {
+  "columns": {
+   "su_clearedby": "lookup:su_compliancedirectory",
+   "su_clearedon": "DateTime",
+   "su_flaggedby": "lookup:su_compliancedirectory",
+   "su_flaggedon": "DateTime",
+   "su_function": "lookup:su_compliancefunction",
+   "su_name": "String",
+   "su_reason": "Memo",
+   "su_source": "Choice",
+   "su_status": "Choice"
+  },
+  "id": "su_functionflagid",
+  "set": "su_functionflags"
+ },
+ "su_functionownership": {
+  "columns": {
+   "su_function": "lookup:su_compliancefunction",
+   "su_name": "String",
+   "su_person": "lookup:su_compliancedirectory",
+   "su_role": "Choice",
+   "su_subrole": "Choice"
+  },
+  "id": "su_functionownershipid",
+  "set": "su_functionownerships"
+ },
+ "su_riskarea": {
+  "columns": {
+   "su_colorhex": "String",
+   "su_functioncount": "Integer",
+   "su_name": "String",
+   "su_owner": "lookup:su_compliancedirectory",
+   "su_riskareacode": "String",
+   "su_sortorder": "Integer"
+  },
+  "id": "su_riskareaid",
+  "set": "su_riskareas"
+ }
+}

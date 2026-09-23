@@ -1,0 +1,122 @@
+{
+ "Accountability Structure": {
+  "FunctionId": "lookup",
+  "PersonId": "lookup",
+  "Title": "text",
+  "field_3": "choice",
+  "field_4": "choice"
+ },
+ "Archive": {
+  "Title": "text",
+  "field_1": "choice",
+  "field_10": "choice",
+  "field_11": "text",
+  "field_12": "date",
+  "field_13": "choice",
+  "field_2": "choice",
+  "field_3": "text",
+  "field_4": "number",
+  "field_5": "text",
+  "field_6": "date",
+  "field_7": "number",
+  "field_8": "text",
+  "field_9": "date"
+ },
+ "Assessments": {
+  "FormsResponseId": "number",
+  "FunctionId": "lookup",
+  "ReferenceCode": "text",
+  "RespondentEmail": "text",
+  "RespondentId": "lookup",
+  "SubmittedOn": "date",
+  "Title": "text",
+  "field_10": "choice",
+  "field_11": "choice",
+  "field_12": "choice",
+  "field_13": "number",
+  "field_14": "number",
+  "field_15": "choice",
+  "field_16": "number",
+  "field_17": "choice",
+  "field_18": "multichoice",
+  "field_19": "text",
+  "field_2": "date",
+  "field_20": "text",
+  "field_21": "text",
+  "field_3": "text",
+  "field_4": "choice",
+  "field_6": "text",
+  "field_7": "text",
+  "field_8": "number",
+  "field_9": "number"
+ },
+ "Compliance Directory": {
+  "Title": "text",
+  "field_1": "text"
+ },
+ "Compliance Functions": {
+  "DomainId": "lookup",
+  "LastAssessedDate": "date",
+  "NextDueDate": "date",
+  "RiskAreaId": "lookup",
+  "Title": "text",
+  "field_10": "url",
+  "field_11": "choice",
+  "field_3": "text",
+  "field_4": "text",
+  "field_5": "url",
+  "field_6": "text",
+  "field_7": "text",
+  "field_8": "text",
+  "field_9": "text"
+ },
+ "Deadlines": {
+  "CompletedById": "lookup",
+  "FunctionId": "lookup",
+  "Title": "text",
+  "field_1": "date",
+  "field_2": "choice",
+  "field_3": "text",
+  "field_4": "date",
+  "field_5": "text",
+  "field_6": "text",
+  "field_7": "date"
+ },
+ "Domains": {
+  "RiskAreaId": "lookup",
+  "Title": "text"
+ },
+ "Flags List": {
+  "FlaggedById": "lookup",
+  "FunctionId": "lookup",
+  "RespondentEmail": "text",
+  "Title": "text",
+  "field_1": "text",
+  "field_2": "choice",
+  "field_3": "bool",
+  "field_4": "date"
+ },
+ "Gap List": {
+  "AssessmentId": "lookup",
+  "ClosedById": "lookup",
+  "FunctionId": "lookup",
+  "ResponsiblePersonId": "lookup",
+  "Title": "text",
+  "field_1": "multichoice",
+  "field_10": "text",
+  "field_11": "date",
+  "field_13": "date",
+  "field_14": "text",
+  "field_2": "choice",
+  "field_20": "text",
+  "field_21": "text",
+  "field_3": "choice",
+  "field_6": "text",
+  "field_7": "text",
+  "field_9": "multichoice"
+ },
+ "Risk Areas": {
+  "Title": "text",
+  "field_1": "text"
+ }
+}

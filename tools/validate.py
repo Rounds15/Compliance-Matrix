@@ -15,6 +15,8 @@ Checks, in order:
      unexplained PA1001 with a line and column
   8. webpages/home/dist matches a fresh build, and every home page figure has a
      query behind it in both the Liquid and the JavaScript output
+  9. portal/dist matches a fresh build of portal/src (needs Node; skipped
+     without it)
 
 This is a static check. It cannot verify Power Fx semantics, control @version
 strings, or delegation behaviour - only `pac` and a real environment can.
@@ -282,6 +284,26 @@ def check_webpage() -> None:
             fail(f"{key}: no query definition in cm-metrics.js")
 
 
+def check_portal() -> None:
+    """portal/dist is committed; it must be what portal/src builds."""
+    print("\nPower Pages matrix build")
+    portal = ROOT / "portal"
+    if not (portal / "build.mjs").exists():
+        print("  skip  portal/ not present")
+        return
+    import shutil
+    import subprocess
+    if not shutil.which("node") or not (portal / "node_modules").exists():
+        notes.append("portal/dist not checked - run `npm install` in portal/ (needs Node)")
+        print("  skip  Node or portal/node_modules not available")
+        return
+    r = subprocess.run(["node", "build.mjs", "--check"], cwd=portal, capture_output=True, text=True)
+    if r.returncode:
+        fail((r.stderr or r.stdout).strip().splitlines()[0])
+    else:
+        ok(r.stdout.strip())
+
+
 def check_seed_refs(loaded: dict[pathlib.Path, object]) -> None:
     """Every seed cross-reference must resolve to an alternate key that exists."""
     print("\nSeed referential integrity")
@@ -429,6 +451,7 @@ def main() -> int:
     check_schema_refs(loaded)
     check_seed_refs(loaded)
     check_webpage()
+    check_portal()
     check_navigation(loaded)
     check_xml()
 

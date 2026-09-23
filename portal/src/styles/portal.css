@@ -1,0 +1,45 @@
+/* ---------------------------------------------------------------
+   Additions for the Power Pages build. Everything else is the design's
+   own CSS, unchanged. These cover what the design never had to draw:
+   the live risk vocabulary, a working state, and errors.
+----------------------------------------------------------------*/
+
+/* live lists rate High / Moderate / Low, and leave many rows unrated */
+.risk.Moderate{background:var(--med)}
+.risk.Unrated{background:#EDEEF1;color:#5B6373}
+
+/* rows that hold a button of their own are divs, not buttons (a button
+   cannot contain a button); give them the same affordance */
+div.caldrow,div.fcard[role=button]{cursor:pointer;text-align:left}
+div.caldrow:focus-visible,div.fcard[role=button]:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+/* working state on a write button */
+.cm-spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:cm-spin .7s linear infinite;vertical-align:-2px}
+.cm-spin.lg{width:34px;height:34px;border-width:3px;color:var(--orange)}
+@keyframes cm-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.cm-spin{animation-duration:2s}}
+
+/* the design's toast, as a class, with an error variant */
+.cm-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000E54;color:#fff;padding:12px 18px;border-radius:5px;
+  box-shadow:0 12px 34px rgba(0,14,84,.35);font-size:13.5px;font-weight:600;z-index:300;max-width:min(560px,92vw);border-left:4px solid #F76900;line-height:1.4}
+.cm-toast.err{border-left-color:#DC2626;background:#3B0A0A}
+
+/* util strip: "Viewing as" / signed-in name sit with the links */
+.util-role select{max-width:220px}
+
+/* the directory's email column in the SharePoint build, where there is no unit */
+.dir-cell a{word-break:break-all}
+
+/* Phone widths. The design overflows sideways on three screens below
+   ~520px (the utility strip, the Deadlines filter bar, the Directory
+   table); these keep the page inside the viewport. Desktop is untouched. */
+@media (max-width:700px){
+  .util-in{flex-wrap:wrap;row-gap:4px}
+  .util-role select{max-width:150px}
+  .fbar{flex-wrap:wrap}
+  .fbar .srch{flex:1 1 100%}
+  .dir-list-col{overflow-x:auto;min-width:0}
+  .dir-split{min-width:0}
+  .calbar{flex-wrap:wrap;row-gap:8px}
+  .calbar .calmo{flex:1 1 100%;order:-1}
+}

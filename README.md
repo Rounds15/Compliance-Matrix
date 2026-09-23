@@ -21,6 +21,7 @@ each tool is actually better:
 | **Canvas app** | Current state, drill-through to the record, all write actions (edit, flag, log gap, close gap, manage ownership) | Interactive, always live, writes back |
 | **Power BI** | Aggregation over time, gap-aging curves, deadline-health trends, executive distribution | Canvas cannot do historical analysis well |
 | **Portal home page** | What the matrix is, and six live figures summarising it | Nobody opens a canvas app to find out what the office does |
+| **Power Pages matrix** | The whole matrix in the browser, from the Claude design: browse, detail, deadlines, directory, gaps, flags, risk, every write the canvas app makes | Staff reach it from the portal in a browser, with a link to any record, alongside the canvas app during the switch-over |
 
 The Power BI report is embedded on the Reporting screen and filtered by the
 signed-in user, so the embedded view matches the app's own "assigned to you".
@@ -46,6 +47,12 @@ solution/
                                (see Components/README.md for the schema rules)
     scr_*.fx.yaml              14 screens
   src/                         Generated solution source (pac solution pack)
+portal/                        The matrix as a Power Pages page (see portal/README.md)
+  src/                         The design's screens, ported; data layer with
+                               SharePoint, Dataverse and sample backends
+  dist/                        Generated: cm-matrix.js, cm-matrix.css, the web
+                               template, preview.html (opens with sample data)
+  test/                        Unit tests, mock Power Pages site, end-to-end
 webpages/home/                 Power Pages home page
   metrics.yaml                 What each figure on the page counts, in both
                                Dataverse and SharePoint terms
@@ -130,6 +137,18 @@ people leave); rollups drive the open-gap badge and next due date; deadline
 `su_owner` and `su_risk` stay denormalized from the parent function.
 
 Full column dictionary with descriptions: `solution/schema/dataverse-schema.yaml`.
+
+---
+
+## Power Pages matrix
+
+`portal/` is the Claude design prototype rebuilt as one working Power Pages
+page, doing what the Compliance Matrix 2.0 canvas app does against the same
+data. It reads and writes either the live SharePoint lists (through four
+Power Automate flows, [`docs/SHAREPOINT-FLOWS.md`](docs/SHAREPOINT-FLOWS.md))
+or this repo's Dataverse tables (through the Power Pages Web API), chosen by a
+site setting. Open `portal/dist/preview.html` to see it with sample data;
+deployment is in [`portal/README.md`](portal/README.md).
 
 ---
 
