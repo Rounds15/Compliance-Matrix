@@ -10,6 +10,10 @@ import { addDays, today as todayFn } from "../../lib/dates.js";
 const clone = x => JSON.parse(JSON.stringify(x), (k, v) =>
   (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v) ? new Date(v) : v));
 
+/* the prototype rated Critical / High / Medium / Low; the live lists and the
+   app use High / Moderate / Low */
+const LIVE_RISK = { Critical: "High", Medium: "Moderate" };
+
 export function sampleRaw(today = todayFn()) {
   const dt = n => addDays(today, n);
   const people = Object.entries(S.P).map(([k, p]) => ({
@@ -23,10 +27,11 @@ export function sampleRaw(today = todayFn()) {
     const k = domainKey(r[1], r[2]);
     if (!seen.has(k)) { seen.add(k); domains.push({ id: k, name: r[2], riskAreaId: r[1] }); }
   });
-  const functions = S.F.map(r => ({
+  /* a spread of last-assessed dates, so the record status reads like live data */
+  const functions = S.F.map((r, i) => ({
     id: r[0], code: r[0], riskAreaId: r[1], domainId: domainKey(r[1], r[2]), name: r[3],
     statute: r[4], citation: r[5], statuteUrl: r[6], description: r[10], reporting: r[11],
-    deadline: r[12], resourceLabel: r[13], resourceUrl: r[14], risk: r[15], lastReviewed: today
+    deadline: r[12], resourceLabel: r[13], resourceUrl: r[14], risk: LIVE_RISK[r[15]] || r[15], lastReviewed: dt(-(20 + (i * 37) % 340))
   }));
   let n = 0;
   const ownership = [];
@@ -42,7 +47,7 @@ export function sampleRaw(today = todayFn()) {
     lastDone: r[4] ? today : null, reason: ""
   }));
   const gaps = S.GP.map((r, i) => ({
-    id: "GAP-" + (200 + i), code: "GAP-" + (200 + i), functionId: r[0], title: r[1], severity: r[2],
+    id: "GAP-" + (200 + i), code: "GAP-" + (200 + i), functionId: r[0], title: r[1],
     opened: dt(r[3]), status: r[4], note: r[5], closeNote: r[6],
     closed: r[4] === "Closed" ? dt(r[3] + 30) : null
   }));
@@ -80,7 +85,10 @@ export function createSampleAdapter() {
     label: "Sample data",
     tables: ["riskAreas", "domains", "people", "functions", "ownership", "deadlines", "flags", "gaps", "counsel"],
     canLookupPeople: true,
-    counselPerFunction: false,
+    /* the roles the ownership editor offers (the Accountability Structure Role choices) */
+    roles: ["Executive Owner", "Unit Owner", "Compliance Owner", "Support"],
+    canSearchPeople: true,
+    counselPerFunction: true,
     configured: true,
 
     async load(tables, ctx) {
@@ -91,22 +99,19 @@ export function createSampleAdapter() {
       return out;
     },
 
-    async lookupPerson(q) {
-      const t = (q || "").trim().toLowerCase();
-      if (t.length < 2) return null;
-      const hit = S.AD_DIRECTORY.find(p => p.e.toLowerCase() === t)
-        || S.AD_DIRECTORY.find(p => p.n.toLowerCase() === t)
-        || S.AD_DIRECTORY.find(p => p.e.toLowerCase().startsWith(t) || p.n.toLowerCase().includes(t));
-      return hit ? { name: hit.n, email: hit.e, title: hit.t, unit: hit.u, phone: hit.ph, location: hit.l, netid: hit.netid } : null;
+    async searchPeople(q) {
+      const words = (q || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+      return S.AD_DIRECTORY.filter(p => words.every(w => (p.n + " " + p.e + " " + (p.netid || "")).toLowerCase().includes(w)))
+        .map(p => ({ name: p.n, email: p.e, title: p.t, unit: p.u, phone: p.ph, location: p.l, netid: p.netid }));
     },
 
     async addFlag({ fn, reason }, ctx) {
       raw.flags.unshift({ id: newId("FLAG"), functionId: fn.id, reason, byId: ctx.me.id, byName: ctx.me.n, at: nowDay(ctx), open: true });
       return ["flags"];
     },
-    async logGap({ fn, title, note, severity }, ctx) {
+    async logGap({ fn, title, note }, ctx) {
       const id = newId("GAP");
-      raw.gaps.unshift({ id, code: id, functionId: fn.id, title, note, severity: severity || fn.risk, status: "Open", opened: nowDay(ctx), closeNote: "" });
+      raw.gaps.unshift({ id, code: id, functionId: fn.id, title, note, status: "Open", opened: nowDay(ctx), closeNote: "" });
       return ["gaps"];
     },
     async completeDeadline({ dl, reason }, ctx) {
@@ -128,7 +133,7 @@ export function createSampleAdapter() {
         riskAreaId: draft.topicId, domainId: draft.areaId, statute: draft.statute, citation: draft.citation,
         statuteUrl: draft.statuteUrl, description: draft.description, reporting: draft.reporting,
         deadline: draft.deadline, resourceLabel: draft.resourceLabel, resourceUrl: draft.resourceUrl,
-        risk: draft.risk === "Unrated" ? "" : draft.risk, lastReviewed: nowDay(ctx)
+        risk: draft.risk === "Unrated" ? "" : draft.risk
       };
       if (isNew) { row.code = row.id; raw.functions.push(row); }
       else Object.assign(find("functions", draft.id), row);
@@ -164,8 +169,10 @@ export function createSampleAdapter() {
       raw.people = raw.people.filter(x => String(x.id) !== String(person.id));
       return ["people", "ownership"];
     },
-    async replacePerson({ to, ownershipRowIds }) {
+    async replacePerson({ to, ownershipRowIds, removeRowIds = [] }) {
       const ids = new Set(ownershipRowIds.map(String));
+      const drop = new Set(removeRowIds.map(String));
+      raw.ownership = raw.ownership.filter(x => !drop.has(String(x.id)));
       raw.ownership.forEach(x => { if (ids.has(String(x.id))) x.personId = to.id; });
       return ["ownership"];
     },

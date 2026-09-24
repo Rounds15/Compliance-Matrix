@@ -29,8 +29,9 @@ export const ROLE_EXEC = "Executive Owner";
 export const ROLE_UNIT = "Unit Owner";
 export const ROLE_COMPLIANCE = "Compliance Owner";
 export const ROLE_COUNSEL = "General Counsel";
+export const ROLE_SUPPORT = "Support";
 export const CHAIN_ROLES = [ROLE_EXEC, ROLE_UNIT, ROLE_COMPLIANCE];
-export const SUBROLES = ["Primary", "Advisory", "Support"];
+export const SUBROLES = ["Primary", "Advisory"];
 
 /* Stand-in for an unassigned role, so a missing owner renders as "Not
    assigned" instead of crashing a screen. Never matches anyone: its email is
@@ -105,7 +106,8 @@ export function buildDataset(raw, { today, meEmail, meName }) {
       exec: byRole(ROLE_EXEC),
       unit: byRole(ROLE_UNIT),
       compliance: byRole(ROLE_COMPLIANCE),
-      counsel: byRole(ROLE_COUNSEL)
+      counsel: byRole(ROLE_COUNSEL),
+      support: byRole(ROLE_SUPPORT)
     };
     let counsel = chain.counsel[0] ? chain.counsel[0].person : null;
     if (!counsel) {
@@ -241,15 +243,25 @@ export function buildDataset(raw, { today, meEmail, meName }) {
   };
 }
 
-/* Functions a person appears on in any chain role. */
+/* Every Accountability Structure row on a function, whatever the role. */
+export const allRows = f => [...f.chain.exec, ...f.chain.unit, ...f.chain.compliance, ...f.chain.counsel, ...f.chain.support];
+
+/* A person's own functions: the canvas app's colMyFunctions, every function
+   where they appear anywhere in the Accountability Structure. */
 export function functionsFor(person, fns) {
   if (!person || person.none) return [];
-  return fns.filter(f =>
-    [...f.chain.exec, ...f.chain.unit, ...f.chain.compliance].some(r => samePerson(r.person, person)));
+  return fns.filter(f => allRows(f).some(r => samePerson(r.person, person)));
 }
 
-/* The live app shows a non-administrator only the deadlines of functions they
-   are in the chain for; administrators in admin view see everything. */
+/* The role shown for a person on a function in "Assigned to you". */
+export function roleOn(f, person) {
+  if (f.chain.exec.some(r => samePerson(r.person, person))) return ROLE_EXEC;
+  if (f.chain.unit.some(r => samePerson(r.person, person))) return ROLE_UNIT;
+  return ROLE_COMPLIANCE;
+}
+
+/* Admin view shows every deadline; User view and View as show only the
+   deadlines of the viewer's own functions. */
 export function visibleDeadlines(ds, person, adminView) {
   if (adminView) return ds.allDeadlines;
   const mine = new Set(functionsFor(person, ds.fns).map(f => String(f.id)));

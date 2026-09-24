@@ -30,8 +30,9 @@ const DV_SCHEMA = JSON.parse(readFileSync(join(HERE, "dv-schema.json"), "utf8"))
 const TOKEN = "mock-antiforgery-token";
 
 const READ_LISTS = ["Risk Areas", "Domains", "Compliance Directory", "Compliance Functions", "Accountability Structure", "Deadlines", "Flags List", "Gap List"];
-const MEMBER_OPS = ["create|Flags List", "create|Gap List", "create|Archive", "update|Deadlines"];
+const MEMBER_OPS = ["create|Flags List", "create|Gap List", "create|Archive", "update|Deadlines", "update|Gap List"];
 const MEMBER_DEADLINE_FIELDS = ["field_4", "field_5", "field_6", "field_7"];
+const MEMBER_GAP_FIELDS = ["field_13", "field_14", "ClosedById"];
 
 const liquid = new Liquid();
 liquid.registerFilter("url_escape", v => encodeURIComponent(String(v ?? "")));
@@ -89,6 +90,8 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         /* the member flow rebuilds a deadline update from the four completion
            columns only (docs/SHAREPOINT-FLOWS.md, section 3) */
         if (o.list === "Deadlines") o.fields = Object.fromEntries(MEMBER_DEADLINE_FIELDS.map(k => [k, (o.fields || {})[k] ?? null]));
+        /* and a gap update as a closure: status Closed plus the closure columns */
+        if (o.op === "update" && o.list === "Gap List") o.fields = { field_2: "Closed", ...Object.fromEntries(MEMBER_GAP_FIELDS.map(k => [k, (o.fields || {})[k] ?? null])) };
       }
       const rows = sp[o.list];
       if (!rows) throw new Error(`No list named '${o.list}'`);

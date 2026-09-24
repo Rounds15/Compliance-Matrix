@@ -197,6 +197,9 @@ export function createSharePointAdapter(cfg) {
     tables: ["riskAreas", "domains", "people", "functions", "ownership", "deadlines", "flags", "gaps"],
     canLookupPeople: !!findUrl,
     /* General Counsel is a role on each function's Accountability Structure */
+    /* the roles the ownership editor offers (the Accountability Structure Role choices) */
+    roles: ["Executive Owner", "Unit Owner", "Compliance Owner", "Support"],
+    canSearchPeople: !!findUrl,
     counselPerFunction: true,
     configured: !!readUrl,
 
@@ -206,18 +209,19 @@ export function createSharePointAdapter(cfg) {
       return mapLists(Object.fromEntries(got));
     },
 
-    async lookupPerson(q) {
+    /* null when no find-person flow is configured, so the page falls back
+       to entering a name and email by hand */
+    async searchPeople(q) {
+      if (!findUrl) return null;
       const res = await callFlow(findUrl, { q });
-      const u = (res.users || res.value || [])[0];
-      if (!u) return null;
-      return {
+      return (res.users || res.value || []).map(u => ({
         name: u.displayName || u.DisplayName || "",
-        email: u.mail || u.Mail || u.userPrincipalName || "",
+        email: u.mail || u.Mail || "",
         title: u.jobTitle || u.JobTitle || "",
         unit: u.department || u.Department || "",
         phone: (u.businessPhones && u.businessPhones[0]) || u.TelephoneNumber || "",
         location: u.officeLocation || u.OfficeLocation || ""
-      };
+      }));
     },
 
     /* ---------------- member actions ---------------- */
@@ -277,10 +281,12 @@ export function createSharePointAdapter(cfg) {
       return ["flags"];
     },
 
+    /* owners close gaps on their own functions too, through the member flow,
+       which rebuilds a Gap List update as a closure and nothing else */
     async closeGap({ gap, note }, ctx) {
       await write([{ op: "update", list: LISTS.gaps, id: gap.id, fields: {
-        [F.gap.status]: "Closed", [F.gap.closed]: nowIso(), [F.gap.closeNote]: note,
-        [F.gap.closedBy]: me(ctx).id ?? null } }], true);
+        [F.gap.status]: "Closed", [F.gap.closed]: nowIso(), [F.gap.closeNote]: note || null,
+        [F.gap.closedBy]: me(ctx).id ?? null } }], ctx.admin);
       return ["gaps"];
     },
 
@@ -293,17 +299,20 @@ export function createSharePointAdapter(cfg) {
       return { id: draft.id, reload: ["functions"] };
     },
 
-    /* Same as the canvas app: remove every row the function owns, then the
-       function, with an Archive row recording what went. */
+    /* Same as the canvas app: an Archive copy of every gap, deadline, flag
+       and ownership row, then of the function, and only then the deletes.
+       related: {gaps, deadlines, flags, ownership}, each [{id, reason}]. */
     async deleteFunction({ fn, related }, ctx) {
+      const copy = (x, reason) => archive({ title: "Function Deleted - " + fn.name, recordType: "Function Deleted", eventType: "Deleted",
+        functionId: fn.id, functionName: fn.name, by: me(ctx).n, reason, extra: { [F.archive.sourceItem]: x } });
+      const kinds = ["gaps", "deadlines", "flags", "ownership"];
       const ops = [
-        archive({ title: "Function Deleted - " + fn.name, recordType: "Function Deleted", eventType: "Deleted",
-          functionId: fn.id, functionName: fn.name, by: me(ctx).n,
-          reason: `Removed with ${related.gaps.length} gap(s), ${related.deadlines.length} deadline(s), ${related.flags.length} flag(s), ${related.ownership.length} ownership row(s).` }),
-        ...related.gaps.map(x => ({ op: "delete", list: LISTS.gaps, id: x })),
-        ...related.deadlines.map(x => ({ op: "delete", list: LISTS.deadlines, id: x })),
-        ...related.flags.map(x => ({ op: "delete", list: LISTS.flags, id: x })),
-        ...related.ownership.map(x => ({ op: "delete", list: LISTS.ownership, id: x })),
+        ...kinds.flatMap(k => related[k].map(x => copy(x.id, x.reason))),
+        copy(fn.id, "Function record deleted"),
+        ...related.gaps.map(x => ({ op: "delete", list: LISTS.gaps, id: x.id })),
+        ...related.deadlines.map(x => ({ op: "delete", list: LISTS.deadlines, id: x.id })),
+        ...related.flags.map(x => ({ op: "delete", list: LISTS.flags, id: x.id })),
+        ...related.ownership.map(x => ({ op: "delete", list: LISTS.ownership, id: x.id })),
         { op: "delete", list: LISTS.functions, id: fn.id }
       ];
       await write(ops, true);
@@ -338,8 +347,11 @@ export function createSharePointAdapter(cfg) {
       ], true);
       return ["people", "ownership"];
     },
-    async replacePerson({ to, ownershipRowIds }) {
-      await write(ownershipRowIds.map(x => ({ op: "update", list: LISTS.ownership, id: x, fields: { [F.own.person]: to.id } })), true);
+    async replacePerson({ to, ownershipRowIds, removeRowIds = [] }) {
+      await write([
+        ...ownershipRowIds.map(x => ({ op: "update", list: LISTS.ownership, id: x, fields: { [F.own.person]: to.id } })),
+        ...removeRowIds.map(x => ({ op: "delete", list: LISTS.ownership, id: x }))
+      ], true);
       return ["ownership"];
     },
 

@@ -52,7 +52,7 @@ export const TOPICS = [
 ];
 
 export const F = [
-["CF-1041","Academic and Faculty Affairs","Academic Programs","Clock-to-Credit Hour Conversion","Higher Education Act","34 CFR § 668.8 — Eligible program","https://www.ecfr.gov/current/title-34/section-668.8","agnew","campbell","rupert","For programs measured in clock hours and converted to credit hours for Title IV purposes, the institution must apply the federal conversion formula and document that the program meets minimum length and eligibility requirements.","Conversion ratios must be documented and certified. State licensing approval required where applicable.","At program creation or modification. Recertified during PPA renewal.","Credit Hours Policy","https://policies.syr.edu","Medium"],
+["CF-1041","Academic and Faculty Affairs","Academic Programs","Clock-to-Credit Hour Conversion","Higher Education Act","34 CFR § 668.8, Eligible program","https://www.ecfr.gov/current/title-34/section-668.8","agnew","campbell","rupert","For programs measured in clock hours and converted to credit hours for Title IV purposes, the institution must apply the federal conversion formula and document that the program meets minimum length and eligibility requirements.","Conversion ratios must be documented and certified. State licensing approval required where applicable.","At program creation or modification. Recertified during PPA renewal.","Credit Hours Policy","https://policies.syr.edu","Medium"],
 ["CF-1042","Academic and Faculty Affairs","Student Records","FERPA Annual Notification","Family Educational Rights and Privacy Act","34 CFR § 99.7","https://www.ecfr.gov/current/title-34/section-99.7","agnew","campbell","monroe","Institutions must annually notify students of their rights under FERPA, including the right to inspect records, request amendment, and file a complaint with the Department of Education.","Annual notice published to all enrolled students; directory information categories disclosed.","Annually, published before the start of the fall term.","Student Records Policy","https://policies.syr.edu","High"],
 ["CF-1043","Academic and Faculty Affairs","Accreditation","Middle States Periodic Review Report","MSCHE Standards for Accreditation","MSCHE Standard VII","https://www.msche.org","agnew","campbell","rupert","The university must submit periodic self-study and review documentation demonstrating continued compliance with the Commission's standards and requirements of affiliation.","Periodic Review Report submitted to MSCHE with supporting evidence inventory.","Every 8 years, with a mid-point peer review at year 4.","Accreditation Overview","https://policies.syr.edu","Critical"],
 ["CF-1044","Academic and Faculty Affairs","Faculty Affairs","Faculty Credentialing Documentation","MSCHE Standards for Accreditation","MSCHE Standard III.2","https://www.msche.org","agnew","campbell","rupert","Official transcripts and credential verification must be on file for all instructors of record prior to the start of instruction.","Credential file audit reported to the Provost each term.","Each term, before the start of instruction.","Faculty Manual","https://policies.syr.edu","Medium"],
@@ -148,23 +148,23 @@ export const GP = [
 ];
 
 export const FLAGS = [
-  {functionId:"CF-4033",reason:"Composite score methodology changed — confirm which fiscal year the submission covers.",by:"Marc Duval",at:-4},
+  {functionId:"CF-4033",reason:"Composite score methodology changed; confirm which fiscal year the submission covers.",by:"Marc Duval",at:-4},
   {functionId:"CF-9090",reason:"Grievance procedure language needs review against the current federal rule before the training cycle.",by:"Gina Ellsworth",at:-9}
 ];
 
 export const EXEC_KEYS = ["agnew","padgett","whitaker","delgado","raman","okafor","vasquez","brennan","lindstrom","caruso","chin","ambrose"];
 
 export const COUNSEL = {
-  "Research":{n:"Miriam Adler",t:"Associate General Counsel — Research and Technology",u:"Office of University Counsel",e:"madler@syr.edu",ph:"315-443-1108",l:"300 Crouse Hinds Hall"},
+  "Research":{n:"Miriam Adler",t:"Associate General Counsel, Research and Technology",u:"Office of University Counsel",e:"madler@syr.edu",ph:"315-443-1108",l:"300 Crouse Hinds Hall"},
   "Privacy":{n:"Alicia Monroe",t:"University Privacy Officer and Counsel",u:"Office of University Counsel",e:"amonroe@syr.edu",ph:"315-443-1104",l:"300 Crouse Hinds Hall"},
   "IT and Cyber Security":{n:"Alicia Monroe",t:"University Privacy Officer and Counsel",u:"Office of University Counsel",e:"amonroe@syr.edu",ph:"315-443-1104",l:"300 Crouse Hinds Hall"},
-  "Human Resources":{n:"Daniel Reyes",t:"Associate General Counsel — Employment and Labor",u:"Office of University Counsel",e:"dreyes@syr.edu",ph:"315-443-1112",l:"300 Crouse Hinds Hall"},
-  "Academic and Faculty Affairs":{n:"Daniel Reyes",t:"Associate General Counsel — Employment and Labor",u:"Office of University Counsel",e:"dreyes@syr.edu",ph:"315-443-1112",l:"300 Crouse Hinds Hall"},
-  "Athletics":{n:"Grace Whitfield",t:"Deputy General Counsel — Athletics and Title IX",u:"Office of University Counsel",e:"gwhitfield@syr.edu",ph:"315-443-1117",l:"300 Crouse Hinds Hall"},
-  "Student Experience":{n:"Grace Whitfield",t:"Deputy General Counsel — Athletics and Title IX",u:"Office of University Counsel",e:"gwhitfield@syr.edu",ph:"315-443-1117",l:"300 Crouse Hinds Hall"},
-  "Safety and Security":{n:"Grace Whitfield",t:"Deputy General Counsel — Athletics and Title IX",u:"Office of University Counsel",e:"gwhitfield@syr.edu",ph:"315-443-1117",l:"300 Crouse Hinds Hall"},
-  "Finance, CFO Office":{n:"Peter Lund",t:"Associate General Counsel — Finance and Tax",u:"Office of University Counsel",e:"plund@syr.edu",ph:"315-443-1121",l:"300 Crouse Hinds Hall"},
-  "Advancement":{n:"Peter Lund",t:"Associate General Counsel — Finance and Tax",u:"Office of University Counsel",e:"plund@syr.edu",ph:"315-443-1121",l:"300 Crouse Hinds Hall"}
+  "Human Resources":{n:"Daniel Reyes",t:"Associate General Counsel, Employment and Labor",u:"Office of University Counsel",e:"dreyes@syr.edu",ph:"315-443-1112",l:"300 Crouse Hinds Hall"},
+  "Academic and Faculty Affairs":{n:"Daniel Reyes",t:"Associate General Counsel, Employment and Labor",u:"Office of University Counsel",e:"dreyes@syr.edu",ph:"315-443-1112",l:"300 Crouse Hinds Hall"},
+  "Athletics":{n:"Grace Whitfield",t:"Deputy General Counsel, Athletics and Title IX",u:"Office of University Counsel",e:"gwhitfield@syr.edu",ph:"315-443-1117",l:"300 Crouse Hinds Hall"},
+  "Student Experience":{n:"Grace Whitfield",t:"Deputy General Counsel, Athletics and Title IX",u:"Office of University Counsel",e:"gwhitfield@syr.edu",ph:"315-443-1117",l:"300 Crouse Hinds Hall"},
+  "Safety and Security":{n:"Grace Whitfield",t:"Deputy General Counsel, Athletics and Title IX",u:"Office of University Counsel",e:"gwhitfield@syr.edu",ph:"315-443-1117",l:"300 Crouse Hinds Hall"},
+  "Finance, CFO Office":{n:"Peter Lund",t:"Associate General Counsel, Finance and Tax",u:"Office of University Counsel",e:"plund@syr.edu",ph:"315-443-1121",l:"300 Crouse Hinds Hall"},
+  "Advancement":{n:"Peter Lund",t:"Associate General Counsel, Finance and Tax",u:"Office of University Counsel",e:"plund@syr.edu",ph:"315-443-1121",l:"300 Crouse Hinds Hall"}
 };
 
 export const AD_DIRECTORY = [

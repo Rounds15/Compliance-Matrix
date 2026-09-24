@@ -49,7 +49,9 @@ export function ownershipCsv(ds) {
   return toCsv(["Function ID", "Compliance Function", "Risk Area", "Role", "Sub-role", "Person", "Email"], rows);
 }
 
-/* RFC 5545 all-day events, one per upcoming deadline. */
+/* RFC 5545 all-day events, one per open deadline, titled as the canvas app
+   titles the Outlook events it creates ("Compliance deadline: ..."). The
+   portal cannot write to the viewer's Outlook, so it hands them a file. */
 export function deadlinesIcs(deadlines, host) {
   const esc = s => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
   const day = d => isoDate(d).replace(/-/g, "");
@@ -57,10 +59,10 @@ export function deadlinesIcs(deadlines, host) {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const fold = line => line.length <= 74 ? line : line.match(/.{1,74}/g).join("\r\n ");
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Syracuse University//Compliance Matrix//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Compliance Matrix deadlines"];
-  deadlines.filter(d => d.due && !d.complete).forEach(d => {
+  deadlines.filter(d => d.due && d.status !== "Completed").forEach(d => {
     lines.push("BEGIN:VEVENT", "UID:cm-" + String(d.id).replace(/[^A-Za-z0-9-]/g, "") + "-" + day(d.due) + "@" + host, "DTSTAMP:" + stamp,
       "DTSTART;VALUE=DATE:" + day(d.due), "DTEND;VALUE=DATE:" + day(next(d.due)),
-      fold("SUMMARY:" + esc(d.title)), fold("DESCRIPTION:" + esc(d.functionName + " · " + d.cadence + " · Owner: " + d.owner.n)), "END:VEVENT");
+      fold("SUMMARY:" + esc("Compliance deadline: " + d.functionName)), fold("DESCRIPTION:" + esc(d.cadence + " \u00B7 Compliance owner: " + d.owner.n)), "END:VEVENT");
   });
   lines.push("END:VCALENDAR");
   return lines.join("\r\n");

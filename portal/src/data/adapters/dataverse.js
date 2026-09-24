@@ -120,6 +120,9 @@ export function createDataverseAdapter(cfg) {
     tables: ["riskAreas", "domains", "people", "functions", "ownership", "deadlines", "flags", "gaps", "counsel"],
     canLookupPeople: false,
     /* counsel is assigned per risk area in su_counselassignment */
+    /* the roles the ownership editor offers (the Accountability Structure Role choices) */
+    roles: ["Executive Owner", "Unit Owner", "Compliance Owner"],
+    canSearchPeople: false,
     counselPerFunction: false,
     configured: true,
 
@@ -186,7 +189,7 @@ export function createDataverseAdapter(cfg) {
 
     async closeGap({ gap, note }, ctx) {
       await patch("su_compliancegap", gap.id, {
-        su_status: GAP_CLOSED, su_closeddate: isoDate(ctx.today), su_closenote: note,
+        su_status: GAP_CLOSED, su_closeddate: isoDate(ctx.today), su_closenote: note || null,
         ...bind("su_closedby", "su_compliancedirectory", me(ctx).id)
       });
       return ["gaps"];
@@ -265,8 +268,9 @@ export function createDataverseAdapter(cfg) {
       await patch("su_compliancedirectory", person.id, { su_active: false });
       return ["people", "ownership"];
     },
-    async replacePerson({ to, ownershipRowIds }) {
+    async replacePerson({ to, ownershipRowIds, removeRowIds = [] }) {
       for (const x of ownershipRowIds) await patch("su_functionownership", x, bind("su_person", "su_compliancedirectory", to.id));
+      for (const x of removeRowIds) await del("su_functionownership", x);
       return ["ownership"];
     },
 

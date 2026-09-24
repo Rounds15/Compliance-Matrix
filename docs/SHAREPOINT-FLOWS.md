@@ -11,7 +11,7 @@ You build four flows once, plus two optional notification flows. Each is short.
 | Flow | Who may run it | What it does |
 |---|---|---|
 | **CM - Read list** | Authenticated Users | Returns one list's items |
-| **CM - Write (members)** | Authenticated Users | Raise a flag, log a gap, complete or reverse a deadline |
+| **CM - Write (members)** | Authenticated Users | Raise a flag, log or close a gap, complete or reverse a deadline |
 | **CM - Write (administrators)** | Compliance Matrix Administrators | Every create, update and delete the app makes |
 | **CM - Find person** *(optional)* | Compliance Matrix Administrators | Looks someone up in Entra ID for the directory |
 
@@ -157,16 +157,19 @@ Save a copy of **CM - Write (administrators)** and change two things.
 
 **The allow-list.** Replace the `refused` condition with:
 
-`@not(contains(createArray('create|Flags List','create|Gap List','create|Archive','update|Deadlines'), concat(item()?['op'], '|', item()?['list'])))`
+`@not(contains(createArray('create|Flags List','create|Gap List','create|Archive','update|Deadlines','update|Gap List'), concat(item()?['op'], '|', item()?['list'])))`
 
-**Deadline fields.** An owner may mark a deadline complete or reverse it, and
-nothing else about it. Replace the `fields` Compose with:
+**Deadline and gap fields.** An owner may mark a deadline complete or reverse
+it, and close a gap on their own function, and nothing else about either.
+Replace the `fields` Compose with:
 
-`if(equals(item()?['list'], 'Deadlines'), setProperty(setProperty(setProperty(setProperty(json('{}'), 'field_4', item()?['fields']?['field_4']), 'field_5', item()?['fields']?['field_5']), 'field_6', item()?['fields']?['field_6']), 'field_7', item()?['fields']?['field_7']), item()?['fields'])`
+`if(equals(item()?['list'], 'Deadlines'), setProperty(setProperty(setProperty(setProperty(json('{}'), 'field_4', item()?['fields']?['field_4']), 'field_5', item()?['fields']?['field_5']), 'field_6', item()?['fields']?['field_6']), 'field_7', item()?['fields']?['field_7']), if(and(equals(item()?['list'], 'Gap List'), equals(item()?['op'], 'update')), setProperty(setProperty(setProperty(setProperty(json('{}'), 'field_2', 'Closed'), 'field_13', item()?['fields']?['field_13']), 'field_14', item()?['fields']?['field_14']), 'ClosedById', item()?['fields']?['ClosedById']), item()?['fields']))`
 
-That rebuilds the update from the four completion columns only (Last
-Completed Date, Completed Reason, Completed By Name, Completed Date Time), so a
-crafted request cannot move a due date or change a cadence.
+A deadline update is rebuilt from the four completion columns only (Last
+Completed Date, Completed Reason, Completed By Name, Completed Date Time), so
+a crafted request cannot move a due date or change a cadence. A Gap List
+update is rebuilt as a closure (Status Closed, Closed Date, Closure Note,
+Closed By), so it cannot retitle or reopen a gap.
 
 What each action sends through this flow:
 
@@ -174,6 +177,7 @@ What each action sends through this flow:
 |---|---|
 | Flag for review | create Flags List |
 | Log a gap | create Gap List |
+| Close (Gap Tracker) | update Gap List |
 | Mark complete | update Deadlines, create Archive (Deadline Completion / Completed) |
 | Reverse | update Deadlines, create Archive (Deadline Completion / Reversed) |
 

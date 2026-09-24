@@ -1,54 +1,58 @@
-import React, { useState } from "react";
-import { Icon, Avatar, Risk, PageHead, Field, Stat, Modal, Empty, useApp } from "./parts.jsx";
-import { samePerson } from "../data/model.js";
-import { isSevere } from "../lib/risk.js";
+/* Executive Team (parity spec 2.7, scr_ExecutiveTeam.pa.yaml). */
 
-/* Executive owners are derived, not listed: anyone holding the Executive
-   Owner role on at least one function (the canvas app's colExecNames). */
-export function ExecutiveTeam({ openFn }) {
-  const { ds } = useApp();
-  const [sel, setSel] = useState(null);
-  const execs = ds.executives;
-  const port = p => ds.fns.filter(f => f.chain.exec.some(r => samePerson(r.person, p)));
-  return <div className="page wrap">
-    <PageHead eyebrow="Portfolio view" title="Executive Team"
-      sub="Executive owners sit at the top of every ownership chain. Sorted by last name; initials are shown where no photo exists." />
-    {!execs.length && <Empty title="No executive owners yet" sub="Assign an Executive Owner on a function's ownership chain and they appear here." />}
-    <div className="cm-grid g-card">{execs.map(p => {
-      const fs = port(p); const hot = fs.filter(f => isSevere(f.risk)).length;
-      return <button key={p.id} className="tcard" onClick={() => setSel(p)}>
-        <div className="bar"></div>
-        <div className="bd" style={{ alignItems: "flex-start" }}>
-          <div style={{ display: "flex", gap: 12, alignItems: "center", width: 276, height: 104 }}>
-            <Avatar person={p} size={54} />
-            <div style={{ minWidth: 0, width: 202, height: 95 }}><h3>{p.n}</h3>
-              <div style={{ fontSize: 12, color: "#5b6373", marginTop: 3, lineHeight: 1.35, width: 203, height: 35 }}>{p.t || p.e}</div>
-              <span className="sub" style={{ width: 155, height: 40, fontSize: 11 }}>{p.u}</span></div></div>
-          <div className="ft" style={{ width: 276, height: 31 }}>
-            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              {hot > 0 && <span className="risk Critical" style={{ width: 49, height: 30 }} title={hot + " high or critical"}><span className="dot"></span>{hot}</span>}</div>
-            <span className="chip">{fs.length} in portfolio</span></div></div></button>;
-    })}
+import React, { useMemo, useState } from "react";
+import { Hero, Avatar, useApp } from "./parts.jsx";
+import { PersonDrawer } from "./Directory.jsx";
+import { samePerson } from "../data/model.js";
+import { addDays, fmtDate } from "../lib/dates.js";
+
+const lastName = p => p.n.trim().split(/\s+/).slice(-1)[0] || "";
+
+export function ExecutiveTeam() {
+  const { ds, today } = useApp();
+  const [sort, setSort] = useState("AZ");
+  const [sel, setSel] = useState(null); // {person, port: All | Due}
+
+  const in90 = addDays(today, 90);
+  const rows = useMemo(() => ds.executives.map(p => {
+    const fns = ds.fns.filter(f => f.chain.exec.some(r => samePerson(r.person, p))).sort((a, b) => a.name.localeCompare(b.name));
+    const ids = new Set(fns.map(f => String(f.id)));
+    const due = ds.allDeadlines.filter(d => ids.has(String(d.functionId)) && d.due && d.due >= today && d.due <= in90).sort((a, b) => a.due - b.due);
+    return { p, fns, due, areas: new Set(fns.map(f => String(f.topicId))).size };
+  }), [ds, today]); // eslint-disable-line react-hooks/exhaustive-deps
+  const list = [...rows].sort(sort === "Port"
+    ? (a, b) => b.fns.length - a.fns.length || lastName(a.p).localeCompare(lastName(b.p))
+    : (a, b) => lastName(a.p).localeCompare(lastName(b.p)));
+  const cur = sel && rows.find(r => r.p.id === sel.person.id);
+
+  return <>
+    <Hero eyebrow="PORTFOLIO VIEW" title="Executive Team"
+      lede="Executive owners sit at the top of every ownership chain, sorted by last name, with initials for each." />
+    <div className="wrap">
+      <div className="toolbar">
+        <span className="count" style={{ flex: 1 }}>{rows.length} executive owners</span>
+        <label className="count" htmlFor="et-sort" style={{ fontSize: 13 }}>Sort by:</label>
+        <select id="et-sort" className="select" value={sort} onChange={e => setSort(e.target.value)}>
+          <option value="AZ">Name A-Z</option><option value="Port">Portfolio size</option></select>
+      </div>
+      {list.length ? <div className="pgrid">{list.map(r => <div key={r.p.id} style={{ position: "relative" }}>
+        <button className={"pcard" + (cur && cur.p.id === r.p.id ? " on" : "")} style={{ width: "100%", height: "100%" }} onClick={() => setSel({ person: r.p, port: "All" })}>
+          <Avatar person={r.p} size={100} />
+          <span className="grow"><span className="n">{r.p.n}</span><span className="t">{r.p.t}</span><span className="u">{r.p.u}</span>
+            <span className="chips"><span className="chip">{r.fns.length} functions</span>
+              <span className={"chip " + (r.due.length ? "due" : "none")}
+                onClick={e => { e.stopPropagation(); setSel({ person: r.p, port: "Due" }); }}>{r.due.length} upcoming</span></span></span>
+        </button></div>)}</div>
+        : <p className="empty">No executive owners found. Executive owners come from the Accountability Structure list.</p>}
     </div>
-    {sel && <Modal onClose={() => setSel(null)}>
-      <div className="mhd"><Avatar person={sel} size={52} />
-        <div><div className="eyebrow" style={{ color: "#FF8E00" }}>Executive Owner</div>
-          <h2 style={{ marginTop: 4 }}>{sel.n}</h2>
-          <div style={{ fontSize: 13, color: "#C3CCE4", marginTop: 4 }}>{sel.t || sel.e}</div></div>
-        <button className="cl" onClick={() => setSel(null)} aria-label="Close">✕</button></div>
-      <div className="mbd">
-        <div className="cm-grid g-stat" style={{ marginBottom: 20 }}>
-          <Stat n={port(sel).length} l="Functions" s="In this portfolio" />
-          <Stat n={port(sel).filter(f => isSevere(f.risk)).length} l="Critical or high" tone="bad" />
-          <Stat n={[...new Set(port(sel).map(f => f.topic))].length} l="Risk areas touched" />
-        </div>
-        <Field label="Portfolio">
-          {port(sel).map(f => <button key={f.id} className="srow" style={{ border: "1px solid #E2E5EA", borderRadius: 4, marginBottom: 6 }} onClick={() => { setSel(null); openFn(f); }}>
-            <div style={{ flex: 1, minWidth: 0 }}><div className="fname" style={{ fontSize: 13.5 }}>{f.name}</div>
-              <div className="sub">{f.area} · {f.owner.n}</div></div><Risk r={f.risk} /></button>)}
-        </Field></div>
-      <div className="mft">{sel.e && <a className="button button-primary" href={"mailto:" + sel.e}><Icon n="mail" s={15} />Email</a>}
-        <button className="button button-secondary-outline" onClick={() => setSel(null)}>Close</button></div>
-    </Modal>}
-  </div>;
+    {cur && <PersonDrawer person={cur.p} eyebrow="EXECUTIVE OWNER" stats={[cur.fns.length, cur.areas]}
+      toggle={<div className="toggle">
+        <button className={"btn sm" + (sel.port === "All" ? " on" : "")} style={{ minWidth: 120 }} onClick={() => setSel({ ...sel, port: "All" })}>All functions</button>
+        <button className={"btn sm" + (sel.port === "Due" ? " on" : "")} style={{ minWidth: 120 }} onClick={() => setSel({ ...sel, port: "Due" })}>Due 90d</button>
+      </div>}
+      portfolio={sel.port === "Due"
+        ? cur.due.map(d => ({ key: d.id, fn: ds.fnById.get(String(d.functionId)), line1: d.functionName, line2: "Due " + fmtDate(d.due) + " · " + d.cadence, due: true }))
+        : cur.fns.map(f => ({ key: f.id, fn: f, line1: f.name, line2: f.topic }))}
+      onClose={() => setSel(null)} />}
+  </>;
 }

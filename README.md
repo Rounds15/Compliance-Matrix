@@ -21,7 +21,7 @@ each tool is actually better:
 | **Canvas app** | Current state, drill-through to the record, all write actions (edit, flag, log gap, close gap, manage ownership) | Interactive, always live, writes back |
 | **Power BI** | Aggregation over time, gap-aging curves, deadline-health trends, executive distribution | Canvas cannot do historical analysis well |
 | **Portal home page** | What the matrix is, and six live figures summarising it | Nobody opens a canvas app to find out what the office does |
-| **Power Pages matrix** | The whole matrix in the browser, from the Claude design: browse, detail, deadlines, directory, gaps, flags, risk, every write the canvas app makes | Staff reach it from the portal in a browser, with a link to any record, alongside the canvas app during the switch-over |
+| **Power Pages matrix** | The whole matrix in the browser, screen for screen with the Compliance Matrix 2.0 canvas app: browse, detail, deadlines, directory, gaps, flags, risk, every write the canvas app makes | Staff reach it from the portal in a browser, with a link to any record, alongside the canvas app during the switch-over |
 
 The Power BI report is embedded on the Reporting screen and filtered by the
 signed-in user, so the embedded view matches the app's own "assigned to you".
@@ -98,14 +98,14 @@ pack step, no pasting. How it is built, and why the modern `pac canvas pack
 
 Twelve tables. The ones that carry the most weight:
 
-**`su_functionownership`** — `(function, person, role, subrole)`
+**`su_functionownership`**: `(function, person, role, subrole)`
 
 Many people per role, each weighted Primary / Advisory / Support. The three
 fixed lookups on the function row stay for fast list rendering; the junction is
 the authority for "who is in charge of what", and is what Directory portfolios,
 "Assigned to you", and Power BI row-level security read.
 
-**`su_riskarea` and `su_domain`** — 13 risk areas, 61 domains
+**`su_riskarea` and `su_domain`**: 13 risk areas, 61 domains
 
 The prototype's free-text `su_area` is gone. Domain is a table because the text
 values were drifting and leadership wants a coverage map. The practical payoff:
@@ -113,11 +113,11 @@ a domain with zero functions still appears, and both the Risk Areas and Domains
 screens call it out. The old text-derived approach could only ever show domains
 that already had work in them.
 
-**`su_assessment` and `su_assessmentowner`** — new
+**`su_assessment` and `su_assessmentowner`**: new
 
 An assessment is one conducted review: date, overall risk, status, unit, owners,
 and the gaps it produced. Gaps link back via `su_assessment`, which closes the
-loop that previously lived in a spreadsheet — an assessment is not finished
+loop that previously lived in a spreadsheet: an assessment is not finished
 until its gaps are closed.
 
 **Non-required by design.** `su_riskarea`, `su_domain`, and `su_risk` are
@@ -128,7 +128,7 @@ state rather than letting it fall through to Low.
 
 **`su_compliancedeadline` is typed.** Only `Fixed Recurring` rows carry a due
 date; Event-Relative rows carry a trigger and offset. This drives the calendar,
-the due pill, and — critically — the reminder flow. See
+the due pill, and, critically, the reminder flow. See
 [`docs/REMINDER-FLOW.md`](docs/REMINDER-FLOW.md).
 
 Other choices carried over from the first build: the directory is a table rather
@@ -142,9 +142,10 @@ Full column dictionary with descriptions: `solution/schema/dataverse-schema.yaml
 
 ## Power Pages matrix
 
-`portal/` is the Claude design prototype rebuilt as one working Power Pages
-page, doing what the Compliance Matrix 2.0 canvas app does against the same
-data. It reads and writes either the live SharePoint lists (through four
+`portal/` is the Compliance Matrix 2.0 canvas app rebuilt as one working
+Power Pages page: the same screens, headers, navigation, wording and access
+rules (the parity spec in [`portal/README.md`](portal/README.md)), against the
+same data. It reads and writes either the live SharePoint lists (through four
 Power Automate flows, [`docs/SHAREPOINT-FLOWS.md`](docs/SHAREPOINT-FLOWS.md))
 or this repo's Dataverse tables (through the Power Pages Web API), chosen by a
 site setting. Open `portal/dist/preview.html` to see it with sample data;
@@ -178,7 +179,7 @@ live counts will not match the copy that is on the site today: the seed carries
 
 ## Deploy
 
-**Working in VS Code? Start with [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md)** —
+**Working in VS Code? Start with [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md)**:
 it covers the extension install (which bundles the `pac` CLI), auth, the wired-up
 build tasks, and the first-import issues worth expecting.
 
@@ -206,7 +207,7 @@ Then, in the target environment:
    assessment owners, gaps. Rows match on the alternate keys (`su_riskareacode`,
    `su_domaincode`, `su_email`, `su_functioncode`, `su_assessmentcode`,
    `su_gapcode`), so re-running updates rather than duplicates. Dates are real
-   calendar dates, not offsets — a compliance register needs true dates.
+   calendar dates, not offsets; a compliance register needs true dates.
 2. Create the environment variables the Reporting screen reads:
    `su_PowerBIWorkspaceId`, `su_PowerBIExecutiveReportId`,
    `su_PowerBIDeadlineReportId`, `su_PowerBIGapAgingReportId`.
@@ -222,7 +223,7 @@ Then, in the target environment:
 
 Screen gating in the app is convenience, not control. Non-administrators are
 redirected from gated screens and the nav items are hidden, but the actual
-protection is Dataverse security roles — those prevent reading the rows
+protection is Dataverse security roles; those prevent reading the rows
 regardless of which screen someone reaches. Configure roles before go-live.
 
 Power BI row-level security filters on `su_functionownership`, so an executive
@@ -235,7 +236,7 @@ sees only their portfolio without a separate report.
 **Schema, seed, and canvas app: complete and verified statically.**
 
 `tools/build_solution.py` reports **12 tables, 108 columns, 12 choice sets**, and
-emits **25 relationships** — the reconciliation target exactly.
+emits **25 relationships**: the reconciliation target exactly.
 
 `tools/validate.py` passes every check:
 
@@ -251,31 +252,31 @@ emits **25 relationships** — the reconciliation target exactly.
 
 | Table | Seeded | CSV rows | Excluded |
 |---|---:|---:|---:|
-| Risk areas | 13 | 13 | — |
-| Domains | 61 | 61 | — |
-| Directory | 127 | 127 | — |
-| Functions | 392 | 392 | — |
+| Risk areas | 13 | 13 | 0 |
+| Domains | 61 | 61 | 0 |
+| Directory | 127 | 127 | 0 |
+| Functions | 392 | 392 | 0 |
 | Ownership | 1,152 | 1,175 | 23 |
 | Deadlines | 144 | 148 | 4 |
 | Flags | 84 | 89 | 5 |
-| Assessments | 9 | 9 | — |
+| Assessments | 9 | 9 | 0 |
 | Assessment owners | 14 | 21 | 7 |
-| Gaps | 4 | 4 | — |
+| Gaps | 4 | 4 | 0 |
 
 The 39 excluded rows are exactly the known integrity items called out in the
 export's own README: 23 ownership and 7 assessment-owner rows whose person never
 matched the directory, 4 deadlines pointing at deleted FunctionID 155, and 5
 flags marked `OrphanFlag`. Each has a required lookup that cannot resolve, so
 they would fail on import. They are written to `seed/_rejected.yaml` with a
-reason rather than dropped silently — the gap between CSV rows and seeded rows
+reason rather than dropped silently; the gap between CSV rows and seeded rows
 is always accountable. Fixing them is a data exercise in the source lists.
 
 **The canvas app packs.** `tools/build_msapp.py` builds
-`ComplianceMatrix.msapp` — 14 screens, 4 components, 504 controls — and `pac
+`ComplianceMatrix.msapp`, 14 screens, 4 components, 504 controls, and `pac
 canvas unpack` reads it back without error, which is Microsoft's own reader
 confirming the archive is internally consistent.
 
-**Not verified — needs a real environment.** `pac solution pack` and the
+**Not verified: needs a real environment.** `pac solution pack` and the
 Dataverse import have not been run. Control `@version` strings may need bumping
 to whatever the target tenant reports; that raises PA2105, a warning Studio
 auto-corrects. See [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md) for the other

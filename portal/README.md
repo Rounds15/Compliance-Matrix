@@ -1,45 +1,87 @@
 # Compliance Matrix on Power Pages
 
-The Claude design prototype, rebuilt as a working Power Pages page that does
-what the Compliance Matrix 2.0 canvas app does, reading and writing the same
-data. One page, one URL (`/compliance-matrix/`), eleven screens:
+The Compliance Matrix 2.0 canvas app, rebuilt as a working Power Pages page
+that reads and writes the same data. One page, one URL (`/compliance-matrix/`),
+the app's screens with the app's headers, navigation, wording and access rules:
 
-Home · Definitions · Compliance Functions (risk area / domain / statute lenses)
-· Function detail · Deadlines (calendar and list) · Directory · Executive Team ·
-Gap Tracker · Flagged Items · Risk Dashboard · Reporting
+Home · Definitions · Compliance Functions · Function Detail · Deadlines ·
+Compliance Directory · Executive Team · Gap Tracker · Compliance Risk
+Dashboard · Reporting · Flagged for Review · No Access
 
 **Look at it first:** open [`dist/preview.html`](dist/preview.html) in a
-browser. It is the real page running on the design's sample records, in memory.
-Every screen and every button works; nothing is saved.
+browser. It is the real page running on sample records, in memory. Every
+screen and every button works; nothing is saved. The preview signs you in as
+an administrator, so the **View:** menu is there to switch between Admin view,
+User view and View as specific user.
 
 ---
 
-## What it does
+## Parity with the canvas app
 
-Everything the design shows, plus everything the canvas app does that the
-design did not:
+The source of truth is the canvas app export (`Src/*.pa.yaml` inside the
+`.msapp`) and the parity spec written from it. Where the spec gives copy, the
+page uses it exactly; where it is silent, the copy comes from the `.pa.yaml`.
 
-| | Design | Canvas app | This page |
-|---|:-:|:-:|:-:|
-| Browse, filter, search, lenses, calendar, heat map | ✓ | ✓ | ✓ |
-| Flag a function / clear a flag (with Archive record) | ✓ | ✓ | ✓ |
-| Log a gap / close a gap with closure notes | ✓ | ✓ | ✓ |
-| Edit a function | ✓ | ✓ | ✓ |
-| Manage the ownership chain, sub-roles, General Counsel | shown, never saved | ✓ | ✓ |
-| Create and delete a function (delete cascades, archived) | | ✓ | ✓ |
-| Mark a deadline complete / reverse it, with reason | | ✓ | ✓ |
-| Recurring deadlines roll forward; 30-day completion hold | | ✓ | ✓ same rules |
-| Directory: add (Entra lookup or by hand), edit, remove, replace everywhere | add only | ✓ | ✓ |
-| Manage risk areas and domains | | ✓ | ✓ |
-| Administrators "view as" another person | role switch | ✓ | ✓ |
-| Owners see only their functions' deadlines | | ✓ | ✓ |
-| CSV / calendar exports | placeholders | | ✓ |
-| Browser Back, shareable links to any record | | | ✓ |
+- **Header on every screen**: a 30 px Navy utility bar (Compliance Home Page,
+  Policies, Definitions; then the administrators' **View:** button and Report a
+  Concern) over a 72 px white bar (Block S, Syracuse University / Compliance
+  Matrix, **Home**, **Browse**, **Risk and Reporting**, **Executive Team**).
+  Every screen but Home has **← Back**. No Power Pages site header or footer.
+- **Type and colour**: Verdana throughout, Georgia for hero ledes only, the
+  app's `varSU` colours, 1320 px content width with a 24 px minimum gutter.
+- **View mode** (administrators): User view on load; Admin view; View as
+  specific user, which points every "me" figure at that person's email.
+- **Build**: every `<script` inside `cm-matrix.js` is written as `\x3Cscript`,
+  because Power Pages injects a CSP nonce into any `<script` text in page
+  script. The build checks the file still parses and fails if one is left.
 
-The deadline logic is a line-for-line port of the canvas app's
-`RefreshDeadlines()` and `CadenceMonths()`, so both show the same next date and
-status for every row. Risk uses the live vocabulary (High / Moderate / Low,
-blank as Unrated) and still draws legacy Critical / Medium values.
+### Access, as built
+
+| Screen or action | Who |
+|---|---|
+| Home, Definitions, Compliance Functions, Function Detail, Deadlines, Directory, Executive Team | everyone |
+| Gap Tracker | everyone; Admin view sees every gap, everyone else the gaps on their own functions |
+| Deadlines | Admin view sees every deadline; User view and View as, their own functions' only |
+| Risk rating on Function Detail | Admin view, or an owner of the function |
+| Compliance Risk Dashboard, Reporting | administrators in Admin view (see *Open questions*) |
+| Flagged for Review | administrators; everyone else gets No Access |
+| Edit, create, delete a function; the "+" risk area and domain manager; Manage Directory | administrators |
+| Flag, log a gap, close a gap, complete or reverse a deadline | everyone, on what they can see |
+
+"Own functions" means every function where the person appears anywhere in the
+Accountability Structure, General Counsel and Support included, as the app's
+`colMyFunctions` does. Home's figures are always the viewer's own.
+
+### What the page deliberately does differently from the app
+
+These are leftovers or known issues in the canvas app (parity spec section 3):
+
+- No debug labels (Home `Text6`, Gap Tracker `Text2` / `Text3`) and no
+  `TestComplete` "UDF fired" notification.
+- The Risk Dashboard computes every figure, heat map cell, percentage and
+  signal from live data; the app hardcodes them.
+- **Last reviewed** is the function's `LastAssessedDate`; the app shows today.
+- Directory rename note: "Renaming is safe now, because ownership is by
+  reference." (no em dash).
+- Executive Team empty state: "No executive owners found. Executive owners
+  come from the Accountability Structure list."
+- Gap Tracker note: "How long it typically takes to close a gap".
+- Reporting subtitle names the backend the site is configured for
+  ("SharePoint lists" or "Dataverse tables") until the wording is confirmed.
+- "Add to my calendar" downloads an `.ics` file, since a web page cannot write
+  to the viewer's Outlook calendar.
+
+### Open questions (parity spec section 4)
+
+Not decided here. Until they are, the page does this:
+
+1. **Access to Risk and Reporting.** Risk Dashboard and Reporting open only
+   for administrators in Admin view, matching the Home card and the No Access
+   copy; the Risk and Reporting menu shows all four items to everyone, and
+   Gap Tracker stays open to everyone with its scoping.
+2. **Absolute wording** ("every obligation", "Every open compliance gap"):
+   kept as in the app.
+3. **Home figures in Admin view**: the viewer's own counts, as in the app.
 
 ---
 
@@ -52,7 +94,7 @@ setting `ComplianceMatrix/Backend`:
 |---|---|---|---|
 | `sharepoint` | The live Compliance Matrix 2.0 lists, through Power Automate | Which web roles may run each flow | Four flows, [docs/SHAREPOINT-FLOWS.md](../docs/SHAREPOINT-FLOWS.md) |
 | `dataverse` | This repo's `su_*` tables, through the Power Pages Web API | Table permissions | Solution import + table permissions |
-| `sample` | The design's records, in memory | n/a | none |
+| `sample` | Sample records, in memory | n/a | none |
 
 **Start with `sharepoint`.** It is where the data lives today, and it is the
 same lists the canvas app uses, so the two run side by side during the
@@ -68,12 +110,12 @@ Pages calls a flow* is the supported bridge.
 
 ## Deploy
 
-What you upload: two web files and one template. Fonts and images are
-embedded, so there is nothing else.
+What you upload: two web files and one template. The one image is embedded
+and the fonts are system fonts, so there is nothing else.
 
 ```
-dist/cm-matrix.js                          web file   ~390 KB
-dist/cm-matrix.css                         web file   ~240 KB
+dist/cm-matrix.js                          web file   ~335 KB
+dist/cm-matrix.css                         web file   ~37 KB
 dist/compliance-matrix.webtemplate.liquid  web template source
 ```
 
@@ -105,9 +147,8 @@ Publishing state **Published**. Attach the file and save. They are served at
    Template**, Web Template `Compliance Matrix`, **Use Website Header and
    Footer: No**.
 
-   Header and footer off is required. The page draws the design's own
-   header, navigation and footer, and the site's Bootstrap theme would restyle
-   the design if it loaded alongside.
+   Header and footer off is required. The page draws the app's own header
+   and navigation, and the Power Pages site header and footer must not show.
 
 ### 4. The page
 
@@ -145,9 +186,9 @@ for SharePoint, the flow URLs.
 | `ComplianceMatrix/TimeZone` | zone SharePoint date-only columns are stored in | `America/New_York` |
 | `ComplianceMatrix/PowerBIEmbedUrl` | a report's *Secure embed* link | placeholder frame |
 | `ComplianceMatrix/PowerBIUrl` | "Open in Power BI" target | `https://app.powerbi.com` |
-| `ComplianceMatrix/PowerAppUrl` | canvas app link, shown in the footer | hidden |
-| `ComplianceMatrix/ReportConcernUrl` | | `/report-a-concern` |
-| `ComplianceMatrix/HomeUrl` | "Portal home" link | `/` |
+| `ComplianceMatrix/ComplianceHomeUrl` | "Compliance Home Page" | `https://finance.syr.edu/office-of-compliance/` |
+| `ComplianceMatrix/PoliciesUrl` | "Policies" | `https://policies.syr.edu/policies/` |
+| `ComplianceMatrix/ReportConcernUrl` | "Report a Concern" | `https://finance.syr.edu/office-of-compliance/confidential-hotline/` |
 | `ComplianceMatrix/Dataverse/EntitySets` | JSON, only if an entity set name differs | logical name + `s` |
 
 ### 7a. SharePoint backend
@@ -175,14 +216,14 @@ access:
 |---|---|---|
 | Authenticated Users | all nine | Read |
 | Authenticated Users | `su_functionflag`, `su_compliancegap` | Create, Append |
-| Authenticated Users | `su_compliancedeadline` | Write |
+| Authenticated Users | `su_compliancedeadline`, `su_compliancegap` | Write |
 | Authenticated Users | `su_compliancefunction`, `su_compliancedirectory` | Append To |
 | Compliance Matrix Administrators | all nine | Read, Create, Write, Delete, Append, Append To |
 
-Owners completing deadlines need Write on the deadline table. Global scope
-means any signed-in user could, with a crafted request, write any deadline; if
-that matters, scope the Write permission through the function to the owner's
-contact (a parent-relationship permission) instead.
+Owners completing deadlines and closing gaps need Write on those two tables.
+Global scope means any signed-in user could, with a crafted request, write any
+deadline or gap; if that matters, scope the Write permission through the
+function to the owner's contact (a parent-relationship permission) instead.
 
 ### 8. Point the home page at it
 
@@ -196,12 +237,12 @@ Rebuild it with `python3 tools/build_webpage.py` and paste
 ## Security, plainly
 
 - **What the page hides is convenience.** Administrator screens and buttons are
-  hidden from non-administrators, and an administrator's "view as" preview
-  hides them too, but a hidden button is not a control.
+  hidden from non-administrators, but a hidden button is not a control.
 - **What stops a write:** on SharePoint, Power Pages refuses to run the
   administrators' flow for anyone without the role, and the members' flow only
-  accepts its four operations, with deadline updates cut down to the completion
-  columns. On Dataverse, the table permissions above.
+  accepts its five operations, with deadline updates cut down to the
+  completion columns and gap updates to a closure. On Dataverse, the table
+  permissions above.
 - **Audit fields are sent by the page.** Flagged By, Resolved By and Completed
   By Name come from the signed-in user's details as the page knows them. Power
   Pages authenticates the user, but a determined signed-in user could send a
@@ -232,21 +273,15 @@ src/
     store.js             load, cache, "view as", every write
     transport.js         anti-forgery token, Web API, cloud flow calls
     adapters/            sample.js · sharepoint.js · dataverse.js
-  ui/                    the design's screens, ported; class names unchanged
-  styles/                the design's CSS, split by layer; Sherman fonts as woff2
+  ui/                    one file per screen, named for the app's screens
+  styles/cm.css          the stylesheet: Verdana, Georgia, the varSU colours
 power-pages/             the web template source
 test/
   data.test.mjs          roll-forward parity, both adapters, the model
   mock-portal.mjs        a strict stand-in for Power Pages, SharePoint flows, Web API
   e2e.mjs                every write, both backends, admin and owner
-  shots.mjs              screenshots of each screen, optionally beside the design
+  shots.mjs              screenshots of each screen, User and Admin view
 ```
-
-The screens are the design's own components with window globals replaced by
-imports, and its class names and markup unchanged, so its stylesheet applies
-as-is. Rendered side by side at 1280 px, every screen matches the design's
-layout to the pixel height. The one layout change is at phone widths, where
-the design scrolls sideways on three screens and this page does not.
 
 `dist/` is committed, so deploying needs no Node. Change `src/`, run
 `npm run build`, commit both.

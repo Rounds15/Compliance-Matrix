@@ -3,9 +3,9 @@
 
   Paste into Portal Management > Web Templates > "Compliance Matrix" > Source.
   Its page template must have "Use Website Header and Footer" UNCHECKED: this
-  template renders the whole document, because the page brings the design's
-  own header, navigation and footer, and the portal's Bootstrap theme would
-  restyle the design if it were loaded alongside.
+  template renders the whole document, because the page brings the app's own
+  header and navigation, and the Power Pages site header and footer must not
+  show (parity spec section 0).
 
   Everything the page needs is read here, server-side, and handed to the
   script on #cm-root's data- attributes:
@@ -19,16 +19,16 @@
   everyone else, but what actually stops a write is the table permission
   (Dataverse) or the flow's web-role assignment (SharePoint).
 
-  e1b13a242fd3 is replaced by the build with a hash of the two web files, so a
+  fee4c4efd5c9 is replaced by the build with a hash of the two web files, so a
   new upload is never served from a stale browser cache.
 {% endcomment %}{% assign cm_admin_role = settings['ComplianceMatrix/AdminWebRole'] | default: 'Compliance Matrix Administrators' %}{% assign cm_is_admin = false %}{% if user %}{% for r in user.roles %}{% if r == cm_admin_role %}{% assign cm_is_admin = true %}{% endif %}{% endfor %}{% endif %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Compliance Matrix — Syracuse University</title>
+<title>Compliance Matrix | Syracuse University</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="{{ settings['ComplianceMatrix/CssUrl'] | default: '/cm-matrix.css' }}?v=e1b13a242fd3">
+<link rel="stylesheet" href="{{ settings['ComplianceMatrix/CssUrl'] | default: '/cm-matrix.css' }}?v=fee4c4efd5c9">
 </head>
 <body>
 {% if user %}
@@ -45,18 +45,17 @@
   data-dataverse-sets="{{ settings['ComplianceMatrix/Dataverse/EntitySets'] | escape }}"
   data-time-zone="{{ settings['ComplianceMatrix/TimeZone'] | default: 'America/New_York' | escape }}"
   data-cache-minutes="{{ settings['ComplianceMatrix/CacheMinutes'] | default: '5' | escape }}"
-  data-home-url="{{ settings['ComplianceMatrix/HomeUrl'] | default: '/' | escape }}"
-  data-sign-out-url="/Account/Login/LogOff?returnUrl=%2F"
-  data-report-concern-url="{{ settings['ComplianceMatrix/ReportConcernUrl'] | default: '/report-a-concern' | escape }}"
+  data-compliance-home-url="{{ settings['ComplianceMatrix/ComplianceHomeUrl'] | default: 'https://finance.syr.edu/office-of-compliance/' | escape }}"
+  data-policies-url="{{ settings['ComplianceMatrix/PoliciesUrl'] | default: 'https://policies.syr.edu/policies/' | escape }}"
+  data-report-concern-url="{{ settings['ComplianceMatrix/ReportConcernUrl'] | default: 'https://finance.syr.edu/office-of-compliance/confidential-hotline/' | escape }}"
   data-power-bi-url="{{ settings['ComplianceMatrix/PowerBIUrl'] | default: 'https://app.powerbi.com' | escape }}"
-  data-power-bi-embed-url="{{ settings['ComplianceMatrix/PowerBIEmbedUrl'] | escape }}"
-  data-power-app-url="{{ settings['ComplianceMatrix/PowerAppUrl'] | escape }}"></div>
-<noscript><p style="font:16px/1.5 Verdana,sans-serif;padding:40px;color:#000E54">The Compliance Matrix needs JavaScript. Turn it on for this site, or use the <a href="{{ settings['ComplianceMatrix/PowerAppUrl'] | default: '/' | escape }}">Power Apps version</a>.</p></noscript>
-<script src="{{ settings['ComplianceMatrix/JsUrl'] | default: '/cm-matrix.js' }}?v=e1b13a242fd3" defer></script>
+  data-power-bi-embed-url="{{ settings['ComplianceMatrix/PowerBIEmbedUrl'] | escape }}"></div>
+<noscript><p style="font:16px/1.5 Verdana,sans-serif;padding:40px;color:#000E54">The Compliance Matrix needs JavaScript. Turn it on for this site.</p></noscript>
+<script src="{{ settings['ComplianceMatrix/JsUrl'] | default: '/cm-matrix.js' }}?v=fee4c4efd5c9" defer></script>
 {% else %}
 <div style="font:16px/1.5 Verdana,sans-serif;max-width:560px;margin:12vh auto;padding:0 24px;color:#000E54">
-  <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#F76900;font-weight:700">Office of Compliance &amp; Enterprise Risk Management</div>
-  <h1 style="font-size:32px;margin:10px 0 12px">Sign in to open the Compliance Matrix</h1>
+  <div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#D74100;font-weight:700">Office of Compliance</div>
+  <h1 style="font-size:29px;margin:10px 0 12px">Sign in to open the Compliance Matrix</h1>
   <p>The matrix shows who owns each of the University's obligations, so it is limited to signed-in University staff.</p>
   <p style="margin-top:22px"><a href="/SignIn?returnUrl={{ request.path_and_query | url_escape }}" style="display:inline-block;background:#F76900;color:#fff;padding:12px 24px;font-weight:700;text-decoration:none">Sign in</a></p>
 </div>

@@ -46,20 +46,15 @@ export function readConfig(el) {
     dataverseSets: json(d.dataverseSets, {}),
     timeZone: d.timeZone || "America/New_York",
     cacheMinutes: d.cacheMinutes !== undefined && d.cacheMinutes !== "" ? Number(d.cacheMinutes) : 5,
+    /* the canvas app's utility bar links (the ?_gl= tracking string the app
+       carries on the first one is left off) */
     links: {
-      home: d.homeUrl || "/",
-      signOut: d.signOutUrl || "/Account/Login/LogOff",
-      reportConcern: d.reportConcernUrl || "https://compliance.syr.edu",
-      policies: "https://policies.syr.edu",
-      syracuse: "https://www.syracuse.edu",
+      complianceHome: d.complianceHomeUrl || "https://finance.syr.edu/office-of-compliance/",
+      policies: d.policiesUrl || "https://policies.syr.edu/policies/",
+      reportConcern: d.reportConcernUrl || "https://finance.syr.edu/office-of-compliance/confidential-hotline/",
       powerBi: d.powerBiUrl || "https://app.powerbi.com",
-      powerBiEmbed: d.powerBiEmbedUrl || "",
-      powerApp: d.powerAppUrl || ""
-    },
-    /* the prototype's "Viewing as" presets, so the sample reads like the design */
-    viewPresets: sample
-      ? [{ label: "Compliance Owner", email: "mhollis@syr.edu" }, { label: "Executive", email: "bpadgett@syr.edu" }]
-      : []
+      powerBiEmbed: d.powerBiEmbedUrl || ""
+    }
   };
   return cfg;
 }

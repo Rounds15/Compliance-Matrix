@@ -8,7 +8,7 @@ import { addMonths, monthDiff, fiscalQ, toDay } from "../src/lib/dates.js";
 import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
 import { mapTables } from "../src/data/adapters/dataverse.js";
-import { buildDataset, functionsFor, visibleDeadlines, NOBODY } from "../src/data/model.js";
+import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY } from "../src/data/model.js";
 import { createSampleAdapter } from "../src/data/adapters/sample.js";
 import { parseFlowResult, flowUrl } from "../src/data/transport.js";
 import { sharepointLists, dataverseTables, DV_IDS as G } from "./fixtures.mjs";
@@ -149,6 +149,24 @@ test("non-administrators see only their functions' deadlines", () => {
   assert.equal(visibleDeadlines(ds, ds.me, true).length, 2);
 });
 
+test("own functions are every Accountability Structure role, General Counsel and Support included", () => {
+  const ds = buildDataset(spRaw(), { today: T, meEmail: "gwhitfield@syr.edu" });
+  assert.deepEqual(functionsFor(ds.me, ds.fns).map(f => f.id), [201], "Grace is General Counsel on 201");
+  const raw = spRaw();
+  raw.ownership.push({ id: 399, functionId: 203, personId: 104, role: "Support", sub: "Primary" });
+  const ds2 = buildDataset(raw, { today: T, meEmail: "gwhitfield@syr.edu" });
+  assert.deepEqual(functionsFor(ds2.me, ds2.fns).map(f => f.id).sort(), [201, 203]);
+  assert.equal(ds2.fnById.get("203").chain.support[0].person.n, "Grace Whitfield");
+});
+
+test("the Assigned to you role: Executive, then Unit, else Compliance Owner", () => {
+  const ds = buildDataset(spRaw(), { today: T, meEmail: "dferrell@syr.edu" });
+  assert.equal(roleOn(ds.fnById.get("201"), ds.me), "Compliance Owner");
+  assert.equal(roleOn(ds.fnById.get("202"), ds.me), "Unit Owner");
+  const andrea = ds.people.find(p => p.n === "Andrea Whitaker");
+  assert.equal(roleOn(ds.fnById.get("202"), andrea), "Executive Owner");
+});
+
 test("a signed-in user missing from the directory still gets a usable identity", () => {
   const ds = buildDataset(spRaw(), { today: T, meEmail: "newhire@syr.edu", meName: "New Hire" });
   assert.equal(ds.me.n, "New Hire");
@@ -212,6 +230,8 @@ test("sample data matches the design prototype's figures", async () => {
   assert.equal(ds.people.some(p => p.counselOnly), false);    // counsel-only records stay out of the directory
   assert.equal(ds.fnById.get("CF-5040").counsel.n, "Miriam Adler");
   assert.equal(ds.fnById.get("CF-8070").counsel.n, "Grace Whitfield");
+  assert.deepEqual([...new Set(ds.fns.map(f => f.risk))].sort(), ["High", "Low", "Moderate"], "the live rating vocabulary");
+  assert.ok(ds.fns.every(f => f.lastReviewed && f.lastReviewed < T), "last reviewed is a past assessment, not today");
 });
 
 /* ---------------- flow responses ---------------- */
