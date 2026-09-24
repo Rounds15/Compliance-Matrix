@@ -4,8 +4,10 @@
    Pages URL rewriting. There is no footer: the app has none. */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AppCtx, Icon } from "./parts.jsx";
-import { Header } from "./Header.jsx";
+import { AppCtx, Icon, Strip } from "./parts.jsx";
+import { Header, BROWSE, RISK } from "./Header.jsx";
+import { Palette } from "./Palette.jsx";
+import wordmark from "../assets/wordmark-knockout.svg";
 import { Home } from "./Home.jsx";
 import { Definitions } from "./Definitions.jsx";
 import { Functions } from "./Functions.jsx";
@@ -72,12 +74,66 @@ function LoadError({ store }) {
   </div>;
 }
 
-const blankFilter = { q: "", area: "", domain: "", lens: "", page: 1 };
+const blankFilter = { q: "", area: "", domain: "", risk: "", lens: "", page: 1 };
+
+/* where a screen sits, for the breadcrumb strip */
+const SECTION = s => (BROWSE.some(i => i.screen === s) ? "Browse" : RISK.some(i => i.screen === s) ? "Risk and Reporting" : "");
+const TITLE = { Functions: "Compliance Functions", Directory: "Compliance Directory", "Risk Dashboard": "Compliance Risk Dashboard", "Flagged Items": "Flagged for Review", NoAccess: "No access" };
+
+const ago = d => {
+  if (!d) return "";
+  const m = Math.round((Date.now() - d.getTime()) / 60000);
+  return m < 1 ? "just now" : m === 1 ? "1 minute ago" : m < 60 ? m + " minutes ago" : "at " + d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+};
+
+/* The app has no footer; this one is a second way round the matrix. */
+function Footer({ go, store, onSearch }) {
+  const { cfg, adapter, loadedAt, actions, realAdmin, adminView } = store;
+  const L = cfg.links;
+  const link = (s, label) => <button key={s} onClick={() => go(s)}>{label || s}</button>;
+  return <footer className="ftr">
+    <div className="wrap">
+      <div className="ftr-brand">
+        <img src={wordmark} alt="Syracuse University" />
+        <div className="ftr-unit">Office of Compliance</div>
+        <button className="ftr-find" onClick={onSearch}><Icon n="search" s={15} sw={2} />Search the matrix<kbd>Ctrl K</kbd></button>
+      </div>
+      <div className="ftr-col"><h4>Browse</h4>
+        {link("Functions", "Compliance Functions")}{link("Deadlines")}{link("Directory")}{link("Executive Team")}{link("Definitions")}</div>
+      <div className="ftr-col"><h4>Risk and Reporting</h4>
+        {link("Gap Tracker")}{adminView && link("Risk Dashboard")}{adminView && link("Reporting")}{realAdmin && link("Flagged Items")}</div>
+      <div className="ftr-col"><h4>Resources</h4>
+        <a href={L.complianceHome} target="_blank" rel="noopener">Compliance Home Page</a>
+        <a href={L.policies} target="_blank" rel="noopener">Policies</a>
+        <a href={L.reportConcern} target="_blank" rel="noopener">Report a Concern</a></div>
+      <div className="ftr-meta">
+        {cfg.backend === "sample"
+          ? "Preview with sample records. Nothing you change here is saved."
+          : <>Live data from {adapter.label}. Loaded {ago(loadedAt)}. <button onClick={() => actions.refresh()}>Refresh</button></>}
+      </div>
+    </div>
+  </footer>;
+}
 
 export function App({ store }) {
   const [route, setRoute] = useState(() => parseHash(window.location.hash));
   const [depth, setDepth] = useState(0);
   const [filter, setFilter] = useState(blankFilter);
+  const [palette, setPalette] = useState(false);
+  const [topBtn, setTopBtn] = useState(false);
+
+  /* Ctrl K, Cmd K, or "/" outside a text box opens the quick jump */
+  useEffect(() => {
+    const k = e => {
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || "") || (e.target && e.target.isContentEditable);
+      if ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey)) { e.preventDefault(); setPalette(p => !p); }
+      else if (e.key === "/" && !typing && !e.ctrlKey && !e.metaKey) { e.preventDefault(); setPalette(true); }
+    };
+    const sc = () => setTopBtn(window.scrollY > 900);
+    document.addEventListener("keydown", k);
+    window.addEventListener("scroll", sc, { passive: true });
+    return () => { document.removeEventListener("keydown", k); window.removeEventListener("scroll", sc); };
+  }, []);
 
   useEffect(() => {
     const h = () => { setRoute(parseHash(window.location.hash)); window.scrollTo(0, 0); };
@@ -143,9 +199,20 @@ export function App({ store }) {
 
   const toast = store.toast;
   const isHome = !route.fnNew && route.fnId == null && screen === "Home";
+  const isFn = route.fnNew || route.fnId != null;
+  /* Function Detail draws its own strip, with Previous and Next record */
+  const crumbs = [
+    ...(SECTION(screen) ? [{ label: SECTION(screen) }] : []),
+    { label: TITLE[s] || TITLE[screen] || screen }
+  ];
+  const openPalette = () => setPalette(true);
   return <AppCtx.Provider value={ctx}>
-    <Header screen={route.fnId != null || route.fnNew ? "Functions" : screen} go={go} canBack={!isHome} onBack={back} />
-    <div id="cm-main">{body}</div>
+    <Header screen={isFn ? "Functions" : screen} go={go} onSearch={openPalette} />
+    {ds && !isHome && !isFn && <Strip crumbs={crumbs} />}
+    <div id="cm-main" key={window.location.hash} className="screen">{body}</div>
+    {ds && <Footer go={go} store={store} onSearch={openPalette} />}
+    {palette && ds && <Palette onClose={() => setPalette(false)} />}
+    {topBtn && <button className="totop" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Back to top"><Icon n="up" s={18} sw={2.2} /></button>}
     {toast && <div className={"toast" + (toast.tone === "error" ? " err" : "")} role="status" aria-live="polite">{toast.msg}</div>}
   </AppCtx.Provider>;
 }

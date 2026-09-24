@@ -108,6 +108,29 @@ await session("SharePoint · administrator · header, view modes, every write", 
   assert.equal(await page.locator(".menu button", { hasText: "Gap Tracker" }).locator(".badge").innerText(), "2", "Admin view: every open gap");
   await page.mouse.click(40, 700);
 
+  // navigation extras: quick jump, the strip, filters, the footer
+  await page.keyboard.press("Control+k");
+  await page.locator(".pal input").fill("I-9");
+  assert.equal(await page.locator(".pal-i.on b").innerText(), "Form I-9 Employment Verification");
+  await page.keyboard.press("Enter");
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.deepEqual(await page.locator(".strip .crumb").allInnerTexts(), ["All functions", "Human Resources", "Form I-9 Employment Verification"]);
+  await page.locator(".strip .crumb", { hasText: "Human Resources" }).click();
+  await page.locator(".fresult", { hasText: "1 of 3 functions" }).waitFor();
+  await page.locator(".chip-x", { hasText: "Human Resources" }).click();
+  await page.locator(".rail li button", { hasText: "High" }).click();
+  assert.match(await page.locator(".fresult").innerText(), /^1 of 3 functions/);
+  await page.locator(".chip-x").click();
+  assert.match(await page.locator(".fresult").innerText(), /^3 functions/);
+  await page.locator(".ftr button", { hasText: "Executive Team" }).click();
+  await page.locator("h1", { hasText: "Executive Team" }).waitFor();
+  assert.deepEqual(await page.locator(".strip .crumb").allInnerTexts(), ["Executive Team"]);
+  await page.keyboard.press("/");
+  await page.locator(".pal input").fill("whitaker");
+  await page.keyboard.press("Enter");
+  await page.locator(".drawer h2", { hasText: "Andrea Whitaker" }).waitFor();
+  await page.keyboard.press("Escape");
+
   // flag
   await go("#/functions/202");
   await page.waitForSelector("h1:has-text('Form I-9')");

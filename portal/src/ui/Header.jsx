@@ -37,7 +37,7 @@ function ViewPicker({ onPick, onClose }) {
   useEffect(() => { if (input.current) input.current.focus(); }, []);
   const t = q.trim().toLowerCase();
   const list = ds.people.filter(p => !t || p.n.toLowerCase().startsWith(t) || p.e.toLowerCase().startsWith(t));
-  return <div className="vpick" role="dialog" aria-label="View as user">
+  return <div className="vpick pop" role="dialog" aria-label="View as user">
     <div className="vpick-hd"><h2>View as user</h2><button onClick={onClose}>Close</button></div>
     <input ref={input} value={q} onChange={e => setQ(e.target.value)} placeholder="Search name or email..." aria-label="Search name or email" />
     <ul>{list.map(p => <li key={p.id}><button onClick={() => onPick(p)}>
@@ -45,9 +45,9 @@ function ViewPicker({ onPick, onClose }) {
   </div>;
 }
 
-function Menu({ items, go, badges }) {
-  return <div className="menu" role="menu">
-    {items.map(i => <button key={i.screen} role="menuitem" onClick={() => go(i.screen)}>
+function Menu({ items, go, badges, here }) {
+  return <div className="menu pop" role="menu">
+    {items.map(i => <button key={i.screen} role="menuitem" className={here === i.screen ? "here" : ""} onClick={() => go(i.screen)}>
       <Icon n={i.icon} /><span className="t">{i.title}</span>
       {badges && badges[i.screen] > 0 ? <span className="badge">{badges[i.screen]}</span> : null}
       <span className="d">{i.desc}</span>
@@ -55,18 +55,25 @@ function Menu({ items, go, badges }) {
   </div>;
 }
 
-export function Header({ screen, go, canBack, onBack }) {
+const inBrowse = s => BROWSE.some(i => i.screen === s);
+const inRisk = s => RISK.some(i => i.screen === s);
+
+export function Header({ screen, go, onSearch }) {
   const { ds, cfg, realAdmin, viewAs, setViewAs, actingPerson } = useApp();
   const [open, setOpen] = useState(""); // "" | Browse | Risk | view | pick
   const [mobile, setMobile] = useState(false);
-  const root = useRef(null);
+  const [scrolled, setScrolled] = useState(false);
   const L = cfg.links;
 
-  /* clicking anywhere outside an open menu closes it */
+  /* clicking anywhere outside an open menu closes it; so does Escape */
   useEffect(() => {
     const h = e => { if (!e.target.closest || !e.target.closest("[data-menu]")) { setOpen(""); } };
+    const k = e => { if (e.key === "Escape") { setOpen(""); setMobile(false); } };
+    const sc = () => setScrolled(window.scrollY > 24);
     document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
+    document.addEventListener("keydown", k);
+    window.addEventListener("scroll", sc, { passive: true });
+    return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", k); window.removeEventListener("scroll", sc); };
   }, []);
   useEffect(() => { setOpen(""); setMobile(false); }, [screen]);
 
@@ -76,19 +83,20 @@ export function Header({ screen, go, canBack, onBack }) {
   const toggle = k => setOpen(o => (o === k ? "" : k));
   const mode = viewAs.mode === "AsUser" ? actingPerson.n : viewAs.mode;
   const pickMode = m => { setViewAs({ mode: m }); setOpen(""); };
+  const on = (key, here) => (open === key || (!open && here) ? " on" : "");
 
-  return <div ref={root}>
+  return <>
     <div className="util">
       <div className="wrap">
         <div className="util-left">
           <a href={L.complianceHome} target="_blank" rel="noopener">Compliance Home Page</a>
           <a href={L.policies} target="_blank" rel="noopener">Policies</a>
-          <button onClick={() => nav("Definitions")}>Definitions</button>
+          <button onClick={() => nav("Definitions")} className={screen === "Definitions" ? "here" : ""}>Definitions</button>
         </div>
         <div className="util-right" data-menu>
-          {realAdmin && ds && <button className="viewbtn" onClick={() => toggle("view")} aria-expanded={open === "view"} aria-haspopup="menu">View: {mode} {"▾"}</button>}
+          {realAdmin && ds && <button className="viewbtn" onClick={() => toggle("view")} aria-expanded={open === "view"} aria-haspopup="menu">View: {mode} {"\u25BE"}</button>}
           <a href={L.reportConcern} target="_blank" rel="noopener">Report a Concern</a>
-          {open === "view" && <div className="vmenu" role="menu">
+          {open === "view" && <div className="vmenu pop" role="menu">
             <button role="menuitem" className={viewAs.mode === "Admin" ? "on" : ""} onClick={() => pickMode("Admin")}>Admin view</button>
             <button role="menuitem" className={viewAs.mode === "User" ? "on" : ""} onClick={() => pickMode("User")}>User view</button>
             <button role="menuitem" className={viewAs.mode === "AsUser" ? "on" : ""} onClick={() => setOpen("pick")}>View as specific user...</button>
@@ -97,31 +105,35 @@ export function Header({ screen, go, canBack, onBack }) {
         </div>
       </div>
     </div>
-    <header className="hdr">
+    <header className={"hdr" + (scrolled ? " scrolled" : "")}>
       <div className="wrap">
-        {canBack && <button className="backbtn" onClick={onBack}>{"←"} Back</button>}
         <button className="lockup" onClick={() => nav("Home")} aria-label="Compliance Matrix home">
           <img src={blockS} alt="" />
           <span><span className="u">Syracuse University</span><span className="a">Compliance Matrix</span></span>
         </button>
-        <button className="hamb" onClick={() => setMobile(m => !m)} aria-expanded={mobile} aria-label="Menu"><Icon n="menu" s={20} /></button>
         <nav className={"nav" + (mobile ? " open" : "")} aria-label="Compliance Matrix">
           <div className="navitem">
-            <button className={"navbtn" + (screen === "Home" ? " on" : "")} onClick={() => nav("Home")}><Icon n="home" />Home</button>
+            <button className={"navbtn" + on("Home", screen === "Home")} onClick={() => nav("Home")}><Icon n="home" />Home</button>
           </div>
           <div className="navitem" data-menu>
-            <button className={"navbtn" + (open === "Browse" ? " on" : "")} onClick={() => toggle("Browse")} aria-expanded={open === "Browse"} aria-haspopup="menu"><Icon n="grid" />Browse</button>
-            {open === "Browse" && <Menu items={BROWSE} go={nav} />}
+            <button className={"navbtn" + on("Browse", inBrowse(screen))} onClick={() => toggle("Browse")} aria-expanded={open === "Browse"} aria-haspopup="menu">
+              <Icon n="grid" />Browse<Icon n="chev" s={14} sw={2.2} style={{ opacity: .6 }} /></button>
+            {open === "Browse" && <Menu items={BROWSE} go={nav} here={screen} />}
           </div>
           <div className="navitem" data-menu>
-            <button className={"navbtn" + (open === "Risk" ? " on" : "")} onClick={() => toggle("Risk")} aria-expanded={open === "Risk"} aria-haspopup="menu"><Icon n="chart" />Risk and Reporting</button>
-            {open === "Risk" && <Menu items={RISK} go={nav} badges={{ "Gap Tracker": openGaps }} />}
+            <button className={"navbtn" + on("Risk", inRisk(screen))} onClick={() => toggle("Risk")} aria-expanded={open === "Risk"} aria-haspopup="menu">
+              <Icon n="chart" />Risk and Reporting<Icon n="chev" s={14} sw={2.2} style={{ opacity: .6 }} />
+              {openGaps > 0 && <span className="dot" aria-label={openGaps + " open gaps"}></span>}</button>
+            {open === "Risk" && <Menu items={RISK} go={nav} here={screen} badges={{ "Gap Tracker": openGaps }} />}
           </div>
           <div className="navitem">
-            <button className={"navbtn" + (screen === "Executive Team" ? " on" : "")} onClick={() => nav("Executive Team")}><Icon n="users" />Executive Team</button>
+            <button className={"navbtn" + on("Exec", screen === "Executive Team")} onClick={() => nav("Executive Team")}><Icon n="users" />Executive Team</button>
           </div>
         </nav>
+        <button className="findbtn" onClick={onSearch} aria-label="Search the matrix" title="Search the matrix (Ctrl K)">
+          <Icon n="search" s={17} sw={2} /><span className="t">Search</span><kbd>Ctrl K</kbd></button>
+        <button className="hamb" onClick={() => setMobile(m => !m)} aria-expanded={mobile} aria-label="Menu"><Icon n={mobile ? "x" : "menu"} s={20} /></button>
       </div>
     </header>
-  </div>;
+  </>;
 }

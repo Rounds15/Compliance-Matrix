@@ -60,11 +60,13 @@ export function Deadlines() {
           </div>
           <div className="dow">{DOW.map(d => <div key={d}>{d}</div>)}</div>
           <div className="cal">{cells.map(c => {
-            const n = dated.filter(d => sameDay(d.due, c)).length;
+            const here = dated.filter(d => sameDay(d.due, c));
+            const n = here.length;
+            const tone = here.some(d => d.status === "Overdue") ? "late" : here.length && here.every(d => d.status === "Completed") ? "done" : n ? "due" : "";
             const cls = [c.getMonth() !== month.getMonth() ? "out" : "", sameDay(c, today) ? "today" : "", sameDay(c, sel) ? "sel" : ""].join(" ").trim();
             return <button key={c.getTime()} className={cls} onClick={() => setSel(c)} aria-pressed={sameDay(c, sel)}
               aria-label={fmtDate(c) + (n ? ", " + n + " due" : "")}>
-              <span className="d">{c.getDate()}</span><span className="c">{n > 0 ? n + " due" : ""}</span></button>;
+              <span className="d">{c.getDate()}{tone && <i className={"cdot " + tone}></i>}</span><span className="c">{n > 0 ? n + " due" : ""}</span></button>;
           })}</div>
         </div>
         <div className="dllist">

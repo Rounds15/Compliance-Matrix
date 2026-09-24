@@ -5,6 +5,8 @@ import React, { useMemo, useState } from "react";
 import { Hero, useApp } from "./parts.jsx";
 
 const COLS = [["High", "H", "hH"], ["Moderate", "M", "hM"], ["Low", "L", "hL"], ["Unrated", "Unrated", "hU"]];
+/* heat: the more functions in a cell, the stronger its colour */
+const RGB = { High: "220,38,38", Moderate: "217,119,6", Low: "22,163,74", Unrated: "150,156,164" };
 
 export function RiskDashboard() {
   const { ds, openFn } = useApp();
@@ -21,8 +23,9 @@ export function RiskDashboard() {
     const rows = [...ds.topics].sort((a, b) => a.name.localeCompare(b.name)).map(t => ({ id: String(t.id), name: t.name, fns: fns.filter(f => String(f.topicId) === String(t.id)) }));
     const orphans = fns.filter(noArea);
     if (orphans.length) rows.push({ id: "none", name: "No risk area", fns: orphans });
+    const max = Math.max(1, ...rows.flatMap(r => COLS.map(([k]) => r.fns.filter(f => f.risk === k).length)));
     return {
-      total,
+      total, max,
       byRisk: COLS.map(([r]) => count(r)),
       rows,
       signals: [
@@ -58,7 +61,8 @@ export function RiskDashboard() {
           {COLS.map(([risk, h, cls]) => {
             const n = r.fns.filter(f => f.risk === risk).length;
             const on = cell && cell.areaId === r.id && cell.risk === risk;
-            return <button key={h} role="cell" className={cls + (on ? " sel" : "")} disabled={!n} aria-pressed={on}
+            const heat = n ? { background: `rgba(${RGB[risk]},${(0.12 + 0.55 * n / m.max).toFixed(2)})` } : null;
+            return <button key={h} role="cell" style={heat} className={cls + (on ? " sel" : "")} disabled={!n} aria-pressed={on}
               aria-label={`${r.name}, ${risk}: ${n}`} onClick={() => setCell(on ? null : { areaId: r.id, risk })}>{n}</button>;
           })}
           <button role="cell" className={"tot" + (cell && cell.areaId === r.id && !cell.risk ? " sel" : "")} disabled={!r.fns.length}

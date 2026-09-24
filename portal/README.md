@@ -27,13 +27,45 @@ page uses it exactly; where it is silent, the copy comes from the `.pa.yaml`.
   Concern) over a 72 px white bar (Block S, Syracuse University / Compliance
   Matrix, **Home**, **Browse**, **Risk and Reporting**, **Executive Team**).
   Every screen but Home has **← Back**. No Power Pages site header or footer.
-- **Type and colour**: Verdana throughout, Georgia for hero ledes only, the
-  app's `varSU` colours, 1320 px content width with a 24 px minimum gutter.
+- **Colour and width**: the app's `varSU` colours, 1320 px content width with
+  a 24 px minimum gutter.
 - **View mode** (administrators): User view on load; Admin view; View as
   specific user, which points every "me" figure at that person's email.
 - **Build**: every `<script` inside `cm-matrix.js` is written as `\x3Cscript`,
   because Power Pages injects a CSP nonce into any `<script` text in page
   script. The build checks the file still parses and fails if one is left.
+
+### The design layer
+
+The styles come in two layers. `src/styles/cm.css` is the app: its header,
+bands, screens and colours. `src/styles/design.css` sits on top and brings in
+the Claude design's finish, plus some navigation neither version had:
+
+- **Type**: Syracuse's Sherman Sans and Sherman Serif (embedded), at the
+  design's scale, falling back to the app's Verdana and Georgia. Function
+  titles are set in Sherman Serif.
+- **Header**: the main bar stays on screen as you scroll. The section you are
+  in (Home, Browse, Risk and Reporting, Executive Team) is underlined in
+  orange, and a dot on Risk and Reporting shows there are open gaps.
+- **Quick jump**: the Search button, Ctrl K (Cmd K on a Mac) or "/" opens one
+  box that finds a screen, a function (name, statute, citation, ID) or a
+  person, from anywhere. Arrow keys move, Enter opens, Esc closes.
+- **Breadcrumb strip** under the header on every screen but Home: Back, where
+  you are, and on Function Detail the Previous and Next record buttons.
+- **Compliance Functions**: a Risk rating filter in the rail, which the page's
+  lede already promised, a live "n of m functions" count, removable filter
+  chips, group headings when a lens is on, owner avatars, and a header row
+  that stays in view.
+- **Function Detail**: the next deadline under Deadline and Cadence and in
+  Record Status, icons on the actions, and a "Related in {risk area}" list to
+  move sideways. The right rail stays in view.
+- **Elsewhere**: the Home figures are links, the cards lift on hover, calendar
+  days carry a status dot, heat map cells deepen with their count, and a navy
+  footer repeats the navigation. Back to top appears on long pages.
+- **Motion** is short and soft, and switches off for anyone whose system asks
+  for reduced motion.
+
+All screen copy, the view modes and the access rules below are unchanged.
 
 ### Access, as built
 
@@ -110,12 +142,12 @@ Pages calls a flow* is the supported bridge.
 
 ## Deploy
 
-What you upload: two web files and one template. The one image is embedded
-and the fonts are system fonts, so there is nothing else.
+What you upload: two web files and one template. Fonts and images are
+embedded, so there is nothing else.
 
 ```
-dist/cm-matrix.js                          web file   ~335 KB
-dist/cm-matrix.css                         web file   ~37 KB
+dist/cm-matrix.js                          web file   ~350 KB
+dist/cm-matrix.css                         web file   ~140 KB
 dist/compliance-matrix.webtemplate.liquid  web template source
 ```
 
@@ -273,8 +305,10 @@ src/
     store.js             load, cache, "view as", every write
     transport.js         anti-forgery token, Web API, cloud flow calls
     adapters/            sample.js · sharepoint.js · dataverse.js
-  ui/                    one file per screen, named for the app's screens
-  styles/cm.css          the stylesheet: Verdana, Georgia, the varSU colours
+  ui/                    one file per screen, named for the app's screens;
+                         Palette.jsx is the quick jump
+  styles/                cm.css (the app layer), design.css (the design layer),
+                         fonts.css and fonts/ (Sherman, embedded by the build)
 power-pages/             the web template source
 test/
   data.test.mjs          roll-forward parity, both adapters, the model

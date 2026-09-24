@@ -3,7 +3,7 @@
    with "Save changes", as in the app. */
 
 import React, { useMemo, useState } from "react";
-import { Hero, RiskPill, Avatar, Modal, Busy, bare, useApp } from "./parts.jsx";
+import { Hero, RiskPill, Avatar, Modal, Busy, Icon, Sec, Strip, DuePill, bare, useApp } from "./parts.jsx";
 import { CompletionDialog, useVisibleDeadlines } from "./Completion.jsx";
 import { functionsFor, ROLE_EXEC, ROLE_UNIT, ROLE_COMPLIANCE, ROLE_COUNSEL, SUBROLES } from "../data/model.js";
 import { fmtDate } from "../lib/dates.js";
@@ -99,7 +99,7 @@ function Edit({ draft, setDraft, owners, setOwners, gc, setGc }) {
 }
 
 export function FunctionDetail({ f, isNew }) {
-  const { ds, adapter, actions, flash, realAdmin, adminView, actingPerson, go, openFn, busy } = useApp();
+  const { ds, adapter, actions, flash, realAdmin, adminView, actingPerson, go, openFn, busy, today } = useApp();
   const visible = useVisibleDeadlines();
   const [mode, setMode] = useState(isNew ? "New" : "Read");
   const [panel, setPanel] = useState("");
@@ -122,6 +122,9 @@ export function FunctionDetail({ f, isNew }) {
   const underReview = f ? ds.flags.some(sameId) : false;
   const myDeadlines = f ? visible.filter(sameId).filter(d => d.due).sort((a, b) => a.due - b.due) : [];
   const editing = mode === "Edit" || mode === "New";
+  const RANK = { High: 0, Moderate: 1, Low: 2, Unrated: 3 };
+  const related = f ? ds.fns.filter(x => x !== f && String(x.topicId) === String(f.topicId))
+    .sort((a, b) => (RANK[a.risk] ?? 4) - (RANK[b.risk] ?? 4) || a.name.localeCompare(b.name)).slice(0, 4) : [];
 
   const startEdit = () => { setDraft(draftOf(f)); setOwners(ownersOf(f)); setGc(f && f.chain.counsel[0] ? String(f.chain.counsel[0].person.id) : ""); setPanel(""); setMode("Edit"); };
   const cancel = () => { if (mode === "New") go("Functions"); else { setMode("Read"); setDraft(draftOf(f)); } };
@@ -156,15 +159,15 @@ export function FunctionDetail({ f, isNew }) {
   const counsel = f ? f.counsel : null;
 
   return <>
-    {f && <div className="crumbs"><div className="wrap">
-      <button className="linkbtn" onClick={() => go("Functions")}>{"< All functions"}</button>
-      <button className="linkbtn" onClick={() => go("Functions", { filter: { area: f.topicId == null ? "" : String(f.topicId) } })}>{" / " + f.topic}</button>
-      <span className="cur">{" / " + f.name}</span>
-      <span className="step">
-        <button disabled={idx <= 0} onClick={() => openFn(sorted[idx - 1])}>Previous</button>
-        <button disabled={idx < 0 || idx >= sorted.length - 1} onClick={() => openFn(sorted[idx + 1])}>Next record</button>
-      </span>
-    </div></div>}
+    <Strip crumbs={f ? [
+      { label: "All functions", go: () => go("Functions") },
+      { label: f.topic, go: () => go("Functions", { filter: { area: f.topicId == null ? "" : String(f.topicId) } }) },
+      { label: f.name }
+    ] : [{ label: "All functions", go: () => go("Functions") }, { label: "New function" }]}
+      right={f && <span className="step">
+        <button className="btn sm" disabled={idx <= 0} onClick={() => openFn(sorted[idx - 1])}>Previous</button>
+        <button className="btn sm" disabled={idx < 0 || idx >= sorted.length - 1} onClick={() => openFn(sorted[idx + 1])}>Next record</button>
+      </span>} />
 
     <Hero className="fdhero" eyebrow={mode === "New" ? "NEW RECORD" : (f.topic + " · " + f.area).toUpperCase()} title={title}>
       {f && <div className="chips">
@@ -195,24 +198,27 @@ export function FunctionDetail({ f, isNew }) {
     <div className="wrap fdgrid">
       <div className="fdmain">
         {editing ? <Edit draft={draft} setDraft={setDraft} owners={owners} setOwners={setOwners} gc={gc} setGc={setGc} /> : <>
-          <div className="fdsec"><h3>GOVERNING STATUTE</h3>
+          <div className="fdsec"><Sec>GOVERNING STATUTE</Sec>
             <dl className="kvs"><dt>Statute</dt><dd>{f.statute}</dd><dt>Citation</dt><dd>{f.citation}</dd>
               <dt>Reference</dt><dd>{f.statuteUrl ? <a href={f.statuteUrl} target="_blank" rel="noopener">{bare(f.statuteUrl)}</a> : ""}</dd></dl></div>
-          <div className="fdsec"><h3>WHAT THE OBLIGATION IS</h3><p className="txt">{f.description}</p></div>
-          <div className="fdsec"><h3>REPORTING REQUIREMENT</h3><p className="txt">{f.reporting}</p></div>
-          <div className="fdsec"><h3>DEADLINE AND CADENCE</h3><p className="txt">{f.deadline}</p></div>
-          <div className="fdsec"><h3>ACCOUNTABILITY STRUCTURE</h3>
+          <div className="fdsec"><Sec>WHAT THE OBLIGATION IS</Sec><p className="txt">{f.description}</p></div>
+          <div className="fdsec"><Sec>REPORTING REQUIREMENT</Sec><p className="txt">{f.reporting}</p></div>
+          <div className="fdsec"><Sec>DEADLINE AND CADENCE</Sec><p className="txt">{f.deadline}</p>
+            {myDeadlines.map(d => <div className="dlcard" key={d.id}><Icon n="clock" s={18} />
+              <span className="grow"><b>{d.title}</b><small>{fmtDate(d.due)} {"\u00B7"} {d.cadence}</small></span>
+              <DuePill dl={d} today={today} /></div>)}</div>
+          <div className="fdsec"><Sec>ACCOUNTABILITY STRUCTURE</Sec>
             <div className="owners">
               <OwnerGroup label="EXECUTIVE OWNERS" cls="exec" role={ROLE_EXEC} rows={f.chain.exec} />
               <OwnerGroup label="UNIT OWNERS" cls="unit" role={ROLE_UNIT} rows={f.chain.unit} />
               <OwnerGroup label="COMPLIANCE OWNERS" cls="comp" role={ROLE_COMPLIANCE} rows={f.chain.compliance} />
             </div></div>
-          <div className="fdsec"><h3>GAP HISTORY ({gaps.length})</h3>
+          <div className="fdsec"><Sec>GAP HISTORY ({gaps.length})</Sec>
             {gaps.length ? <div className="gaps">{gaps.map(g => <div className="gapcard" key={g.id}>
               <div className="top"><span className={"st" + (g.status === "Closed" ? " closed" : "")}>{g.status.toUpperCase()}</span><span className="t">{g.title}</span></div>
               {g.note && <p className="note">{g.note}</p>}
             </div>)}</div> : <p className="fdempty">No gaps recorded against this function.</p>}</div>
-          <div className="fdsec res"><h3>SYRACUSE UNIVERSITY RESOURCE</h3>
+          <div className="fdsec res"><Sec>SYRACUSE UNIVERSITY RESOURCE</Sec>
             {f.resourceUrl ? <><a href={f.resourceUrl} target="_blank" rel="noopener">{f.resourceLabel || bare(f.resourceUrl)}</a><div className="u">{bare(f.resourceUrl)}</div></>
               : f.resourceLabel ? <p className="txt">{f.resourceLabel}</p> : null}</div>
         </>}
@@ -223,6 +229,7 @@ export function FunctionDetail({ f, isNew }) {
           <dl className="kvs">
             {showRisk && <><dt>Risk rating</dt><dd>{f.risk === "Unrated" ? "Not Rated" : f.risk}</dd></>}
             <dt>Open gaps</dt><dd>{openGaps}</dd>
+            {myDeadlines[0] && <><dt>Next deadline</dt><dd>{fmtDate(myDeadlines[0].due)}<br /><DuePill dl={myDeadlines[0]} today={today} /></dd></>}
             <dt>Under review</dt><dd>{underReview ? "Yes" : "No"}</dd>
             <dt>Last reviewed</dt><dd>{f.lastReviewed ? fmtDate(f.lastReviewed) : ""}</dd>
           </dl></div>}
@@ -234,18 +241,23 @@ export function FunctionDetail({ f, isNew }) {
           <div className="actions">
             {realAdmin && (editing
               ? <Busy busyKey={busy === "own" ? "own" : "fn"} className="save" onClick={save}>{mode === "New" ? "Create function" : "Save changes"}</Busy>
-              : <button onClick={startEdit}>Edit this record</button>)}
+              : <button onClick={startEdit}><Icon n="edit" s={16} />Edit this record</button>)}
             {editing && <button className="cancel" onClick={cancel}>Cancel</button>}
             {!editing && <>
-              <button onClick={() => setPanel(p => (p === "Flag" ? "" : "Flag"))}>Flag for review</button>
-              <button className="gap" onClick={() => setPanel(p => (p === "Gap" ? "" : "Gap"))}>Log a gap</button>
-              <button onClick={() => go("Deadlines")}>See all deadlines</button>
-              <button disabled={!myDeadlines.length} onClick={addToCalendar}>Add to my calendar</button>
-              <button className="cmp" disabled={!myDeadlines.length} onClick={() => setCompleting(myDeadlines[0])}>Mark complete for this cycle</button>
-              {realAdmin && <button className="del" onClick={() => setConfirmDelete(true)}>Delete this function</button>}
+              <button className={panel === "Flag" ? "on" : ""} onClick={() => setPanel(p => (p === "Flag" ? "" : "Flag"))}><Icon n="flag" s={16} />Flag for review</button>
+              <button className={"gap" + (panel === "Gap" ? " on" : "")} onClick={() => setPanel(p => (p === "Gap" ? "" : "Gap"))}><Icon n="warning" s={16} />Log a gap</button>
+              <button onClick={() => go("Deadlines")}><Icon n="calendar" s={16} />See all deadlines</button>
+              <button disabled={!myDeadlines.length} onClick={addToCalendar}><Icon n="plus" s={16} />Add to my calendar</button>
+              <button className="cmp" disabled={!myDeadlines.length} onClick={() => setCompleting(myDeadlines[0])}><Icon n="check" s={16} />Mark complete for this cycle</button>
+              {realAdmin && <button className="del" onClick={() => setConfirmDelete(true)}><Icon n="trash" s={16} />Delete this function</button>}
             </>}
           </div>
         </div>
+        {f && related.length > 0 && !editing && <div className="rcard"><h3>RELATED IN {f.topic.toUpperCase()}</h3>
+          <ul className="related">{related.map(x => <li key={x.id}><button onClick={() => openFn(x)}><span>{x.name}</span><RiskPill r={x.risk} /></button></li>)}</ul>
+          {ds.fns.filter(x => String(x.topicId) === String(f.topicId)).length > related.length + 1 &&
+            <button className="linkbtn" onClick={() => go("Functions", { filter: { area: String(f.topicId) } })}>All of {f.topic} <Icon n="arrow" s={13} sw={2.2} /></button>}
+        </div>}
       </aside>
     </div>
 

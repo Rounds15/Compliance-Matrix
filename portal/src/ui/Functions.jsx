@@ -4,11 +4,13 @@
    opens the risk area and domain manager. */
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Hero, Icon, RiskPill, SearchBox, Modal, Busy, useApp } from "./parts.jsx";
+import { Hero, Icon, RiskPill, Avatar, SearchBox, Modal, Busy, useApp } from "./parts.jsx";
 
 const PAGE = 10;
 const LENSES = [["", "Functions", "list"], ["Topic", "Risk Areas", "folder"], ["Domain", "Domains", "layer"], ["Statute", "Statutes", "scale"]];
 const byName = (a, b) => a.name.localeCompare(b.name);
+const RATINGS = [["High", "High"], ["Moderate", "Moderate"], ["Low", "Low"], ["Unrated", "Not Rated"]];
+const RATING_DOT = { High: "#FF431B", Moderate: "#D97706", Low: "#16A34A", Unrated: "#C4C7CE" };
 
 function TaxonomyManager({ onClose }) {
   const { ds, actions, flash } = useApp();
@@ -90,7 +92,7 @@ function TaxonomyManager({ onClose }) {
 export function Functions({ filter, setFilter }) {
   const { ds, realAdmin, openFn, newFn } = useApp();
   const [tax, setTax] = useState(false);
-  const { q, area, domain, lens, page } = filter;
+  const { q, area, domain, risk, lens, page } = filter;
   const set = patch => setFilter(f => ({ ...f, page: 1, ...patch }));
   const [expanded, setExpanded] = useState(area);
 
@@ -100,16 +102,32 @@ export function Functions({ filter, setFilter }) {
     const list = ds.fns.filter(f =>
       (!t || has(f.name) || has(f.statute) || has(f.citation) || f.chain.compliance.some(r => has(r.person.n)) || has(f.topic) || has(f.area))
       && (!area || String(f.topicId) === area)
-      && (!domain || String(f.areaId) === domain));
+      && (!domain || String(f.areaId) === domain)
+      && (!risk || f.risk === risk));
     const key = { Topic: f => f.topic, Domain: f => f.area, Statute: f => f.statute }[lens];
     const sorted = [...list].sort(byName);
     return key ? sorted.sort((a, b) => key(a).localeCompare(key(b))) : sorted;
-  }, [ds, q, area, domain, lens]);
+  }, [ds, q, area, domain, risk, lens]);
+  const groupOf = { Topic: f => f.topic, Domain: f => f.area, Statute: f => f.statute || "No statute" }[lens];
+  /* the rating counts follow the other filters, so they say what a click will show */
+  const inScope = f => (!area || String(f.topicId) === area) && (!domain || String(f.areaId) === domain);
 
   const pages = Math.max(1, Math.ceil(rows.length / PAGE));
   const cur = Math.min(page, pages);
   useEffect(() => { if (page > pages) setFilter(f => ({ ...f, page: pages })); }, [page, pages, setFilter]);
   const shown = rows.slice((cur - 1) * PAGE, cur * PAGE);
+  const top = React.useRef(null);
+  /* turning a page brings the top of the list back into view */
+  const turn = n => {
+    setFilter(f => ({ ...f, page: n }));
+    if (top.current && top.current.getBoundingClientRect().top < 0) top.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const chips = [
+    q.trim() && { label: "\u201C" + q.trim() + "\u201D", clear: () => set({ q: "" }) },
+    area && { label: (ds.topics.find(t => String(t.id) === area) || {}).name, clear: () => { setExpanded(""); set({ area: "", domain: "" }); } },
+    domain && { label: (ds.domains.find(d => String(d.id) === domain) || {}).name, clear: () => set({ domain: "" }) },
+    risk && { label: (RATINGS.find(r => r[0] === risk) || [])[1], clear: () => set({ risk: "" }) }
+  ].filter(Boolean);
 
   const areas = [...ds.topics].sort(byName);
   const count = pred => ds.fns.filter(pred).length;
@@ -144,25 +162,42 @@ export function Functions({ filter, setFilter }) {
                   {d.name}<span className="c">{count(f => String(f.areaId) === String(d.id))}</span></button></li>)}
             </React.Fragment>)}
           </ul>
+          <div className="rail-sub">Risk rating</div>
+          <ul>
+            <li className="all"><button className={!risk ? "on" : ""} onClick={() => set({ risk: "" })}>Any rating<span className="c">{count(inScope)}</span></button></li>
+            {RATINGS.map(([k, label]) => <li key={k}><button className={risk === k ? "on" : ""} onClick={() => set({ risk: risk === k ? "" : k })}>
+              <span><i className="rdot" style={{ background: RATING_DOT[k] }}></i>{label}</span><span className="c">{count(f => inScope(f) && f.risk === k)}</span></button></li>)}
+          </ul>
         </aside>
+        <div>
+        <div className="fresult" ref={top}>
+          <span className="n">{rows.length === ds.fns.length ? ds.fns.length + " functions" : rows.length + " of " + ds.fns.length + " functions"}</span>
+          {chips.map(c => <button key={c.label} className="chip-x" onClick={c.clear} aria-label={"Clear " + c.label}>{c.label}<Icon n="x" s={12} sw={2.4} /></button>)}
+          {chips.length > 1 && <button className="linkbtn" onClick={() => { setExpanded(""); setFilter(f => ({ ...f, q: "", area: "", domain: "", risk: "", page: 1 })); }}>Clear all</button>}
+        </div>
         <div className="ftable">
           <div className="frow fhead"><span>Name / ID</span><span>Risk Area / Domain</span><span>Statute / Citation</span><span>Comp Owner / Unit</span><span>Risk Rating</span></div>
-          {shown.map(f => {
+          {shown.map((f, i) => {
             const co = f.chain.compliance;
             const first = co[0] ? co[0].person : null;
-            return <button key={f.id} className="frow" onClick={() => openFn(f)}>
+            const g = groupOf && groupOf(f);
+            const head = groupOf && (i === 0 || groupOf(shown[i - 1]) !== g)
+              ? <div className="fgroup" key={"g" + g + i}>{g}<span>{rows.filter(x => groupOf(x) === g).length}</span></div> : null;
+            return <React.Fragment key={f.id}>{head}<button className="frow" onClick={() => openFn(f)}>
               <span><span className="n">{f.name}</span><span className="s">ID {f.code}</span></span>
               <span><span className="b">{f.topic}</span><span className="s">{f.area}</span></span>
               <span><span className="b">{f.statute}</span><span className="s">{f.citation}</span></span>
-              <span><span className="n">{first ? first.n + (co.length > 1 ? " +" + (co.length - 1) : "") : ""}</span><span className="s">{first ? first.u : ""}</span></span>
+              <span className="own">{first && <Avatar person={first} size={30} />}<span><span className="n">{first ? first.n + (co.length > 1 ? " +" + (co.length - 1) : "") : ""}</span><span className="s">{first ? first.u : ""}</span></span></span>
               <span><RiskPill r={f.risk} /></span>
-            </button>;
+            </button></React.Fragment>;
           })}
+          {!shown.length && <div className="empty">No functions match. <button className="linkbtn" onClick={() => { setExpanded(""); setFilter(f => ({ ...f, q: "", area: "", domain: "", risk: "", page: 1 })); }}>Clear the filters</button></div>}
           <div className="pager">
-            <button className="btn" disabled={cur <= 1} onClick={() => setFilter(f => ({ ...f, page: cur - 1 }))}>Previous</button>
+            <button className="btn" disabled={cur <= 1} onClick={() => turn(cur - 1)}>Previous</button>
             <span>Page {cur} of {pages}</span>
-            <button className="btn" disabled={cur >= pages} onClick={() => setFilter(f => ({ ...f, page: cur + 1 }))}>Next</button>
+            <button className="btn" disabled={cur >= pages} onClick={() => turn(cur + 1)}>Next</button>
           </div>
+        </div>
         </div>
       </div>
     </div>

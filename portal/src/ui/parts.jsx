@@ -1,6 +1,7 @@
 /* Shared pieces used by every screen. */
 
 import React, { useEffect, useRef, createContext, useContext } from "react";
+import blockS from "../assets/block-s.png";
 
 export const AppCtx = createContext(null);
 export const useApp = () => useContext(AppCtx);
@@ -26,7 +27,16 @@ const IP = {
   mail: "M3.5 6h17v12h-17zM3.5 6.5 12 13l8.5-6.5",
   shield: "M12 3 5 5.5v5c0 5 3.2 8.4 7 10 3.8-1.6 7-5 7-10v-5z",
   menu: "M4 7h16M4 12h16M4 17h16",
-  alert: "M12 4 2.5 20.5h19zM12 10v4.5M12 17.5h.01"
+  alert: "M12 4 2.5 20.5h19zM12 10v4.5M12 17.5h.01",
+  chev: "M6 9.5 12 15.5l6-6",
+  arrow: "M4 12h15m-6-6 6 6-6 6",
+  back: "M20 12H5m6-6-6 6 6 6",
+  ext: "M14 4h6v6M20 4l-8.5 8.5M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5",
+  edit: "M4 20h4L20 8l-4-4L4 16zM14.5 5.5 18.5 9.5",
+  trash: "M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",
+  up: "M12 20V5m-6 6 6-6 6 6",
+  x: "M6 6l12 12M18 6 6 18",
+  enter: "M20 5v8a3 3 0 0 1-3 3H5m4-4-4 4 4 4"
 };
 
 export function Icon({ n, s = 18, sw = 1.8, style }) {
@@ -41,19 +51,49 @@ export const initials = n => {
   return (w[0][0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
 };
 
-export function Avatar({ person, size = 40, square }) {
+/* a steady colour per person, from the brand's secondary palette */
+const AV_BG = ["#000E54", "#203299", "#2B72D7", "#D74100", "#404040", "#0F766E", "#9A3412", "#5B21B6"];
+export function Avatar({ person, size = 40, square, tone }) {
   const none = !person || person.none;
-  return <span className={"av" + (square ? " sq" : "")} style={{ width: size, height: size, fontSize: Math.round(size * .36) }} aria-hidden="true">
-    {none ? "" : initials(person.n)}
+  const n = none ? "" : person.n;
+  const bg = tone || (none ? "#C4C7CE" : AV_BG[(n.charCodeAt(0) + n.length) % AV_BG.length]);
+  return <span className={"av" + (square ? " sq" : "")} style={{ width: size, height: size, fontSize: Math.round(size * .36), background: bg }} aria-hidden="true">
+    {none ? "" : initials(n)}
   </span>;
+}
+
+/* "Due in 12d" / "Overdue 3d" / "Completed", for a deadline row */
+export function DuePill({ dl, today }) {
+  if (dl.status === "Completed") return <span className="due-pill ok">Completed</span>;
+  if (!dl.due) return null;
+  const d = Math.round((dl.due - today) / 86400000);
+  if (d < 0) return <span className="due-pill late">Overdue {-d}d</span>;
+  return <span className={"due-pill" + (d <= 30 ? " soon" : "")}>Due in {d}d</span>;
+}
+
+/* the design's section head: orange caps with a hairline running out */
+export const Sec = ({ children, right }) => <div className="sec"><h3>{children}</h3><span className="ln"></span>{right}</div>;
+
+/* The strip under the header: Back, where you are, and screen actions. */
+export function Strip({ crumbs = [], right }) {
+  const { back } = useApp();
+  return <div className="strip"><div className="wrap">
+    <button className="backbtn" onClick={back}><Icon n="back" s={15} sw={2.2} />Back</button>
+    <nav className="crumbs-l" aria-label="Breadcrumb">{crumbs.map((c, i) => <React.Fragment key={i}>
+      {i > 0 && <span className="sep" aria-hidden="true">/</span>}
+      {c.go ? <button className="crumb" onClick={c.go}>{c.label}</button> : <span className="crumb cur" aria-current={i === crumbs.length - 1 ? "page" : undefined}>{c.label}</span>}
+    </React.Fragment>)}</nav>
+    {right && <span className="strip-r">{right}</span>}
+  </div></div>;
 }
 
 /* the rating pill: caps, "NOT RATED" when blank */
 export const RiskPill = ({ r }) => <span className={"pill r-" + (r || "Unrated")}>{!r || r === "Unrated" ? "Not Rated" : r}</span>;
 
 /* Hero band: eyebrow, white title, Georgia lede, then the 6px orange rule. */
-export const Hero = ({ eyebrow, title, lede, big, className, children, noRule }) => <>
+export const Hero = ({ eyebrow, title, lede, big, className, children, noRule, watermark }) => <>
   <div className={"hero" + (big ? " big" : "") + (className ? " " + className : "")}>
+    {watermark && <img className="hero-s" src={blockS} alt="" aria-hidden="true" />}
     <div className="wrap">
       <div className="eyebrow">{eyebrow}</div>
       <h1>{title}</h1>

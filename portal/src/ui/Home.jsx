@@ -4,7 +4,7 @@
    show institution-wide counts is an open question (spec section 4.3). */
 
 import React, { useMemo, useState } from "react";
-import { Hero, Icon, SearchBox, useApp } from "./parts.jsx";
+import { Hero, Icon, SearchBox, DuePill, RiskPill, useApp } from "./parts.jsx";
 import { CompleteButton } from "./Completion.jsx";
 import { functionsFor, roleOn } from "../data/model.js";
 import { addDays, fiscalQ, fmtDate, MONTHS } from "../lib/dates.js";
@@ -29,14 +29,14 @@ export function Home() {
   const assigned = [...mine].sort((a, b) => a.name.localeCompare(b.name));
 
   const dests = [
-    { title: "Compliance Functions", body: "Every obligation in the matrix with statute, owner, requirement, and risk rating.", meta: mine.length + " RECORDS", to: () => go("Functions") },
-    { title: "Deadlines", body: "Filings, certifications, and reports on the calendar, with automatic reminders.", meta: due90 + " IN 90 DAYS", to: () => go("Deadlines") },
-    { title: "Owner Directory", body: "Every compliance owner, unit owner, and executive sponsor in the matrix.", meta: "CONTACTS", to: () => go("Directory") },
-    { title: "Risk Dashboard", body: "Risk concentration by topic and unit, gap trends, and executive reporting.", meta: adminView ? "ADMINISTRATOR" : "RESTRICTED", to: () => go("Risk Dashboard") }
+    { title: "Compliance Functions", body: "Every obligation in the matrix with statute, owner, requirement, and risk rating.", meta: mine.length + " RECORDS", to: () => go("Functions"), icon: "list" },
+    { title: "Deadlines", body: "Filings, certifications, and reports on the calendar, with automatic reminders.", meta: due90 + " IN 90 DAYS", to: () => go("Deadlines"), icon: "calendar" },
+    { title: "Owner Directory", body: "Every compliance owner, unit owner, and executive sponsor in the matrix.", meta: "CONTACTS", to: () => go("Directory"), icon: "users" },
+    { title: "Risk Dashboard", body: "Risk concentration by topic and unit, gap trends, and executive reporting.", meta: adminView ? "ADMINISTRATOR" : "RESTRICTED", to: () => go("Risk Dashboard"), icon: adminView ? "chart" : "shield", locked: !adminView }
   ];
 
   return <>
-    <Hero className="home-hero" eyebrow="OFFICE OF COMPLIANCE" title="The Compliance Matrix is the foundation of the University's Compliance Program"
+    <Hero className="home-hero" watermark eyebrow="OFFICE OF COMPLIANCE" title="The Compliance Matrix is the foundation of the University's Compliance Program"
       lede="Mapping regulatory obligations to owners" noRule>
       <SearchBox value={q} onChange={setQ} placeholder="Search a function, statute, citation, or owner..." button="Search"
         onSubmit={() => go("Functions", { q: q.trim() })} />
@@ -48,18 +48,19 @@ export function Home() {
 
     <div className="figures">
       <div className="wrap">
-        <div className="fig"><b>{mine.length}</b><span>COMPLIANCE FUNCTIONS</span></div>
-        <div className="fig"><b>{riskAreas}</b><span>RISK AREAS</span></div>
-        <div className="fig"><b>{due90}</b><span>DUE WITHIN 90 DAYS</span></div>
-        <div className="fig"><b>{overdue}</b><span>PAST DUE TODAY</span></div>
+        <button className="fig" onClick={() => go("Functions")}><b>{mine.length}</b><span>COMPLIANCE FUNCTIONS</span></button>
+        <button className="fig" onClick={() => go("Functions")}><b>{riskAreas}</b><span>RISK AREAS</span></button>
+        <button className="fig" onClick={() => go("Deadlines")}><b>{due90}</b><span>DUE WITHIN 90 DAYS</span></button>
+        <button className="fig" onClick={() => go("Deadlines")}><b>{overdue}</b><span>PAST DUE TODAY</span></button>
         <div className="asof">{asOf}</div>
       </div>
     </div>
 
     <div className="section"><div className="wrap">
       <div className="shead"><h2>Start here</h2><span className="note">Four ways into the matrix</span></div>
-      <div className="dests">{dests.map(d => <button key={d.title} className="dest" onClick={d.to}>
-        <h3>{d.title}</h3><p>{d.body}</p><span className="meta">{d.meta}</span></button>)}</div>
+      <div className="dests">{dests.map(d => <button key={d.title} className={"dest" + (d.locked ? " locked" : "")} onClick={d.to}>
+        <span className="dest-ic"><Icon n={d.icon} s={20} /></span>
+        <h3>{d.title}</h3><p>{d.body}</p><span className="meta">{d.meta}<Icon n="arrow" s={14} sw={2.2} /></span></button>)}</div>
     </div></div>
 
     <div className="section" style={{ paddingTop: 8 }}><div className="wrap help">
@@ -82,6 +83,7 @@ export function Home() {
               <span className="grow"><span className="n">{f.name}</span><span className="m">{f.topic} {"·"} {f.area}</span></span>
               {g > 0 && <span className={"gapbadge" + (g >= 5 ? " g5" : g >= 3 ? " g3" : "")}>{g} {g === 1 ? "Gap" : "Gaps"}</span>}
               <span className={"rolepill " + ROLE_CLASS[role]}>{role}</span>
+              <RiskPill r={f.risk} />
             </button></li>;
           })}</ul> : null}
         </div>
@@ -90,6 +92,7 @@ export function Home() {
           {upcoming.length ? upcoming.map(d => <div className="dlrow" key={d.id}>
             <button className="hit" onClick={() => openFn(ds.fnById.get(String(d.functionId)))}>
               <span className="n">{d.functionName}</span><span className="m">{fmtDate(d.due)} {"·"} {d.cadence}</span></button>
+            <DuePill dl={d} today={today} />
             <CompleteButton dl={d} />
           </div>) : null}
           <div className="dlnote">Reminders are sent automatically at 90 days, 30 days, on the due date, and weekly once overdue.</div>

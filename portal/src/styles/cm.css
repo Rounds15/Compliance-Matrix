@@ -1,8 +1,11 @@
-/* Compliance Matrix, Power Pages build.
+/* Compliance Matrix, Power Pages build: the app layer.
 
-   Written to match the canvas app (Compliance Matrix 2.0): Verdana for all
-   UI text, Georgia only for hero ledes, the varSU brand colors from
-   App.OnStart. Power Apps sizes are points; px here are pt x 4/3. */
+   The structure of the canvas app (Compliance Matrix 2.0): its header, hero
+   bands, screens and the varSU brand colors from App.OnStart. Power Apps
+   sizes are points; px here are pt x 4/3. design.css, loaded after this,
+   brings in the Claude design's type and finish and the navigation extras.
+   The type families are the Syracuse brand faces (fonts.css), falling back
+   to the app's Verdana and Georgia. */
 
 :root {
   --navy: #000E54;
@@ -23,8 +26,8 @@
   --lede: #C9D2E8;
   --page: #FFFFFF;
   --soft: #FAFBFD;
-  --ui: Verdana, Geneva, "DejaVu Sans", sans-serif;
-  --serif: Georgia, "Times New Roman", serif;
+  --ui: ShermanSans, Verdana, Geneva, "DejaVu Sans", sans-serif;
+  --serif: ShermanSerif, Georgia, "Times New Roman", serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -56,7 +59,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .util-right { display: flex; margin-left: auto; position: relative; }
 .util-right > :last-child { padding-right: 0; }
 
-.hdr { background: #fff; border-bottom: 1px solid var(--line); position: relative; z-index: 30; }
+.hdr { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; }
 .hdr .wrap { display: flex; align-items: center; height: 72px; gap: 16px; }
 .backbtn { background: #fff; border: 1px solid var(--line-strong); color: var(--navy); font-size: 15px; font-weight: 700; height: 40px; padding: 0 14px; white-space: nowrap; }
 .backbtn:hover { background: var(--wash); }
