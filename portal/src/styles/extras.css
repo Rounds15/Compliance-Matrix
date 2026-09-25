@@ -177,3 +177,38 @@ code { font-size: .88em; overflow-wrap: anywhere }
   .util .sp { margin-left: 0 }
   .dlmini { flex-wrap: wrap }
 }
+
+/* ---------- Accountability Structure as tiers ----------
+   One band per role, top to bottom in the chain's order, each with its own
+   colour, a numbered marker, and a connector down to the next tier. */
+.ochain.tiers { display: flex; flex-direction: column; gap: 0 }
+.orole.tier { --tier: #000E54; display: grid; grid-template-columns: 210px minmax(0, 1fr); border: 1px solid #E2E5EA; border-left: 5px solid var(--tier); background: #fff; padding: 0; position: relative }
+.orole.tier.unit { --tier: #2B72D7 }
+.orole.tier.compliance { --tier: #F76900 }
+.orole.tier.support { --tier: #0F766E; background: #FAFBFD }
+.orole.tier + .orole.tier { margin-top: 22px }
+.orole.tier + .orole.tier::before { content: ""; position: absolute; left: 24px; top: -23px; width: 2px; height: 22px; background: #C4C7CE }
+.orole.tier + .orole.tier::after { content: ""; position: absolute; left: 20px; top: -8px; border: 5px solid transparent; border-top-color: #C4C7CE; border-bottom: 0 }
+.tier-h { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 12px; background: #F7F8FA; border-right: 1px solid #EEF0F4 }
+.tier-n { flex: none; width: 28px; height: 28px; display: grid; place-items: center; background: var(--tier); color: #fff; font-size: 14px; font-weight: 700; line-height: 1 }
+.tier .orole-t { display: block; font-size: 12px; color: var(--tier); white-space: normal }
+.orole.tier.compliance .orole-t { color: #D74100 }
+.orole.tier.support .orole-t { color: #0F766E }
+.tier .orole-n { display: block; margin-top: 3px }
+.tier .orole-note { padding: 6px 0 0; border: 0 }
+.tier-people { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); align-content: start; padding: 10px; gap: 10px }
+.tier-people .operson { border: 1px solid #EEF0F4; background: #fff }
+.tier-people .oempty { border: 0; padding: 8px 4px }
+.tier-people .oadd, .tier-people .opick { grid-column: 1 / -1; margin: 0 }
+@media (max-width: 700px) {
+  .orole.tier { grid-template-columns: minmax(0, 1fr) }
+  .tier-h { border-right: 0; border-bottom: 1px solid #EEF0F4 }
+}
+
+/* ---------- General Counsel card editor ---------- */
+.rail-card.gc .rail-t { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.gc-edit { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid #C4C7CE; color: #000E54; font: inherit; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: none; padding: 3px 8px; cursor: pointer }
+.gc-edit:hover { border-color: #000E54 }
+.gc-pick { margin-top: 12px }
+.gc-pick .opick-r { flex-wrap: wrap }
+.gc-rm { margin-top: 8px; width: 100% }

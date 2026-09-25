@@ -10,7 +10,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Icon, Avatar, Risk, Field, Empty, Modal, ModalHead, Busy, DuePill, dueState, bare, useApp } from "./parts.jsx";
 import { CompletionDialog, CompleteButton, useVisibleDeadlines } from "./Completion.jsx";
-import { OwnershipChain } from "./Ownership.jsx";
+import { OwnershipChain, CounselCard } from "./Ownership.jsx";
 import { functionsFor, allRows } from "../data/model.js";
 import { fmtDate, fiscalQ } from "../lib/dates.js";
 import { RISK_COLOR, RISK_CHOICES, riskRank } from "../lib/risk.js";
@@ -111,7 +111,6 @@ export function FunctionDetail({ f, isNew }) {
   };
 
   const title = isNew ? (d.name || "New compliance function") : editing ? "Editing - " + (d.name || f.name) : f.name;
-  const counsel = f ? f.counsel : null;
   const shownRisk = editing ? d.risk : f.risk;
 
   return <div className="fd">
@@ -255,20 +254,7 @@ export function FunctionDetail({ f, isNew }) {
             {realAdmin && <button className="button button-ghost button-sm fd-del" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
           </div>
         </div>}
-        <div className="rail-card gc">
-          <div className="rail-t">Legal questions</div>
-          {counsel ? <>
-            <div className="gc-lede">General Counsel (Advisory) for {adapter.counselPerFunction ? "this function" : f.topic}. Reach out before responding to a regulator, signing an agreement, or interpreting the statute.</div>
-            <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 12 }}>
-              <Avatar person={counsel} size={40} />
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 700, color: "#000E54", fontSize: 13.5, lineHeight: 1.3 }}>{counsel.n}</div>
-                {counsel.t && <div style={{ fontSize: 12, color: "#5b6373", marginTop: 3, lineHeight: 1.35 }}>{counsel.t}</div>}
-                {counsel.e && <a href={"mailto:" + counsel.e} style={{ fontSize: 12, display: "inline-block", marginTop: 5, wordBreak: "break-all" }}>{counsel.e}</a>}
-              </div></div>
-            {counsel.e && <a className="gc-esc" href={"mailto:" + counsel.e + "?subject=" + encodeURIComponent("Legal question: " + f.code + " " + f.name)}>Email a question about this function</a>}
-          </> : <div className="gc-lede">No General Counsel is assigned to this function yet.{realAdmin && adapter.counselPerFunction ? " Add one with Manage people." : ""}</div>}
-        </div>
+        <CounselCard f={f} />
         {!!related.length && !editing && <div className="rail-card quiet">
           <div className="rail-t">Related in {f.topic}</div>
           {related.map(x => <button key={x.id} className="rail-rel" onClick={() => openFn(x)}>

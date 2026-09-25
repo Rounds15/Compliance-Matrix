@@ -1,32 +1,38 @@
-/* The Accountability Structure, drawn as the design's ownership chain: one
-   container per role, many people per role, each with a sub-role (Primary or
-   Advisory). The roles are the data source's (Support is a role on the
-   SharePoint lists; General Counsel is per function there and per risk area
-   on Dataverse). Administrators add, remove and re-weight people, then save;
-   saving replaces the function's ownership rows, which is how the canvas app
-   writes it. Someone not yet in the Compliance Directory can be looked up
-   through the find-person flow, or entered by hand, and is added to the
-   directory first. */
+/* The Accountability Structure, drawn as tiers down the page: Executive
+   Owner, then Unit Owner, then Compliance Owner (the canvas app's order),
+   then Support where the data source has it. Each tier holds many people,
+   each with a sub-role (Primary or Advisory). General Counsel is not a tier
+   here: it has its own card in the rail (CounselCard, below). Administrators
+   add, remove and re-weight people, then save; saving replaces the
+   function's ownership rows, which is how the canvas app writes it, so each
+   editor carries the other's rows through unchanged. Someone not yet in the
+   Compliance Directory can be looked up through the find-person flow, or
+   entered by hand, and is added to the directory first. */
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Icon, Avatar, Field, Busy, useApp } from "./parts.jsx";
 import { SUBROLES, ROLE_EXEC, ROLE_UNIT, ROLE_COMPLIANCE, ROLE_COUNSEL, ROLE_SUPPORT, samePerson } from "../data/model.js";
 
 const ROLE_INFO = {
-  [ROLE_EXEC]: { k: "exec", note: "Accountable at the cabinet level." },
-  [ROLE_UNIT]: { k: "unit", note: "Runs the obligation inside the unit." },
-  [ROLE_COMPLIANCE]: { k: "compliance", note: "Does the work and files the record." },
-  [ROLE_SUPPORT]: { k: "support", note: "Helps the owners carry out the obligation." },
-  [ROLE_COUNSEL]: { k: "counsel", note: "Attorney of record for legal questions on this function." }
+  [ROLE_EXEC]: { k: "exec", tier: 1, note: "Accountable at the cabinet level." },
+  [ROLE_UNIT]: { k: "unit", tier: 2, note: "Runs the obligation inside the unit." },
+  [ROLE_COMPLIANCE]: { k: "compliance", tier: 3, note: "Does the work and files the record." },
+  [ROLE_SUPPORT]: { k: "support", tier: 0, note: "Helps the owners carry out the obligation." }
 };
+const CHAIN_KEYS = ["exec", "unit", "compliance", "support"];
+const ROLE_OF = { exec: ROLE_EXEC, unit: ROLE_UNIT, compliance: ROLE_COMPLIANCE, support: ROLE_SUPPORT };
 
-const chainFrom = f => Object.fromEntries(Object.values(ROLE_INFO).map(({ k }) =>
-  [k, (f.chain[k] || []).map(r => ({ ...r.person, sub: k === "counsel" ? "" : (r.sub || "Primary") }))]));
+const chainFrom = f => Object.fromEntries(CHAIN_KEYS.map(k => [k, (f.chain[k] || []).map(r => ({ ...r.person, sub: r.sub || "Primary" }))]));
+/* the rows a save writes, from a chain and a counsel list */
+const rowsOf = (chain, counsel) => [
+  ...CHAIN_KEYS.flatMap(k => (chain[k] || []).map(p => ({ personId: p.id, name: p.n, role: ROLE_OF[k], sub: p.sub }))),
+  ...counsel.map(p => ({ personId: p.id, name: p.n, role: ROLE_COUNSEL, sub: "Advisory" }))
+];
+const counselOf = (f, adapter) => (adapter.counselPerFunction ? f.chain.counsel.map(r => r.person) : []);
 
 export function OwnershipChain({ f, admin }) {
   const { adapter, actions, flash } = useApp();
-  const roles = useMemo(() => [...adapter.roles, ...(adapter.counselPerFunction ? [ROLE_COUNSEL] : [])]
-    .map(role => ({ role, ...ROLE_INFO[role] })), [adapter]);
+  const roles = useMemo(() => adapter.roles.filter(r => ROLE_INFO[r]).map(role => ({ role, ...ROLE_INFO[role] })), [adapter]);
   const [chain, setChain] = useState(() => chainFrom(f));
   const [manage, setManage] = useState(false);
   const [addTo, setAddTo] = useState(null);
@@ -36,20 +42,18 @@ export function OwnershipChain({ f, admin }) {
   const edit = next => { setChain(next); setDirty(true); };
   const add = (k, p, sub) => {
     if (chain[k].some(x => samePerson(x, p))) { flash(p.n + " already holds this role."); return; }
-    edit({ ...chain, [k]: [...chain[k], { ...p, sub: k === "counsel" ? "" : (sub || "Primary") }] });
+    edit({ ...chain, [k]: [...chain[k], { ...p, sub: sub || "Primary" }] });
     setAddTo(null);
   };
   const remove = (k, id) => edit({ ...chain, [k]: chain[k].filter(x => String(x.id) !== String(id)) });
   const setSub = (k, id, sub) => edit({ ...chain, [k]: chain[k].map(x => String(x.id) === String(id) ? { ...x, sub } : x) });
 
   const save = async () => {
-    const rows = [];
-    roles.forEach(r => chain[r.k].forEach(p => rows.push({ personId: p.id, name: p.n, role: r.role, sub: r.k === "counsel" ? "Advisory" : p.sub })));
-    try { await actions.setOwnership(f, rows); setManage(false); setDirty(false); } catch (e) { /* the toast says what failed */ }
+    try { await actions.setOwnership(f, rowsOf(chain, counselOf(f, adapter))); setManage(false); setDirty(false); } catch (e) { /* the toast says what failed */ }
   };
   const cancel = () => { setChain(chainFrom(f)); setManage(false); setAddTo(null); setDirty(false); };
 
-  const warn = roles.filter(r => r.k === "exec" || r.k === "unit" || r.k === "compliance")
+  const warn = roles.filter(r => r.tier)
     .map(r => [r, chain[r.k].filter(p => p.sub === "Primary").length])
     .filter(([, n]) => n > 1).map(([r, n]) => r.role + " has " + n + " Primaries");
 
@@ -60,35 +64,76 @@ export function OwnershipChain({ f, admin }) {
     : <button className="button button-secondary-outline button-sm" onClick={() => { setManage(true); setAddTo(null); }}>
       <Icon n="edit" s={13} />Manage people</button>)}>
     {manage && warn.length > 0 && <div className="note" style={{ marginBottom: 10 }}>A role usually has one Primary: {warn.join("; ")}.</div>}
-    <div className="ochain">
+    <div className="ochain tiers">
       {roles.filter(r => manage || r.k !== "support" || chain.support.length).map(r => {
         const list = chain[r.k];
-        return <section key={r.k} className={"orole " + r.k}>
-          <header className="orole-h">
-            <span className="orole-t">{r.role}{r.k === "counsel" ? " (Advisory)" : ""}</span>
-            <span className="orole-n">{list.length} {list.length === 1 ? "person" : "people"}</span>
-          </header>
-          <div className="orole-note">{r.note}</div>
-          {list.length ? list.map(p => <div key={p.id} className="operson">
-            <Avatar person={p} size={34} />
-            <div className="operson-b">
-              <DirLink p={p} />
-              {p.t && <div className="operson-t">{p.t}</div>}
-              {p.e && <a href={"mailto:" + p.e}>{p.e}</a>}
+        return <section key={r.k} className={"orole tier " + r.k}>
+          <header className="tier-h">
+            <span className="tier-n" aria-hidden="true">{r.tier || "+"}</span>
+            <div style={{ minWidth: 0 }}>
+              <span className="orole-t">{r.role}</span>
+              <span className="orole-n">{list.length} {list.length === 1 ? "person" : "people"}</span>
+              <div className="orole-note">{r.note}</div>
             </div>
-            {r.k !== "counsel" && (manage
-              ? <select className="ti osub" value={p.sub} aria-label={"Sub-role for " + p.n} onChange={e => setSub(r.k, p.id, e.target.value)}>
-                {SUBROLES.map(s => <option key={s}>{s}</option>)}</select>
-              : <span className={"osubpill " + String(p.sub).toLowerCase()}>{p.sub}</span>)}
-            {manage && <button className="orm" title={"Remove " + p.n} aria-label={"Remove " + p.n} onClick={() => remove(r.k, p.id)}>{"✕"}</button>}
-          </div>) : <div className="oempty">Not assigned</div>}
-          {manage && (addTo === r.k
-            ? <PersonPicker exclude={new Set(list.map(p => String(p.id)))} counsel={r.k === "counsel"} onCancel={() => setAddTo(null)} onPick={(p, sub) => add(r.k, p, sub)} />
-            : <button className="oadd" onClick={() => setAddTo(r.k)}>+ Add a person as {r.role}</button>)}
+          </header>
+          <div className="tier-people">
+            {list.length ? list.map(p => <div key={p.id} className="operson">
+              <Avatar person={p} size={34} />
+              <div className="operson-b">
+                <DirLink p={p} />
+                {p.t && <div className="operson-t">{p.t}</div>}
+                {p.e && <a href={"mailto:" + p.e}>{p.e}</a>}
+              </div>
+              {manage
+                ? <select className="ti osub" value={p.sub} aria-label={"Sub-role for " + p.n} onChange={e => setSub(r.k, p.id, e.target.value)}>
+                  {!SUBROLES.includes(p.sub) && <option>{p.sub}</option>}
+                  {SUBROLES.map(s => <option key={s}>{s}</option>)}</select>
+                : <span className={"osubpill " + String(p.sub).toLowerCase()}>{p.sub}</span>}
+              {manage && <button className="orm" title={"Remove " + p.n} aria-label={"Remove " + p.n} onClick={() => remove(r.k, p.id)}>{"✕"}</button>}
+            </div>) : <div className="oempty">Not assigned</div>}
+            {manage && (addTo === r.k
+              ? <PersonPicker exclude={new Set(list.map(p => String(p.id)))} onCancel={() => setAddTo(null)} onPick={(p, sub) => add(r.k, p, sub)} />
+              : <button className="oadd" onClick={() => setAddTo(r.k)}>+ Add a person as {r.role}</button>)}
+          </div>
         </section>;
       })}
     </div>
   </Field>;
+}
+
+/* General Counsel, in the rail. On SharePoint counsel is set per function,
+   so administrators can assign, change or remove it here; on Dataverse it
+   is set per risk area, so the card only shows it. */
+export function CounselCard({ f }) {
+  const { adapter, actions, realAdmin } = useApp();
+  const [pick, setPick] = useState(false);
+  useEffect(() => { setPick(false); }, [f]);
+  const counsel = f.counsel;
+  const own = f.chain.counsel.length > 0;
+  const canEdit = realAdmin && adapter.counselPerFunction;
+  const save = async list => {
+    try { await actions.setOwnership(f, rowsOf(chainFrom(f), list), "General Counsel saved."); setPick(false); } catch (e) { /* the toast says what failed */ }
+  };
+  return <div className="rail-card gc">
+    <div className="rail-t">Legal questions
+      {canEdit && !pick && <button className="gc-edit" onClick={() => setPick(true)} aria-label={counsel ? "Change General Counsel" : "Assign General Counsel"}>
+        <Icon n="edit" s={12} />{counsel ? "Change" : "Assign"}</button>}</div>
+    {counsel ? <>
+      <div className="gc-lede">General Counsel (Advisory) for {adapter.counselPerFunction ? "this function" : f.topic}. Reach out before responding to a regulator, signing an agreement, or interpreting the statute.</div>
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 12 }}>
+        <Avatar person={counsel} size={40} />
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 700, color: "#000E54", fontSize: 13.5, lineHeight: 1.3 }}>{counsel.n}</div>
+          {counsel.t && <div style={{ fontSize: 12, color: "#5b6373", marginTop: 3, lineHeight: 1.35 }}>{counsel.t}</div>}
+          {counsel.e && <a href={"mailto:" + counsel.e} style={{ fontSize: 12, display: "inline-block", marginTop: 5, wordBreak: "break-all" }}>{counsel.e}</a>}
+        </div></div>
+      {counsel.e && !pick && <a className="gc-esc" href={"mailto:" + counsel.e + "?subject=" + encodeURIComponent("Legal question: " + f.code + " " + f.name)}>Email a question about this function</a>}
+    </> : <div className="gc-lede">No General Counsel is assigned to this function yet.</div>}
+    {pick && <div className="gc-pick">
+      <PersonPicker counsel exclude={new Set(counsel ? [String(counsel.id)] : [])} actionLabel="Assign" onCancel={() => setPick(false)} onPick={p => save([p])} />
+      {own && <Busy busyKey="own" className="button button-ghost button-sm gc-rm" onClick={() => save([])}><Icon n="trash" s={13} />Remove General Counsel</Busy>}
+    </div>}
+  </div>;
 }
 
 /* a person's name opens their Directory entry */

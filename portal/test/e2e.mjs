@@ -222,6 +222,22 @@ await session("SharePoint · administrator · header, view modes, every write", 
   assert.equal(chain.find(r => r.field_3 === "General Counsel").field_4, null, "counsel has no sub-role");
   assert.ok(!chain.some(r => [301, 302, 303, 304].includes(r.Id)), "old rows replaced");
   await page.locator(".orole.unit .operson", { hasText: "Andrea Whitaker" }).waitFor();
+  assert.equal(await page.locator(".orole.counsel").count(), 0, "General Counsel is not a tier; it has the rail card");
+  assert.deepEqual(await page.locator(".orole.tier .tier-n").allTextContents(), ["1", "2", "3", "+"], "Executive, Unit, Compliance, then Support");
+
+  // General Counsel, changed and removed from its rail card; the chain is carried through
+  await page.locator(".gc-edit").click();
+  await pick(page.locator(".rail-card.gc"), "Andrea", "Andrea Whitaker");
+  await toast(/General Counsel saved/);
+  const gcRows = () => sp["Accountability Structure"].filter(r => r.FunctionId === 201 && r.field_3 === "General Counsel");
+  assert.deepEqual(gcRows().map(r => r.PersonId), [102]);
+  assert.equal(sp["Accountability Structure"].filter(r => r.FunctionId === 201).length, 6, "the other five rows are kept");
+  assert.match(await page.locator(".rail-card.gc").innerText(), /Andrea Whitaker/);
+  await page.locator(".gc-edit").click();
+  await btn("Remove General Counsel").click();
+  await toast(/General Counsel saved/);
+  assert.equal(gcRows().length, 0);
+  assert.equal(sp["Accountability Structure"].filter(r => r.FunctionId === 201).length, 5);
 
   // close a gap from the tracker (Admin view shows every gap)
   await go("#/gaps");
@@ -328,6 +344,7 @@ await session("SharePoint · owner · own scope, member flow only, admin UI abse
   assert.equal(await btn("Edit this record").count(), 0);
   assert.equal(await btn("Delete this function").count(), 0);
   assert.equal(await btn("Manage people").count(), 0);
+  assert.equal(await page.locator(".gc-edit").count(), 0, "owners cannot change counsel");
   assert.equal(await text(page.locator(".fd-tags .risk")), "High", "owners see the rating");
   await go("#/functions");
   assert.equal(await btn("Add new function").count(), 0);
@@ -495,6 +512,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
 
   await btn("Manage people").click();
   assert.equal(await page.locator(".orole.counsel").count(), 0, "Dataverse keeps counsel by risk area");
+  assert.equal(await page.locator(".gc-edit").count(), 0, "and the counsel card has no editor there");
   assert.deepEqual(await page.locator(".orole .orole-t").allTextContents(), ["Executive Owner", "Unit Owner", "Compliance Owner"]);
   await page.locator(".orole.unit .oadd").click();
   await page.locator(".orole.unit .opick-r select").selectOption("Advisory");

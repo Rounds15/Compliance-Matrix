@@ -160,10 +160,10 @@ export function useStore(cfg) {
       };
       return a.deleteFunction({ fn, related }, c);
     }, "Function deleted and archived."),
-    setOwnership: (fn, rows) => act("own", (a, c) => {
+    setOwnership: (fn, rows, msg) => act("own", (a, c) => {
       const existingRowIds = (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(fn.id)).map(o => o.id);
       return a.setOwnership({ fn, rows, existingRowIds }, c);
-    }, "Ownership chain saved."),
+    }, msg || "Ownership chain saved."),
     addPerson: person => act("person", (a, c) => a.addPerson({ person }, c), person.name + " added to the Compliance Directory."),
     updatePerson: person => act("person", (a, c) => a.updatePerson({ person }, c), "Saved."),
     deletePerson: person => act("person-del", (a, c) => a.deletePerson({ person, ownershipRowIds: ownershipRowsFor(person) }, c), person.n + " removed from the directory."),
