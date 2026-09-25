@@ -1,0 +1,179 @@
+/* Extras on top of the Claude design's stylesheets (tokens, DDS, app,
+   detail, portal). Everything here draws in the design's own vocabulary:
+   navy and orange, square corners, uppercase tracked labels. It covers what
+   the design did not have: the quick jump, the back bar button, clickable
+   figures and stats, and the pieces the canvas app's structure adds
+   (reassigning ownership, the flag queue, the taxonomy manager). */
+
+/* ---------- header: search button, current utility link ---------- */
+.util a.here { color: #fff; text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 4px }
+.hdr-find { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 10px 0 12px; background: var(--surface); border: 1px solid var(--line-strong); color: var(--navy); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer }
+.hdr-find:hover { border-color: var(--navy) }
+.hdr-find:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px }
+kbd { font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--muted); background: #F2F4F8; border: 1px solid var(--line); border-bottom-width: 2px; padding: 1px 6px; line-height: 1.5; white-space: nowrap }
+@media (max-width: 1100px) { .hdr-find .t, .hdr-find kbd { display: none } .hdr-find { width: 40px; padding: 0; justify-content: center } }
+
+/* ---------- back bar, footer extras, back to top ---------- */
+.backbar .backbtn { color: var(--orange-link) }
+.ftr-find { display: inline-flex !important; align-items: center; gap: 8px; margin-top: 16px; background: transparent; border: 1px solid rgba(201,210,230,.4); color: #C9D2E6; font: inherit; font-size: 13px; font-weight: 700; padding: 7px 12px; cursor: pointer }
+.ftr-find:hover { border-color: var(--orange); color: #fff }
+.ftr-find kbd { background: transparent; color: #AFC0E4; border-color: rgba(201,210,230,.35) }
+.totop { position: fixed; right: 18px; bottom: 18px; z-index: 60; width: 44px; height: 44px; display: grid; place-items: center; background: var(--navy); color: #fff; border: 0; border-bottom: 3px solid var(--orange); cursor: pointer; box-shadow: 0 6px 18px rgba(0,14,84,.25) }
+.totop:hover { background: var(--orange); border-bottom-color: var(--navy) }
+.screen { animation: cm-fade .18s ease-out }
+@keyframes cm-fade { from { opacity: .35; transform: translateY(4px) } to { opacity: 1; transform: none } }
+
+/* ---------- buttons the design did not define ---------- */
+.button-danger { background: var(--crit); color: #fff; border: 1px solid var(--crit); font-weight: 700; letter-spacing: .8px; padding: 8px 24px }
+.button-danger:hover { background: #991B1B; border-color: #991B1B }
+.button[disabled], .button:disabled { opacity: .5; cursor: not-allowed }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 7px }
+.button.on, .button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy) }
+.pillbtn { border: 0; cursor: pointer; font: inherit }
+.pillbtn:hover { filter: brightness(.95); text-decoration: underline }
+
+/* ---------- rows drawn as buttons keep the design's row look ---------- */
+button.srow { border: 0; border-bottom: 1px solid var(--line); font: inherit; color: inherit }
+button.srow:last-child { border-bottom: 0 }
+
+/* ---------- Home ---------- */
+button.hm-fig { background: none; border: 0; padding: 0; text-align: left; font: inherit; color: inherit; cursor: pointer }
+button.hm-fig:hover .hm-n, button.hm-fig:focus-visible .hm-n { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px }
+button.hm-fig:focus-visible { outline: 3px solid var(--navy); outline-offset: 4px }
+.hm-split { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: var(--sp-3); align-items: start }
+@media (max-width: 900px) { .hm-split { grid-template-columns: minmax(0, 1fr) } }
+.hm-more { justify-content: center; color: var(--orange-link); font-weight: 700; font-size: 14px }
+.hm-panel-h { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--orange-link); margin-bottom: 6px }
+.dlmini:focus-visible, .srow:focus-visible { outline: 3px solid var(--orange); outline-offset: -3px }
+
+/* ---------- Compliance Functions ---------- */
+.mx-rail-h { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+/* the rail lists every facet in full rather than scrolling inside itself */
+.mx-rail { position: static; max-height: none }
+.mx-railadd { width: 24px; height: 24px; display: grid; place-items: center; background: var(--navy); color: #fff; border: 0; cursor: pointer }
+.mx-railadd:hover { background: var(--orange) }
+.mx-chips .count { margin-right: 4px }
+.mx-table { table-layout: fixed }
+.mx-table th { white-space: normal !important; font-size: 12.5px !important; vertical-align: bottom }
+.mx-table th:nth-child(1) { width: 29% } .mx-table th:nth-child(2) { width: 18% } .mx-table th:nth-child(3) { width: 19% } .mx-table th:nth-child(5) { width: 118px !important }
+.mx-table td { overflow-wrap: anywhere }
+.mx-table tbody tr:focus-visible { outline: 3px solid var(--orange); outline-offset: -3px }
+
+/* ---------- Function Detail ---------- */
+.fd-del { color: var(--crit) !important }
+.fd-del:hover { background: var(--crit) !important; color: #fff !important; border-color: var(--crit) !important }
+.rail-rel.all { color: var(--orange-link); font-weight: 700 }
+.operson-n.linkish { background: none; border: 0; padding: 0; font: inherit; font-size: 13px; font-weight: 700; color: #000E54; text-align: left; cursor: pointer }
+.operson-n.linkish:hover { color: var(--orange-link); text-decoration: underline }
+.orole.support .orole-t { color: #0F766E }
+.orole.counsel .orole-t { color: #7C3AED }
+.opick-ad .cm-spin { margin: 0 auto 6px }
+
+/* ---------- Deadlines ---------- */
+.vt { display: flex; gap: 4px }
+.dl-acts { display: flex; justify-content: flex-end; margin: 14px 0 8px }
+.calbar { flex-wrap: wrap }
+
+/* ---------- Directory ---------- */
+.dir-toolbar .count { margin-right: auto }
+.dir-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 4px }
+.dir-stats .stat { padding: 10px 12px }
+.dir-stats .stat .n { font-size: 26px }
+.dir-portlist { max-height: 340px; overflow-y: auto; margin-right: -6px; padding-right: 6px }
+.dir-rail-m { position: static; border: 0; box-shadow: none; padding: 0 }
+.dir-role.t-gc .dot { background: #7C3AED }
+.dir-role.t-sup .dot { background: #0F766E }
+.dir-table tbody tr:focus-visible { outline: 3px solid var(--orange); outline-offset: -3px }
+.rs-list { border: 1px solid var(--line); max-height: 300px; overflow-y: auto }
+.rs-row { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-bottom: 1px solid var(--line); cursor: pointer }
+.rs-row:last-child { border-bottom: 0 }
+.rs-row.on { background: #F4F6FB }
+.rs-row input { margin-top: 3px; accent-color: var(--navy); width: 16px; height: 16px; flex: none }
+
+/* ---------- Executive Team ---------- */
+.et-card { cursor: default }
+.et-open { background: none; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; padding: var(--sp-3) var(--sp-3) 0 }
+.et-t { font-size: 12.5px; color: #5b6373; margin-top: 4px; line-height: 1.35 }
+.et-card .ft { padding: 0 var(--sp-3) var(--sp-3); align-items: center; justify-content: flex-start }
+.et-chip { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700 }
+.et-chip:hover { text-decoration: underline }
+.et-row { border: 1px solid var(--line); margin-bottom: 6px }
+
+/* ---------- Gap Tracker, Risk Dashboard ---------- */
+button.stat { text-align: left; font: inherit; cursor: pointer; width: 100% }
+button.stat:hover { border-color: var(--navy) }
+.gap-grid { grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)) }
+.gcard2 { padding: 15px }
+.gtitle { font-family: var(--font-display); font-weight: 700; color: #000E54; font-size: 15px; line-height: 1.3 }
+.heat td { padding: 0 }
+.heat td.z { padding: 10px 2px }
+.heat-b { display: block; width: 100%; height: 100%; min-height: 46px; background: none; border: 0; font: inherit; font-weight: 700; color: inherit; cursor: pointer }
+.heat-b:focus-visible { outline: 3px solid var(--navy); outline-offset: -3px }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+.signals dt { font-size: 14px }
+
+/* ---------- Reporting ---------- */
+.pbi-live { padding: 0; border: 1px solid var(--line); width: 100%; min-height: 620px }
+ul.plain { list-style: none; margin: 0; padding: 0; font-size: 13px; line-height: 1.5 }
+ul.plain li { padding: 4px 0; border-bottom: 1px solid #EEF0F4 }
+ul.plain li:last-child { border-bottom: 0 }
+
+/* ---------- Flagged for Review ---------- */
+.fl-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--sp-3); margin-top: 22px; align-items: start }
+@media (max-width: 900px) { .fl-split { grid-template-columns: minmax(0, 1fr) } }
+.fl-list { overflow: hidden }
+.fl-h { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--navy); padding: 12px 14px; border-bottom: 3px solid var(--orange) }
+.fl-list .srow.on { background: #F4F6FB; box-shadow: inset 4px 0 0 var(--orange) }
+.fl-list .srow.late .sub { color: #B91C1C }
+.gapbadge.calm { background: var(--navy) }
+.fl-detail { padding: 18px 18px 6px }
+.fl-dh { display: flex; gap: 12px; align-items: flex-start; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 4px; flex-wrap: wrap }
+.fl-dh h2 { font-size: 22px; margin: 4px 0 2px; color: var(--navy) }
+.fl-entry { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid #EEF0F4; flex-wrap: wrap }
+.fl-entry:last-child { border-bottom: 0 }
+.fl-entry.late { box-shadow: inset 3px 0 0 #DC2626; padding-left: 10px }
+.fl-r { font-size: 14px; color: #2b3345; margin: 0 0 4px }
+.fl-late { color: #B91C1C }
+
+/* ---------- Definitions ---------- */
+button.df-stat { border: 0; text-align: left; font: inherit; cursor: pointer }
+button.df-stat:hover .n { color: var(--orange-link) }
+.df-nav-i[aria-current] { font-weight: 700 }
+
+/* ---------- quick jump (Ctrl K) ---------- */
+.pal-scrim { position: fixed; inset: 0; z-index: 200; background: rgba(0,14,84,.45); display: flex; justify-content: center; align-items: flex-start; padding: 10vh 16px 16px }
+.pal { width: 100%; max-width: 640px; background: var(--surface); border-top: 5px solid var(--orange); box-shadow: 0 24px 60px rgba(0,14,84,.35); display: flex; flex-direction: column; max-height: 76vh }
+.pal.pop { animation: cm-fade .14s ease-out }
+.pal-in { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--navy) }
+.pal-in input { flex: 1; min-width: 0; border: 0; outline: 0; font: inherit; font-size: 17px; color: var(--navy); background: transparent; padding: 6px 0 }
+.pal-list { list-style: none; margin: 0; padding: 6px 0; overflow-y: auto }
+.pal-h { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--muted); padding: 10px 16px 4px }
+.pal-i { display: flex; align-items: center; gap: 12px; padding: 9px 16px; cursor: pointer; color: var(--navy) }
+.pal-i.on { background: #F4F6FB; box-shadow: inset 4px 0 0 var(--orange) }
+.pal-i .grow { flex: 1; min-width: 0; display: flex; flex-direction: column }
+.pal-i b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.pal-i small { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.pal-ic { width: 30px; height: 30px; display: grid; place-items: center; background: #F2F4F8; color: var(--navy); flex: none }
+.pal-i.on .pal-ic { background: var(--navy); color: #fff }
+.pal-empty { padding: 18px 16px; color: var(--muted); font-size: 14px }
+.pal-ft { display: flex; gap: 16px; padding: 8px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); flex-wrap: wrap }
+.pal-ft kbd { margin-right: 3px }
+
+@media (prefers-reduced-motion: reduce) { .screen, .pal.pop { animation: none } }
+
+/* the design set these notes in Georgia; the brand serif reads the same and matches the headings */
+.gc-lede, .orole-note { font-family: "ShermanSerif", Georgia, serif }
+/* the bar fills are spans; give them a box so their height applies */
+.bar .tr, .bar .fl { display: block }
+
+code { font-size: .88em; overflow-wrap: anywhere }
+.tabs { overflow-x: auto; scrollbar-width: thin }
+
+/* ---------- phone fixes ---------- */
+@media (max-width: 700px) {
+  .fd-crumb-in { height: auto; min-height: 48px; padding-top: 8px; padding-bottom: 8px; row-gap: 6px }
+  .fd-step .button { flex: 1 }
+  .util-in { height: auto; min-height: 34px; padding-top: 5px; padding-bottom: 5px; row-gap: 2px; overflow: visible }
+  .util .sp { margin-left: 0 }
+  .dlmini { flex-wrap: wrap }
+}

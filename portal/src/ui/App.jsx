@@ -1,10 +1,11 @@
-/* The shell: routing, header, toast. Routes live in the URL hash so the
-   browser's Back button works, a record can be linked to, and the portal home
-   page can deep-link (.../compliance-matrix/#/deadlines) without any Power
-   Pages URL rewriting. There is no footer: the app has none. */
+/* The shell, in the Claude design's look: header, back bar, the screen,
+   footer, toast. Routes live in the URL hash so the browser's Back button
+   works, a record can be linked to, and the portal can deep-link
+   (.../compliance-matrix/#/deadlines, #/functions?q=clery) without any
+   Power Pages URL rewriting. */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AppCtx, Icon, Strip } from "./parts.jsx";
+import { AppCtx, Icon } from "./parts.jsx";
 import { Header, BROWSE, RISK } from "./Header.jsx";
 import { Palette } from "./Palette.jsx";
 import wordmark from "../assets/wordmark-knockout.svg";
@@ -46,10 +47,10 @@ export function buildHash({ screen, fnId, fnNew, person }) {
 }
 
 function Loading({ store }) {
-  return <div className="state wrap">
-    <span className="spin lg" aria-hidden="true"></span>
-    <h2>Loading the Compliance Matrix</h2>
-    <p className="muted">Reading from {store.adapter.label}{store.adapter.name === "sharepoint" ? " through Power Automate. The first load takes a few seconds." : "."}</p>
+  return <div className="page wrap" style={{ paddingTop: 60, paddingBottom: 80, textAlign: "center" }}>
+    <span className="cm-spin lg" aria-hidden="true"></span>
+    <h2 style={{ margin: "16px 0 6px" }}>Loading the Compliance Matrix</h2>
+    <p className="sub">Reading from {store.adapter.label}{store.adapter.name === "sharepoint" ? " through Power Automate. The first load takes a few seconds." : "."}</p>
   </div>;
 }
 
@@ -61,21 +62,23 @@ function LoadError({ store }) {
     ? "Your web role has no Read table permission on one of the Compliance Matrix tables, or Webapi/<table>/enable is not set."
     : "Your web role is not allowed to run the read flow. In Power Pages Set up, Cloud flows, add the role to the flow.");
   if (e.status === 404) hints.push(store.adapter.name === "dataverse" ? "An entity set name does not exist in this environment. Check /_api/$metadata." : "The flow trigger URL in ComplianceMatrix/Flow/Read does not exist.");
-  return <div className="state wrap">
-    <div className="card">
-      <Icon n="alert" s={34} style={{ color: "#B91C1C" }} />
-      <h2>The matrix could not be loaded</h2>
+  return <div className="page wrap" style={{ paddingTop: 48, paddingBottom: 80 }}>
+    <div className="cm-panel" style={{ padding: "36px 28px", maxWidth: 760, margin: "0 auto" }}>
+      <Icon n="alert" s={34} style={{ color: "#DC2626" }} />
+      <h2 style={{ margin: "12px 0 6px" }}>The matrix could not be loaded</h2>
       <p>{e.message || String(e)}</p>
-      {!!hints.length && <ul style={{ margin: "12px 0 0 18px", lineHeight: 1.6 }}>{hints.map(h => <li key={h}>{h}</li>)}</ul>}
+      {!!hints.length && <ul style={{ margin: "12px 0 0 18px", fontSize: 14, lineHeight: 1.6 }}>{hints.map(h => <li key={h}>{h}</li>)}</ul>}
       <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
-        <button className="btn primary" onClick={store.retry}>Try again</button>
-        <a className="btn" href="?backend=sample">Preview with sample data</a>
+        <button className="button button-primary" onClick={store.retry}>Try again</button>
+        <a className="button button-secondary-outline" href="?backend=sample">Preview with sample data</a>
       </div>
     </div>
   </div>;
 }
 
-const blankFilter = { q: "", area: "", domain: "", risk: "", lens: "", page: 1 };
+/* Compliance Functions' filters live here, so a breadcrumb, a Home link or
+   the site header's search can set them: area and domain are ids */
+const blankFilter = { q: "", area: "", domain: "", risk: "", status: "", mine: false, lens: "flat", page: 0 };
 
 /* where a screen sits, for the breadcrumb strip */
 const SECTION = s => (BROWSE.some(i => i.screen === s) ? "Browse" : RISK.some(i => i.screen === s) ? "Risk and Reporting" : "");
@@ -93,34 +96,36 @@ const isThisPage = url => {
   catch (e) { return false; }
 };
 
-/* The app has no footer; this one is a second way round the matrix. */
+/* The design's navy footer, carrying the matrix's own navigation, the
+   site's pages (its web link set) and where the data comes from. */
 function Footer({ go, store, onSearch }) {
   const { cfg, adapter, loadedAt, actions, realAdmin, adminView } = store;
   const L = cfg.links;
-  const link = (s, label) => <button key={s} onClick={() => go(s)}>{label || s}</button>;
+  const link = (s, label) => <a key={s} href={"#/" + (PATHS[s] ?? "")} onClick={e => { e.preventDefault(); go(s); }}>{label || s}</a>;
+  const site = cfg.siteLinks.filter(l => l.url !== "/" && l.url !== L.siteHome && !isThisPage(l.url));
   return <footer className="ftr">
-    <div className="wrap">
-      <div className="ftr-brand">
+    <div className="wrap cols">
+      <div style={{ minWidth: 230, flex: "1 1 260px" }}>
         <img src={wordmark} alt="Syracuse University" />
-        <div className="ftr-unit">Office of Compliance</div>
+        <div className="fh" style={{ marginTop: 16 }}>Compliance and Enterprise Risk Management</div>
         <button className="ftr-find" onClick={onSearch}><Icon n="search" s={15} sw={2} />Search the matrix<kbd>Ctrl K</kbd></button>
       </div>
-      <div className="ftr-col"><h4>Browse</h4>
+      <div><div className="fh">Browse</div>
         {link("Functions", "Compliance Functions")}{link("Deadlines")}{link("Directory")}{link("Executive Team")}{link("Definitions")}</div>
-      <div className="ftr-col"><h4>Risk and Reporting</h4>
+      <div><div className="fh">Risk and Reporting</div>
         {link("Gap Tracker")}{adminView && link("Risk Dashboard")}{adminView && link("Reporting")}{realAdmin && link("Flagged Items")}</div>
-      {cfg.siteLinks.length > 0 && <div className="ftr-col"><h4>This site</h4>
+      {cfg.siteLinks.length > 0 && <div><div className="fh">This site</div>
         <a href={L.siteHome}>Home</a>
-        {cfg.siteLinks.filter(l => l.url !== "/" && l.url !== L.siteHome && !isThisPage(l.url)).map(l =>
-          <a key={l.url} href={l.url} target={l.ext ? "_blank" : undefined} rel={l.ext ? "noopener" : undefined}>{l.name}</a>)}</div>}
-      <div className="ftr-col"><h4>Resources</h4>
+        {site.map(l => <a key={l.url} href={l.url} target={l.ext ? "_blank" : undefined} rel={l.ext ? "noopener" : undefined}>{l.name}</a>)}</div>}
+      <div><div className="fh">Resources</div>
         <a href={L.complianceHome} target="_blank" rel="noopener">Compliance Home Page</a>
-        <a href={L.policies} target="_blank" rel="noopener">Policies</a>
-        <a href={L.reportConcern} target="_blank" rel="noopener">Report a Concern</a></div>
-      <div className="ftr-meta">
+        <a href={L.policies} target="_blank" rel="noopener">University Policies</a>
+        <a href={L.reportConcern} target="_blank" rel="noopener">Report a Concern</a>
+        <a href={L.powerBi} target="_blank" rel="noopener">Power BI Reports</a></div>
+      <div style={{ marginLeft: "auto", fontSize: 12, color: "#7286B4", maxWidth: "30ch" }}>
         {cfg.backend === "sample"
           ? "Preview with sample records. Nothing you change here is saved."
-          : <>Live data from {adapter.label}. Loaded {ago(loadedAt)}. <button onClick={() => actions.refresh()}>Refresh</button></>}
+          : <>Live data from {adapter.label}.<br />Loaded {ago(loadedAt)}. <a href="#" style={{ display: "inline", color: "#AFC0E4" }} onClick={e => { e.preventDefault(); actions.refresh(); }}>Refresh</a></>}
       </div>
     </div>
   </footer>;
@@ -149,7 +154,7 @@ export function App({ store }) {
   useEffect(() => {
     const h = () => {
       const r = parseHash(window.location.hash);
-      if (r.q != null) setFilter({ ...blankFilter, q: r.q });
+      if (r.q != null) setFilter(f => ({ ...blankFilter, lens: f.lens, q: r.q }));
       setRoute(r); window.scrollTo(0, 0);
     };
     window.addEventListener("hashchange", h);
@@ -165,7 +170,7 @@ export function App({ store }) {
   /* go(screen, opts): opts.filter narrows Compliance Functions, opts.person
      opens a Directory drawer */
   const go = useCallback((screen, opts = {}) => {
-    if (screen === "Functions") setFilter(f => ({ ...blankFilter, q: opts.q ?? f.q, lens: f.lens, ...(opts.filter || {}) }));
+    if (screen === "Functions") setFilter(f => ({ ...blankFilter, q: opts.q ?? "", lens: opts.lens || f.lens, ...(opts.filter || {}) }));
     nav({ screen, person: opts.person });
   }, [nav]);
   const openFn = useCallback(f => nav({ fnId: f.id }), [nav]);
@@ -194,10 +199,10 @@ export function App({ store }) {
   else if (route.fnId != null) {
     const fn = ds.fnById.get(String(route.fnId));
     body = fn ? <FunctionDetail f={fn} key={String(fn.id)} />
-      : <div className="state wrap"><div className="card">
+      : <div className="page wrap"><div className="cm-panel" style={{ padding: "40px 24px", textAlign: "center" }}>
         <h2>That function is not in the matrix</h2>
-        <p className="muted" style={{ marginTop: 6 }}>It may have been deleted, or the link is from another environment.</p>
-        <button className="btn" style={{ marginTop: 16 }} onClick={() => go("Functions")}>{"< All functions"}</button></div></div>;
+        <p className="sub" style={{ marginTop: 6 }}>It may have been deleted, or the link is from another environment.</p>
+        <button className="button button-secondary" style={{ marginTop: 16 }} onClick={() => go("Functions")}>Browse functions</button></div></div>;
   } else body = <>
     {s === "Home" && <Home />}
     {s === "Definitions" && <Definitions />}
@@ -215,19 +220,19 @@ export function App({ store }) {
   const toast = store.toast;
   const isHome = !route.fnNew && route.fnId == null && screen === "Home";
   const isFn = route.fnNew || route.fnId != null;
-  /* Function Detail draws its own strip, with Previous and Next record */
-  const crumbs = [
-    ...(SECTION(screen) ? [{ label: SECTION(screen) }] : []),
-    { label: TITLE[s] || TITLE[screen] || screen }
-  ];
+  const section = SECTION(screen);
   const openPalette = () => setPalette(true);
   return <AppCtx.Provider value={ctx}>
     <Header screen={isFn ? "Functions" : screen} go={go} onSearch={openPalette} />
-    {ds && !isHome && !isFn && <Strip crumbs={crumbs} />}
+    {ds && !isHome && !isFn && <div className="backbar"><div className="wrap">
+      <button className="backbtn" onClick={back}><Icon n="arrow-right" s={14} style={{ transform: "rotate(180deg)" }} />Back</button>
+      {section && <span className="sub">{section} /</span>}
+      <span className="sub">{TITLE[s] || TITLE[screen] || screen}</span>
+    </div></div>}
     <div id="cm-main" key={window.location.hash} className="screen">{body}</div>
     {ds && <Footer go={go} store={store} onSearch={openPalette} />}
     {palette && ds && <Palette onClose={() => setPalette(false)} />}
     {topBtn && <button className="totop" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Back to top"><Icon n="up" s={18} sw={2.2} /></button>}
-    {toast && <div className={"toast" + (toast.tone === "error" ? " err" : "")} role="status" aria-live="polite">{toast.msg}</div>}
+    {toast && <div className={"cm-toast" + (toast.tone === "error" ? " err" : "")} role="status" aria-live="polite">{toast.msg}</div>}
   </AppCtx.Provider>;
 }

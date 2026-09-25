@@ -163,7 +163,7 @@ export function useStore(cfg) {
     setOwnership: (fn, rows) => act("own", (a, c) => {
       const existingRowIds = (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(fn.id)).map(o => o.id);
       return a.setOwnership({ fn, rows, existingRowIds }, c);
-    }, null),
+    }, "Ownership chain saved."),
     addPerson: person => act("person", (a, c) => a.addPerson({ person }, c), person.name + " added to the Compliance Directory."),
     updatePerson: person => act("person", (a, c) => a.updatePerson({ person }, c), "Saved."),
     deletePerson: person => act("person-del", (a, c) => a.deletePerson({ person, ownershipRowIds: ownershipRowsFor(person) }, c), person.n + " removed from the directory."),

@@ -19,10 +19,10 @@
     - Search (and Ctrl K or "/" on any page) jumps to a matrix search, or to
       any link in this header
 
-  9d5f49d392c6 is replaced by the build so a new cm-site.css / cm-site.js is
+  394cfd9080b1 is replaced by the build so a new cm-site.css / cm-site.js is
   never served from a stale cache.
 {% endcomment %}{% assign cmh_matrix = settings['ComplianceMatrix/PageUrl'] | default: '/compliance-matrix/' %}{% assign cmh_set = settings['ComplianceMatrix/SiteNavigation'] | default: 'Default' %}{% assign cmh_nav = weblinks[cmh_set] %}{% assign cmh_path = request.path | downcase %}{% assign cmh_matrix_lc = cmh_matrix | downcase %}{% assign cmh_admin_role = settings['ComplianceMatrix/AdminWebRole'] | default: 'Compliance Matrix Administrators' %}{% assign cmh_admin = false %}{% if user %}{% for r in user.roles %}{% if r == cmh_admin_role %}{% assign cmh_admin = true %}{% endif %}{% endfor %}{% endif %}{% assign cmh_in_matrix = false %}{% if cmh_path contains cmh_matrix_lc %}{% assign cmh_in_matrix = true %}{% endif %}{% capture cmh_chev %}<svg class="cmh-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5 12 15.5l6-6"/></svg>{% endcapture %}{% capture cmh_svg %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{% endcapture %}{% capture cmh_end %}"/></svg>{% endcapture %}
-<link rel="stylesheet" href="{{ settings['ComplianceMatrix/SiteCssUrl'] | default: '/cm-site.css' }}?v=9d5f49d392c6">
+<link rel="stylesheet" href="{{ settings['ComplianceMatrix/SiteCssUrl'] | default: '/cm-site.css' }}?v=394cfd9080b1">
 <a class="cmh-skip" href="#mainContent">Skip to main content</a>
 <div class="cmh" id="cmh" data-matrix="{{ cmh_matrix | escape }}">
   <div class="cmh-util">
@@ -111,4 +111,4 @@
     <div class="cmh-find-ft"><span><kbd>&#8593;</kbd> <kbd>&#8595;</kbd> to move</span><span><kbd>Enter</kbd> to open</span><span><kbd>Esc</kbd> to close</span></div>
   </div>
 </div>
-<script src="{{ settings['ComplianceMatrix/SiteJsUrl'] | default: '/cm-site.js' }}?v=9d5f49d392c6" defer></script>
+<script src="{{ settings['ComplianceMatrix/SiteJsUrl'] | default: '/cm-site.js' }}?v=394cfd9080b1" defer></script>

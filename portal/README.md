@@ -1,8 +1,8 @@
 # Compliance Matrix on Power Pages
 
 The Compliance Matrix 2.0 canvas app, rebuilt as a working Power Pages page
-that reads and writes the same data. One page, one URL (`/compliance-matrix/`),
-the app's screens with the app's headers, navigation, wording and access rules:
+that reads and writes the same data. One page, one URL (`/compliance-matrix/`).
+It looks like the Claude design; it is structured like the app:
 
 Home · Definitions · Compliance Functions · Function Detail · Deadlines ·
 Compliance Directory · Executive Team · Gap Tracker · Compliance Risk
@@ -11,61 +11,62 @@ Dashboard · Reporting · Flagged for Review · No Access
 **Look at it first:** open [`dist/preview.html`](dist/preview.html) in a
 browser. It is the real page running on sample records, in memory. Every
 screen and every button works; nothing is saved. The preview signs you in as
-an administrator, so the **View:** menu is there to switch between Admin view,
-User view and View as specific user.
+an administrator, so the **Viewing as** select in the navy strip switches
+between Admin view, User view and any person in the directory.
 
 ---
 
-## Parity with the canvas app
+## Two sources, two jobs
 
-The source of truth is the canvas app export (`Src/*.pa.yaml` inside the
-`.msapp`) and the parity spec written from it. Where the spec gives copy, the
-page uses it exactly; where it is silent, the copy comes from the `.pa.yaml`.
+- **The Claude design is the look.** Its stylesheets are used as they are:
+  brand tokens, the SU Digital Design System (purged to what the page uses),
+  the design's app and detail layers, and the Sherman Sans and Sherman Serif
+  faces, embedded. Every screen is drawn in the design's markup: the navy
+  hero and orange figures band on Home, the facet rail and lenses on
+  Compliance Functions, the record layout with its rail on Function Detail,
+  the month calendar, the directory table with its profile rail, cards,
+  dialogs, heat map and tabs.
+- **The canvas app is the structure.** The source of truth is the app export
+  (`Src/*.pa.yaml` inside the `.msapp`) and the parity spec written from it.
+  It decides which screens exist and where they sit in the navigation, what
+  each one shows and for whom (view modes, scoping, access), how every write
+  reaches the data, and the wording, which is the app's wherever the spec or
+  the `.pa.yaml` gives it.
 
-- **Header on every screen**: a 30 px Navy utility bar (Compliance Home Page,
-  Policies, Definitions; then the administrators' **View:** button and Report a
-  Concern) over a 72 px white bar (Block S, Syracuse University / Compliance
-  Matrix, **Home**, **Browse**, **Risk and Reporting**, **Executive Team**).
-  Every screen but Home has **← Back**. No Power Pages site header or footer.
-- **Colour and width**: the app's `varSU` colours, 1320 px content width with
-  a 24 px minimum gutter.
-- **View mode** (administrators): User view on load; Admin view; View as
-  specific user, which points every "me" figure at that person's email.
+Where the two disagreed, the page follows the app on substance and the design
+on presentation. A few things are this build's own, noted below.
+
+### What comes from where
+
+| | From the app | From the design |
+|---|---|---|
+| Header | Utility links (Compliance Home Page, Policies, Definitions, Report a Concern); Home, Browse, Risk and Reporting, Executive Team; the administrators' view switch | Navy strip, white masthead with the Block S lockup, orange underline on the current section, dropdown menus with descriptions, phone drawer |
+| Home | Figures and lists are the viewer's own functions; "Assigned to you" with role, gaps and flags; deadlines due in 90 days, each with Complete | Hero with search, orange figures band, the four Start here cards, help section |
+| Compliance Functions | Every risk area listed, even an empty one; the owner shown is the first Compliance Owner (+n); administrators add functions and manage risk areas and domains | Facet rail (risk area and domain, rating, record status), lenses (Functions, Risk Areas, Domains, Statutes), filter chips, accordion groups, cards on a phone |
+| Function Detail | Rating shown only in Admin view or to the function's own people; Edit, Delete and Manage people for administrators; Flag, Log a gap, See all deadlines, Add to my calendar, Mark complete for this cycle; the app's validation and delete wording | Breadcrumb with Previous and Next, navy header, inline flag and gap panels, sections, rail with status, actions, legal questions, related |
+| Accountability Structure | The data source's roles (Support where the lists have it; General Counsel per function on SharePoint, per risk area on Dataverse); Primary and Advisory sub-roles | The ownership chain: one container per role, Manage people, a person picker that also searches the university directory |
+| Deadlines | Admin view sees every deadline, everyone else their own; Open, Overdue only, Completed, All; complete or reverse with a reason | Month calendar with names in the day cells, list view, pills, phone cards |
+| Directory | Role order (Executive, Compliance, Unit, Counsel, Support); a person who owns functions cannot be removed until reassigned; reassign moves chosen functions without duplicating a role | Filters, table or cards, profile rail with the portfolio |
+| Executive Team | Derived from the Executive Owner role, sorted by last name or portfolio size; All functions and Due 90d | Cards and the portfolio dialog |
+| Gap Tracker | Scoped like the app; Open, Closed, Not rated, Avg days open | Stat row, open gaps by risk area, gap cards, close dialog |
+| Risk Dashboard, Reporting | Computed from live data (the app hardcodes them); backend-aware wording; the app's model notes | Stats, shaded heat map, bars, signals; tabs for the embedded report, datasets and exports |
+| Flagged for Review | Administrators only; age in business days against a five-day target | Panels, master and detail |
+| Definitions | The app's terms, verbatim | The reading layout with the "On this page" rail |
+
+### This build's own
+
+- **Quick jump**: the Search button, Ctrl K (Cmd K on a Mac) or "/" opens one
+  box that finds a screen, a function (name, statute, citation, ID), a person,
+  or a page elsewhere on the site. Arrow keys move, Enter opens, Esc closes.
+- **Site header and footer** on every other Power Pages page, in the same
+  look, built from the site's web links (see *Deploy*, step 9).
+- Clickable figures and stats (Home figures open the filtered list), a Back
+  bar under the header, "Coming up" under an empty calendar day, back to top
+  on long pages, and short motion that switches off for anyone whose system
+  asks for reduced motion.
 - **Build**: every `<script` inside `cm-matrix.js` is written as `\x3Cscript`,
   because Power Pages injects a CSP nonce into any `<script` text in page
   script. The build checks the file still parses and fails if one is left.
-
-### The design layer
-
-The styles come in two layers. `src/styles/cm.css` is the app: its header,
-bands, screens and colours. `src/styles/design.css` sits on top and brings in
-the Claude design's finish, plus some navigation neither version had:
-
-- **Type**: Syracuse's Sherman Sans and Sherman Serif (embedded), at the
-  design's scale, falling back to the app's Verdana and Georgia. Function
-  titles are set in Sherman Serif.
-- **Header**: the main bar stays on screen as you scroll. The section you are
-  in (Home, Browse, Risk and Reporting, Executive Team) is underlined in
-  orange, and a dot on Risk and Reporting shows there are open gaps.
-- **Quick jump**: the Search button, Ctrl K (Cmd K on a Mac) or "/" opens one
-  box that finds a screen, a function (name, statute, citation, ID) or a
-  person, from anywhere. Arrow keys move, Enter opens, Esc closes.
-- **Breadcrumb strip** under the header on every screen but Home: Back, where
-  you are, and on Function Detail the Previous and Next record buttons.
-- **Compliance Functions**: a Risk rating filter in the rail, which the page's
-  lede already promised, a live "n of m functions" count, removable filter
-  chips, group headings when a lens is on, owner avatars, and a header row
-  that stays in view.
-- **Function Detail**: the next deadline under Deadline and Cadence and in
-  Record Status, icons on the actions, and a "Related in {risk area}" list to
-  move sideways. The right rail stays in view.
-- **Elsewhere**: the Home figures are links, the cards lift on hover, calendar
-  days carry a status dot, heat map cells deepen with their count, and a navy
-  footer repeats the navigation. Back to top appears on long pages.
-- **Motion** is short and soft, and switches off for anyone whose system asks
-  for reduced motion.
-
-All screen copy, the view modes and the access rules below are unchanged.
 
 ### Access, as built
 
@@ -77,7 +78,7 @@ All screen copy, the view modes and the access rules below are unchanged.
 | Risk rating on Function Detail | Admin view, or an owner of the function |
 | Compliance Risk Dashboard, Reporting | administrators in Admin view (see *Open questions*) |
 | Flagged for Review | administrators; everyone else gets No Access |
-| Edit, create, delete a function; the "+" risk area and domain manager; Manage Directory | administrators |
+| Edit, create, delete a function; Manage people; the risk area and domain manager; add, edit, reassign and remove people in the directory | administrators |
 | Flag, log a gap, close a gap, complete or reverse a deadline | everyone, on what they can see |
 
 "Own functions" means every function where the person appears anywhere in the
@@ -366,7 +367,9 @@ src/
     adapters/            sample.js · sharepoint.js · dataverse.js
   ui/                    one file per screen, named for the app's screens;
                          Palette.jsx is the quick jump
-  styles/                cm.css (the app layer), design.css (the design layer),
+  styles/                the Claude design's stylesheets, in its order: tokens.css,
+                         dds.css (purged by the build), app.css, detail.css,
+                         portal.css; then extras.css (this build's additions);
                          fonts.css and fonts/ (Sherman, embedded by the build)
 power-pages/             web template sources: the matrix page, the site header
                          and the site footer
@@ -374,7 +377,7 @@ test/
   data.test.mjs          roll-forward parity, both adapters, the model
   mock-portal.mjs        a strict stand-in for Power Pages, SharePoint flows, Web API
   e2e.mjs                every write, both backends, admin and owner
-  shots.mjs              screenshots of each screen, User and Admin view
+  shots.mjs              screenshots of each screen, User and Admin view (WIDTH=390 for a phone)
 src/site/                the site header and footer: site.css, site.js
 ```
 

@@ -1,274 +1,302 @@
-/* Function Detail (parity spec 2.4, scr_FunctionDetail.pa.yaml): read, edit
-   and create a function. Edit mode is one flat form, ownership included, saved
-   with "Save changes", as in the app. */
+/* Function Detail, in the design's record layout: breadcrumb bar, navy
+   header, inline flag and gap panels, the record in sections, and a rail with
+   status, actions, counsel and related functions. What it shows and who may
+   do what follow the canvas app (scr_FunctionDetail): the risk rating is
+   shown in Admin view or to the function's own people; editing, creating and
+   deleting are administrator actions; the deadlines listed are the ones the
+   viewer's mode shows; "Add to my calendar" and "Mark complete for this
+   cycle" work on those. */
 
-import React, { useMemo, useState } from "react";
-import { Hero, RiskPill, Avatar, Modal, Busy, Icon, Sec, Strip, DuePill, bare, useApp } from "./parts.jsx";
-import { CompletionDialog, useVisibleDeadlines } from "./Completion.jsx";
-import { functionsFor, ROLE_EXEC, ROLE_UNIT, ROLE_COMPLIANCE, ROLE_COUNSEL, SUBROLES } from "../data/model.js";
-import { fmtDate } from "../lib/dates.js";
+import React, { useEffect, useMemo, useState } from "react";
+import { Icon, Avatar, Risk, Field, Empty, Modal, ModalHead, Busy, DuePill, dueState, bare, useApp } from "./parts.jsx";
+import { CompletionDialog, CompleteButton, useVisibleDeadlines } from "./Completion.jsx";
+import { OwnershipChain } from "./Ownership.jsx";
+import { functionsFor, allRows } from "../data/model.js";
+import { fmtDate, fiscalQ } from "../lib/dates.js";
+import { RISK_COLOR, RISK_CHOICES, riskRank } from "../lib/risk.js";
 import { deadlinesIcs, download } from "./exports.js";
 
-const RISKS = ["Not Scored", "Low", "Moderate", "High"];
-const ROLE_ORDER = { [ROLE_EXEC]: 1, [ROLE_UNIT]: 2 };
-const byRole = (a, b) => (ROLE_ORDER[a.role] || 3) - (ROLE_ORDER[b.role] || 3);
+const draftOf = f => f ? { ...f } : {
+  id: null, code: "", name: "", topicId: null, topic: "", areaId: null, area: "", statute: "", citation: "",
+  statuteUrl: "", description: "", reporting: "", deadline: "", resourceLabel: "", resourceUrl: "", risk: "Unrated"
+};
 
-const draftOf = f => f ? {
-  name: f.name, risk: f.risk === "Unrated" ? "Not Scored" : f.risk, topicId: f.topicId == null ? "" : String(f.topicId),
-  areaId: f.areaId == null ? "" : String(f.areaId), statute: f.statute, citation: f.citation, statuteUrl: f.statuteUrl,
-  description: f.description, reporting: f.reporting, deadline: f.deadline, resourceLabel: f.resourceLabel, resourceUrl: f.resourceUrl
-} : { name: "", risk: "Not Scored", topicId: "", areaId: "", statute: "", citation: "", statuteUrl: "", description: "", reporting: "", deadline: "", resourceLabel: "", resourceUrl: "" };
-
-const ownersOf = f => f ? [...f.chain.exec, ...f.chain.unit, ...f.chain.compliance, ...f.chain.support]
-  .map(r => ({ role: r.role, sub: r.sub || "Primary", personId: r.person.id, name: r.person.n })) : [];
-
-/* one group of owner cards: Primary before Advisory, "Not assigned" when empty */
-function OwnerGroup({ label, cls, role, rows }) {
-  const { go } = useApp();
-  const list = [...rows].sort((a, b) => (a.sub === "Primary" ? 0 : 1) - (b.sub === "Primary" ? 0 : 1));
-  return <>
-    <div className={"grp " + cls}>{label}</div>
-    <div className="ocards">{list.length ? list.map(r => <button key={String(r.rowId) + r.person.id} className={"ocard " + cls} onClick={() => go("Directory", { person: r.person.id })}>
-      <Avatar person={r.person} square />
-      <span style={{ minWidth: 0 }}><span className="n">{r.person.n}</span>
-        <span className="r">{(role + " · " + (r.sub || "Primary")).toUpperCase()}</span>
-        <span className="t">{r.person.t}</span><span className="d">{r.person.u}</span><span className="e">{r.person.e}</span></span>
-    </button>) : <div className={"ocard " + cls}><Avatar person={null} square /><span><span className="n">Not assigned</span>
-      <span className="r">{(role + " · ").toUpperCase()}</span></span></div>}</div>
-  </>;
-}
-
-function Edit({ draft, setDraft, owners, setOwners, gc, setGc }) {
-  const { ds, adapter } = useApp();
-  const [pick, setPick] = useState({ personId: "", role: ROLE_COMPLIANCE, sub: "Primary" });
-  const set = (k, v) => setDraft(d => ({ ...d, [k]: v, ...(k === "topicId" ? { areaId: "" } : null) }));
+function EditForm({ d, set }) {
+  const { ds } = useApp();
   const areas = [...ds.topics].sort((a, b) => a.name.localeCompare(b.name));
-  const domains = ds.domains.filter(d => String(d.topicId) === draft.topicId);
-  const people = ds.people;
-  const add = () => {
-    const p = people.find(x => String(x.id) === pick.personId);
-    if (!p) return;
-    if (owners.some(o => String(o.personId) === String(p.id) && o.role === pick.role)) return;
-    setOwners(o => [...o, { role: pick.role, sub: pick.sub, personId: p.id, name: p.n }]);
-  };
-  const text = (k, label, hint) => <><label className="flabel" htmlFor={"fd-" + k}>{label}</label>
-    <input id={"fd-" + k} className="input" value={draft[k] || ""} onChange={e => set(k, e.target.value)} placeholder={hint} /></>;
-  const area = (k, label, hint) => <><label className="flabel" htmlFor={"fd-" + k}>{label}</label>
-    <textarea id={"fd-" + k} className="textarea" style={{ minHeight: 96 }} value={draft[k] || ""} onChange={e => set(k, e.target.value)} placeholder={hint} /></>;
-  return <div className="editf">
-    {text("name", "FUNCTION NAME", "Compliance function")}
-    <label className="flabel" htmlFor="fd-risk">RISK RATING</label>
-    <select id="fd-risk" className="select" style={{ width: 220 }} value={draft.risk} onChange={e => set("risk", e.target.value)}>
-      {RISKS.map(r => <option key={r}>{r}</option>)}</select>
-    <label className="flabel" htmlFor="fd-topic">RISK AREA</label>
-    <select id="fd-topic" className="select" value={draft.topicId} onChange={e => set("topicId", e.target.value)}>
-      <option value=""></option>{areas.map(a => <option key={a.id} value={String(a.id)}>{a.name}</option>)}</select>
-    <label className="flabel" htmlFor="fd-area">COMPLIANCE DOMAIN</label>
-    <select id="fd-area" className="select" value={draft.areaId} onChange={e => set("areaId", e.target.value)} disabled={!draft.topicId}>
-      {!draft.topicId ? <option value="">Select a risk area first</option>
-        : <><option value=""></option>{domains.map(d => <option key={d.id} value={String(d.id)}>{d.name}</option>)}</>}</select>
-
-    <label className="flabel" htmlFor="fd-own-person">OWNERSHIP CHAIN</label>
-    <div className="own-add">
-      <select id="fd-own-person" className="select" value={pick.personId} onChange={e => setPick({ ...pick, personId: e.target.value })} aria-label="Person">
-        <option value=""></option>{people.map(p => <option key={p.id} value={String(p.id)}>{p.n}</option>)}</select>
-      <select className="select" value={pick.role} onChange={e => setPick({ ...pick, role: e.target.value })} aria-label="Role">
-        {adapter.roles.map(r => <option key={r}>{r}</option>)}</select>
-      <select className="select" value={pick.sub} onChange={e => setPick({ ...pick, sub: e.target.value })} aria-label="Sub-role">
-        {SUBROLES.map(r => <option key={r}>{r}</option>)}</select>
-      <button className="btn navy" style={{ minHeight: 40 }} onClick={add} disabled={!pick.personId}>Add owner</button>
-    </div>
-    <ul className="own-list">{[...owners].sort(byRole).map((o, i) => <li key={o.role + o.personId + i}>
-      <span className="grow"><span className="n">{o.name}</span><span className="m">{(o.role + " · " + o.sub).toUpperCase()}</span></span>
-      <button className="btn sm rm" onClick={() => setOwners(list => list.filter(x => x !== o))}>Remove</button></li>)}</ul>
-
-    {adapter.counselPerFunction && <>
-      <label className="flabel" htmlFor="fd-gc">GENERAL COUNSEL (ADVISORY)</label>
-      <select id="fd-gc" className="select" value={gc} onChange={e => setGc(e.target.value)}>
-        <option value=""></option>{people.map(p => <option key={p.id} value={String(p.id)}>{p.n}</option>)}</select></>}
-
-    {text("statute", "STATUTE", "Statute")}
-    {text("citation", "STATUTE CITATION", "Citation")}
-    {text("statuteUrl", "STATUTE URL", "Statute URL")}
-    {area("description", "DESCRIPTION", "Description")}
-    {area("reporting", "REPORTING REQUIREMENT", "Reporting requirement")}
-    {text("deadline", "DEADLINE", "Deadline")}
-    {text("resourceLabel", "SU RESOURCE LABEL", "Resource label")}
-    {text("resourceUrl", "SU RESOURCE URL", "Resource URL")}
-  </div>;
+  const domains = ds.domains.filter(x => String(x.topicId) === String(d.topicId));
+  const text = (k, label, ph) => <div><label className="flab" htmlFor={"fd-" + k}>{label}</label>
+    <input id={"fd-" + k} className="ti" value={d[k] || ""} onChange={e => set({ [k]: e.target.value })} placeholder={ph} /></div>;
+  return <>
+    <Field label="Identification">
+      <div className="frow">
+        {text("name", "Function name", "Compliance function")}
+        <div style={{ flex: "0 0 200px" }}><label className="flab" htmlFor="fd-risk">Risk rating</label>
+          <select id="fd-risk" className="ti" value={d.risk === "Unrated" ? "" : d.risk} onChange={e => set({ risk: e.target.value || "Unrated" })}>
+            {RISK_CHOICES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            {d.risk && d.risk !== "Unrated" && !RISK_CHOICES.some(([v]) => v === d.risk) && <option value={d.risk}>{d.risk} (legacy)</option>}
+          </select></div>
+      </div>
+      <div className="frow">
+        <div><label className="flab" htmlFor="fd-topic">Risk area</label>
+          <select id="fd-topic" className="ti" value={d.topicId ?? ""} onChange={e => { const t = areas.find(x => String(x.id) === e.target.value); set({ topicId: t ? t.id : null, topic: t ? t.name : "", areaId: null, area: "" }); }}>
+            <option value="">Select a risk area</option>
+            {areas.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
+        <div><label className="flab" htmlFor="fd-area">Compliance domain</label>
+          <select id="fd-area" className="ti" value={d.areaId ?? ""} disabled={d.topicId == null} onChange={e => { const x = domains.find(y => String(y.id) === e.target.value); set({ areaId: x ? x.id : null, area: x ? x.name : "" }); }}>
+            <option value="">{d.topicId != null ? (domains.length ? "Select a domain" : "No domains in this risk area") : "Select a risk area first"}</option>
+            {domains.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+      </div>
+    </Field>
+    <Field label="Governing statute">
+      <div className="frow">{text("statute", "Statute", "Statute")}{text("citation", "Statute citation", "Citation")}</div>
+      {text("statuteUrl", "Statute URL", "https://")}
+    </Field>
+    <Field label="What the obligation is"><textarea className="ti" aria-label="Description" value={d.description} onChange={e => set({ description: e.target.value })} placeholder="Description" /></Field>
+    <Field label="Reporting requirement"><textarea className="ti" aria-label="Reporting requirement" value={d.reporting} onChange={e => set({ reporting: e.target.value })} placeholder="Reporting requirement" /></Field>
+    <Field label="Deadline and cadence"><input className="ti" aria-label="Deadline" value={d.deadline} onChange={e => set({ deadline: e.target.value })} placeholder="Deadline" /></Field>
+    <Field label="Syracuse University resource">
+      <div className="frow">{text("resourceLabel", "SU resource label", "Resource label")}{text("resourceUrl", "SU resource URL", "https://")}</div>
+    </Field>
+  </>;
 }
 
 export function FunctionDetail({ f, isNew }) {
-  const { ds, adapter, actions, flash, realAdmin, adminView, actingPerson, go, openFn, busy, today } = useApp();
+  const { ds, adapter, actions, flash, realAdmin, adminView, actingPerson, go, openFn, today } = useApp();
   const visible = useVisibleDeadlines();
-  const [mode, setMode] = useState(isNew ? "New" : "Read");
-  const [panel, setPanel] = useState("");
+  const [mode, setMode] = useState(isNew ? "edit" : "read");
+  const [d, setD] = useState(() => draftOf(f));
+  const [panel, setPanel] = useState(null); // "flag" | "gap" | null
   const [flagText, setFlagText] = useState("");
-  const [gapTitle, setGapTitle] = useState("");
-  const [gapNote, setGapNote] = useState("");
-  const [draft, setDraft] = useState(() => draftOf(f));
-  const [owners, setOwners] = useState(() => ownersOf(f));
-  const [gc, setGc] = useState(() => (f && f.chain.counsel[0] ? String(f.chain.counsel[0].person.id) : ""));
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [gapForm, setGapForm] = useState({ title: "", note: "" });
+  const [confirmDel, setConfirmDel] = useState(false);
   const [completing, setCompleting] = useState(null);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const sorted = useMemo(() => [...ds.fns].sort((a, b) => a.name.localeCompare(b.name)), [ds]);
   const idx = f ? sorted.indexOf(f) : -1;
-  const owns = f && functionsFor(actingPerson, ds.fns).includes(f);
-  const showRisk = adminView || owns;
-  const sameId = x => f && String(x.functionId) === String(f.id);
-  const gaps = f ? ds.gaps.filter(sameId).sort((a, b) => (b.opened || 0) - (a.opened || 0)) : [];
-  const openGaps = gaps.filter(g => g.status === "Open").length;
-  const underReview = f ? ds.flags.some(sameId) : false;
-  const myDeadlines = f ? visible.filter(sameId).filter(d => d.due).sort((a, b) => a.due - b.due) : [];
-  const editing = mode === "Edit" || mode === "New";
-  const RANK = { High: 0, Moderate: 1, Low: 2, Unrated: 3 };
+  const owns = !!f && functionsFor(actingPerson, ds.fns).includes(f);
+  const showRisk = adminView || owns || isNew;
+  const same = x => f && String(x.functionId) === String(f.id);
+  const flag = f ? ds.flags.find(same) : null;
+  const gs = f ? ds.gaps.filter(same).sort((a, b) => (b.opened || 0) - (a.opened || 0)) : [];
+  const openGaps = gs.filter(g => g.open);
+  const dls = f ? visible.filter(same).filter(x => x.due).sort((a, b) => a.due - b.due) : [];
+  const nextDue = dls.find(x => x.status !== "Completed");
   const related = f ? ds.fns.filter(x => x !== f && String(x.topicId) === String(f.topicId))
-    .sort((a, b) => (RANK[a.risk] ?? 4) - (RANK[b.risk] ?? 4) || a.name.localeCompare(b.name)).slice(0, 4) : [];
-
-  const startEdit = () => { setDraft(draftOf(f)); setOwners(ownersOf(f)); setGc(f && f.chain.counsel[0] ? String(f.chain.counsel[0].person.id) : ""); setPanel(""); setMode("Edit"); };
-  const cancel = () => { if (mode === "New") go("Functions"); else { setMode("Read"); setDraft(draftOf(f)); } };
+    .sort((a, b) => riskRank(a.risk) - riskRank(b.risk) || a.name.localeCompare(b.name)).slice(0, 4) : [];
+  const inTopic = f ? ds.fns.filter(x => String(x.topicId) === String(f.topicId)).length : 0;
+  const set = patch => setD(x => ({ ...x, ...patch }));
+  const editing = mode === "edit";
 
   const save = async () => {
-    if (!draft.name.trim() || !draft.topicId || !draft.areaId) { flash("Function name, risk area, and domain are all required.", "error"); return; }
-    const topic = ds.topics.find(t => String(t.id) === draft.topicId);
-    const dom = ds.domains.find(d => String(d.id) === draft.areaId);
-    const body = { ...draft, name: draft.name.trim(), risk: draft.risk === "Not Scored" ? "Unrated" : draft.risk,
-      topicId: topic ? topic.id : null, areaId: dom ? dom.id : null, id: f ? f.id : undefined, code: f ? f.code : undefined };
-    const rows = owners.map(o => ({ personId: o.personId, name: o.name, role: o.role, sub: o.sub }));
-    const gcPerson = adapter.counselPerFunction && gc ? ds.people.find(p => String(p.id) === gc) : null;
-    if (gcPerson) rows.push({ personId: gcPerson.id, name: gcPerson.n, role: ROLE_COUNSEL, sub: "Advisory" });
-    const before = JSON.stringify(f ? [...ownersOf(f).map(o => [o.role, String(o.personId), o.sub]), ...f.chain.counsel.map(r => [ROLE_COUNSEL, String(r.person.id)])].sort() : []);
-    const after = JSON.stringify(rows.map(r => r.role === ROLE_COUNSEL ? [r.role, String(r.personId)] : [r.role, String(r.personId), r.sub]).sort());
+    if (!d.name.trim() || d.topicId == null || d.areaId == null) { flash("Function name, risk area, and domain are all required.", "error"); return; }
     try {
-      const r = await actions.saveFunction(body, mode === "New");
-      const id = mode === "New" ? r.id : f.id;
-      /* Dataverse keeps General Counsel by risk area, so leave its rows alone */
-      if (before !== after) await actions.setOwnership({ id, name: body.name }, adapter.counselPerFunction ? rows : rows.filter(x => x.role !== ROLE_COUNSEL));
-      if (mode === "New") window.location.replace("#/functions/" + encodeURIComponent(id));
-      else setMode("Read");
-    } catch (e) { /* toast */ }
+      const r = await actions.saveFunction({ ...d, name: d.name.trim() }, !!isNew);
+      if (isNew) window.location.replace("#/functions/" + encodeURIComponent(r.id));
+      else setMode("read");
+    } catch (e) { /* the toast says what failed */ }
+  };
+  const cancel = () => { if (isNew) go("Functions"); else { setD(draftOf(f)); setMode("read"); } };
+  const submitFlag = async () => {
+    try { await actions.addFlag(f, flagText.trim()); setPanel(null); setFlagText(""); } catch (e) { /* toast */ }
+  };
+  const submitGap = async () => {
+    try { await actions.logGap(f, { title: gapForm.title.trim(), note: gapForm.note.trim() }); setPanel(null); setGapForm({ title: "", note: "" }); } catch (e) { /* toast */ }
+  };
+  const addToCalendar = () => download("compliance-deadlines-" + String(f.code).replace(/[^A-Za-z0-9-]/g, "") + ".ics",
+    deadlinesIcs(dls, window.location.hostname || "syr.edu"), "text/calendar");
+  const del = async () => {
+    try { await actions.deleteFunction(f); setConfirmDel(false); go("Functions"); } catch (e) { /* toast */ }
   };
 
-  const submitFlag = async () => { try { await actions.addFlag(f, flagText.trim()); setFlagText(""); setPanel(""); } catch (e) { /* toast */ } };
-  const submitGap = async () => { try { await actions.logGap(f, { title: gapTitle.trim(), note: gapNote.trim() }); setGapTitle(""); setGapNote(""); setPanel(""); } catch (e) { /* toast */ } };
-  const addToCalendar = () => download("compliance-deadlines-" + String(f.code).replace(/[^A-Za-z0-9-]/g, "") + ".ics", deadlinesIcs(myDeadlines, window.location.hostname || "syr.edu"), "text/calendar");
-  const del = async () => { try { await actions.deleteFunction(f); setConfirmDelete(false); go("Functions"); } catch (e) { /* toast */ } };
-
-  const title = mode === "New" ? "New function" : (mode === "Edit" ? "Editing - " : "") + (mode === "Edit" ? draft.name : f.name);
+  const title = isNew ? (d.name || "New compliance function") : editing ? "Editing - " + (d.name || f.name) : f.name;
   const counsel = f ? f.counsel : null;
+  const shownRisk = editing ? d.risk : f.risk;
 
-  return <>
-    <Strip crumbs={f ? [
-      { label: "All functions", go: () => go("Functions") },
-      { label: f.topic, go: () => go("Functions", { filter: { area: f.topicId == null ? "" : String(f.topicId) } }) },
-      { label: f.name }
-    ] : [{ label: "All functions", go: () => go("Functions") }, { label: "New function" }]}
-      right={f && <span className="step">
-        <button className="btn sm" disabled={idx <= 0} onClick={() => openFn(sorted[idx - 1])}>Previous</button>
-        <button className="btn sm" disabled={idx < 0 || idx >= sorted.length - 1} onClick={() => openFn(sorted[idx + 1])}>Next record</button>
-      </span>} />
-
-    <Hero className="fdhero" eyebrow={mode === "New" ? "NEW RECORD" : (f.topic + " · " + f.area).toUpperCase()} title={title}>
-      {f && <div className="chips">
-        {showRisk && <RiskPill r={mode === "Edit" ? (draft.risk === "Not Scored" ? "Unrated" : draft.risk) : f.risk} />}
-        <span className="chip">{f.code}</span>
-        {(mode === "Edit" ? draft.statute : f.statute) && <span className="chip">{mode === "Edit" ? draft.statute : f.statute}</span>}
-      </div>}
-    </Hero>
-
-    {panel === "Flag" && <div className="fpanel flag"><div className="wrap">
-      <h3>FLAG THIS FUNCTION FOR REVIEW</h3>
-      <textarea className="textarea" value={flagText} onChange={e => setFlagText(e.target.value)} placeholder="Why does this need review?" aria-label="Why does this need review?" />
-      <div className="row">
-        <Busy busyKey="flag" className="btn primary" style={{ minWidth: 150 }} disabled={!flagText.trim()} onClick={submitFlag}>Submit flag</Busy>
-        <button className="btn ghost" onClick={() => { setFlagText(""); setPanel(""); }}>Cancel</button>
-      </div>
-    </div></div>}
-    {panel === "Gap" && <div className="fpanel gap"><div className="wrap">
-      <h3>LOG A COMPLIANCE GAP</h3>
-      <input className="input" value={gapTitle} onChange={e => setGapTitle(e.target.value)} placeholder="Gap summary - what is out of compliance?" aria-label="Gap summary" />
-      <textarea className="textarea" value={gapNote} onChange={e => setGapNote(e.target.value)} placeholder="Detail and remediation plan" aria-label="Detail and remediation plan" />
-      <div className="row">
-        <Busy busyKey="gap" className="btn medium" style={{ minWidth: 150 }} disabled={!gapTitle.trim()} onClick={submitGap}>Log gap</Busy>
-        <button className="btn ghost" onClick={() => { setGapTitle(""); setGapNote(""); setPanel(""); }}>Cancel</button>
-      </div>
-    </div></div>}
-
-    <div className="wrap fdgrid">
-      <div className="fdmain">
-        {editing ? <Edit draft={draft} setDraft={setDraft} owners={owners} setOwners={setOwners} gc={gc} setGc={setGc} /> : <>
-          <div className="fdsec"><Sec>GOVERNING STATUTE</Sec>
-            <dl className="kvs"><dt>Statute</dt><dd>{f.statute}</dd><dt>Citation</dt><dd>{f.citation}</dd>
-              <dt>Reference</dt><dd>{f.statuteUrl ? <a href={f.statuteUrl} target="_blank" rel="noopener">{bare(f.statuteUrl)}</a> : ""}</dd></dl></div>
-          <div className="fdsec"><Sec>WHAT THE OBLIGATION IS</Sec><p className="txt">{f.description}</p></div>
-          <div className="fdsec"><Sec>REPORTING REQUIREMENT</Sec><p className="txt">{f.reporting}</p></div>
-          <div className="fdsec"><Sec>DEADLINE AND CADENCE</Sec><p className="txt">{f.deadline}</p>
-            {myDeadlines.map(d => <div className="dlcard" key={d.id}><Icon n="clock" s={18} />
-              <span className="grow"><b>{d.title}</b><small>{fmtDate(d.due)} {"\u00B7"} {d.cadence}</small></span>
-              <DuePill dl={d} today={today} /></div>)}</div>
-          <div className="fdsec"><Sec>ACCOUNTABILITY STRUCTURE</Sec>
-            <div className="owners">
-              <OwnerGroup label="EXECUTIVE OWNERS" cls="exec" role={ROLE_EXEC} rows={f.chain.exec} />
-              <OwnerGroup label="UNIT OWNERS" cls="unit" role={ROLE_UNIT} rows={f.chain.unit} />
-              <OwnerGroup label="COMPLIANCE OWNERS" cls="comp" role={ROLE_COMPLIANCE} rows={f.chain.compliance} />
-            </div></div>
-          <div className="fdsec"><Sec>GAP HISTORY ({gaps.length})</Sec>
-            {gaps.length ? <div className="gaps">{gaps.map(g => <div className="gapcard" key={g.id}>
-              <div className="top"><span className={"st" + (g.status === "Closed" ? " closed" : "")}>{g.status.toUpperCase()}</span><span className="t">{g.title}</span></div>
-              {g.note && <p className="note">{g.note}</p>}
-            </div>)}</div> : <p className="fdempty">No gaps recorded against this function.</p>}</div>
-          <div className="fdsec res"><Sec>SYRACUSE UNIVERSITY RESOURCE</Sec>
-            {f.resourceUrl ? <><a href={f.resourceUrl} target="_blank" rel="noopener">{f.resourceLabel || bare(f.resourceUrl)}</a><div className="u">{bare(f.resourceUrl)}</div></>
-              : f.resourceLabel ? <p className="txt">{f.resourceLabel}</p> : null}</div>
-        </>}
-      </div>
-
-      <aside className="fdrail">
-        {f && <div className="rcard"><h3>RECORD STATUS</h3>
-          <dl className="kvs">
-            {showRisk && <><dt>Risk rating</dt><dd>{f.risk === "Unrated" ? "Not Rated" : f.risk}</dd></>}
-            <dt>Open gaps</dt><dd>{openGaps}</dd>
-            {myDeadlines[0] && <><dt>Next deadline</dt><dd>{fmtDate(myDeadlines[0].due)}<br /><DuePill dl={myDeadlines[0]} today={today} /></dd></>}
-            <dt>Under review</dt><dd>{underReview ? "Yes" : "No"}</dd>
-            <dt>Last reviewed</dt><dd>{f.lastReviewed ? fmtDate(f.lastReviewed) : ""}</dd>
-          </dl></div>}
-        {f && <div className="rcard gc"><h3>GENERAL COUNSEL</h3>
-          <div className="gcn"><b>{counsel ? counsel.n : "Not assigned"}</b>Advisory</div>
-          {counsel && counsel.e && <a href={"mailto:" + counsel.e} style={{ fontWeight: 700, fontSize: 13 }}>{counsel.e}</a>}
+  return <div className="fd">
+    <div className="fd-crumb">
+      <div className="wrap fd-crumb-in">
+        <button className="crumb-back" onClick={() => go("Functions")}><Icon n="arrow-right" s={14} style={{ transform: "rotate(180deg)" }} />All functions</button>
+        {f && <><span className="crumb-sep">/</span>
+          <button className="crumb-link" onClick={() => go("Functions", { filter: { area: f.topicId == null ? "" : String(f.topicId) } })}>{f.topic}</button></>}
+        <span className="crumb-sep">/</span>
+        <span className="crumb-here">{isNew ? "New function" : f.name}</span>
+        {f && <div className="fd-step">
+          <button className="button button-ghost button-sm" disabled={idx <= 0} onClick={() => openFn(sorted[idx - 1])}>Previous</button>
+          <button className="button button-ghost button-sm" disabled={idx < 0 || idx >= sorted.length - 1} onClick={() => openFn(sorted[idx + 1])}>Next record</button>
         </div>}
-        <div className="rcard"><h3>TAKE ACTION</h3>
-          <div className="actions">
-            {realAdmin && (editing
-              ? <Busy busyKey={busy === "own" ? "own" : "fn"} className="save" onClick={save}>{mode === "New" ? "Create function" : "Save changes"}</Busy>
-              : <button onClick={startEdit}><Icon n="edit" s={16} />Edit this record</button>)}
-            {editing && <button className="cancel" onClick={cancel}>Cancel</button>}
-            {!editing && <>
-              <button className={panel === "Flag" ? "on" : ""} onClick={() => setPanel(p => (p === "Flag" ? "" : "Flag"))}><Icon n="flag" s={16} />Flag for review</button>
-              <button className={"gap" + (panel === "Gap" ? " on" : "")} onClick={() => setPanel(p => (p === "Gap" ? "" : "Gap"))}><Icon n="warning" s={16} />Log a gap</button>
-              <button onClick={() => go("Deadlines")}><Icon n="calendar" s={16} />See all deadlines</button>
-              <button disabled={!myDeadlines.length} onClick={addToCalendar}><Icon n="plus" s={16} />Add to my calendar</button>
-              <button className="cmp" disabled={!myDeadlines.length} onClick={() => setCompleting(myDeadlines[0])}><Icon n="check" s={16} />Mark complete for this cycle</button>
-              {realAdmin && <button className="del" onClick={() => setConfirmDelete(true)}><Icon n="trash" s={16} />Delete this function</button>}
-            </>}
-          </div>
-        </div>
-        {f && related.length > 0 && !editing && <div className="rcard"><h3>RELATED IN {f.topic.toUpperCase()}</h3>
-          <ul className="related">{related.map(x => <li key={x.id}><button onClick={() => openFn(x)}><span>{x.name}</span><RiskPill r={x.risk} /></button></li>)}</ul>
-          {ds.fns.filter(x => String(x.topicId) === String(f.topicId)).length > related.length + 1 &&
-            <button className="linkbtn" onClick={() => go("Functions", { filter: { area: String(f.topicId) } })}>All of {f.topic} <Icon n="arrow" s={13} sw={2.2} /></button>}
-        </div>}
-      </aside>
+      </div>
     </div>
 
-    {confirmDelete && <Modal className="danger" onClose={() => setConfirmDelete(false)} label="Delete this function?">
-      <h2>Delete this function?</h2>
-      <p className="body">This will permanently remove "{f.name}" and everything attached to it: {ds.allDeadlines.filter(sameId).length} deadline(s), {ds.gaps.filter(sameId).length} gap(s), and {ds.allFlags.filter(sameId).length} flag(s). A copy of each is written to the archive first. This cannot be undone.</p>
-      <div className="mfoot">
-        <Busy busyKey="fn-del" className="btn danger" style={{ minWidth: 220, minHeight: 46 }} onClick={del}>Delete permanently</Busy>
-        <button className="btn" style={{ minWidth: 140, minHeight: 46 }} onClick={() => setConfirmDelete(false)}>Cancel</button>
+    <div className="fd-head">
+      <div className="wrap">
+        <div className="eyebrow" style={{ color: "#FF8E00" }}>{isNew ? "Administrator · New record" : f.topic + " · " + f.area}</div>
+        <h1>{title}</h1>
+        <div className="fd-tags">
+          {showRisk && <Risk r={shownRisk} />}
+          {f && <span className="fd-chip">ID {f.code}</span>}
+          {(editing ? d.statute : f.statute) && <span className="fd-chip">{editing ? d.statute : f.statute}</span>}
+          {openGaps.length > 0 && <span className="gapbadge">{openGaps.length} open {openGaps.length === 1 ? "gap" : "gaps"}</span>}
+          {flag && <span className="flagb"><Icon n="flag" s={11} sw={2.2} />Flagged for review</span>}
+        </div>
+        {editing && <div className="fd-actions">
+          <Busy busyKey="fn" className="button button-primary" onClick={save}><Icon n="check" s={15} />{isNew ? "Create function" : "Save changes"}</Busy>
+          <button className="button button-secondary-outline fd-onnavy" onClick={cancel}>Cancel</button>
+        </div>}
+      </div>
+    </div>
+    <div className="fd-rule"></div>
+
+    {panel === "flag" && <div className="fd-panel">
+      <div className="wrap">
+        <div className="fd-panel-t"><Icon n="flag" s={16} />Flag this function for review</div>
+        <label className="flab" htmlFor="fd-flag">Why does this need review?</label>
+        <textarea id="fd-flag" className="ti" autoFocus value={flagText} onChange={e => setFlagText(e.target.value)} placeholder="For example, the citation may be superseded by a new rule." />
+        <div className="note" style={{ marginTop: 10 }}>Flagging notifies the compliance office and adds this function to the review queue.</div>
+        <div className="fd-panel-a">
+          <Busy busyKey="flag" className="button button-primary" disabled={!flagText.trim()} onClick={submitFlag}><Icon n="flag" s={15} />Submit flag</Busy>
+          <button className="button button-secondary-outline" onClick={() => { setFlagText(""); setPanel(null); }}>Cancel</button>
+        </div>
+      </div>
+    </div>}
+
+    {panel === "gap" && <div className="fd-panel gap">
+      <div className="wrap">
+        <div className="fd-panel-t"><Icon n="alert" s={16} />Log a compliance gap</div>
+        <label className="flab" htmlFor="fd-gap-t">Gap summary</label>
+        <input id="fd-gap-t" className="ti" autoFocus value={gapForm.title} onChange={e => setGapForm({ ...gapForm, title: e.target.value })} placeholder="What is out of compliance?" />
+        <label className="flab" htmlFor="fd-gap-n" style={{ marginTop: 12 }}>Detail and remediation plan</label>
+        <textarea id="fd-gap-n" className="ti" value={gapForm.note} onChange={e => setGapForm({ ...gapForm, note: e.target.value })} placeholder="What was found, how it was identified, and what happens next." />
+        <div className="note" style={{ marginTop: 10 }}>Opens a gap on this function and routes it to the Gap Tracker{f.owner.none ? "" : " and to " + f.owner.n}.</div>
+        <div className="fd-panel-a">
+          <Busy busyKey="gap" className="button button-danger" disabled={!gapForm.title.trim()} onClick={submitGap}><Icon n="alert" s={15} />Log gap</Busy>
+          <button className="button button-secondary-outline" onClick={() => { setGapForm({ title: "", note: "" }); setPanel(null); }}>Cancel</button>
+        </div>
+      </div>
+    </div>}
+
+    <div className="wrap fd-body">
+      <main className="fd-main">
+        {flag && !editing && <div className="note fd-flagnote">
+          <b>Flagged for review</b> by {flag.by}{flag.at ? " on " + fmtDate(flag.at) : ""}: {flag.reason}
+          {realAdmin && <div style={{ marginTop: 8 }}><Busy busyKey={"flag-" + flag.id} className="button button-secondary-outline button-sm" onClick={() => actions.resolveFlag(flag, f).catch(() => null)}><Icon n="check" s={13} />Clear flag</Busy></div>}
+        </div>}
+
+        {editing ? <>
+          {isNew
+            ? <div className="note" style={{ marginBottom: 18 }}><b>New function.</b> Create the record first; then add its people with <b>Manage people</b> in the Accountability Structure.</div>
+            : <div className="note" style={{ marginBottom: 18 }}><b>Editing.</b> Deadlines read their owner and risk from this function, so they follow any change you save here.</div>}
+          <EditForm d={d} set={set} />
+        </> : <>
+          <Field label="Governing statute">
+            <dl className="kv">
+              <dt>Statute</dt><dd>{f.statute || <span className="sub">Not recorded</span>}</dd>
+              <dt>Citation</dt><dd>{f.citation || <span className="sub">Not recorded</span>}</dd>
+              <dt>Reference</dt><dd>{f.statuteUrl ? <a href={f.statuteUrl} target="_blank" rel="noopener">{bare(f.statuteUrl)} <Icon n="ext" s={12} style={{ verticalAlign: -1 }} /></a> : <span className="sub">No link recorded</span>}</dd>
+            </dl>
+          </Field>
+          <Field label="What the obligation is"><p>{f.description || <span className="sub">No description recorded.</span>}</p></Field>
+          <Field label="Reporting requirement"><p>{f.reporting || <span className="sub">No reporting requirement recorded.</span>}</p></Field>
+          <Field label="Deadline and cadence">
+            <p style={{ marginBottom: dls.length ? 12 : 0 }}>{f.deadline || <span className="sub">No deadline narrative recorded.</span>}</p>
+            {dls.map(x => {
+              const st = dueState(x, today);
+              return <div key={x.id} className="dlrow" style={{ background: st.cls === "late" ? "#FFF7F7" : "#fff" }}>
+                <Icon n="clock" s={15} style={{ color: "#707780" }} />
+                <div style={{ flex: 1, minWidth: 140 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: "#000E54" }}>{x.title}</div>
+                  <div className="sub">{fmtDate(x.due)} {"·"} {fiscalQ(x.due)} {"·"} {x.cadence}{x.status === "Completed" && x.lastDone ? " · completed " + fmtDate(x.lastDone) : ""}</div></div>
+                <DuePill dl={x} today={today} />
+                <CompleteButton dl={x} />
+              </div>;
+            })}
+          </Field>
+          <OwnershipChain f={f} admin={realAdmin} />
+          <Field label={"Gap history (" + gs.length + ")"}>
+            {gs.length ? gs.map(g => <div key={g.id} className="gaprow" style={{ borderLeftColor: g.open ? (RISK_COLOR[g.severity] || "#DC2626") : "#16A34A" }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <span className={"pill " + (g.open ? "late" : "ok")}>{g.status}</span>
+                <span className="sub">{g.code}{g.opened ? " · opened " + fmtDate(g.opened) : ""}{g.closed ? " · closed " + fmtDate(g.closed) : ""}</span></div>
+              <div style={{ fontSize: 13.5, fontWeight: 600, color: "#000E54", marginTop: 6 }}>{g.title}</div>
+              {(g.open ? g.note : (g.closeNote || g.note)) && <p style={{ fontSize: 13, color: "#5b6373", marginTop: 4 }}>{g.open ? g.note : (g.closeNote || g.note)}</p>}
+            </div>) : <Empty title="No gaps recorded" sub={'Nothing has been logged against this function. Use "Log a gap" if you find something out of compliance.'} />}
+          </Field>
+          <Field label="Syracuse University resource">
+            {f.resourceUrl ? <>
+              <a href={f.resourceUrl} target="_blank" rel="noopener" style={{ fontSize: 14, fontWeight: 600 }}>{f.resourceLabel || bare(f.resourceUrl)} <Icon n="ext" s={12} style={{ verticalAlign: -1 }} /></a>
+              <div className="sub" style={{ marginTop: 3 }}>{bare(f.resourceUrl)}</div>
+            </> : f.resourceLabel ? <div style={{ fontSize: 14, fontWeight: 600 }}>{f.resourceLabel}</div>
+              : <span className="sub">No university resource recorded.</span>}
+          </Field>
+        </>}
+      </main>
+
+      {f && <aside className="fd-rail">
+        <div className="rail-card">
+          <div className="rail-t">Record status</div>
+          <dl className="rail-kv">
+            {showRisk && <><dt>Risk rating</dt><dd><Risk r={f.risk} /></dd></>}
+            <dt>Open gaps</dt><dd>{openGaps.length ? <span className="gapbadge">{openGaps.length}</span> : <span className="sub">None</span>}</dd>
+            <dt>Next deadline</dt><dd>{nextDue ? <><div style={{ fontWeight: 600, color: "#000E54", fontSize: 13 }}>{fmtDate(nextDue.due)}</div><DuePill dl={nextDue} today={today} /></> : <span className="sub">None scheduled</span>}</dd>
+            <dt>Under review</dt><dd>{flag ? <span className="flagb"><Icon n="flag" s={11} sw={2.2} />Yes</span> : <span className="sub">No</span>}</dd>
+            <dt>Last reviewed</dt><dd className="sub">{f.lastReviewed ? fmtDate(f.lastReviewed) : "Not recorded"}</dd>
+          </dl>
+        </div>
+        {!editing && <div className="rail-card">
+          <div className="rail-t">Take action</div>
+          <div className="rail-acts">
+            {realAdmin && <button className="button button-secondary-outline button-sm" onClick={() => { setD(draftOf(f)); setPanel(null); setMode("edit"); }}><Icon n="edit" s={14} />Edit this record</button>}
+            <button className={"button button-secondary-outline button-sm" + (panel === "flag" ? " on" : "")} aria-pressed={panel === "flag"} onClick={() => setPanel(p => p === "flag" ? null : "flag")}><Icon n="flag" s={14} />Flag for review</button>
+            <button className="button button-danger-outline button-sm" aria-pressed={panel === "gap"} onClick={() => setPanel(p => p === "gap" ? null : "gap")}><Icon n="alert" s={14} />Log a gap</button>
+            <button className="button button-ghost button-sm" onClick={() => go("Deadlines")}><Icon n="calendar" s={14} />See all deadlines</button>
+            <button className="button button-ghost button-sm" disabled={!dls.length} onClick={addToCalendar} title={dls.length ? "Download the deadlines as a calendar file" : "No deadlines to add"}><Icon n="plus" s={14} />Add to my calendar</button>
+            <button className="button button-ghost button-sm" disabled={!dls.length} onClick={() => setCompleting(nextDue || dls[0])}><Icon n="check" s={14} />Mark complete for this cycle</button>
+            {realAdmin && <button className="button button-ghost button-sm fd-del" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
+          </div>
+        </div>}
+        <div className="rail-card gc">
+          <div className="rail-t">Legal questions</div>
+          {counsel ? <>
+            <div className="gc-lede">General Counsel (Advisory) for {adapter.counselPerFunction ? "this function" : f.topic}. Reach out before responding to a regulator, signing an agreement, or interpreting the statute.</div>
+            <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 12 }}>
+              <Avatar person={counsel} size={40} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 700, color: "#000E54", fontSize: 13.5, lineHeight: 1.3 }}>{counsel.n}</div>
+                {counsel.t && <div style={{ fontSize: 12, color: "#5b6373", marginTop: 3, lineHeight: 1.35 }}>{counsel.t}</div>}
+                {counsel.e && <a href={"mailto:" + counsel.e} style={{ fontSize: 12, display: "inline-block", marginTop: 5, wordBreak: "break-all" }}>{counsel.e}</a>}
+              </div></div>
+            {counsel.e && <a className="gc-esc" href={"mailto:" + counsel.e + "?subject=" + encodeURIComponent("Legal question: " + f.code + " " + f.name)}>Email a question about this function</a>}
+          </> : <div className="gc-lede">No General Counsel is assigned to this function yet.{realAdmin && adapter.counselPerFunction ? " Add one with Manage people." : ""}</div>}
+        </div>
+        {!!related.length && !editing && <div className="rail-card quiet">
+          <div className="rail-t">Related in {f.topic}</div>
+          {related.map(x => <button key={x.id} className="rail-rel" onClick={() => openFn(x)}>
+            <span>{x.name}</span><Risk r={x.risk} />
+          </button>)}
+          {inTopic > related.length + 1 && <button className="rail-rel all" onClick={() => go("Functions", { filter: { area: String(f.topicId) } })}>
+            <span>All {inTopic} in {f.topic}</span><Icon n="arrow-right" s={14} /></button>}
+        </div>}
+      </aside>}
+    </div>
+
+    {confirmDel && <Modal onClose={() => setConfirmDel(false)} size="sm" label="Delete this function?">
+      <ModalHead onClose={() => setConfirmDel(false)} eyebrow="Administrator" title="Delete this function?" sub={"ID " + f.code + " · " + f.name} />
+      <div className="mbd">
+        <p>This will permanently remove "{f.name}" and everything attached to it:</p>
+        <ul style={{ margin: "10px 0 0 18px", fontSize: 14, lineHeight: 1.7 }}>
+          <li>{ds.allDeadlines.filter(same).length} deadline(s)</li>
+          <li>{gs.length} gap(s)</li>
+          <li>{ds.allFlags.filter(same).length} flag(s)</li>
+          <li>{allRows(f).length} ownership assignment(s)</li>
+        </ul>
+        <div className="note" style={{ marginTop: 14 }}>A copy of each is written to the archive first. This cannot be undone.</div>
+      </div>
+      <div className="mft">
+        <Busy busyKey="fn-del" className="button button-danger" onClick={del}><Icon n="trash" s={15} />Delete permanently</Busy>
+        <button className="button button-secondary-outline" onClick={() => setConfirmDel(false)}>Cancel</button>
       </div>
     </Modal>}
     {completing && <CompletionDialog dl={completing} onClose={() => setCompleting(null)} />}
-  </>;
+  </div>;
 }

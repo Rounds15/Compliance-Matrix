@@ -1,7 +1,10 @@
-/* Flagged for Review (parity spec 2.11, scr_Flags.pa.yaml), administrators only. */
+/* Flagged for Review (scr_Flags), administrators only, drawn with the
+   design's panels: stats, a list of flagged functions (oldest first) and the
+   selected function's flags, each resolvable. Age is counted in business
+   days, as the app's AgeBiz does, against a five business day target. */
 
 import React, { useMemo, useState } from "react";
-import { Hero, Busy, useApp } from "./parts.jsx";
+import { Icon, PageHead, Stat, Empty, Busy, useApp } from "./parts.jsx";
 import { dayDiff, fmtDate } from "../lib/dates.js";
 
 /* business days open, as the app's AgeBiz computes it */
@@ -29,39 +32,42 @@ export function Flags() {
   const sel = byFn.find(g => String(g.fn.id) === selId) || byFn[0] || null;
   const entries = sel ? [...sel.flags].sort((a, b) => (a.at || 0) - (b.at || 0)) : [];
   const resolve = async x => { try { await actions.resolveFlag(x, sel.fn); } catch (e) { /* toast */ } };
+  const late = open.filter(x => x.age > 5).length;
 
-  return <>
-    <Hero eyebrow="RISK AND REPORTING" title="Flagged for Review"
-      lede="Functions with open flags from owners. The response target is five business days from the flag date. Functions clear from this list when their last open flag is resolved." />
-    <div className="wrap">
-      <div className="stats three">
-        <div className="stat cap"><b>{byFn.length}</b><span className="l">FUNCTIONS FLAGGED</span></div>
-        <div className="stat cap tone-od"><b>{open.length}</b><span className="l">OPEN FLAGS</span></div>
-        <div className="stat cap tone-od"><b>{open.filter(x => x.age > 5).length}</b><span className="l">PAST 5 BUSINESS DAYS</span></div>
-      </div>
-      <div className="flags">
-        <div className="master">
-          <div className="hd">FLAGGED FUNCTIONS</div>
-          {byFn.length ? <ul>{byFn.map(g => <li key={g.fn.id}>
-            <button className={(sel === g ? "on" : "") + (g.oldest > 5 ? " late" : "")} onClick={() => setSelId(String(g.fn.id))}>
-              <span className="grow"><span className="n">{g.fn.name}</span><span className="m">{g.fn.topic}</span></span>
-              <span className="cnt">{g.flags.length}</span></button></li>)}</ul>
-            : <p className="empty">No open flags.</p>}
-        </div>
-        <div className="detail">
-          {sel ? <>
-            <div className="hd"><div className="grow"><h2>{sel.fn.name}</h2>
-              <div className="m">{sel.fn.topic} {sel.flags.length} {sel.flags.length === 1 ? "open flag" : "open flags"}</div></div>
-              <button className="btn navy" onClick={() => openFn(sel.fn)}>Open function</button></div>
-            {entries.map(x => <div className={"entry" + (x.age > 5 ? " late" : "")} key={x.id}>
-              <div className="grow"><p className="r">{x.reason}</p>
-                <p className="by">Flagged by {x.by} on {x.at ? fmtDate(x.at) : ""}</p>
-                <p className="age">{x.age} {x.age === 1 ? "business day open" : "business days open"}</p></div>
-              <Busy busyKey={"flag-" + x.id} className="btn primary" onClick={() => resolve(x)}>Resolve</Busy>
-            </div>)}
-          </> : <p className="empty">Select a function on the left to review its flags.</p>}
-        </div>
-      </div>
+  return <div className="page wrap">
+    <PageHead eyebrow="Risk and Reporting · Administrator" title="Flagged for Review"
+      sub="Functions with open flags from owners. The response target is five business days from the flag date. Functions clear from this list when their last open flag is resolved." />
+    <div className="cm-grid g-stat">
+      <Stat n={byFn.length} l="Functions flagged" />
+      <Stat n={open.length} l="Open flags" tone={open.length ? "warn" : null} />
+      <Stat n={late} l="Past 5 business days" tone={late ? "bad" : null} />
     </div>
-  </>;
+    {!byFn.length ? <div style={{ marginTop: 22 }}><Empty title="No open flags" sub="Anyone can flag a function for review from its detail page." /></div>
+      : <div className="fl-split">
+        <div className="cm-panel fl-list">
+          <div className="fl-h">Flagged functions</div>
+          {byFn.map(g => <button key={g.fn.id} className={"srow" + (sel === g ? " on" : "") + (g.oldest > 5 ? " late" : "")} onClick={() => setSelId(String(g.fn.id))} aria-pressed={sel === g}>
+            <div style={{ flex: 1, minWidth: 0 }}><div className="fname">{g.fn.name}</div>
+              <div className="sub">{g.fn.topic} {"·"} oldest {g.oldest} {g.oldest === 1 ? "business day" : "business days"}</div></div>
+            <span className={"gapbadge" + (g.oldest > 5 ? "" : " calm")}>{g.flags.length}</span>
+          </button>)}
+        </div>
+        <div className="cm-panel fl-detail">
+          <div className="fl-dh">
+            <div style={{ flex: 1, minWidth: 0 }}><div className="eyebrow">{sel.fn.topic}</div>
+              <h2>{sel.fn.name}</h2>
+              <div className="sub">{sel.flags.length} {sel.flags.length === 1 ? "open flag" : "open flags"}</div></div>
+            <button className="button button-secondary-outline button-sm" onClick={() => openFn(sel.fn)}>Open function <Icon n="arrow-right" s={13} /></button>
+          </div>
+          {entries.map(x => <div key={x.id} className={"fl-entry" + (x.age > 5 ? " late" : "")}>
+            <Icon n="flag" s={17} style={{ color: x.age > 5 ? "#DC2626" : "#F76900", marginTop: 2, flex: "none" }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p className="fl-r">{x.reason}</p>
+              <div className="sub">Flagged by {x.by}{x.at ? " on " + fmtDate(x.at) : ""} {"·"} <b className={x.age > 5 ? "fl-late" : ""}>{x.age} {x.age === 1 ? "business day open" : "business days open"}</b></div>
+            </div>
+            <Busy busyKey={"flag-" + x.id} className="button button-primary button-sm" onClick={() => resolve(x)}><Icon n="check" s={13} />Resolve</Busy>
+          </div>)}
+        </div>
+      </div>}
+  </div>;
 }

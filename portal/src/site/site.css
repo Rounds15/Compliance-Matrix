@@ -33,9 +33,10 @@
 
 /* ---- utility bar ---- */
 .cmh-util { background: var(--cm-navy); }
-.cmh-util .cmh-wrap { display: flex; align-items: center; min-height: 30px; gap: 4px; flex-wrap: wrap; }
-.cmh-util a, .cmh-util > .cmh-wrap > div > button { display: inline-flex; align-items: center; height: 30px; padding: 0 10px; color: var(--cm-line); font-size: 12px; font-weight: 700; white-space: nowrap; }
-.cmh-util a:hover, .cmh-util button:hover { color: #fff; text-decoration: underline; }
+.cmh-util .cmh-wrap { display: flex; align-items: center; min-height: 34px; gap: 12px; flex-wrap: wrap; }
+.cmh-util a, .cmh-util > .cmh-wrap > div > button { display: inline-flex; align-items: center; height: 34px; padding: 0 10px; color: #C9D2E6; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.cmh-util a:hover, .cmh-util button:hover { color: var(--cm-orange); text-decoration: underline; }
+.cmh-me { text-transform: none !important; letter-spacing: 0 !important; }
 .cmh-util-l, .cmh-util-r { display: flex; align-items: center; flex-wrap: wrap; }
 .cmh-util-l > :first-child { padding-left: 0; }
 .cmh-util-r { margin-left: auto; position: relative; }
@@ -46,16 +47,17 @@
 /* ---- main bar ---- */
 .cmh-bar { background: #fff; border-bottom: 1px solid var(--cm-line); position: sticky; top: 0; z-index: 1030; transition: box-shadow .2s var(--cm-ease); }
 .cmh-bar.is-scrolled { box-shadow: 0 6px 18px rgba(0, 14, 84, .1); border-bottom-color: transparent; }
-.cmh-bar .cmh-wrap { display: flex; align-items: center; height: 72px; gap: 12px; }
+.cmh-bar .cmh-wrap { display: flex; align-items: center; height: 76px; gap: 12px; }
 .cmh-lockup { display: flex; align-items: center; gap: 10px; color: var(--cm-navy) !important; min-width: 0; }
-.cmh-logo { width: 54px; height: 72px; flex: none; background: var(--cm-logo) center / contain no-repeat; transition: transform .25s var(--cm-ease); }
+.cmh-logo { width: 38px; height: 50px; flex: none; background: var(--cm-logo) center / contain no-repeat; transition: transform .25s var(--cm-ease); }
 .cmh-lockup:hover .cmh-logo { transform: rotate(-4deg) scale(1.04); }
-.cmh-lockup b { display: block; font-size: 20px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
-.cmh-lockup small { display: block; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
-.cmh-nav { display: flex; margin-left: auto; height: 72px; gap: 2px; }
+.cmh-lockup b { display: block; font-size: 18px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+.cmh-lockup small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.cmh-nav { display: flex; margin-left: auto; height: 76px; gap: 2px; }
 .cmh-item { position: relative; display: flex; }
-.cmh-top { position: relative; display: flex; align-items: center; gap: 7px; height: 72px; padding: 0 13px; color: var(--cm-navy) !important; font-size: 15px; font-weight: 700; white-space: nowrap; transition: color .15s; }
-.cmh-top svg { width: 20px; height: 20px; }
+.cmh-top { position: relative; display: flex; align-items: center; gap: 7px; height: 76px; padding: 0 13px; color: var(--cm-navy) !important; font-size: 15px; font-weight: 700; white-space: nowrap; transition: color .15s; }
+.cmh-top svg { width: 18px; height: 18px; color: var(--cm-orange); }
+.cmh-top .cmh-chev { color: currentColor; }
 .cmh-top .cmh-chev { width: 14px; height: 14px; opacity: .6; transition: transform .2s var(--cm-ease); }
 .cmh-top[aria-expanded="true"] .cmh-chev { transform: rotate(180deg); }
 .cmh-top::after { content: ""; position: absolute; left: 13px; right: 13px; bottom: 0; height: 3px; background: var(--cm-orange); transform: scaleX(0); transition: transform .22s var(--cm-ease); }
@@ -64,7 +66,7 @@
 .cmh-top.is-here, .cmh-top[aria-expanded="true"] { color: var(--cm-orange-dark) !important; }
 .cmh-top.is-here::after, .cmh-top[aria-expanded="true"]::after { transform: scaleX(1); }
 
-.cmh-panel { position: absolute; top: 72px; right: 0; width: 440px; background: #fff; border-top: 3px solid var(--cm-orange); box-shadow: var(--cm-shadow); z-index: 1040; animation: cmh-pop .16s var(--cm-ease) both; transform-origin: top right; }
+.cmh-panel { position: absolute; top: 76px; right: 0; width: 440px; background: #fff; border-top: 3px solid var(--cm-orange); box-shadow: var(--cm-shadow); z-index: 1040; animation: cmh-pop .16s var(--cm-ease) both; transform-origin: top right; }
 .cmh-panel[hidden] { display: none; }
 .cmh-panel.is-wide { width: 660px; display: grid; grid-template-columns: 1fr 1fr; }
 .cmh-panel.is-wide[hidden] { display: none; }
@@ -86,10 +88,10 @@
 .cmh-cta svg { transition: transform .2s var(--cm-ease); }
 .cmh-cta:hover svg { transform: translateX(4px); }
 
-.cmh-findbtn { display: inline-flex !important; align-items: center; gap: 8px; height: 40px; padding: 0 10px 0 12px !important; margin-left: 8px !important; background: var(--cm-paper) !important; border: 1px solid var(--cm-line) !important; color: var(--cm-muted) !important; font-size: 14px; border-radius: 4px; transition: border-color .15s, color .15s; }
+.cmh-findbtn { display: inline-flex !important; align-items: center; gap: 8px; height: 40px; padding: 0 10px 0 12px !important; margin-left: 8px !important; background: #fff !important; border: 1px solid var(--cm-line-strong) !important; color: var(--cm-navy) !important; font-size: 14px; font-weight: 700; border-radius: 0; transition: border-color .15s, color .15s; }
 .cmh-findbtn:hover { border-color: var(--cm-navy) !important; color: var(--cm-navy) !important; background: #fff !important; }
 .cmh-findbtn .t { min-width: 60px; text-align: left; }
-.cmh kbd, .cmh-find kbd { font: 700 10px/1 var(--cm-ui); letter-spacing: .04em; padding: 3px 5px; border: 1px solid currentColor; opacity: .6; border-radius: 3px; background: none; color: inherit; box-shadow: none; }
+.cmh kbd, .cmh-find kbd { font: 700 11px/1.5 var(--cm-ui); letter-spacing: .04em; padding: 1px 6px; border: 1px solid var(--cm-line); border-bottom-width: 2px; border-radius: 0; background: #F2F4F8; color: var(--cm-muted); box-shadow: none; }
 .cmh-hamb { display: none !important; align-items: center; justify-content: center; width: 44px; height: 40px; border: 1px solid var(--cm-line-strong) !important; color: var(--cm-navy) !important; }
 
 .cmh-menu { position: absolute; top: 30px; right: 0; width: 240px; background: #fff; border-top: 3px solid var(--cm-orange); box-shadow: var(--cm-shadow); z-index: 1050; animation: cmh-pop .16s var(--cm-ease) both; }
@@ -132,7 +134,7 @@
   .cmh-hamb { display: inline-flex !important; }
   .cmh-findbtn { margin-left: auto !important; }
   .cmh-findbtn .t, .cmh-findbtn kbd { display: none; }
-  .cmh-nav.is-open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; height: auto; max-height: calc(100vh - 80px); overflow-y: auto; background: #fff; box-shadow: 0 12px 24px rgba(0, 14, 84, .12); padding: 0 24px 12px; }
+  .cmh-nav.is-open { display: flex; flex-direction: column; position: absolute; top: 76px; left: 0; right: 0; height: auto; max-height: calc(100vh - 80px); overflow-y: auto; background: #fff; box-shadow: 0 12px 24px rgba(0, 14, 84, .12); padding: 0 24px 12px; }
   .cmh-nav.is-open .cmh-item { flex-direction: column; }
   .cmh-nav.is-open .cmh-top { height: 52px; padding: 0; }
   .cmh-nav.is-open .cmh-top::after { display: none; }

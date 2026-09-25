@@ -3,7 +3,7 @@
    person in the directory, and goes there. Arrow keys move, Enter opens. */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Icon, Avatar, RiskPill, useApp } from "./parts.jsx";
+import { Icon, Avatar, Risk, useApp } from "./parts.jsx";
 import { BROWSE, RISK } from "./Header.jsx";
 
 const SCREENS = [
@@ -11,7 +11,7 @@ const SCREENS = [
   ...BROWSE,
   { screen: "Executive Team", title: "Executive Team", desc: "Executive owners and their portfolios", icon: "users" },
   ...RISK,
-  { screen: "Definitions", title: "Definitions", desc: "The vocabulary of the matrix", icon: "list" }
+  { screen: "Definitions", title: "Definitions", desc: "The vocabulary of the matrix", icon: "book" }
 ];
 
 export function Palette({ onClose }) {
@@ -72,7 +72,7 @@ export function Palette({ onClose }) {
             <li id={"pal-" + i} role="option" aria-selected={i === sel} data-sel={i === sel}
               className={"pal-i" + (i === sel ? " on" : "")} onMouseEnter={() => setSel(i)} onMouseDown={e => { e.preventDefault(); run(it); }}>
               {it.s && <><span className="pal-ic"><Icon n={it.s.icon} s={18} /></span><span className="grow"><b>{it.s.title}</b><small>{it.s.desc}</small></span></>}
-              {it.f && <><span className="pal-ic"><Icon n="dots" s={18} /></span><span className="grow"><b>{it.f.name}</b><small>{it.f.topic} {"·"} {it.f.statute || it.f.area}</small></span><RiskPill r={it.f.risk} /></>}
+              {it.f && <><span className="pal-ic"><Icon n="list" s={18} /></span><span className="grow"><b>{it.f.name}</b><small>{it.f.topic} {"·"} {it.f.statute || it.f.area}</small></span><Risk r={it.f.risk} /></>}
               {it.l && <><span className="pal-ic"><Icon n="ext" s={16} /></span><span className="grow"><b>{it.l.name}</b><small>{it.l.url}</small></span></>}
               {it.p && <><Avatar person={it.p} size={30} /><span className="grow"><b>{it.p.n}</b><small>{[it.p.t, it.p.u].filter(Boolean).join(" · ") || it.p.e}</small></span></>}
               <Icon n="enter" s={15} style={{ opacity: i === sel ? .6 : 0 }} />

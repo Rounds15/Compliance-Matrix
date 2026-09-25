@@ -12,7 +12,7 @@ const browser = await chromium.launch({ executablePath: exe });
 
 const USER = [["home", ""], ["definitions", "definitions"], ["functions", "functions"], ["detail", "functions/CF-3020"],
   ["deadlines", "deadlines"], ["directory", "directory"], ["executives", "executives"], ["gaps", "gaps"], ["noaccess", "risk"]];
-const ADMIN = [["admin-risk", "risk"], ["admin-reporting", "reporting"], ["admin-flags", "flags"], ["admin-gaps", "gaps"]];
+const ADMIN = [["admin-risk", "risk"], ["admin-reporting", "reporting"], ["admin-flags", "flags"], ["admin-gaps", "gaps"], ["admin-functions", "functions"], ["admin-detail", "functions/CF-3020"], ["admin-deadlines", "deadlines"], ["admin-directory", "directory"]];
 
 const page = await browser.newPage({ viewport: { width, height: 900 } });
 const errors = [];
@@ -27,8 +27,7 @@ const shoot = async (name, hash) => {
   await page.screenshot({ path: join(out, name + ".png"), fullPage: true });
 };
 for (const [n, h] of USER) await shoot(n, h);
-await page.click("text=View: User");
-await page.click("text=Admin view");
+await page.selectOption(".util-role select", "Admin");
 for (const [n, h] of ADMIN) await shoot(n, h);
 await browser.close();
 if (errors.length) { console.log(errors.join("\n")); process.exit(1); }

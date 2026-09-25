@@ -1,296 +1,272 @@
-/* Compliance Directory (parity spec 2.6, scr_Directory.pa.yaml): people cards,
-   the person drawer, and Manage Directory for administrators (add, edit,
-   remove, and reassign ownership from one person to another). */
+/* Compliance Directory, in the design's layout: filters, a people table (or
+   cards) and a profile rail with contact details and the ownership
+   portfolio. The data and the administrator tools follow the canvas app
+   (scr_Directory): the role shown is the first one the person holds, in the
+   app's order; a person who still owns functions cannot be removed until
+   their ownership is reassigned; reassigning moves the chosen functions from
+   one person to another without duplicating a role the new person already
+   holds. */
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Hero, Icon, Avatar, Modal, Busy, SearchBox, useApp } from "./parts.jsx";
-import { allRows, functionsFor, samePerson, ROLE_EXEC, ROLE_UNIT, ROLE_COMPLIANCE, ROLE_COUNSEL, ROLE_SUPPORT } from "../data/model.js";
+import { Icon, Avatar, Risk, PageHead, Empty, Modal, ModalHead, Busy, useMedia, useApp } from "./parts.jsx";
+import { allRows, functionsFor, roleOn, samePerson, ROLE_EXEC, ROLE_UNIT, ROLE_COMPLIANCE, ROLE_COUNSEL, ROLE_SUPPORT } from "../data/model.js";
+import { PersonPicker } from "./Ownership.jsx";
 
-const byName = (a, b) => a.n.localeCompare(b.n);
-const matches = (p, q) => { const t = q.trim().toLowerCase(); return !t || (p.n + " " + p.e).toLowerCase().includes(t); };
+const ROLE_ORDER = [[ROLE_EXEC, "exec"], [ROLE_COMPLIANCE, "own"], [ROLE_UNIT, "unit"], [ROLE_COUNSEL, "gc"], [ROLE_SUPPORT, "sup"]];
+const CONTACT = "Directory Contact";
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-/* the drawer eyebrow: the first role the person holds, in the app's order */
-function dirRole(p, fns) {
-  const holds = role => fns.some(f => allRows(f).some(r => r.role === role && samePerson(r.person, p)));
-  for (const [role, label] of [[ROLE_EXEC, "EXECUTIVE OWNER"], [ROLE_COMPLIANCE, "COMPLIANCE OWNER"], [ROLE_UNIT, "UNIT OWNER"], [ROLE_COUNSEL, "GENERAL COUNSEL"], [ROLE_SUPPORT, "SUPPORT"]]) {
-    if (holds(role)) return label;
-  }
-  return "DIRECTORY CONTACT";
+/* the first role the person holds, in the canvas app's order */
+export function chainRole(p, fns) {
+  for (const [role] of ROLE_ORDER) if (fns.some(f => allRows(f).some(r => r.role === role && samePerson(r.person, p)))) return role;
+  return CONTACT;
 }
+const TONE = Object.fromEntries([...ROLE_ORDER.map(([r, t]) => [r, t]), [CONTACT, "none"]]);
+export const RoleTag = ({ role }) => <span className={"dir-role t-" + TONE[role]}><span className="dot"></span>{role}</span>;
+
+/* the functions a person owns in the chain proper (the app's "assigned functions" figure) */
 const chainFns = (p, fns) => fns.filter(f => [...f.chain.exec, ...f.chain.unit, ...f.chain.compliance].some(r => samePerson(r.person, p)));
 
-/* The person drawer, shared with Executive Team. */
-export function PersonDrawer({ person, eyebrow, stats, portfolio, toggle, onClose, onEdit }) {
-  const { openFn } = useApp();
-  useEffect(() => {
-    const h = e => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", h);
-    return () => document.removeEventListener("keydown", h);
-  }, [onClose]);
-  return <>
-    <div className="scrim" onClick={onClose}></div>
-    <div className="drawer" role="dialog" aria-modal="true" aria-label={person.n}>
-      <div className="drawer-l">
-        <div className="who"><Avatar person={person} size={75} />
-          <div><div className="role">{eyebrow}</div><h2>{person.n}</h2><div className="jt">{person.t}</div></div></div>
-        <div className="dstats"><div><b>{stats[0]}</b><span>ASSIGNED FUNCTIONS</span></div><div><b>{stats[1]}</b><span>RISK AREAS</span></div></div>
-        <div className="kv"><div className="eb">CONTACT</div>
-          <dl><dt>UNIT</dt><dd>{person.u}</dd><dt>EMAIL</dt><dd>{person.e}</dd><dt>PHONE</dt><dd>{person.ph}</dd><dt>LOCATION</dt><dd>{person.l}</dd></dl></div>
-        <div className="dactions">
-          <a className="btn email" href={"mailto:" + person.e}>Email</a>
-          {onEdit && <button className="btn" onClick={onEdit}>Edit</button>}
-        </div>
-      </div>
-      <div className="drawer-r">
-        <button className="btn sm x" onClick={onClose} aria-label="Close">X</button>
-        <div className="eb">OWNERSHIP PORTFOLIO</div>
-        {toggle}
-        <ul className="portfolio">{portfolio.map(x => <li key={x.key}><button onClick={() => openFn(x.fn)}>
-          <span className="n">{x.line1}</span><span className={"m" + (x.due ? " due" : "")}>{x.line2}</span></button></li>)}</ul>
-      </div>
-    </div>
-  </>;
-}
-
-/* ---------------- Manage Directory ---------------- */
-function AddStep({ back }) {
+function EditPerson({ person, onClose }) {
   const { ds, actions, adapter } = useApp();
-  const [q, setQ] = useState("");
-  /* without a people lookup (no find-person flow, or Dataverse), a name and
-     email are entered by hand */
-  const [hits, setHits] = useState(adapter.canSearchPeople ? undefined : null);
-  const [manual, setManual] = useState({ name: "", email: "" });
-  useEffect(() => {
-    const t = q.trim();
-    if (!adapter.canSearchPeople) return undefined;
-    if (t.length < 3) { setHits(undefined); return undefined; }
-    let live = true;
-    const timer = setTimeout(async () => {
-      try {
-        const r = await actions.searchPeople(t);
-        if (!live) return;
-        const words = t.toLowerCase().split(/\s+/).filter(Boolean);
-        setHits(r === null ? null : r.filter(u => words.every(w => (u.name + " " + (u.email || "")).toLowerCase().includes(w))));
-      } catch (e) { if (live) setHits([]); }
-    }, 300);
-    return () => { live = false; clearTimeout(timer); };
-  }, [q, actions, adapter]);
-  const already = email => ds.people.some(p => p.e && email && p.e.toLowerCase() === email.toLowerCase());
-  const add = async u => { try { await actions.addPerson({ name: u.name, email: u.email, title: u.title, unit: u.unit, phone: u.phone, location: u.location, netid: u.netid }); } catch (e) { /* toast */ } };
-  return <>
-    <button className="btn sm back" onClick={back}>{"←"} Back</button>
-    {hits === null ? <>
-      <label className="flabel" htmlFor="dir-add-name">DISPLAY NAME</label>
-      <input id="dir-add-name" className="input" value={manual.name} onChange={e => setManual({ ...manual, name: e.target.value })} />
-      <label className="flabel" htmlFor="dir-add-mail">EMAIL</label>
-      <input id="dir-add-mail" className="input" value={manual.email} onChange={e => setManual({ ...manual, email: e.target.value })} placeholder="name@syr.edu" />
-      {already(manual.email.trim()) && <div className="warn">Another person already uses that email.</div>}
-      <div className="mfoot"><Busy busyKey="person" className="btn primary" style={{ minWidth: 140, minHeight: 46 }}
-        disabled={!manual.name.trim() || !EMAIL.test(manual.email.trim()) || already(manual.email.trim())}
-        onClick={() => add({ name: manual.name.trim(), email: manual.email.trim() }).then(() => setManual({ name: "", email: "" }))}>Add</Busy></div>
-    </> : <>
-      <label className="flabel" htmlFor="dir-add-q">SEARCH SYRACUSE UNIVERSITY DIRECTORY</label>
-      <input id="dir-add-q" className="input" value={q} onChange={e => setQ(e.target.value)} placeholder="Type a name or NetID" autoFocus />
-      <div className="hint">{q.trim().length < 3 ? "Enter at least 3 characters." : ""}</div>
-      {Array.isArray(hits) && <ul className="rows">{hits.map(u => <li key={u.email || u.name}>
-        <span className="grow"><span className="n">{u.name}</span><span className="m">{u.email || "No email in M365"}</span></span>
-        <Busy busyKey="person" className="btn sm" disabled={!u.email || already(u.email)} onClick={() => add(u)}>{already(u.email) ? "Already in" : "Add"}</Busy>
-      </li>)}</ul>}
-    </>}
-  </>;
-}
-
-function PersonList({ label, q, setQ, note, rows }) {
-  return <>
-    <label className="flabel" htmlFor="dir-find">{label}</label>
-    <input id="dir-find" className="input" value={q} onChange={e => setQ(e.target.value)} placeholder="Type a name or email" autoFocus />
-    {note && <div className="hint">{note}</div>}
-    <ul className="rows">{rows}</ul>
-  </>;
-}
-
-function EditStep({ start, back }) {
-  const { ds, actions } = useApp();
-  const [q, setQ] = useState("");
-  const [p, setP] = useState(start || null);
-  const [d, setD] = useState(start ? { name: start.n, email: start.e } : null);
-  if (!p) return <>
-    <button className="btn sm back" onClick={back}>{"←"} Back</button>
-    <PersonList label="FIND THE PERSON TO EDIT" q={q} setQ={setQ} rows={ds.people.filter(x => matches(x, q)).map(x => <li key={x.id}>
-      <span className="grow"><span className="n">{x.n}</span><span className="m">{x.e || "No email on record"}</span></span>
-      <button className="btn sm" onClick={() => { setP(x); setD({ name: x.n, email: x.e }); }}>Edit</button></li>)} />
-  </>;
-  const n = functionsFor(p, ds.fns).length;
-  const dup = ds.people.some(x => x.id !== p.id && x.e && x.e.trim().toLowerCase() === d.email.trim().toLowerCase());
-  const nameChanged = d.name.trim() !== p.n.trim();
-  const unchanged = !nameChanged && d.email.trim() === (p.e || "").trim();
-  const note = dup ? "Another person already uses that email." : nameChanged && n > 0 ? `This person owns ${n} function(s). Renaming is safe now, because ownership is by reference.` : "";
+  const rich = adapter.name !== "sharepoint"; // the SharePoint directory holds name and email only
+  const [d, setD] = useState({ name: person.n, email: person.e || "", title: person.t, unit: person.u, phone: person.ph, location: person.l });
+  const n = functionsFor(person, ds.fns).length;
+  const dup = ds.people.some(x => x.id !== person.id && x.e && x.e.trim().toLowerCase() === d.email.trim().toLowerCase());
+  const renamed = d.name.trim() !== person.n.trim();
+  const ok = d.name.trim() && EMAIL.test(d.email.trim()) && !dup;
   const save = async () => {
-    try {
-      await actions.updatePerson({ id: p.id, name: d.name.trim(), email: d.email.trim(), title: p.t, unit: p.u, phone: p.ph, location: p.l });
-      if (start) back(); else setP(null);
-    } catch (e) { /* toast */ }
+    try { await actions.updatePerson({ id: person.id, ...d, name: d.name.trim(), email: d.email.trim() }); onClose(); } catch (e) { /* toast */ }
   };
-  return <>
-    <button className="btn sm back" onClick={() => (start ? back() : setP(null))}>{"←"} Back</button>
-    <label className="flabel" htmlFor="dir-ed-name">DISPLAY NAME</label>
-    <input id="dir-ed-name" className="input" value={d.name} onChange={e => setD({ ...d, name: e.target.value })} />
-    <label className="flabel" htmlFor="dir-ed-mail">EMAIL</label>
-    <input id="dir-ed-mail" className="input" value={d.email} onChange={e => setD({ ...d, email: e.target.value })} placeholder="name@syr.edu" />
-    {note && <div className="warn">{note}</div>}
-    <div className="mfoot"><Busy busyKey="person" className="btn primary" style={{ minWidth: 140, minHeight: 46 }}
-      disabled={!d.name.trim() || unchanged || dup} onClick={save}>Save changes</Busy></div>
-  </>;
+  const input = (k, label, ph) => <div><label className="flab" htmlFor={"pe-" + k}>{label}</label>
+    <input id={"pe-" + k} className="ti" value={d[k] || ""} placeholder={ph} onChange={e => setD({ ...d, [k]: e.target.value })} /></div>;
+  return <Modal onClose={onClose} size="sm" label="Edit directory record">
+    <ModalHead onClose={onClose} eyebrow="Manage Directory" title="Edit directory record" sub={person.n} />
+    <div className="mbd">
+      <div className="frow">{input("name", "Display name")}{input("email", "Email", "name@syr.edu")}</div>
+      {rich && <><div className="frow">{input("title", "Title")}{input("unit", "Unit")}</div>
+        <div className="frow">{input("phone", "Phone")}{input("location", "Location")}</div></>}
+      {dup ? <p className="sub" style={{ color: "#B91C1C" }}>Another person already uses that email.</p>
+        : renamed && n > 0 ? <p className="sub">This person owns {n} function(s). Renaming is safe now, because ownership is by reference.</p>
+          : <p className="sub">Ownership assignments point at this record, so they follow the change.</p>}
+    </div>
+    <div className="mft"><Busy busyKey="person" className="button button-primary" disabled={!ok} onClick={save}><Icon n="check" s={15} />Save changes</Busy>
+      <button className="button button-secondary-outline" onClick={onClose}>Cancel</button></div>
+  </Modal>;
 }
 
-function DeleteStep({ back }) {
-  const { ds, actions, flash } = useApp();
-  const [q, setQ] = useState("");
-  const [confirm, setConfirm] = useState(null);
-  const remove = async p => {
-    const n = functionsFor(p, ds.fns).length;
-    if (n > 0) { flash(`Cannot remove ${p.n}. They still own ${n} function(s). Reassign their ownership first.`, "error"); return; }
-    if (confirm !== p.id) { setConfirm(p.id); return; }
-    try { await actions.deletePerson(p); setConfirm(null); } catch (e) { /* toast */ }
-  };
-  return <>
-    <button className="btn sm back" onClick={back}>{"←"} Back</button>
-    <PersonList label="FIND THE PERSON TO REMOVE" q={q} setQ={setQ} note="A person who still owns functions cannot be removed."
-      rows={ds.people.filter(x => matches(x, q)).map(x => <li key={x.id}>
-        <span className="grow"><span className="n">{x.n}</span>
-          <span className="m">{(x.e || "No email on record") + " " + functionsFor(x, ds.fns).length + " function(s)"}</span></span>
-        <Busy busyKey="person-del" className={"btn sm" + (confirm === x.id ? " danger" : "")} onClick={() => remove(x)}>{confirm === x.id ? "Confirm?" : "Remove"}</Busy></li>)} />
-  </>;
-}
-
-function SwapStep({ back, addPerson }) {
-  const { ds, actions, busy } = useApp();
-  const [q, setQ] = useState("");
-  const [out, setOut] = useState(null);
-  const [pick, setPick] = useState([]);
-  const [step, setStep] = useState("");
-  const [inQ, setInQ] = useState("");
-  const [into, setInto] = useState(null);
-  const fns = out ? functionsFor(out, ds.fns).sort((a, b) => a.name.localeCompare(b.name)) : [];
-  const rolesOn = f => [[f.chain.exec, "Executive Owner"], [f.chain.unit, "Unit Owner"], [f.chain.compliance, "Compliance Owner"]]
-    .filter(([rows]) => rows.some(r => samePerson(r.person, out))).map(([, l]) => l).join(" ");
-  const goBack = () => {
-    if (step === "In") { setStep(""); setInto(null); }
-    else if (out) { setOut(null); setPick([]); }
-    else back();
-  };
-  const run = async () => {
-    try { await actions.reassign(out, into, pick); setPick([]); setStep(""); setInto(null); } catch (e) { /* toast */ }
-  };
-  const allOn = pick.length === fns.length && pick.length > 0;
-  return <>
-    <button className="btn sm back" onClick={goBack}>{"←"} Back</button>
-    {!out && <PersonList label="WHO IS GIVING UP OWNERSHIP" q={q} setQ={setQ} rows={ds.people.filter(x => matches(x, q)).map(x => <li key={x.id}>
-      <button className="hit" onClick={() => { setOut(x); setPick([]); }}><span className="n">{x.n}</span>
-        <span className="m">{functionsFor(x, ds.fns).length} function(s)</span></button></li>)} />}
-    {out && step !== "In" && <>
-      <div className="fname" style={{ fontSize: 15 }}>{out.n}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6 }}>
-        <span className="hint" style={{ margin: 0, flex: 1 }}>{pick.length} of {fns.length} selected</span>
-        <button className="btn sm" onClick={() => setPick(allOn ? [] : fns.map(f => f.id))}>{allOn ? "Clear all" : "Select all"}</button>
+function Reassign({ person, onClose }) {
+  const { ds, actions } = useApp();
+  const fns = useMemo(() => functionsFor(person, ds.fns).sort((a, b) => a.name.localeCompare(b.name)), [person, ds]);
+  const [pick, setPick] = useState(() => fns.map(f => String(f.id)));
+  const [to, setTo] = useState(null);
+  const rolesOn = f => [[f.chain.exec, ROLE_EXEC], [f.chain.unit, ROLE_UNIT], [f.chain.compliance, ROLE_COMPLIANCE], [f.chain.counsel, ROLE_COUNSEL], [f.chain.support, ROLE_SUPPORT]]
+    .filter(([rows]) => rows.some(r => samePerson(r.person, person))).map(([, l]) => l).join(", ");
+  const allOn = pick.length === fns.length && fns.length > 0;
+  const toggle = id => setPick(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+  const run = async () => { try { await actions.reassign(person, to, pick); onClose(); } catch (e) { /* toast */ } };
+  return <Modal onClose={onClose} label="Reassign ownership">
+    <ModalHead onClose={onClose} eyebrow="Manage Directory" title={"Reassign ownership from " + person.n} sub={fns.length + " function(s)"} />
+    <div className="mbd">
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+        <span className="sub" style={{ flex: 1 }}>{pick.length} of {fns.length} selected</span>
+        <button className="button button-ghost button-sm" onClick={() => setPick(allOn ? [] : fns.map(f => String(f.id)))}>{allOn ? "Clear all" : "Select all"}</button>
       </div>
-      <ul className="rows">{fns.map(f => {
-        const on = pick.some(x => String(x) === String(f.id));
-        return <li key={f.id}><button className="hit" style={{ display: "flex", gap: 12, alignItems: "flex-start" }} aria-pressed={on}
-          onClick={() => setPick(p => (on ? p.filter(x => String(x) !== String(f.id)) : [...p, f.id]))}>
-          <span className={"check" + (on ? " on" : "")}>{on && <Icon n="check" s={12} sw={3} />}</span>
-          <span className="grow"><span className="n">{f.name}</span><span className="r">{rolesOn(f)}</span><span className="m">{f.topic}</span></span>
-        </button></li>;
-      })}</ul>
-      {pick.length > 0 && <div className="mfoot"><button className="btn primary" style={{ minWidth: 150, minHeight: 46 }} onClick={() => { setStep("In"); setInQ(""); }}>Continue {"→"}</button></div>}
-    </>}
-    {out && step === "In" && <>
-      <label className="flabel" htmlFor="dir-in">WHO IS TAKING OVER {pick.length} FUNCTION(S)</label>
-      <div style={{ display: "flex", gap: 8 }}>
-        <input id="dir-in" className="input" value={inQ} onChange={e => setInQ(e.target.value)} placeholder="Type a name or email" />
-        <button className="btn" onClick={addPerson}>Add a person</button>
+      <div className="rs-list">{fns.map(f => {
+        const on = pick.includes(String(f.id));
+        return <label key={f.id} className={"rs-row" + (on ? " on" : "")}>
+          <input type="checkbox" checked={on} onChange={() => toggle(String(f.id))} />
+          <span style={{ minWidth: 0, flex: 1 }}><span className="fname">{f.name}</span>
+            <span className="sub" style={{ display: "block" }}>{rolesOn(f)} {"·"} {f.topic}</span></span>
+        </label>;
+      })}</div>
+      <div className="fldg" style={{ marginTop: 18 }}><div className="lb">Who is taking over<span className="rule"></span></div>
+        {to ? <div className="opick-row static" style={{ border: "1px solid #E2E5EA", padding: 10 }}>
+          <Avatar person={to} size={32} /><div style={{ flex: 1, minWidth: 0 }}><div className="operson-n">{to.n}</div><div className="operson-t">{to.e}</div></div>
+          <button className="button button-ghost button-sm" onClick={() => setTo(null)}>Change</button></div>
+          : <PersonPicker exclude={new Set([String(person.id)])} subPicker={false} actionLabel="Select" onCancel={onClose} onPick={p => setTo(p)} />}
       </div>
-      <ul className="rows" style={{ maxHeight: 260 }}>{ds.people.filter(x => x.id !== out.id && matches(x, inQ)).map(x => {
-        const sel = into && into.id === x.id;
-        return <li key={x.id}><span className="grow"><span className="n">{x.n}</span><span className="m">{x.e || "No email on record"}</span></span>
-          <button className={"btn sm" + (sel ? " on" : "")} disabled={!x.e} onClick={() => setInto(x)}>{sel ? "Selected" : "Select"}</button></li>;
-      })}</ul>
-      {into && <p className="body" style={{ fontSize: 12 }}>Move {pick.length} function(s) from {out.n} to {into.n}. Where {into.n} already holds a role, it will not be duplicated.</p>}
-      <div className="mfoot"><Busy busyKey="person-swap" className="btn primary" style={{ minWidth: 150, minHeight: 46 }} disabled={!into} onClick={run}>
-        {busy === "person-swap" ? "Working..." : "Reassign"}</Busy></div>
-    </>}
-  </>;
+      {to && <p className="sub" style={{ marginTop: 10 }}>Move {pick.length} function(s) from {person.n} to {to.n}. Where {to.n} already holds a role, it will not be duplicated.</p>}
+    </div>
+    <div className="mft"><Busy busyKey="person-swap" className="button button-primary" disabled={!to || !pick.length} onClick={run}><Icon n="swap" s={15} />Reassign</Busy>
+      <button className="button button-secondary-outline" onClick={onClose}>Cancel</button></div>
+  </Modal>;
 }
 
-function Manager({ start, onClose }) {
+function RemovePerson({ person, onClose, onReassign }) {
+  const { ds, actions, adapter } = useApp();
+  const n = functionsFor(person, ds.fns).length;
+  const go = async () => { try { await actions.deletePerson(person); onClose(true); } catch (e) { /* toast */ } };
+  return <Modal onClose={() => onClose(false)} size="sm" label={"Remove " + person.n}>
+    <ModalHead onClose={() => onClose(false)} eyebrow="Manage Directory" title={"Remove " + person.n + "?"} />
+    <div className="mbd">
+      {n > 0
+        ? <p>Cannot remove {person.n}. They still own {n} function(s). Reassign their ownership first.</p>
+        : <p>{person.n} owns no functions. Removing them takes them out of the Compliance Directory.</p>}
+      {n === 0 && adapter.name === "dataverse" && <p className="sub" style={{ marginTop: 10 }}>The directory record is deactivated rather than deleted, so closed gaps and cleared flags still show who acted on them.</p>}
+    </div>
+    <div className="mft">{n > 0
+      ? <button className="button button-primary" onClick={onReassign}><Icon n="swap" s={15} />Reassign ownership</button>
+      : <Busy busyKey="person-del" className="button button-danger" onClick={go}><Icon n="trash" s={15} />Remove</Busy>}
+      <button className="button button-secondary-outline" onClick={() => onClose(false)}>Cancel</button></div>
+  </Modal>;
+}
+
+function AddPerson({ onClose }) {
   const { ds } = useApp();
-  const [mode, setMode] = useState(start ? "Edit" : "");
-  const home = () => (start ? onClose() : setMode(""));
-  return <Modal onClose={onClose} label="Manage Directory">
-    <button className="btn x" onClick={onClose} aria-label="Close">X</button>
-    <h2>Manage Directory</h2>
-    {mode === "" && <>
-      <p className="sub">{ds.people.length} people are in the directory. Choose what you want to do.</p>
-      <div className="mgr-choices">
-        <button className="btn" onClick={() => setMode("Add")}>Add a person</button>
-        <button className="btn" onClick={() => setMode("Edit")}>Edit an existing person</button>
-        <button className="btn" onClick={() => setMode("Delete")}>Remove a person</button>
-        <button className="btn" onClick={() => setMode("Swap")}>Reassign ownership from one person to another</button>
-      </div>
-    </>}
-    <div style={{ marginTop: mode ? 16 : 0 }}>
-      {mode === "Add" && <AddStep back={home} />}
-      {mode === "Edit" && <EditStep start={start} back={home} />}
-      {mode === "Delete" && <DeleteStep back={home} />}
-      {mode === "Swap" && <SwapStep back={home} addPerson={() => setMode("Add")} />}
+  return <Modal onClose={onClose} size="sm" label="Add a person">
+    <ModalHead onClose={onClose} eyebrow="Manage Directory" title="Add a person" sub="Creates a Compliance Directory record" />
+    <div className="mbd">
+      <PersonPicker exclude={new Set()} subPicker={false} actionLabel="Already listed" onCancel={onClose} onPick={() => onClose()} />
+      <p className="sub" style={{ marginTop: 10 }}>{ds.people.length} people are in the directory.</p>
     </div>
   </Modal>;
 }
 
+/* the profile: contact, work, and the ownership portfolio */
+function Profile({ p, role, onDialog }) {
+  const { ds, realAdmin, openFn } = useApp();
+  const owned = useMemo(() => functionsFor(p, ds.fns).sort((a, b) => a.name.localeCompare(b.name)), [p, ds]);
+  const areas = new Set(owned.map(f => String(f.topicId))).size;
+  return <>
+    <div className="dir-rail-hd">
+      <Avatar person={p} size={92} />
+      <div><h2>{p.n}</h2>{p.t && <div className="ti">{p.t}</div>}<RoleTag role={role} /></div>
+    </div>
+    <div className="dir-stats">
+      <div className="stat"><div className="n">{chainFns(p, ds.fns).length}</div><div className="l">Assigned functions</div></div>
+      <div className="stat"><div className="n">{areas}</div><div className="l">Risk areas</div></div>
+    </div>
+    <div className="dir-sect"><h3>Contact information</h3><dl className="dir-kv">
+      <dt>Email</dt><dd>{p.e ? <a href={"mailto:" + p.e}>{p.e}</a> : <span className="sub">Not recorded</span>}</dd>
+      {p.ph && <><dt>Phone</dt><dd>{p.ph}</dd></>}
+      {p.l && <><dt>Location</dt><dd>{p.l}</dd></>}
+      {p.u && <><dt>Unit</dt><dd>{p.u}</dd></>}
+    </dl></div>
+    <div className="dir-sect"><h3>Ownership portfolio</h3>
+      {owned.length ? <div className="dir-portlist">{owned.map(f =>
+        <button key={f.id} className="dir-port" onClick={() => openFn(f)}>
+          <div><div className="fname">{f.name}</div>
+            <div className="sub">{f.topic} {"·"} {roleOn(f, p)}</div></div>
+          <Risk r={f.risk} /></button>)}</div>
+        : <p className="sub">No functions currently assigned.</p>}
+    </div>
+    <div className="dir-rail-ft" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {p.e && <a className="button button-primary" href={"mailto:" + p.e}><Icon n="mail" s={15} />Email {p.n.split(" ")[0]}</a>}
+      {realAdmin && <>
+        <button className="button button-secondary-outline button-sm" onClick={() => onDialog("edit")}><Icon n="edit" s={13} />Edit</button>
+        <button className="button button-secondary-outline button-sm" disabled={!owned.length} onClick={() => onDialog("reassign")}><Icon n="swap" s={13} />Reassign</button>
+        <button className="button button-ghost button-sm" onClick={() => onDialog("remove")}><Icon n="trash" s={13} />Remove</button>
+      </>}
+    </div>
+  </>;
+}
+
 export function Directory({ personId }) {
   const { ds, realAdmin } = useApp();
-  const [q, setQ] = useState("");
-  const [sort, setSort] = useState("AZ");
-  const [sel, setSel] = useState(() => (personId != null ? ds.people.find(p => String(p.id) === String(personId)) || null : null));
-  const [mgr, setMgr] = useState(null); // null | {start?}
-  useEffect(() => { if (personId != null) setSel(ds.people.find(p => String(p.id) === String(personId)) || null); }, [personId, ds]);
-  /* keep the drawer on the fresh record after an edit */
-  const current = sel ? ds.people.find(p => String(p.id) === String(sel.id)) || null : null;
+  const { people, fns } = ds;
+  const [kw, setKw] = useState("");
+  const [unit, setUnit] = useState("All");
+  const [role, setRole] = useState("All");
+  const [sort, setSort] = useState("az");
+  const [view, setView] = useState("list");
+  const [selId, setSelId] = useState(personId != null ? String(personId) : null);
+  const [dialog, setDialog] = useState(null); // add | edit | reassign | remove
+  const narrow = useMedia("(max-width:1080px)");
+  useEffect(() => { if (personId != null) setSelId(String(personId)); }, [personId]);
 
-  const list = useMemo(() => {
-    const t = q.trim().toLowerCase();
-    const l = ds.people.filter(p => !t || [p.n, p.t, p.u, p.e].join(" ").toLowerCase().includes(t));
-    return sort === "Unit" ? l.sort((a, b) => (a.u || "").localeCompare(b.u || "") || byName(a, b)) : l.sort(byName);
-  }, [ds, q, sort]);
+  const portfolio = useMemo(() => new Map(people.map(p => [String(p.id), functionsFor(p, fns).length])), [people, fns]);
+  const roleOf = useMemo(() => new Map(people.map(p => [String(p.id), chainRole(p, fns)])), [people, fns]);
+  const dirRole = p => roleOf.get(String(p.id)) || CONTACT;
+  const count = p => portfolio.get(String(p.id)) || 0;
+  const units = useMemo(() => ["All", ...[...new Set(people.map(p => p.u).filter(Boolean))].sort()], [people]);
+  const hasUnits = units.length > 1;
+  const roles = ["All", ...ROLE_ORDER.map(([r]) => r).filter(r => people.some(p => dirRole(p) === r)), CONTACT];
+  const byName = (a, b) => a.n.localeCompare(b.n);
 
-  const drawer = current && (() => {
-    const owned = functionsFor(current, ds.fns).sort((a, b) => a.name.localeCompare(b.name));
-    return <PersonDrawer person={current} eyebrow={dirRole(current, ds.fns)}
-      stats={[chainFns(current, ds.fns).length, new Set(owned.map(f => String(f.topicId))).size]}
-      portfolio={owned.map(f => ({ key: f.id, fn: f, line1: f.name, line2: f.topic }))}
-      onClose={() => setSel(null)} onEdit={realAdmin ? () => setMgr({ start: current }) : null} />;
-  })();
+  const rows = useMemo(() => {
+    const k = kw.trim().toLowerCase();
+    const r = people.filter(p => (!k || [p.n, p.t, p.u, p.e].join(" ").toLowerCase().includes(k))
+      && (unit === "All" || p.u === unit) && (role === "All" || dirRole(p) === role));
+    const cmp = {
+      az: byName,
+      za: (a, b) => byName(b, a),
+      unit: (a, b) => (a.u || "").localeCompare(b.u || "") || byName(a, b),
+      load: (a, b) => count(b) - count(a) || byName(a, b)
+    }[sort];
+    return r.sort(cmp);
+  }, [people, kw, unit, role, sort, portfolio, roleOf]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <>
-    <Hero eyebrow="BROWSE" title="Compliance Directory"
-      lede="The people layer of the matrix, every owner in an ownership chain, with title, unit, and contact information." />
-    <div className="wrap">
-      <div className="toolbar">
-        <SearchBox value={q} onChange={setQ} placeholder="Search people, titles, units..." />
-        <span className="count">{list.length} people</span>
-        <select className="select" value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort">
-          <option value="AZ">Name A-Z</option><option value="Unit">Unit</option></select>
-        {realAdmin && <button className="btn" onClick={() => setMgr({})}>Manage Directory</button>}
-      </div>
-      {list.length ? <div className="pgrid">{list.map(p => <button key={p.id} className={"pcard" + (current && current.id === p.id ? " on" : "")} onClick={() => setSel(p)}>
-        <Avatar person={p} size={75} />
-        <span className="grow"><span className="n">{p.n}</span><span className="t">{p.t}</span><span className="u">{p.u}</span>
-          {p.e && <span className="mail"><Icon n="mail" s={13} /><span>{p.e}</span></span>}</span>
-      </button>)}</div>
-        : <p className="empty">No directory records match. Clear the search, or check that the Compliance Directory list is connected.</p>}
+  const active = (selId && people.find(p => String(p.id) === selId)) || (narrow ? null : rows[0] || null);
+  const isOn = p => active && String(active.id) === String(p.id);
+  const pick = p => setSelId(String(p.id));
+
+  return <div className="page wrap dir-page">
+    <PageHead eyebrow="Browse" title="Compliance Directory"
+      sub="The people layer of the matrix, every owner in an ownership chain, with title, unit, and contact information."
+      right={realAdmin && <button className="button button-secondary-outline button-sm" onClick={() => setDialog("add")}><Icon n="plus" s={14} />Add person</button>} />
+
+    <div className="dir-filters">
+      <label><span>Keywords</span>
+        <div className="srch"><Icon n="search" s={16} />
+          <input placeholder="Search people, titles, units..." value={kw} onChange={e => setKw(e.target.value)} /></div></label>
+      {hasUnits && <label><span>Unit</span>
+        <select className="fs" value={unit} onChange={e => setUnit(e.target.value)}>{units.map(u => <option key={u}>{u}</option>)}</select></label>}
+      <label><span>Role in chain</span>
+        <select className="fs" value={role} onChange={e => setRole(e.target.value)}>{roles.map(r => <option key={r}>{r}</option>)}</select></label>
     </div>
-    {drawer}
-    {mgr && <Manager start={mgr.start} onClose={() => setMgr(null)} />}
-  </>;
+
+    <div className="dir-split">
+      <div className="dir-list-col">
+        <div className="dir-toolbar">
+          <span className="count">{rows.length} {rows.length === 1 ? "person" : "people"}</span>
+          <div className="dir-sort"><span>Sort by:</span>
+            <select className="fs" value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort">
+              <option value="az">Name A-Z</option><option value="za">Name Z-A</option>
+              {hasUnits && <option value="unit">Unit</option>}<option value="load">Functions owned</option></select>
+            <div className="dir-vt">
+              <button className={view === "list" ? "on" : ""} aria-label="List view" aria-pressed={view === "list"} onClick={() => setView("list")}><Icon n="list" s={16} /></button>
+              <button className={view === "grid" ? "on" : ""} aria-label="Card view" aria-pressed={view === "grid"} onClick={() => setView("grid")}><Icon n="grid" s={16} /></button>
+            </div></div>
+        </div>
+
+        {view === "list" && !narrow ? <table className="dir-table"><thead><tr>
+          <th>Name</th><th>{hasUnits ? "Unit" : "Email"}</th><th>Phone</th><th>Role in chain</th><th title="Functions">Fns</th></tr></thead>
+          <tbody>{rows.map(p =>
+            <tr key={p.id} className={isOn(p) ? "on" : ""} onClick={() => pick(p)} tabIndex={0} onKeyDown={e => { if (e.key === "Enter") pick(p); }}>
+              <td><div className="dir-who"><Avatar person={p} size={40} />
+                <div><div className="nm">{p.n}</div><div className="ti">{p.t || (hasUnits ? p.e : "")}</div></div></div></td>
+              <td className="dir-cell">{hasUnits ? p.u : p.e}</td>
+              <td className="dir-cell dir-num">{p.ph}</td>
+              <td><RoleTag role={dirRole(p)} /></td>
+              <td className="dir-cnt">{count(p)}</td></tr>)}
+          </tbody></table>
+          : <div className="dir-cards">{rows.map(p =>
+            <button key={p.id} className={"dir-card" + (isOn(p) ? " on" : "")} onClick={() => pick(p)}>
+              <Avatar person={p} size={56} />
+              <div className="nm">{p.n}</div><div className="ti">{p.t || p.e}</div>
+              <RoleTag role={dirRole(p)} />
+              <div className="sub">{count(p)} function{count(p) === 1 ? "" : "s"}</div></button>)}
+          </div>}
+        {!rows.length && <Empty title="No people match" sub="Clear the search, or check that the Compliance Directory list is connected." />}
+        {!!rows.length && <div className="dir-end">End of list {"·"} {rows.length} {rows.length === 1 ? "person" : "people"}</div>}
+      </div>
+
+      {!narrow && <aside className="dir-rail">{active
+        ? <Profile p={active} role={dirRole(active)} onDialog={setDialog} />
+        : <div className="dir-rail-empty"><p>Select a person to see contact details, unit, and their ownership portfolio.</p></div>}
+      </aside>}
+    </div>
+
+    {narrow && active && !dialog && <Modal onClose={() => setSelId(null)} label={active.n}>
+      <div className="mhd"><div><div className="eyebrow" style={{ color: "#FF8E00" }}>Compliance Directory</div></div>
+        <button className="cl" onClick={() => setSelId(null)} aria-label="Close">{"✕"}</button></div>
+      <div className="mbd dir-rail dir-rail-m"><Profile p={active} role={dirRole(active)} onDialog={setDialog} /></div>
+    </Modal>}
+    {dialog === "add" && <AddPerson onClose={() => setDialog(null)} />}
+    {dialog === "edit" && active && <EditPerson person={active} onClose={() => setDialog(null)} />}
+    {dialog === "reassign" && active && <Reassign person={active} onClose={() => setDialog(null)} />}
+    {dialog === "remove" && active && <RemovePerson person={active} onReassign={() => setDialog("reassign")}
+      onClose={gone => { setDialog(null); if (gone) setSelId(null); }} />}
+  </div>;
 }
