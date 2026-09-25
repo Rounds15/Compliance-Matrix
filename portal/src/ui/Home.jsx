@@ -1,5 +1,6 @@
 /* Home: the Claude design's layout (navy hero with the Block S, orange
-   figures band, Start here cards, Assigned to you, help). The figures and
+   figures band, Assigned to you and your next deadlines, Start here cards,
+   help). The figures and
    lists follow the canvas app: they are the viewer's own, the functions
    where they appear anywhere in the Accountability Structure, in every view
    mode (whether Admin view should show the whole matrix is an open
@@ -67,15 +68,6 @@ export function Home() {
     </section>
 
     <div className="wrap page">
-      <div className="sec-h"><span className="lbl">Start here</span><span className="rule"></span><span>Four ways into the matrix</span></div>
-      <div className="hm-dest">
-        {dest.map(d => <button key={d.t} className="hm-card" onClick={d.to}>
-          <span className="hm-ct">{d.t}</span>
-          <span className="hm-cd">{d.d}</span>
-          <span className="hm-cm">{d.s}<Icon n="arrow-right" s={14} /></span>
-        </button>)}
-      </div>
-
       <div className="sec-h"><span className="lbl">Assigned to you</span><span className="rule"></span><span>{me.n}</span></div>
       <div className="cm-grid hm-split">
         <div className="cm-panel hm-assigned" style={{ overflow: "hidden" }}>
@@ -109,6 +101,15 @@ export function Home() {
           }) : <p className="sub">Nothing due in the next 90 days.</p>}
           <div className="note" style={{ marginTop: 14 }}><b>Reminders</b> are sent automatically at 90 days, 30 days, on the due date, and weekly once overdue.</div>
         </div>
+      </div>
+
+      <div className="sec-h"><span className="lbl">Start here</span><span className="rule"></span><span>Four ways into the matrix</span></div>
+      <div className="hm-dest">
+        {dest.map(d => <button key={d.t} className="hm-card" onClick={d.to}>
+          <span className="hm-ct">{d.t}</span>
+          <span className="hm-cd">{d.d}</span>
+          <span className="hm-cm">{d.s}<Icon n="arrow-right" s={14} /></span>
+        </button>)}
       </div>
     </div>
 
