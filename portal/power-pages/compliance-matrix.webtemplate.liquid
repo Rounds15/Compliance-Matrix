@@ -4,8 +4,9 @@
   Paste into Portal Management > Web Templates > "Compliance Matrix" > Source.
   Its page template must have "Use Website Header and Footer" UNCHECKED: this
   template renders the whole document, because the page brings the app's own
-  header and navigation, and the Power Pages site header and footer must not
-  show (parity spec section 0).
+  header and navigation. The rest of the site uses the CM Site Header and CM
+  Site Footer templates (site-header / site-footer), which match it; the
+  site's web links are handed to the page below so it can link back out.
 
   Everything the page needs is read here, server-side, and handed to the
   script on #cm-root's data- attributes:
@@ -31,7 +32,9 @@
 <link rel="stylesheet" href="{{ settings['ComplianceMatrix/CssUrl'] | default: '/cm-matrix.css' }}?v=__VERSION__">
 </head>
 <body>
-{% if user %}
+{% if user %}{% assign cm_site_set = settings['ComplianceMatrix/SiteNavigation'] | default: 'Default' %}{% assign cm_site_nav = weblinks[cm_site_set] %}
+{% comment %} the site's own navigation, so the matrix can link back out to it {% endcomment %}
+<template id="cm-site-links">{% if cm_site_nav %}{% for link in cm_site_nav.weblinks %}<a href="{{ link.url | escape }}"{% if link.open_in_new_window %} target="_blank"{% endif %}>{{ link.name | escape }}</a>{% endfor %}{% endif %}</template>
 <div id="cm-root"
   data-backend="{{ settings['ComplianceMatrix/Backend'] | default: 'sharepoint' | escape }}"
   data-user-email="{{ user.emailaddress1 | escape }}"

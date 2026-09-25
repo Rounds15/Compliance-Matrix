@@ -51,9 +51,25 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     "ComplianceMatrix/Flow/AdminWrite": "/_api/cloudflow/v1.0/trigger/admin",
     "ComplianceMatrix/Flow/FindPerson": "/_api/cloudflow/v1.0/trigger/find",
     "ComplianceMatrix/CacheMinutes": "0",
+    "ComplianceMatrix/PageUrl": "/matrix/",
     ...extra
   };
   const template = readFileSync(join(DIST, "compliance-matrix.webtemplate.liquid"), "utf8");
+  const siteHeader = readFileSync(join(DIST, "site-header.webtemplate.liquid"), "utf8");
+  const siteFooter = readFileSync(join(DIST, "site-footer.webtemplate.liquid"), "utf8");
+  /* the site's navigation, as Design Studio's Pages workspace keeps it: a web
+     link set with a link that has child links, one that shows its child
+     pages, and the matrix itself (which the header does not repeat) */
+  const weblinks = { Default: { weblinks: [
+    { name: "Home", url: "/", weblinks: [] },
+    { name: "Compliance Matrix", url: "/matrix/", weblinks: [] },
+    { name: "Policies and Training", url: "/policies/", description: "Required training", weblinks: [
+      { name: "Annual training", url: "/policies/annual/", description: "Who must complete it" },
+      { name: "Conflict of interest", url: "/policies/coi/" }] },
+    { name: "Resources", url: "/resources/", display_page_child_links: true, weblinks: [] },
+    { name: "Contact", url: "/contact/", weblinks: [] }] } };
+  const sitemap = { "/resources/": { children: [{ title: "Forms", url: "/resources/forms/", description: "<p>Every form the office uses</p>" }] } };
+  const userCtx = () => (user ? { emailaddress1: user.email, fullname: user.name, id: "c0ffee00-0000-4000-8000-000000000001", roles: admin ? ["Authenticated Users", "Compliance Matrix Administrators"] : ["Authenticated Users"] } : null);
 
   /* ---------------- SharePoint: value checks per column kind ---------------- */
   const checkSpFields = (list, fields, op) => {
@@ -235,10 +251,29 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     try {
       if (url.pathname === "/matrix" || url.pathname === "/matrix/") {
         const html = await liquid.parseAndRender(template, {
-          user: user ? { emailaddress1: user.email, fullname: user.name, id: "c0ffee00-0000-4000-8000-000000000001", roles: admin ? ["Authenticated Users", "Compliance Matrix Administrators"] : ["Authenticated Users"] } : null,
-          settings, request: { path_and_query: url.pathname + url.search }
+          user: userCtx(), settings, weblinks, request: { path: url.pathname, path_and_query: url.pathname + url.search }
         });
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(html);
+      }
+      /* any other page: the site header and footer around a stand-in body,
+         as Power Pages' layout would place them */
+      if (/^\/(|policies\/.*|resources\/.*|contact\/)$/.test(url.pathname)) {
+        const path = url.pathname;
+        const links = JSON.parse(JSON.stringify(weblinks));
+        links.Default.weblinks.forEach(l => {
+          l.is_sitemap_current = l.url === path;
+          l.is_sitemap_ancestor = path !== l.url && l.url !== "/" && path.startsWith(l.url);
+          (l.weblinks || []).forEach(k => { k.is_sitemap_current = k.url === path; });
+        });
+        const ctx = { user: userCtx(), settings, weblinks: links, sitemap, website: { name: "Office of Compliance" }, request: { path, path_and_query: path + url.search } };
+        const html = "<!DOCTYPE html><html><head><meta charset=utf-8><title>Site</title></head><body>" +
+          await liquid.parseAndRender(siteHeader, ctx) + `<div id="mainContent"><h1>Page ${path}</h1><a href="#">theme link</a></div>` +
+          await liquid.parseAndRender(siteFooter, ctx) + "</body></html>";
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(html);
+      }
+      if (url.pathname === "/cm-site.js" || url.pathname === "/cm-site.css") {
+        res.writeHead(200, { "Content-Type": url.pathname.endsWith(".js") ? "text/javascript" : "text/css" });
+        return res.end(readFileSync(join(DIST, url.pathname.slice(1))));
       }
       if (url.pathname === "/cm-matrix.js" || url.pathname === "/cm-matrix.css") {
         res.writeHead(200, { "Content-Type": url.pathname.endsWith(".js") ? "text/javascript" : "text/css" });
@@ -263,5 +298,5 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   });
   await new Promise(r => server.listen(0, "127.0.0.1", r));
   const { port } = server.address();
-  return { url: `http://127.0.0.1:${port}/matrix/`, sp, dv, log, close: () => new Promise(r => server.close(r)) };
+  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, close: () => new Promise(r => server.close(r)) };
 }

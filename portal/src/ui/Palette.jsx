@@ -15,7 +15,7 @@ const SCREENS = [
 ];
 
 export function Palette({ onClose }) {
-  const { ds, go, openFn, realAdmin, adminView } = useApp();
+  const { ds, go, openFn, realAdmin, adminView, cfg } = useApp();
   const [q, setQ] = useState("");
   const [sel, setSel] = useState(0);
   const input = useRef(null);
@@ -29,14 +29,19 @@ export function Palette({ onClose }) {
     const allowed = s => (s.screen === "Flagged Items" ? realAdmin : s.screen === "Risk Dashboard" || s.screen === "Reporting" ? adminView : true);
     const screens = SCREENS.filter(allowed).filter(s => !t || has(s.title) || has(s.desc))
       .map(s => ({ kind: "Go to", key: "s:" + s.screen, s, run: () => go(s.screen) }));
-    if (!t) return screens;
+    /* the rest of the site, from its web link set */
+    const here = window.location.pathname.replace(/\/$/, "");
+    const site = (cfg.siteLinks || []).filter(l => { try { return new URL(l.url, window.location.href).pathname.replace(/\/$/, "") !== here; } catch (e) { return true; } })
+      .filter(l => !t || has(l.name))
+      .map(l => ({ kind: "This site", key: "l:" + l.url, l, run: () => { if (l.ext) window.open(l.url, "_blank", "noopener"); else window.location.href = l.url; } }));
+    if (!t) return [...screens, ...site];
     const fns = ds.fns.filter(f => has(f.name) || has(f.statute) || has(f.citation) || has(f.code) || has(f.topic) || has(f.area))
       .sort((a, b) => (has(b.name) - has(a.name)) || a.name.localeCompare(b.name)).slice(0, 7)
       .map(f => ({ kind: "Compliance functions", key: "f:" + f.id, f, run: () => openFn(f) }));
     const people = ds.people.filter(p => has(p.n) || has(p.e) || has(p.t) || has(p.u)).slice(0, 5)
       .map(p => ({ kind: "People", key: "p:" + p.id, p, run: () => go("Directory", { person: p.id }) }));
-    return [...fns, ...people, ...screens];
-  }, [q, ds, go, openFn, realAdmin, adminView]);
+    return [...fns, ...people, ...screens, ...site];
+  }, [q, ds, go, openFn, realAdmin, adminView, cfg]);
 
   useEffect(() => { setSel(0); }, [q]);
   useEffect(() => {
@@ -68,6 +73,7 @@ export function Palette({ onClose }) {
               className={"pal-i" + (i === sel ? " on" : "")} onMouseEnter={() => setSel(i)} onMouseDown={e => { e.preventDefault(); run(it); }}>
               {it.s && <><span className="pal-ic"><Icon n={it.s.icon} s={18} /></span><span className="grow"><b>{it.s.title}</b><small>{it.s.desc}</small></span></>}
               {it.f && <><span className="pal-ic"><Icon n="dots" s={18} /></span><span className="grow"><b>{it.f.name}</b><small>{it.f.topic} {"·"} {it.f.statute || it.f.area}</small></span><RiskPill r={it.f.risk} /></>}
+              {it.l && <><span className="pal-ic"><Icon n="ext" s={16} /></span><span className="grow"><b>{it.l.name}</b><small>{it.l.url}</small></span></>}
               {it.p && <><Avatar person={it.p} size={30} /><span className="grow"><b>{it.p.n}</b><small>{[it.p.t, it.p.u].filter(Boolean).join(" · ") || it.p.e}</small></span></>}
               <Icon n="enter" s={15} style={{ opacity: i === sel ? .6 : 0 }} />
             </li></React.Fragment>;

@@ -18,6 +18,15 @@ function json(v, fallback) {
   try { return JSON.parse(v); } catch (e) { return fallback; }
 }
 
+function siteLinks() {
+  const t = document.getElementById("cm-site-links");
+  if (!t) return [];
+  const box = t.content || t;
+  return Array.prototype.slice.call(box.querySelectorAll("a[href]"))
+    .map(a => ({ name: (a.textContent || "").trim(), url: a.getAttribute("href"), ext: a.getAttribute("target") === "_blank" }))
+    .filter(l => l.name && l.url);
+}
+
 export function readConfig(el) {
   const d = (el && el.dataset) || {};
   const qs = new URLSearchParams(window.location.search);
@@ -48,7 +57,10 @@ export function readConfig(el) {
     cacheMinutes: d.cacheMinutes !== undefined && d.cacheMinutes !== "" ? Number(d.cacheMinutes) : 5,
     /* the canvas app's utility bar links (the ?_gl= tracking string the app
        carries on the first one is left off) */
+    /* the site's top-level navigation (web link set), from the template */
+    siteLinks: siteLinks(),
     links: {
+      siteHome: d.siteHomeUrl || "/",
       complianceHome: d.complianceHomeUrl || "https://finance.syr.edu/office-of-compliance/",
       policies: d.policiesUrl || "https://policies.syr.edu/policies/",
       reportConcern: d.reportConcernUrl || "https://finance.syr.edu/office-of-compliance/confidential-hotline/",

@@ -89,6 +89,7 @@ export function Header({ screen, go, onSearch }) {
     <div className="util">
       <div className="wrap">
         <div className="util-left">
+          {cfg.backend !== "sample" && <a href={L.siteHome}>Portal Home</a>}
           <a href={L.complianceHome} target="_blank" rel="noopener">Compliance Home Page</a>
           <a href={L.policies} target="_blank" rel="noopener">Policies</a>
           <button onClick={() => nav("Definitions")} className={screen === "Definitions" ? "here" : ""}>Definitions</button>

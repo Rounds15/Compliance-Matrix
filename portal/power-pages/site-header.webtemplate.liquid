@@ -1,0 +1,114 @@
+{% comment %}
+  Compliance Matrix site header. Replaces the Power Pages default header on
+  every page that uses the website header and footer.
+
+  Install: Portal Management > Web Templates > New, name "CM Site Header",
+  paste this whole file as Source. Then Websites > this site > Header
+  Template = CM Site Header. (portal/README.md, "Site header and footer".)
+
+  What makes it dynamic:
+    - the top-level links come from the web link set named by the site
+      setting ComplianceMatrix/SiteNavigation (default "Default", the set
+      Design Studio's Pages workspace edits), so a page added in Design
+      Studio appears here; a link's child links, or its child pages when
+      "Display page child links" is on, become its dropdown
+    - the current page and its section are marked
+    - the Compliance Matrix menu deep-links into the matrix, and shows the
+      administrator screens to holders of the administrator web role
+    - signed in: your name, Profile, Sign out; signed out: Sign in
+    - Search (and Ctrl K or "/" on any page) jumps to a matrix search, or to
+      any link in this header
+
+  __VERSION__ is replaced by the build so a new cm-site.css / cm-site.js is
+  never served from a stale cache.
+{% endcomment %}{% assign cmh_matrix = settings['ComplianceMatrix/PageUrl'] | default: '/compliance-matrix/' %}{% assign cmh_set = settings['ComplianceMatrix/SiteNavigation'] | default: 'Default' %}{% assign cmh_nav = weblinks[cmh_set] %}{% assign cmh_path = request.path | downcase %}{% assign cmh_matrix_lc = cmh_matrix | downcase %}{% assign cmh_admin_role = settings['ComplianceMatrix/AdminWebRole'] | default: 'Compliance Matrix Administrators' %}{% assign cmh_admin = false %}{% if user %}{% for r in user.roles %}{% if r == cmh_admin_role %}{% assign cmh_admin = true %}{% endif %}{% endfor %}{% endif %}{% assign cmh_in_matrix = false %}{% if cmh_path contains cmh_matrix_lc %}{% assign cmh_in_matrix = true %}{% endif %}{% capture cmh_chev %}<svg class="cmh-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5 12 15.5l6-6"/></svg>{% endcapture %}{% capture cmh_svg %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{% endcapture %}{% capture cmh_end %}"/></svg>{% endcapture %}
+<link rel="stylesheet" href="{{ settings['ComplianceMatrix/SiteCssUrl'] | default: '/cm-site.css' }}?v=__VERSION__">
+<a class="cmh-skip" href="#mainContent">Skip to main content</a>
+<div class="cmh" id="cmh" data-matrix="{{ cmh_matrix | escape }}">
+  <div class="cmh-util">
+    <div class="cmh-wrap">
+      <div class="cmh-util-l">
+        <a href="{{ settings['ComplianceMatrix/ComplianceHomeUrl'] | default: 'https://finance.syr.edu/office-of-compliance/' | escape }}" target="_blank" rel="noopener">Compliance Home Page</a>
+        <a href="{{ settings['ComplianceMatrix/PoliciesUrl'] | default: 'https://policies.syr.edu/policies/' | escape }}" target="_blank" rel="noopener">Policies</a>
+        <a href="{{ cmh_matrix | escape }}#/definitions">Definitions</a>
+      </div>
+      <div class="cmh-util-r" data-cmh-menu>
+        <a href="{{ settings['ComplianceMatrix/ReportConcernUrl'] | default: 'https://finance.syr.edu/office-of-compliance/confidential-hotline/' | escape }}" target="_blank" rel="noopener">Report a Concern</a>
+        {% if user %}
+        <button type="button" class="cmh-me" data-cmh-toggle="cmh-user" aria-expanded="false" aria-controls="cmh-user" data-name="{{ user.fullname | escape }}"><i aria-hidden="true"></i>{{ user.fullname | escape }} {{ cmh_chev }}</button>
+        <div class="cmh-menu" id="cmh-user" hidden>
+          <div class="who"><b>{{ user.fullname | escape }}</b><span>{{ user.emailaddress1 | escape }}</span></div>
+          <a href="{{ settings['ComplianceMatrix/ProfileUrl'] | default: '/profile' | escape }}">Profile</a>
+          <a href="/Account/Login/LogOff?returnUrl=%2F">Sign out</a>
+        </div>
+        {% else %}
+        <a href="/SignIn?returnUrl={{ request.path_and_query | url_escape }}">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <header class="cmh-bar" id="cmh-bar">
+    <div class="cmh-wrap">
+      <a class="cmh-lockup" href="/" aria-label="{{ website.name | default: 'Home' | escape }} home">
+        <span class="cmh-logo" aria-hidden="true"></span>
+        <span><b>Syracuse University</b><small>Office of Compliance</small></span>
+      </a>
+      <nav class="cmh-nav" id="cmh-nav" aria-label="Site">
+        <div class="cmh-item">
+          <a class="cmh-top{% if cmh_path == '/' %} is-here{% endif %}" href="/"{% if cmh_path == '/' %} aria-current="page"{% endif %}>{{ cmh_svg }}M3 10.5 12 3l9 7.5M5.5 9.5V20h13V9.5{{ cmh_end }}Home</a>
+        </div>
+        <div class="cmh-item" data-cmh-menu>
+          <button type="button" class="cmh-top{% if cmh_in_matrix %} is-here{% endif %}" data-cmh-toggle="cmh-p-matrix" aria-expanded="false" aria-controls="cmh-p-matrix">{{ cmh_svg }}M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z{{ cmh_end }}Compliance Matrix {{ cmh_chev }}</button>
+          <div class="cmh-panel is-wide" id="cmh-p-matrix" hidden>
+            <div class="cmh-col">
+              <h3>Browse</h3>
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/functions">{{ cmh_svg }}M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01{{ cmh_end }}<b>Compliance Functions</b><span>Every obligation, filter by risk area or domain</span></a>
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/deadlines">{{ cmh_svg }}M4 6h16v15H4zM4 10h16M9 3v4M15 3v4{{ cmh_end }}<b>Deadlines</b><span>Upcoming and recurring due dates</span></a>
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/directory">{{ cmh_svg }}M16.5 20v-1.5a3.5 3.5 0 0 0-3.5-3.5H7a3.5 3.5 0 0 0-3.5 3.5V20M10 11.5a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5M17 5.2a3.5 3.5 0 0 1 0 6.6M20.5 20v-1.5a3.4 3.4 0 0 0-2-3{{ cmh_end }}<b>Directory</b><span>Owners, titles, units, contacts</span></a>
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/executives">{{ cmh_svg }}M12 3 5 5.5v5c0 5 3.2 8.4 7 10 3.8-1.6 7-5 7-10v-5z{{ cmh_end }}<b>Executive Team</b><span>Executive owners and their portfolios</span></a>
+            </div>
+            <div class="cmh-col">
+              <h3>Risk and Reporting</h3>
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/gaps">{{ cmh_svg }}M12 4 2.5 20.5h19zM12 10v4.5M12 17.5h.01{{ cmh_end }}<b>Gap Tracker</b><span>Open gaps and closure workflow</span></a>
+              {% if cmh_admin %}
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/risk">{{ cmh_svg }}M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 11v5.5M12 7.5h.01{{ cmh_end }}<b>Risk Dashboard</b><span>Heat map and risk rollups</span></a>
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/reporting">{{ cmh_svg }}M12 3 3 7.5l9 4.5 9-4.5zM3 12.5 12 17l9-4.5M3 17 12 21.5 21 17{{ cmh_end }}<b>Reporting</b><span>Power BI datasets and exports</span></a>
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/flags">{{ cmh_svg }}M5 21V4h9l-1 3h6l-1.5 5H21l-2 5H5{{ cmh_end }}<b>Flagged Items</b><span>Functions flagged for compliance review</span></a>
+              {% endif %}
+              <a class="cmh-link" href="{{ cmh_matrix | escape }}#/definitions">{{ cmh_svg }}M4 5.5A2 2 0 0 1 6 4h13v16H6a2 2 0 0 0-2 2zM19 16.5H6{{ cmh_end }}<b>Definitions</b><span>The vocabulary of the matrix</span></a>
+            </div>
+            <a class="cmh-cta" href="{{ cmh_matrix | escape }}">Open the Compliance Matrix <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>
+          </div>
+        </div>
+        {% if cmh_nav %}{% for link in cmh_nav.weblinks %}{% assign cmh_url = link.url | downcase %}{% unless cmh_url == '/' or cmh_url == cmh_matrix_lc %}{% assign cmh_here = false %}{% if link.is_sitemap_current or link.is_sitemap_ancestor or cmh_url == cmh_path %}{% assign cmh_here = true %}{% endif %}{% assign cmh_kids = link.weblinks %}{% assign cmh_pagecount = 0 %}{% if link.display_page_child_links and link.url %}{% assign cmh_pages = sitemap[link.url].children %}{% assign cmh_pagecount = cmh_pages.size %}{% endif %}
+        {% if cmh_kids.size > 0 or cmh_pagecount > 0 %}
+        <div class="cmh-item" data-cmh-menu>
+          <button type="button" class="cmh-top{% if cmh_here %} is-here{% endif %}" data-cmh-toggle="cmh-p-{{ forloop.index }}" aria-expanded="false" aria-controls="cmh-p-{{ forloop.index }}">{{ link.name | escape }} {{ cmh_chev }}</button>
+          <div class="cmh-panel" id="cmh-p-{{ forloop.index }}" hidden>
+            <div class="cmh-col">
+              {% if link.url %}<a class="cmh-link no-ic" href="{{ link.url | escape }}"{% if link.open_in_new_window %} target="_blank" rel="noopener"{% endif %}><b>{{ link.name | escape }}</b>{% if link.description %}<span>{{ link.description | escape }}</span>{% endif %}</a>{% endif %}
+              {% for kid in cmh_kids %}<a class="cmh-link no-ic{% if kid.is_sitemap_current %} is-here{% endif %}" href="{{ kid.url | escape }}"{% if kid.open_in_new_window %} target="_blank" rel="noopener"{% endif %}><b>{{ kid.name | escape }}</b>{% if kid.description %}<span>{{ kid.description | escape }}</span>{% endif %}</a>{% endfor %}
+              {% if cmh_pagecount > 0 %}{% for pg in cmh_pages %}<a class="cmh-link no-ic{% if pg.url == request.path %} is-here{% endif %}" href="{{ pg.url | escape }}"><b>{{ pg.title | escape }}</b>{% if pg.description %}<span>{{ pg.description | strip_html | truncate: 90 | escape }}</span>{% endif %}</a>{% endfor %}{% endif %}
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="cmh-item">
+          <a class="cmh-top{% if cmh_here %} is-here{% endif %}" href="{{ link.url | escape }}"{% if cmh_here %} aria-current="page"{% endif %}{% if link.open_in_new_window %} target="_blank" rel="noopener"{% endif %}{% if link.tooltip %} title="{{ link.tooltip | escape }}"{% endif %}>{{ link.name | escape }}</a>
+        </div>
+        {% endif %}{% endunless %}{% endfor %}{% endif %}
+      </nav>
+      <button type="button" class="cmh-findbtn" data-cmh-find aria-label="Search" title="Search (Ctrl K)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14M20.5 20.5 16 16"/></svg><span class="t">Search</span><kbd>Ctrl K</kbd></button>
+      <button type="button" class="cmh-hamb" id="cmh-hamb" aria-expanded="false" aria-controls="cmh-nav" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </header>
+</div>
+<div class="cmh-find" id="cmh-find" role="dialog" aria-modal="true" aria-label="Search" hidden>
+  <div class="cmh-find-box">
+    <div class="cmh-find-in"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14M20.5 20.5 16 16"/></svg>
+      <input type="search" id="cmh-find-q" placeholder="Search a function, statute, citation, or owner..." aria-label="Search" autocomplete="off" aria-controls="cmh-find-list"><kbd>Esc</kbd></div>
+    <ul class="cmh-find-list" id="cmh-find-list" role="listbox"></ul>
+    <div class="cmh-find-ft"><span><kbd>&#8593;</kbd> <kbd>&#8595;</kbd> to move</span><span><kbd>Enter</kbd> to open</span><span><kbd>Esc</kbd> to close</span></div>
+  </div>
+</div>
+<script src="{{ settings['ComplianceMatrix/SiteJsUrl'] | default: '/cm-site.js' }}?v=__VERSION__" defer></script>

@@ -1,0 +1,50 @@
+{% comment %}
+  Compliance Matrix site footer. Replaces the Power Pages default footer.
+
+  Install: Portal Management > Web Templates > New, name "CM Site Footer",
+  paste this whole file as Source. Then Websites > this site > Footer
+  Template = CM Site Footer. Its styles come from cm-site.css, which the
+  header template loads.
+
+  The "This site" column lists the same web link set as the header
+  (ComplianceMatrix/SiteNavigation); a web link set named by
+  ComplianceMatrix/FooterNavigation (default "Footer"), if the site has one,
+  adds its links to the same column.
+{% endcomment %}{% assign cmf_matrix = settings['ComplianceMatrix/PageUrl'] | default: '/compliance-matrix/' %}{% assign cmf_set = settings['ComplianceMatrix/SiteNavigation'] | default: 'Default' %}{% assign cmf_more_set = settings['ComplianceMatrix/FooterNavigation'] | default: 'Footer' %}{% assign cmf_nav = weblinks[cmf_set] %}{% assign cmf_more = weblinks[cmf_more_set] %}
+<footer class="cmf" role="contentinfo">
+  <div class="cmf-in">
+    <div class="cmf-brand">
+      <b>Syracuse University</b>
+      <small>Office of Compliance</small>
+      <p>The Compliance Matrix maps the University's regulatory obligations to the people accountable for them.</p>
+    </div>
+    <div>
+      <h4>Compliance Matrix</h4>
+      <ul>
+        <li><a href="{{ cmf_matrix | escape }}#/functions">Compliance Functions</a></li>
+        <li><a href="{{ cmf_matrix | escape }}#/deadlines">Deadlines</a></li>
+        <li><a href="{{ cmf_matrix | escape }}#/directory">Directory</a></li>
+        <li><a href="{{ cmf_matrix | escape }}#/executives">Executive Team</a></li>
+        <li><a href="{{ cmf_matrix | escape }}#/gaps">Gap Tracker</a></li>
+        <li><a href="{{ cmf_matrix | escape }}#/definitions">Definitions</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>This site</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        {% if cmf_nav %}{% for link in cmf_nav.weblinks %}{% assign cmf_url = link.url | downcase %}{% unless cmf_url == '/' %}<li><a href="{{ link.url | escape }}"{% if link.open_in_new_window %} target="_blank" rel="noopener"{% endif %}>{{ link.name | escape }}</a></li>{% endunless %}{% endfor %}{% endif %}
+        {% if cmf_more %}{% for link in cmf_more.weblinks %}<li><a href="{{ link.url | escape }}"{% if link.open_in_new_window %} target="_blank" rel="noopener"{% endif %}>{{ link.name | escape }}</a></li>{% endfor %}{% endif %}
+      </ul>
+    </div>
+    <div>
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="{{ settings['ComplianceMatrix/ComplianceHomeUrl'] | default: 'https://finance.syr.edu/office-of-compliance/' | escape }}" target="_blank" rel="noopener">Compliance Home Page</a></li>
+        <li><a href="{{ settings['ComplianceMatrix/PoliciesUrl'] | default: 'https://policies.syr.edu/policies/' | escape }}" target="_blank" rel="noopener">Policies</a></li>
+        <li><a href="{{ settings['ComplianceMatrix/ReportConcernUrl'] | default: 'https://finance.syr.edu/office-of-compliance/confidential-hotline/' | escape }}" target="_blank" rel="noopener">Report a Concern</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="cmf-base">Syracuse University &middot; Office of Compliance and Enterprise Risk Management</div>
+</footer>

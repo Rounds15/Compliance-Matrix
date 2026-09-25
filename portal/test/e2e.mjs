@@ -76,8 +76,8 @@ await session("SharePoint · administrator · header, view modes, every write", 
   assert.equal(reads.filter(l => l === "Accountability Structure").length, 4, "follows `next` through 7 rows at 2 a page");
 
   // header (spec 1): utility links, admin-only View button, four nav items
-  assert.deepEqual(await page.locator(".util-left > *").allInnerTexts(), ["Compliance Home Page", "Policies", "Definitions"]);
-  assert.equal(await page.locator(".util-left a").first().getAttribute("href"), "https://finance.syr.edu/office-of-compliance/");
+  assert.deepEqual(await page.locator(".util-left > *").allInnerTexts(), ["Portal Home", "Compliance Home Page", "Policies", "Definitions"]);
+  assert.equal(await page.locator(".util-left a", { hasText: "Compliance Home Page" }).getAttribute("href"), "https://finance.syr.edu/office-of-compliance/");
   assert.equal(await page.locator(".viewbtn").innerText(), "View: User ▾", "default mode is User");
   assert.deepEqual(await page.locator(".nav .navbtn").allInnerTexts(), ["Home", "Browse", "Risk and Reporting", "Executive Team"]);
   assert.equal(await page.locator(".backbtn").count(), 0, "no Back on Home");
@@ -107,6 +107,11 @@ await session("SharePoint · administrator · header, view modes, every write", 
   await page.locator(".navbtn", { hasText: "Risk and Reporting" }).click();
   assert.equal(await page.locator(".menu button", { hasText: "Gap Tracker" }).locator(".badge").innerText(), "2", "Admin view: every open gap");
   await page.mouse.click(40, 700);
+
+  // a link into a filtered list, as the site header's search makes
+  await go("#/functions?q=HIPAA");
+  await page.locator(".fresult", { hasText: "1 of 3 functions" }).waitFor();
+  await page.locator(".chip-x").click();
 
   // navigation extras: quick jump, the strip, filters, the footer
   await page.keyboard.press("Control+k");
@@ -560,6 +565,84 @@ await session("A write the backend rejects is reported, and nothing changes", { 
   assert.ok(t);
   assert.equal(portal.sp["Compliance Functions"].find(r => r.Id === 201).Title, before);
   assert.equal(await page.locator(".toast.err").count(), 1);
+});
+
+/* ======================= the site header and footer, on every other page ======================= */
+async function sitePage(name, opts, body) {
+  const portal = await startPortal(opts);
+  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  const problems = [];
+  page.on("pageerror", e => problems.push("pageerror: " + e.message));
+  page.on("console", m => { if (m.type() === "error") problems.push("console: " + m.text()); });
+  try {
+    await body({ page, portal });
+    assert.deepEqual(problems, [], "no page errors");
+    results.push("PASS  " + name); passed++;
+  } catch (e) {
+    await page.screenshot({ path: "/tmp/cm-e2e-failure.png", fullPage: true }).catch(() => { });
+    results.push("FAIL  " + name + "\n      " + String(e.message).split("\n").slice(0, 6).join("\n      ") + (problems.length ? "\n      page: " + problems.join(" | ") : ""));
+  } finally { await page.close(); await portal.close(); }
+}
+
+await sitePage("Site header · web links, active page, menus, search into the matrix", { backend: "sharepoint", admin: false, user: { email: "dferrell@syr.edu", name: "Dwight Ferrell" } }, async ({ page, portal }) => {
+  await page.goto(portal.base + "/policies/annual/");
+  await page.waitForSelector("#cmh[data-ready]");
+  // the web link set drives the nav; Home and the matrix are not repeated
+  assert.deepEqual(await page.locator(".cmh-nav > .cmh-item > .cmh-top").allInnerTexts(), ["Home", "Compliance Matrix", "Policies and Training", "Resources", "Contact"]);
+  assert.equal(await page.locator(".cmh-top.is-here").innerText(), "Policies and Training", "the section of the current page");
+  // the signed-in user, with initials
+  assert.equal(await page.locator(".cmh-me i").innerText(), "DF");
+  // child links and child pages become dropdowns
+  await page.locator(".cmh-top", { hasText: "Policies and Training" }).click();
+  assert.deepEqual(await page.locator("#cmh-p-3 .cmh-link b").allInnerTexts(), ["Policies and Training", "Annual training", "Conflict of interest"]);
+  assert.equal(await page.locator("#cmh-p-3 .cmh-link.is-here b").innerText(), "Annual training");
+  await page.mouse.click(40, 600);
+  assert.equal(await page.locator("#cmh-p-3").isHidden(), true, "outside click closes");
+  await page.locator(".cmh-top", { hasText: "Resources" }).click();
+  assert.equal(await page.locator("#cmh-p-4 .cmh-link", { hasText: "Forms" }).locator("span").innerText(), "Every form the office uses");
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator("#cmh-p-4").isHidden(), true, "Escape closes");
+  // the matrix menu hides the administrator screens from a non-administrator
+  await page.locator(".cmh-top", { hasText: "Compliance Matrix" }).click();
+  assert.deepEqual(await page.locator("#cmh-p-matrix .cmh-link b").allInnerTexts(), ["Compliance Functions", "Deadlines", "Directory", "Executive Team", "Gap Tracker", "Definitions"]);
+  assert.equal(await page.locator("#cmh-p-matrix .cmh-link", { hasText: "Deadlines" }).getAttribute("href"), "/matrix/#/deadlines");
+  await page.keyboard.press("Escape");
+  // search lands on a filtered Compliance Functions
+  await page.keyboard.press("Control+k");
+  await page.locator("#cmh-find-q").fill("I-9");
+  assert.match(await page.locator("#cmh-find-list li.is-on").innerText(), /Search the Compliance Matrix for .I-9./);
+  await page.keyboard.press("Enter");
+  await page.waitForSelector(".fresult");
+  assert.match(await page.locator(".fresult").innerText(), /^1 of 3 functions/);
+  assert.equal(await page.locator(".fbar .search input").inputValue(), "I-9");
+  // and the matrix links back out to the site
+  assert.equal(await page.locator(".util-left a", { hasText: "Portal Home" }).getAttribute("href"), "/");
+  assert.deepEqual(await page.locator(".ftr-col", { hasText: "This site" }).locator("a").allInnerTexts(), ["Home", "Policies and Training", "Resources", "Contact"]);
+  await page.keyboard.press("Control+k");
+  await page.locator(".pal input").fill("contact");
+  assert.ok((await page.locator(".pal-i b").allInnerTexts()).includes("Contact"), "site pages are in the quick jump");
+});
+
+await sitePage("Site header · administrator links, signed-out Sign in, home active", { backend: "sharepoint", admin: true }, async ({ page, portal }) => {
+  await page.goto(portal.base + "/");
+  await page.waitForSelector("#cmh[data-ready]");
+  assert.equal(await page.locator(".cmh-top.is-here").innerText(), "Home");
+  await page.locator(".cmh-top", { hasText: "Compliance Matrix" }).click();
+  assert.equal(await page.locator("#cmh-p-matrix .cmh-link", { hasText: "Flagged Items" }).count(), 1, "administrators see the admin screens");
+  await page.keyboard.press("Escape");
+  // narrow window: the menu button opens the nav
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.locator("#cmh-hamb").click();
+  assert.equal(await page.locator("#cmh-nav").isVisible(), true);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390, "no sideways scroll");
+});
+
+await sitePage("Site header · signed out", { backend: "sharepoint", admin: false, user: null }, async ({ page, portal }) => {
+  await page.goto(portal.base + "/contact/");
+  await page.waitForSelector("#cmh[data-ready]");
+  assert.equal(await page.locator(".cmh-me").count(), 0);
+  assert.equal(await page.locator(".cmh-util a", { hasText: "Sign in" }).getAttribute("href"), "/SignIn?returnUrl=%2Fcontact%2F");
+  assert.equal(await page.locator(".cmh-top.is-here").innerText(), "Contact");
 });
 
 await browser.close();

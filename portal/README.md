@@ -264,6 +264,65 @@ function to the owner's contact (a parent-relationship permission) instead.
 Rebuild it with `python3 tools/build_webpage.py` and paste
 `webpages/home/dist/home.webtemplate.html` as before.
 
+### 9. Site header and footer (every other page)
+
+The matrix page draws its own header. Every other page on the site gets the
+Power Pages default header and footer, until you swap them for these two,
+which match the matrix and are built from the site's own navigation:
+
+```
+dist/cm-site.css                        web file   ~75 KB (Sherman Sans and the Block S embedded)
+dist/cm-site.js                         web file   ~5 KB
+dist/site-header.webtemplate.liquid     web template source
+dist/site-footer.webtemplate.liquid     web template source
+dist/site-preview.html                  both, rendered over a mock portal page
+```
+
+1. **Web files**: `cm-site.css` and `cm-site.js`, as in step 2 (partial URLs
+   `cm-site.css`, `cm-site.js`, parent page Home, Published).
+2. **Web templates**: Portal Management › **Web Templates** › **New**, twice:
+   `CM Site Header` with the whole of `site-header.webtemplate.liquid` as
+   Source, and `CM Site Footer` with `site-footer.webtemplate.liquid`.
+3. **Point the site at them**: Portal Management › **Websites** › this site ›
+   **Header Template** = `CM Site Header`, **Footer Template** =
+   `CM Site Footer`. Save, then **Sync** in Design Studio (or clear the cache
+   from `/_services/about`).
+
+To go back, set the two fields to the original `Header` and `Footer`
+templates. Nothing else on the site changes.
+
+**What drives it.** The top-level links are the web link set named by
+`ComplianceMatrix/SiteNavigation` (default `Default`, the set Design Studio's
+**Pages** workspace edits), so a page added there shows up here. A link with
+child links, or with **Display page child links** on, becomes a dropdown. The
+header does not repeat Home or the matrix; it has its own **Compliance
+Matrix** menu that deep-links to the screens, and shows Risk Dashboard,
+Reporting and Flagged Items only to holders of the administrator web role.
+The current page's section is underlined. Signed in, the utility bar shows
+your name with Profile and Sign out; signed out, Sign in. Search, Ctrl K or
+"/" on any page finds a link in the header or searches the matrix, landing on
+Compliance Functions already filtered (`/compliance-matrix/#/functions?q=`).
+The footer lists the same web link set, plus a `Footer` set if the site has
+one (`ComplianceMatrix/FooterNavigation`).
+
+The matrix page reads the same web link set, so its utility bar has a
+**Portal Home** link and its footer and quick jump list the site's pages.
+
+| Setting | Value | Default |
+|---|---|---|
+| `ComplianceMatrix/PageUrl` | where the matrix page lives | `/compliance-matrix/` |
+| `ComplianceMatrix/SiteNavigation` | web link set for the header, footer and matrix | `Default` |
+| `ComplianceMatrix/FooterNavigation` | extra web link set for the footer | `Footer` |
+| `ComplianceMatrix/ProfileUrl` | the Profile link | `/profile` |
+| `ComplianceMatrix/SiteCssUrl`, `ComplianceMatrix/SiteJsUrl` | if the web files live elsewhere | `/cm-site.css`, `/cm-site.js` |
+
+**Things to know.** The styles are scoped to the header and footer, so the
+theme and the pages are untouched, and the header works with any page
+template that keeps the website header and footer. Design Studio's header
+settings (site logo, site name, header colours) no longer apply, because the
+default header is what used them. The default header's language picker is
+not carried over; add it back if the site becomes multilingual.
+
 ---
 
 ## Security, plainly
@@ -309,12 +368,14 @@ src/
                          Palette.jsx is the quick jump
   styles/                cm.css (the app layer), design.css (the design layer),
                          fonts.css and fonts/ (Sherman, embedded by the build)
-power-pages/             the web template source
+power-pages/             web template sources: the matrix page, the site header
+                         and the site footer
 test/
   data.test.mjs          roll-forward parity, both adapters, the model
   mock-portal.mjs        a strict stand-in for Power Pages, SharePoint flows, Web API
   e2e.mjs                every write, both backends, admin and owner
   shots.mjs              screenshots of each screen, User and Admin view
+src/site/                the site header and footer: site.css, site.js
 ```
 
 `dist/` is committed, so deploying needs no Node. Change `src/`, run

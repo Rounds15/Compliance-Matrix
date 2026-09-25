@@ -35,7 +35,8 @@ export function parseHash(hash) {
   if (parts[0] === "functions" && parts[1]) {
     return parts[1] === "new" ? { screen: "Functions", fnNew: true } : { screen: "Functions", fnId: decodeURIComponent(parts[1]) };
   }
-  return { screen: SCREEN_OF[parts[0] || ""] || "Home", person: qs.get("person") };
+  /* ?q= on functions is the site header's search landing here */
+  return { screen: SCREEN_OF[parts[0] || ""] || "Home", person: qs.get("person"), q: parts[0] === "functions" ? qs.get("q") : null };
 }
 
 export function buildHash({ screen, fnId, fnNew, person }) {
@@ -86,6 +87,12 @@ const ago = d => {
   return m < 1 ? "just now" : m === 1 ? "1 minute ago" : m < 60 ? m + " minutes ago" : "at " + d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 };
 
+/* a site link that points back at the matrix page itself */
+const isThisPage = url => {
+  try { return new URL(url, window.location.href).pathname.replace(/\/$/, "") === window.location.pathname.replace(/\/$/, ""); }
+  catch (e) { return false; }
+};
+
 /* The app has no footer; this one is a second way round the matrix. */
 function Footer({ go, store, onSearch }) {
   const { cfg, adapter, loadedAt, actions, realAdmin, adminView } = store;
@@ -102,6 +109,10 @@ function Footer({ go, store, onSearch }) {
         {link("Functions", "Compliance Functions")}{link("Deadlines")}{link("Directory")}{link("Executive Team")}{link("Definitions")}</div>
       <div className="ftr-col"><h4>Risk and Reporting</h4>
         {link("Gap Tracker")}{adminView && link("Risk Dashboard")}{adminView && link("Reporting")}{realAdmin && link("Flagged Items")}</div>
+      {cfg.siteLinks.length > 0 && <div className="ftr-col"><h4>This site</h4>
+        <a href={L.siteHome}>Home</a>
+        {cfg.siteLinks.filter(l => l.url !== "/" && l.url !== L.siteHome && !isThisPage(l.url)).map(l =>
+          <a key={l.url} href={l.url} target={l.ext ? "_blank" : undefined} rel={l.ext ? "noopener" : undefined}>{l.name}</a>)}</div>}
       <div className="ftr-col"><h4>Resources</h4>
         <a href={L.complianceHome} target="_blank" rel="noopener">Compliance Home Page</a>
         <a href={L.policies} target="_blank" rel="noopener">Policies</a>
@@ -118,7 +129,7 @@ function Footer({ go, store, onSearch }) {
 export function App({ store }) {
   const [route, setRoute] = useState(() => parseHash(window.location.hash));
   const [depth, setDepth] = useState(0);
-  const [filter, setFilter] = useState(blankFilter);
+  const [filter, setFilter] = useState(() => (route.q ? { ...blankFilter, q: route.q } : blankFilter));
   const [palette, setPalette] = useState(false);
   const [topBtn, setTopBtn] = useState(false);
 
@@ -136,7 +147,11 @@ export function App({ store }) {
   }, []);
 
   useEffect(() => {
-    const h = () => { setRoute(parseHash(window.location.hash)); window.scrollTo(0, 0); };
+    const h = () => {
+      const r = parseHash(window.location.hash);
+      if (r.q != null) setFilter({ ...blankFilter, q: r.q });
+      setRoute(r); window.scrollTo(0, 0);
+    };
     window.addEventListener("hashchange", h);
     return () => window.removeEventListener("hashchange", h);
   }, []);
