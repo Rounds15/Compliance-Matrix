@@ -210,9 +210,9 @@ Then, in the target environment:
 
 1. Load the data from the SharePoint lists with the dataflows in
    [`docs/DATAVERSE-MIGRATION.md`](docs/DATAVERSE-MIGRATION.md), which upsert
-   on each item's legacy SharePoint ID and can be re-run any time. (The
-   one-time seed in `solution/schema/seed/` predates that and is superseded;
-   delete seeded rows before the first dataflow load.)
+   on each item's legacy SharePoint ID and can be re-run any time. (The seed
+   in `solution/schema/seed/` predates that, is superseded, and is not
+   loaded.) Add the three computed columns first (section 2 of that guide).
 2. Create the environment variables the Reporting screen reads:
    `su_PowerBIWorkspaceId`, `su_PowerBIExecutiveReportId`,
    `su_PowerBIDeadlineReportId`, `su_PowerBIGapAgingReportId`.

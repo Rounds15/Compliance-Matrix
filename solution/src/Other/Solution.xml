@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="1.0.0.0" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="ComplianceMatrix build_solution.py">
+<ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="9.2.0.0" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive">
   <SolutionManifest>
     <UniqueName>ComplianceMatrix</UniqueName>
     <LocalizedNames>
@@ -15,40 +15,103 @@
       <LocalizedNames>
         <LocalizedName description="Syracuse University" languagecode="1033"/>
       </LocalizedNames>
+      <Descriptions>
+        <Description description="Syracuse University" languagecode="1033"/>
+      </Descriptions>
+      <EMailAddress xsi:nil="true"/>
+      <SupportingWebsiteUrl xsi:nil="true"/>
       <CustomizationPrefix>su</CustomizationPrefix>
       <CustomizationOptionValuePrefix>10000</CustomizationOptionValuePrefix>
+      <Addresses>
+        <Address>
+          <AddressNumber>1</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"/>
+          <County xsi:nil="true"/>
+          <Country xsi:nil="true"/>
+          <Fax xsi:nil="true"/>
+          <FreightTermsCode xsi:nil="true"/>
+          <ImportSequenceNumber xsi:nil="true"/>
+          <Latitude xsi:nil="true"/>
+          <Line1 xsi:nil="true"/>
+          <Line2 xsi:nil="true"/>
+          <Line3 xsi:nil="true"/>
+          <Longitude xsi:nil="true"/>
+          <Name xsi:nil="true"/>
+          <PostalCode xsi:nil="true"/>
+          <PostOfficeBox xsi:nil="true"/>
+          <PrimaryContactName xsi:nil="true"/>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"/>
+          <Telephone1 xsi:nil="true"/>
+          <Telephone2 xsi:nil="true"/>
+          <Telephone3 xsi:nil="true"/>
+          <TimeZoneRuleVersionNumber xsi:nil="true"/>
+          <UPSZone xsi:nil="true"/>
+          <UTCOffset xsi:nil="true"/>
+          <UTCConversionTimeZoneCode xsi:nil="true"/>
+        </Address>
+        <Address>
+          <AddressNumber>2</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"/>
+          <County xsi:nil="true"/>
+          <Country xsi:nil="true"/>
+          <Fax xsi:nil="true"/>
+          <FreightTermsCode xsi:nil="true"/>
+          <ImportSequenceNumber xsi:nil="true"/>
+          <Latitude xsi:nil="true"/>
+          <Line1 xsi:nil="true"/>
+          <Line2 xsi:nil="true"/>
+          <Line3 xsi:nil="true"/>
+          <Longitude xsi:nil="true"/>
+          <Name xsi:nil="true"/>
+          <PostalCode xsi:nil="true"/>
+          <PostOfficeBox xsi:nil="true"/>
+          <PrimaryContactName xsi:nil="true"/>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"/>
+          <Telephone1 xsi:nil="true"/>
+          <Telephone2 xsi:nil="true"/>
+          <Telephone3 xsi:nil="true"/>
+          <TimeZoneRuleVersionNumber xsi:nil="true"/>
+          <UPSZone xsi:nil="true"/>
+          <UTCOffset xsi:nil="true"/>
+          <UTCConversionTimeZoneCode xsi:nil="true"/>
+        </Address>
+      </Addresses>
     </Publisher>
     <RootComponents>
-      <RootComponent type="1" schemaName="su_riskarea" behavior="0"/>
-      <RootComponent type="1" schemaName="su_domain" behavior="0"/>
-      <RootComponent type="1" schemaName="su_compliancedirectory" behavior="0"/>
-      <RootComponent type="1" schemaName="su_compliancefunction" behavior="0"/>
-      <RootComponent type="1" schemaName="su_compliancedeadline" behavior="0"/>
+      <RootComponent type="1" schemaName="su_appadmin" behavior="0"/>
+      <RootComponent type="1" schemaName="su_archive" behavior="0"/>
       <RootComponent type="1" schemaName="su_assessment" behavior="0"/>
       <RootComponent type="1" schemaName="su_assessmentowner" behavior="0"/>
-      <RootComponent type="1" schemaName="su_compliancegap" behavior="0"/>
-      <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
-      <RootComponent type="1" schemaName="su_functionflag" behavior="0"/>
-      <RootComponent type="1" schemaName="su_counselassignment" behavior="0"/>
       <RootComponent type="1" schemaName="su_assessmentresponse" behavior="0"/>
       <RootComponent type="1" schemaName="su_assessmentschedule" behavior="0"/>
-      <RootComponent type="1" schemaName="su_archive" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancedeadline" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancedirectory" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancefunction" behavior="0"/>
+      <RootComponent type="1" schemaName="su_compliancegap" behavior="0"/>
+      <RootComponent type="1" schemaName="su_counselassignment" behavior="0"/>
+      <RootComponent type="1" schemaName="su_domain" behavior="0"/>
+      <RootComponent type="1" schemaName="su_functionflag" behavior="0"/>
+      <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
       <RootComponent type="1" schemaName="su_portalaction" behavior="0"/>
-      <RootComponent type="1" schemaName="su_appadmin" behavior="0"/>
-      <RootComponent type="9" schemaName="su_risklevel" behavior="0"/>
+      <RootComponent type="1" schemaName="su_riskarea" behavior="0"/>
+      <RootComponent type="9" schemaName="su_approle" behavior="0"/>
+      <RootComponent type="9" schemaName="su_assessmentownerrole" behavior="0"/>
+      <RootComponent type="9" schemaName="su_assessmentstatus" behavior="0"/>
       <RootComponent type="9" schemaName="su_cadence" behavior="0"/>
       <RootComponent type="9" schemaName="su_deadlinetype" behavior="0"/>
-      <RootComponent type="9" schemaName="su_offsetunit" behavior="0"/>
+      <RootComponent type="9" schemaName="su_flagsource" behavior="0"/>
+      <RootComponent type="9" schemaName="su_flagstatus" behavior="0"/>
       <RootComponent type="9" schemaName="su_gapstatus" behavior="0"/>
+      <RootComponent type="9" schemaName="su_offsetunit" behavior="0"/>
       <RootComponent type="9" schemaName="su_ownershiprole" behavior="0"/>
       <RootComponent type="9" schemaName="su_ownershipsubrole" behavior="0"/>
-      <RootComponent type="9" schemaName="su_flagstatus" behavior="0"/>
-      <RootComponent type="9" schemaName="su_flagsource" behavior="0"/>
-      <RootComponent type="9" schemaName="su_assessmentstatus" behavior="0"/>
-      <RootComponent type="9" schemaName="su_assessmentownerrole" behavior="0"/>
-      <RootComponent type="9" schemaName="su_portalactiontype" behavior="0"/>
       <RootComponent type="9" schemaName="su_portalactionstatus" behavior="0"/>
-      <RootComponent type="9" schemaName="su_approle" behavior="0"/>
+      <RootComponent type="9" schemaName="su_portalactiontype" behavior="0"/>
+      <RootComponent type="9" schemaName="su_risklevel" behavior="0"/>
     </RootComponents>
     <MissingDependencies/>
   </SolutionManifest>

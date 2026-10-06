@@ -2,19 +2,29 @@
 """
 Generate Dataverse solution source from solution/schema/dataverse-schema.yaml.
 
-Emits the unpacked solution layout that `pac solution pack` consumes:
+Emits the unpacked layout that `pac solution pack` consumes, in the same shape
+`pac solution unpack` produces from a real export:
 
     solution/src/
-        Other/Solution.xml
-        Other/Customizations.xml          global choice sets + relationships
-        Entities/<logical>/Entity.xml     one per table
+        Other/Solution.xml                 manifest, publisher, root components
+        Other/Customizations.xml           section placeholders + <Languages>
+        Other/Relationships.xml            index of relationship names
+        Other/Relationships/<Table>.xml    relationships, grouped by the table
+                                           the lookup points at
+        OptionSets/<name>.xml              one per global choice
+        Entities/<logical>/Entity.xml      one per table, with its primary key
+                                           and system columns
+
+The element order and the system columns follow a real solution export
+(tools/solution_templates/). check_solution() re-reads the output and fails the
+build on anything a Dataverse import is known to reject, including the
+<Language> code, which must be element text.
 
 Usage:
     python3 tools/build_solution.py [--schema PATH] [--out PATH]
 
-Note on validation: this script produces well-formed solution source, but the
-only authoritative check is `pac solution pack` followed by an import into a
-development environment. Run that before promoting anything.
+Columns of type Rollup or Calculated are not written to the solution. They are
+added by hand after import (docs/DATAVERSE-MIGRATION.md, section 2).
 """
 
 from __future__ import annotations
@@ -22,6 +32,8 @@ from __future__ import annotations
 import argparse
 import json
 import pathlib
+import shutil
+import string
 import sys
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -29,9 +41,13 @@ from xml.dom import minidom
 import yaml
 
 LCID = "1033"
-VERSION = "1.0.0.0"
+VERSION = "1.0"
+XSI = "http://www.w3.org/2001/XMLSchema-instance"
+TEMPLATES = pathlib.Path(__file__).resolve().parent / "solution_templates"
 
-# Dataverse attribute type -> (xml <Type>, extra element emitter)
+# Column types that are created by hand after import, never by the solution.
+MANUAL_TYPES = ("Rollup", "Calculated")
+
 TYPE_MAP = {
     "String": "nvarchar",
     "Memo": "ntext",
@@ -41,17 +57,21 @@ TYPE_MAP = {
     "DateTime": "datetime",
     "Lookup": "lookup",
     "Choice": "picklist",
-    "Rollup": "int",
-    "Calculated": "int",
 }
 
-FORMAT_MAP = {
-    "Email": "email",
-    "Url": "url",
-    "Phone": "phone",
-    "Text": "text",
-    "DateOnly": "dateonly",
+STRING_FORMATS = {"Text": "text", "Email": "email", "Url": "url", "Phone": "phone"}
+
+# Custom columns cannot be system required; the primary name column of a
+# custom table is application required, as in an export.
+REQUIRED_MAP = {
+    "None": "none",
+    "SystemRequired": "required",
+    "ApplicationRequired": "required",
+    "Recommended": "recommended",
 }
+
+# Schema names a solution export uses for the system tables we point at.
+SYSTEM_TABLES = {"systemuser": "SystemUser", "contact": "Contact"}
 
 # The SharePoint item ID a migrated row came from (docs/DATAVERSE-MIGRATION.md).
 LEGACY_COLUMN = {
@@ -72,6 +92,16 @@ def columns_of(table: dict) -> list[dict]:
     return cols
 
 
+def solution_columns_of(table: dict) -> list[dict]:
+    """The columns the solution creates (computed columns are added by hand)."""
+    return [c for c in columns_of(table) if c["type"] not in MANUAL_TYPES]
+
+
+def manual_columns(schema: dict) -> list[tuple[str, dict]]:
+    return [(logical, c) for logical, t in schema["tables"].items()
+            for c in columns_of(t) if c["type"] in MANUAL_TYPES]
+
+
 def keys_of(table: dict) -> list[dict]:
     """Alternate keys: one per column marked alternateKey, the table's own
     alternateKeys list, and the legacy ID key."""
@@ -86,14 +116,20 @@ def keys_of(table: dict) -> list[dict]:
                      "displayName": LEGACY_COLUMN["displayName"]})
     return keys
 
-REQUIRED_MAP = {
-    "None": "none",
-    "SystemRequired": "systemrequired",
-    "ApplicationRequired": "required",
-    "Recommended": "recommended",
-}
+
+def relationship_name(logical: str, col: dict) -> str:
+    """The schema name: the publisher prefix, the table, then the column."""
+    default = f"su_{logical.removeprefix('su_')}_{col['name'].removeprefix('su_')}"
+    return col.get("relationshipName", default)
 
 
+def referenced_name(target: str) -> str:
+    return SYSTEM_TABLES.get(target, target)
+
+
+# ---------------------------------------------------------------------------
+# xml helpers
+# ---------------------------------------------------------------------------
 def _sub(parent: ET.Element, tag: str, text: str | None = None, **attrs) -> ET.Element:
     el = ET.SubElement(parent, tag, {k: str(v) for k, v in attrs.items()})
     if text is not None:
@@ -106,35 +142,50 @@ def _localized(parent: ET.Element, wrapper: str, item: str, description: str) ->
     _sub(w, item, description=description, languagecode=LCID)
 
 
+def _flat(text: str | None) -> str:
+    return " ".join((text or "").split())
+
+
+def _root(tag: str, **attrs) -> ET.Element:
+    root = ET.Element(tag, {k: str(v) for k, v in attrs.items()})
+    root.set("xmlns:xsi", XSI)
+    return root
+
+
 def _pretty(root: ET.Element) -> str:
     raw = ET.tostring(root, encoding="unicode")
-    dom = minidom.parseString(raw)
-    out = dom.toprettyxml(indent="  ")
-    # minidom emits a bare declaration; Dataverse expects utf-8 declared.
+    out = minidom.parseString(raw).toprettyxml(indent="  ")
     lines = [ln for ln in out.split("\n") if ln.strip()]
     lines[0] = '<?xml version="1.0" encoding="utf-8"?>'
     return "\n".join(lines) + "\n"
 
 
+def _template(name: str, **values) -> list[ET.Element]:
+    text = string.Template((TEMPLATES / name).read_text(encoding="utf-8")).substitute(values)
+    return list(ET.fromstring(text.split("?>", 1)[1]))
+
+
 # ---------------------------------------------------------------------------
 # attributes
 # ---------------------------------------------------------------------------
-def build_attribute(attrs_el: ET.Element, col: dict, table: dict, prefix: str) -> None:
+def build_attribute(attrs_el: ET.Element, col: dict, table: dict, logical: str) -> None:
     name = col["name"]
     ctype = col["type"]
-    a = _sub(attrs_el, "attribute", PhysicalName=name)
+    primary = name == table["primaryName"]
+    if ctype not in TYPE_MAP:
+        raise SystemExit(f"error: {logical}.{name}: unsupported column type {ctype}")
 
-    _sub(a, "Type", TYPE_MAP.get(ctype, "nvarchar"))
+    a = _sub(attrs_el, "attribute", PhysicalName=name)
+    _sub(a, "Type", TYPE_MAP[ctype])
     _sub(a, "Name", name)
     _sub(a, "LogicalName", name)
-    _sub(a, "RequiredLevel", REQUIRED_MAP.get(col.get("required", "None"), "none"))
-    _sub(a, "DisplayMask", "ValidForAdvancedFind|ValidForForm|ValidForGrid")
+    _sub(a, "RequiredLevel", "required" if primary else REQUIRED_MAP[col.get("required", "None")])
+    _sub(a, "DisplayMask", "PrimaryName|ValidForAdvancedFind|ValidForForm|ValidForGrid|RequiredForForm"
+         if primary else "ValidForAdvancedFind|ValidForForm|ValidForGrid")
     _sub(a, "ImeMode", "auto")
-    _sub(a, "ValidForCreateApi", "1")
+    _sub(a, "ValidForUpdateApi", "1")
     _sub(a, "ValidForReadApi", "1")
-    # Rollup and calculated columns are computed by the platform.
-    editable = ctype not in ("Rollup", "Calculated")
-    _sub(a, "ValidForUpdateApi", "1" if editable else "0")
+    _sub(a, "ValidForCreateApi", "1")
     _sub(a, "IsCustomField", "1")
     _sub(a, "IsAuditEnabled", "1")
     _sub(a, "IsSecured", "0")
@@ -144,98 +195,123 @@ def build_attribute(attrs_el: ET.Element, col: dict, table: dict, prefix: str) -
     _sub(a, "CanModifySearchSettings", "1")
     _sub(a, "CanModifyRequirementLevelSettings", "1")
     _sub(a, "CanModifyAdditionalSettings", "1")
+    _sub(a, "SourceType", "0")
     _sub(a, "IsGlobalFilterEnabled", "0")
     _sub(a, "IsSortableEnabled", "0")
+    _sub(a, "CanModifyGlobalFilterSettings", "1")
+    _sub(a, "CanModifyIsSortableSettings", "1")
     _sub(a, "IsDataSourceSecret", "0")
+    _sub(a, "AutoNumberFormat", col.get("autoNumber") or "")
     _sub(a, "IsSearchable", "1" if ctype in ("String", "Memo") else "0")
+    _sub(a, "IsFilterable", "0")
+    _sub(a, "IsRetrievable", "1" if primary else "0")
+    _sub(a, "IsLocalizable", "0")
 
     if ctype == "String":
-        _sub(a, "MaxLength", col.get("maxLength", 100))
-        _sub(a, "Format", FORMAT_MAP.get(col.get("format", "Text"), "text"))
-        if col.get("autoNumber"):
-            _sub(a, "AutoNumberFormat", col["autoNumber"])
+        fmt = col.get("format", "Text")
+        if fmt not in STRING_FORMATS:
+            raise SystemExit(f"error: {logical}.{name}: unsupported text format {fmt}")
+        length = int(col.get("maxLength", 100))
+        _sub(a, "Format", STRING_FORMATS[fmt])
+        _sub(a, "MaxLength", length)
+        _sub(a, "Length", length * 2)
     elif ctype == "Memo":
+        _sub(a, "Format", "")
         _sub(a, "MaxLength", col.get("maxLength", 2000))
-        _sub(a, "Format", "textarea")
     elif ctype == "Integer":
+        _sub(a, "Format", "none")
         _sub(a, "MinValue", col.get("minValue", -2147483648))
         _sub(a, "MaxValue", col.get("maxValue", 2147483647))
-        _sub(a, "Format", "none")
     elif ctype == "Decimal":
         _sub(a, "MinValue", col.get("minValue", -100000000000))
         _sub(a, "MaxValue", col.get("maxValue", 100000000000))
         _sub(a, "Accuracy", col.get("precision", 2))
     elif ctype == "Boolean":
-        opts = _sub(a, "optionset", Name=f"{name}_optionset")
-        _localized(opts, "displaynames", "displayname", col["displayName"])
-        _sub(opts, "IsGlobal", "0")
-        _sub(opts, "OptionSetType", "boolean")
-        for value, label in ((0, "No"), (1, "Yes")):
-            o = _sub(opts, "option", value=str(value))
-            _localized(o, "labels", "label", label)
-        _sub(a, "DefaultValue", "1" if col.get("default") else "0")
+        _sub(a, "AppDefaultValue", "1" if col.get("default") else "0")
+        o = _sub(a, "optionset", Name=f"{logical}_{name.removeprefix('su_')}")
+        _sub(o, "OptionSetType", "bit")
+        _sub(o, "IntroducedVersion", VERSION)
+        _sub(o, "IsCustomizable", "1")
+        _localized(o, "displaynames", "displayname", col["displayName"])
+        _localized(o, "Descriptions", "Description", "")
+        opts = _sub(o, "options")
+        for value, label in (("1", "Yes"), ("0", "No")):
+            oe = _sub(opts, "option", value=value, IsHidden="0")
+            _localized(oe, "labels", "label", label)
     elif ctype == "DateTime":
         fmt = col.get("format", "DateOnly")
-        _sub(a, "Format", "dateonly" if fmt == "DateOnly" else "datetime")
-        _sub(a, "Behavior", "1" if fmt == "DateOnly" else "0")
-        _sub(a, "CanChangeDateTimeBehavior", "0")
+        if fmt not in ("DateOnly", "DateAndTime"):
+            raise SystemExit(f"error: {logical}.{name}: unsupported date format {fmt}")
+        _sub(a, "Format", "date" if fmt == "DateOnly" else "datetime")
+        _sub(a, "CanChangeDateTimeBehavior", "1")
+        # 1 User local, 2 Date only. Date-only values are stored without a
+        # time zone, so a due date reads the same for every viewer.
+        _sub(a, "Behavior", "2" if fmt == "DateOnly" else "1")
     elif ctype == "Lookup":
         _sub(a, "LookupStyle", "single")
-        lookups = _sub(a, "lookupTypes")
-        _sub(lookups, "lookupType", id="{00000000-0000-0000-0000-000000000000}",
-             name=col["target"])
+        _sub(a, "LookupTypes")
     elif ctype == "Choice":
-        # Reference to a global option set defined in Customizations.xml.
-        opts = _sub(a, "optionset", Name=col["choice"])
-        _sub(opts, "IsGlobal", "1")
-        _sub(opts, "OptionSetType", "picklist")
-    elif ctype == "Rollup":
-        r = col["rollup"]
-        _sub(a, "IsRollupAttribute", "1")
-        _sub(a, "RollupAggregate", r["aggregate"])
-        _sub(a, "RollupRelatedEntity", r["relatedTable"])
-        _sub(a, "RollupRelationship", r["relationship"])
-        if r.get("aggregateColumn"):
-            _sub(a, "RollupAggregateAttribute", r["aggregateColumn"])
-        _sub(a, "MinValue", -2147483648)
-        _sub(a, "MaxValue", 2147483647)
-        _sub(a, "Format", "none")
-    elif ctype == "Calculated":
-        c = col["calculated"]
-        _sub(a, "IsCalculatedAttribute", "1")
-        _sub(a, "CalculatedFieldFormula", " ".join(c["formula"].split()))
-        _sub(a, "MinValue", -2147483648)
-        _sub(a, "MaxValue", 2147483647)
-        _sub(a, "Format", "none")
+        _sub(a, "AppDefaultValue", "-1")
+        _sub(a, "OptionSetName", col["choice"])
 
     _localized(a, "displaynames", "displayname", col["displayName"])
-    if col.get("description"):
-        _localized(a, "Descriptions", "Description",
-                   " ".join(col["description"].split()))
+    _localized(a, "Descriptions", "Description", _flat(col.get("description")))
 
 
 # ---------------------------------------------------------------------------
 # entities
 # ---------------------------------------------------------------------------
-def build_entity(logical: str, table: dict, prefix: str) -> ET.Element:
-    root = ET.Element("Entity")
-    _sub(root, "Name", logical,
-         LocalizedName=table["displayName"],
-         OriginalName=table["displayName"])
+ENTITY_SETTINGS = [
+    ("IsDuplicateCheckSupported", "1"), ("IsBusinessProcessEnabled", "0"),
+    ("IsRequiredOffline", "0"), ("IsInteractionCentricEnabled", "0"),
+    ("IsCollaboration", "0"), ("AutoRouteToOwnerQueue", "0"),
+    ("IsConnectionsEnabled", "0"), ("EntityColor", ""),
+    ("IsDocumentManagementEnabled", None), ("AutoCreateAccessTeams", "0"),
+    ("IsOneNoteIntegrationEnabled", "0"), ("IsKnowledgeManagementEnabled", "0"),
+    ("IsSLAEnabled", "0"), ("IsDocumentRecommendationsEnabled", "0"),
+    ("IsBPFEntity", "0"), ("OwnershipTypeMask", "UserOwned"),
+    ("IsAuditEnabled", "1"), ("IsRetrieveAuditEnabled", "0"),
+    ("IsRetrieveMultipleAuditEnabled", "0"), ("IsActivity", "0"),
+    ("ActivityTypeMask", "CommunicationActivity"), ("IsActivityParty", "0"),
+    ("IsReplicated", "0"), ("IsReplicationUserFiltered", "0"),
+    ("IsMailMergeEnabled", "1"), ("IsVisibleInMobile", "0"),
+    ("IsVisibleInMobileClient", "0"), ("IsReadOnlyInMobileClient", "0"),
+    ("IsOfflineInMobileClient", "0"), ("DaysSinceRecordLastModified", "0"),
+    ("MobileOfflineFilters", ""), ("IsMapiGridEnabled", "1"),
+    ("IsReadingPaneEnabled", "1"), ("IsQuickCreateEnabled", "0"),
+    ("SyncToExternalSearchIndex", "0"), ("IntroducedVersion", VERSION),
+    ("IsCustomizable", "1"), ("IsRenameable", "1"), ("IsMappable", "1"),
+    ("CanModifyAuditSettings", "1"), ("CanModifyMobileVisibility", "1"),
+    ("CanModifyMobileClientVisibility", "1"), ("CanModifyMobileClientReadOnly", "1"),
+    ("CanModifyMobileClientOffline", "1"), ("CanModifyConnectionSettings", "1"),
+    ("CanModifyDuplicateDetectionSettings", "1"), ("CanModifyMailMergeSettings", "1"),
+    ("CanModifyQueueSettings", "1"), ("CanCreateAttributes", "1"),
+    ("CanCreateForms", "1"), ("CanCreateCharts", "1"), ("CanCreateViews", "1"),
+    ("CanModifyAdditionalSettings", "1"), ("CanEnableSyncToExternalSearchIndex", "1"),
+    ("EnforceStateTransitions", "0"), ("CanChangeHierarchicalRelationship", "1"),
+    ("EntityHelpUrlEnabled", "0"), ("EntityHelpUrl", ""),
+    ("ChangeTrackingEnabled", "1"), ("CanChangeTrackingBeEnabled", "1"),
+    ("IsEnabledForExternalChannels", "0"), ("IsMSTeamsIntegrationEnabled", "0"),
+    ("IsSolutionAware", "0"),
+]
+
+
+def build_entity(logical: str, table: dict) -> ET.Element:
+    display = table["displayName"]
+    root = _root("Entity")
+    _sub(root, "Name", logical, LocalizedName=display, OriginalName=display)
 
     info = _sub(root, "EntityInfo")
     ent = _sub(info, "entity", Name=logical)
-
-    _localized(ent, "LocalizedNames", "LocalizedName", table["displayName"])
+    _localized(ent, "LocalizedNames", "LocalizedName", display)
     _localized(ent, "LocalizedCollectionNames", "LocalizedCollectionName",
                table["displayCollectionName"])
-    if table.get("description"):
-        _localized(ent, "Descriptions", "Description",
-                   " ".join(table["description"].split()))
+    _localized(ent, "Descriptions", "Description", _flat(table.get("description")))
 
     attrs = _sub(ent, "attributes")
-    for col in columns_of(table):
-        build_attribute(attrs, col, table, prefix)
+    for col in solution_columns_of(table):
+        build_attribute(attrs, col, table, logical)
+    attrs.extend(_template("system-attributes.xml", entity=logical, display=display))
 
     keys = keys_of(table)
     if keys:
@@ -243,136 +319,268 @@ def build_entity(logical: str, table: dict, prefix: str) -> ET.Element:
         for k in keys:
             ke = _sub(ks, "EntityKey")
             _sub(ke, "Name", k["name"])
-            _sub(ke, "LogicalName", k["name"])
+            _sub(ke, "LogicalName", k["name"].lower())
+            _sub(ke, "IntroducedVersion", VERSION)
+            _sub(ke, "IsCustomizable", "1")
             ka = _sub(ke, "EntityKeyAttributes")
             for c in k["columns"]:
                 _sub(ka, "AttributeName", c)
-            _sub(ke, "IntroducedVersion", VERSION)
             _localized(ke, "displaynames", "displayname", k["displayName"])
 
-    # Entity-level settings
     _sub(ent, "EntitySetName", logical + "s")
-    _sub(ent, "IsDuplicateCheckSupported", "1")
-    _sub(ent, "IsBusinessProcessEnabled", "0")
-    _sub(ent, "IsRenameable", "1")
-    _sub(ent, "IsCustomizable", "1")
-    _sub(ent, "IsMappable", "1")
-    _sub(ent, "IsAuditEnabled", "1")
-    _sub(ent, "IsActivity", "0")
-    _sub(ent, "IsAvailableOffline", "1")
-    _sub(ent, "IsVisibleInMobile", "1")
-    _sub(ent, "IsVisibleInMobileClient", "1")
-    _sub(ent, "IsConnectionsEnabled", "0")
-    _sub(ent, "IsDocumentManagementEnabled", "1" if table.get("documentManagement") else "0")
-    _sub(ent, "IsMailMergeEnabled", "0")
-    _sub(ent, "IsCustomEntity", "1")
-    _sub(ent, "IsQuickCreateEnabled", "1")
-    _sub(ent, "IntroducedVersion", VERSION)
-    _sub(ent, "OwnershipTypeMask", table.get("ownership", "UserOwned"))
-    _sub(ent, "PrimaryNameAttribute", table["primaryName"])
-    _sub(ent, "HasNotes", "1" if table.get("hasNotes") else "0")
-    _sub(ent, "HasActivities", "1" if table.get("hasActivities") else "0")
-    _sub(ent, "IsChildEntity", "0")
+    for tag, value in ENTITY_SETTINGS:
+        if tag == "IsDocumentManagementEnabled":
+            value = "1" if table.get("documentManagement") else "0"
+        _sub(ent, tag, value)
 
+    _sub(root, "FormXml")
+    _sub(root, "SavedQueries")
+    _sub(root, "RibbonDiffXml")
     return root
 
 
 # ---------------------------------------------------------------------------
-# customizations (global choices + relationships)
+# global choices
 # ---------------------------------------------------------------------------
-def build_customizations(schema: dict) -> ET.Element:
-    root = ET.Element("ImportExportXml", {
-        "version": VERSION,
-        "SolutionPackageVersion": "9.2",
-        "languagecode": LCID,
-        "generatedBy": "ComplianceMatrix build_solution.py",
-    })
+def build_optionset(name: str, choice: dict) -> ET.Element:
+    o = _root("optionset", Name=name, localizedName=choice["displayName"])
+    _sub(o, "OptionSetType", "picklist")
+    _sub(o, "IsGlobal", "1")
+    _sub(o, "IntroducedVersion", VERSION)
+    _sub(o, "IsCustomizable", "1")
+    _localized(o, "displaynames", "displayname", choice["displayName"])
+    _localized(o, "Descriptions", "Description", _flat(choice.get("description")))
+    options = _sub(o, "options")
+    for opt in choice["options"]:
+        oe = _sub(options, "option", value=str(opt["value"]), IsHidden="0")
+        _localized(oe, "labels", "label", opt["label"])
+    return o
 
-    _sub(root, "Entities")
-    _sub(root, "Roles")
-    _sub(root, "Workflows")
-    _sub(root, "FieldSecurityProfiles")
-    _sub(root, "Templates")
-    _sub(root, "EntityMaps")
 
-    # -- global option sets --------------------------------------------------
-    osets = _sub(root, "optionsets")
-    for name, choice in schema["choices"].items():
-        o = _sub(osets, "optionset", Name=name, localizedName=choice["displayName"],
-                 OptionSetType="picklist", IsCustomizable="1", IntroducedVersion=VERSION)
-        _localized(o, "displaynames", "displayname", choice["displayName"])
-        if choice.get("description"):
-            _localized(o, "Descriptions", "Description",
-                       " ".join(choice["description"].split()))
-        options = _sub(o, "options")
-        for opt in choice["options"]:
-            oe = _sub(options, "option", value=str(opt["value"]))
-            if opt.get("color"):
-                oe.set("Color", opt["color"])
-            _localized(oe, "labels", "label", opt["label"])
+# ---------------------------------------------------------------------------
+# relationships
+# ---------------------------------------------------------------------------
+def build_relationship(logical: str, col: dict) -> ET.Element:
+    cascade = col.get("cascade", {})
+    r = ET.Element("EntityRelationship", Name=relationship_name(logical, col))
+    _sub(r, "EntityRelationshipType", "OneToMany")
+    _sub(r, "IsCustomizable", "1")
+    _sub(r, "IntroducedVersion", VERSION)
+    _sub(r, "IsHierarchical", "0")
+    _sub(r, "ReferencingEntityName", logical)
+    _sub(r, "ReferencedEntityName", referenced_name(col["target"]))
+    _sub(r, "CascadeAssign", "NoCascade")
+    _sub(r, "CascadeDelete", cascade.get("delete", "RemoveLink"))
+    _sub(r, "CascadeArchive", "NoCascade")
+    _sub(r, "CascadeReparent", "NoCascade")
+    _sub(r, "CascadeShare", "NoCascade")
+    _sub(r, "CascadeUnshare", "NoCascade")
+    _sub(r, "CascadeRollupView", "NoCascade")
+    _sub(r, "IsValidForAdvancedFind", "1")
+    _sub(r, "ReferencingAttributeName", col["name"])
+    desc = _sub(r, "RelationshipDescription")
+    _localized(desc, "Descriptions", "Description", "")
+    roles = _sub(r, "EntityRelationshipRoles")
+    one = _sub(roles, "EntityRelationshipRole")
+    _sub(one, "NavPaneDisplayOption", "UseCollectionName")
+    _sub(one, "NavPaneArea", "Details")
+    _sub(one, "NavPaneOrder", "10000")
+    _sub(one, "NavigationPropertyName", col["name"])
+    _sub(one, "RelationshipRoleType", "1")
+    many = _sub(roles, "EntityRelationshipRole")
+    _sub(many, "NavigationPropertyName", relationship_name(logical, col))
+    _sub(many, "RelationshipRoleType", "0")
+    return r
 
-    # -- relationships -------------------------------------------------------
-    rels = _sub(root, "EntityRelationships")
+
+def relationships_by_file(schema: dict) -> dict[str, list[ET.Element]]:
+    """Relationship elements grouped by referenced table, as an unpack does."""
+    groups: dict[str, list[ET.Element]] = {}
     for logical, table in schema["tables"].items():
-        for col in columns_of(table):
-            if col["type"] != "Lookup" or col["target"] == "systemuser":
-                continue
-            rel_name = col.get(
-                "relationshipName",
-                f"{col['target']}_{logical}_{col['name']}",
-            )
-            r = _sub(rels, "EntityRelationship", Name=rel_name)
-            _sub(r, "EntityRelationshipType", "OneToMany")
-            _sub(r, "IsCustomizable", "1")
-            _sub(r, "IntroducedVersion", VERSION)
-            _sub(r, "ReferencingEntityName", logical)
-            _sub(r, "ReferencedEntityName", col["target"])
-            _sub(r, "ReferencingAttributeName", col["name"])
-            _sub(r, "RelationshipDescription")
-            cascade = col.get("cascade", {})
-            c = _sub(r, "CascadeLinks")
-            _sub(c, "CascadeAssign", "NoCascade")
-            _sub(c, "CascadeDelete", cascade.get("delete", "RemoveLink"))
-            _sub(c, "CascadeReparent", "NoCascade")
-            _sub(c, "CascadeShare", "NoCascade")
-            _sub(c, "CascadeUnshare", "NoCascade")
-            _sub(c, "CascadeMerge", "NoCascade")
+        for rel in _template("system-relationships.xml", entity=logical,
+                             display=table["displayName"]):
+            groups.setdefault(rel.findtext("ReferencedEntityName"), []).append(rel)
+        for col in solution_columns_of(table):
+            if col["type"] == "Lookup":
+                groups.setdefault(referenced_name(col["target"]), []).append(
+                    build_relationship(logical, col))
+    return {k: sorted(v, key=lambda e: e.get("Name").lower()) for k, v in sorted(groups.items())}
 
-    _sub(root, "Languages").append(ET.Element("Language", {"code": LCID}))
+
+# ---------------------------------------------------------------------------
+# customizations + manifest
+# ---------------------------------------------------------------------------
+CUSTOMIZATION_SECTIONS = [
+    "Entities", "Roles", "Workflows", "FieldSecurityProfiles", "Templates",
+    "EntityMaps", "EntityRelationships", "OrganizationSettings", "optionsets",
+    "CustomControls", "SolutionPluginAssemblies", "EntityDataProviders",
+]
+
+
+def build_customizations() -> ET.Element:
+    root = _root("ImportExportXml")
+    for tag in CUSTOMIZATION_SECTIONS:
+        _sub(root, tag)
+    _sub(_sub(root, "Languages"), "Language", LCID)
     return root
+
+
+ADDRESS_FIELDS = [
+    "AddressNumber", "AddressTypeCode", "City", "County", "Country", "Fax",
+    "FreightTermsCode", "ImportSequenceNumber", "Latitude", "Line1", "Line2",
+    "Line3", "Longitude", "Name", "PostalCode", "PostOfficeBox",
+    "PrimaryContactName", "ShippingMethodCode", "StateOrProvince", "Telephone1",
+    "Telephone2", "Telephone3", "TimeZoneRuleVersionNumber", "UPSZone",
+    "UTCOffset", "UTCConversionTimeZoneCode",
+]
+NIL = "{%s}nil" % XSI
+
+
+def _nil(parent: ET.Element, tag: str) -> None:
+    _sub(parent, tag).set("xsi:nil", "true")
 
 
 def build_solution_xml(schema: dict) -> ET.Element:
     pub = schema["publisher"]
     sol = schema["solution"]
 
-    root = ET.Element("ImportExportXml", {
-        "version": VERSION,
-        "SolutionPackageVersion": "9.2",
-        "languagecode": LCID,
-        "generatedBy": "ComplianceMatrix build_solution.py",
-    })
+    root = _root("ImportExportXml", version="9.2.0.0", SolutionPackageVersion="9.2",
+                 languagecode=LCID, generatedBy="CrmLive")
     m = _sub(root, "SolutionManifest")
     _sub(m, "UniqueName", sol["uniqueName"])
     _localized(m, "LocalizedNames", "LocalizedName", sol["displayName"])
-    _localized(m, "Descriptions", "Description", " ".join(sol["description"].split()))
+    _localized(m, "Descriptions", "Description", _flat(sol["description"]))
     _sub(m, "Version", sol["version"])
     _sub(m, "Managed", "1" if sol.get("managed") else "0")
 
     p = _sub(m, "Publisher")
     _sub(p, "UniqueName", pub["name"])
     _localized(p, "LocalizedNames", "LocalizedName", pub["displayName"])
+    _localized(p, "Descriptions", "Description", pub["displayName"])
+    _nil(p, "EMailAddress")
+    _nil(p, "SupportingWebsiteUrl")
     _sub(p, "CustomizationPrefix", pub["prefix"])
     _sub(p, "CustomizationOptionValuePrefix", str(pub["optionValuePrefix"]))
+    addresses = _sub(p, "Addresses")
+    for number in ("1", "2"):
+        ad = _sub(addresses, "Address")
+        for field in ADDRESS_FIELDS:
+            if field == "AddressNumber":
+                _sub(ad, field, number)
+            elif field in ("AddressTypeCode", "ShippingMethodCode"):
+                _sub(ad, field, "1")
+            else:
+                _nil(ad, field)
 
     comps = _sub(m, "RootComponents")
-    for logical in schema["tables"]:
+    for logical in sorted(schema["tables"]):
         _sub(comps, "RootComponent", type="1", schemaName=logical, behavior="0")
-    for choice in schema["choices"]:
+    for choice in sorted(schema["choices"]):
         _sub(comps, "RootComponent", type="9", schemaName=choice, behavior="0")
-
     _sub(m, "MissingDependencies")
     return root
+
+
+# ---------------------------------------------------------------------------
+# checks a Dataverse import is known to depend on
+# ---------------------------------------------------------------------------
+def check_solution(out: pathlib.Path, schema: dict) -> list[str]:
+    errors = []
+
+    def parse(path: pathlib.Path):
+        try:
+            return ET.parse(path).getroot()
+        except (ET.ParseError, FileNotFoundError) as e:
+            errors.append(f"{path}: {e}")
+            return None
+
+    cust = parse(out / "Other" / "Customizations.xml")
+    if cust is not None:
+        langs = cust.findall("Languages/Language")
+        if not langs:
+            errors.append("Customizations.xml: no <Languages><Language> element")
+        for lang in langs:
+            if lang.attrib or (lang.text or "").strip() != LCID:
+                errors.append("Customizations.xml: <Language> must carry the code as element "
+                              f"text, <Language>{LCID}</Language>, with no attributes")
+        for tag in CUSTOMIZATION_SECTIONS:
+            el = cust.find(tag)
+            if el is None:
+                errors.append(f"Customizations.xml: missing <{tag} />")
+            elif len(el):
+                errors.append(f"Customizations.xml: <{tag}> must be empty; its content "
+                              "belongs in its own files")
+
+    sol = parse(out / "Other" / "Solution.xml")
+    if sol is not None:
+        p = sol.find("SolutionManifest/Publisher")
+        for tag in ("UniqueName", "LocalizedNames", "Descriptions", "EMailAddress",
+                    "SupportingWebsiteUrl", "CustomizationPrefix",
+                    "CustomizationOptionValuePrefix", "Addresses"):
+            if p is None or p.find(tag) is None:
+                errors.append(f"Solution.xml: publisher is missing <{tag}>")
+        if p is not None and len(p.findall("Addresses/Address")) != 2:
+            errors.append("Solution.xml: publisher needs two <Address> entries")
+        if p is not None and p.findtext("CustomizationOptionValuePrefix") != str(
+                schema["publisher"]["optionValuePrefix"]):
+            errors.append("Solution.xml: option value prefix differs from the schema")
+        for el in sol.iter():
+            if el.get(NIL) is not None and (el.text or "").strip():
+                errors.append(f"Solution.xml: <{el.tag}> is nil but has text")
+
+    names = set()
+    idx = parse(out / "Other" / "Relationships.xml")
+    if idx is not None:
+        names = {e.get("Name") for e in idx}
+    found = set()
+    for f in sorted((out / "Other" / "Relationships").glob("*.xml")):
+        r = parse(f)
+        for rel in (r if r is not None else []):
+            found.add(rel.get("Name"))
+            if rel.findtext("ReferencedEntityName") != f.stem:
+                errors.append(f"{f.name}: {rel.get('Name')} belongs in "
+                              f"{rel.findtext('ReferencedEntityName')}.xml")
+    long = sorted(n for n in found if len(n) > 50)
+    if long:
+        errors.append(f"relationship names over 50 characters: {long}")
+    if names != found:
+        errors.append("Relationships.xml does not list exactly the relationships on disk: "
+                      f"{sorted(names ^ found)}")
+
+    for name, choice in schema["choices"].items():
+        o = parse(out / "OptionSets" / f"{name}.xml")
+        if o is not None and o.findtext("IsGlobal") != "1":
+            errors.append(f"OptionSets/{name}.xml: not marked global")
+        values = [o["value"] for o in choice["options"]]
+        if len(set(values)) != len(values):
+            errors.append(f"{name}: duplicate option values")
+
+    for logical, table in schema["tables"].items():
+        e = parse(out / "Entities" / logical / "Entity.xml")
+        if e is None:
+            continue
+        attrs = {a.findtext("LogicalName"): a for a in e.iter("attribute")}
+        for needed in (f"{logical}id", "ownerid", "statecode", "statuscode", "createdon"):
+            if needed not in attrs:
+                errors.append(f"{logical}: missing system column {needed}")
+        pn = attrs.get(table["primaryName"])
+        if pn is None or "PrimaryName" not in (pn.findtext("DisplayMask") or ""):
+            errors.append(f"{logical}: primary name column is not marked PrimaryName")
+        for a in attrs.values():
+            t = a.findtext("Type")
+            if t == "picklist" and a.findtext("OptionSetName") not in schema["choices"]:
+                errors.append(f"{logical}.{a.findtext('Name')}: choice must name a global "
+                              "choice in <OptionSetName>")
+            if t == "bit" and a.findtext("optionset/OptionSetType") != "bit":
+                errors.append(f"{logical}.{a.findtext('Name')}: yes/no option set must be type bit")
+            if t == "lookup" and a.find("LookupTypes") is None:
+                errors.append(f"{logical}.{a.findtext('Name')}: lookup without <LookupTypes />")
+        for col in solution_columns_of(table):
+            if col["type"] == "Lookup" and relationship_name(logical, col) not in found:
+                errors.append(f"{logical}.{col['name']}: no relationship for this lookup")
+        if e.findtext("EntityInfo/entity/OwnershipTypeMask") != "UserOwned":
+            errors.append(f"{logical}: only user-owned tables are generated")
+    return errors
 
 
 def build_test_schema(schema: dict) -> dict:
@@ -381,9 +589,7 @@ def build_test_schema(schema: dict) -> dict:
     out = {}
     for logical, table in sorted(schema["tables"].items()):
         cols = {}
-        for col in columns_of(table):
-            if col["type"] in ("Rollup", "Calculated"):
-                continue
+        for col in solution_columns_of(table):
             cols[col["name"]] = "lookup:" + col["target"] if col["type"] == "Lookup" else col["type"]
         out[logical] = {"columns": dict(sorted(cols.items())), "id": logical + "id", "set": logical + "s"}
     return out
@@ -404,40 +610,60 @@ def main(argv: list[str]) -> int:
         return 1
 
     schema = yaml.safe_load(args.schema.read_text(encoding="utf-8"))
-    prefix = schema["publisher"]["prefix"]
+    for logical, table in schema["tables"].items():
+        if table.get("ownership", "UserOwned") != "UserOwned":
+            print(f"error: {logical}: only UserOwned tables are supported", file=sys.stderr)
+            return 1
 
+    # Start clean so a renamed table or choice leaves nothing behind.
+    if args.out.exists():
+        shutil.rmtree(args.out)
     other = args.out / "Other"
-    other.mkdir(parents=True, exist_ok=True)
+    (other / "Relationships").mkdir(parents=True)
+    (args.out / "OptionSets").mkdir()
 
     (other / "Solution.xml").write_text(_pretty(build_solution_xml(schema)), encoding="utf-8")
-    print(f"  {other / 'Solution.xml'}")
+    (other / "Customizations.xml").write_text(_pretty(build_customizations()), encoding="utf-8")
 
-    (other / "Customizations.xml").write_text(
-        _pretty(build_customizations(schema)), encoding="utf-8"
-    )
-    print(f"  {other / 'Customizations.xml'}")
+    groups = relationships_by_file(schema)
+    index = _root("EntityRelationships")
+    for rels in groups.values():
+        for rel in rels:
+            _sub(index, "EntityRelationship", Name=rel.get("Name"))
+    index[:] = sorted(index, key=lambda e: e.get("Name").lower())
+    (other / "Relationships.xml").write_text(_pretty(index), encoding="utf-8")
+    for referenced, rels in groups.items():
+        f = _root("EntityRelationships")
+        f.extend(rels)
+        (other / "Relationships" / f"{referenced}.xml").write_text(_pretty(f), encoding="utf-8")
+
+    for name, choice in schema["choices"].items():
+        (args.out / "OptionSets" / f"{name}.xml").write_text(
+            _pretty(build_optionset(name, choice)), encoding="utf-8")
 
     col_total = 0
     for logical, table in schema["tables"].items():
         d = args.out / "Entities" / logical
-        d.mkdir(parents=True, exist_ok=True)
-        (d / "Entity.xml").write_text(
-            _pretty(build_entity(logical, table, prefix)), encoding="utf-8"
-        )
-        n = len(columns_of(table))
-        col_total += n
-        print(f"  {d / 'Entity.xml'}  ({n} columns)")
+        d.mkdir(parents=True)
+        (d / "Entity.xml").write_text(_pretty(build_entity(logical, table)), encoding="utf-8")
+        col_total += len(solution_columns_of(table))
 
     if args.test_schema.parent.is_dir():
         args.test_schema.write_text(json.dumps(build_test_schema(schema), indent=1) + "\n", encoding="utf-8")
-        print(f"  {args.test_schema}")
 
-    print(
-        f"\n{len(schema['tables'])} tables, {col_total} columns, "
-        f"{len(schema['choices'])} global choice sets."
-    )
-    print("Next: pac solution pack --zipfile ComplianceMatrix.zip "
-          f"--folder {args.out} --packagetype Unmanaged")
+    errors = check_solution(args.out, schema)
+    if errors:
+        for e in errors:
+            print(f"error: {e}", file=sys.stderr)
+        return 1
+
+    n_rels = sum(len(v) for v in groups.values())
+    print(f"{len(schema['tables'])} tables, {col_total} columns, {len(schema['choices'])} "
+          f"global choices, {n_rels} relationships written to {args.out}. Checks passed.")
+    for logical, col in manual_columns(schema):
+        print(f"  add after import: {logical}.{col['name']} ({col['type']})")
+    print(f"Next: pac solution pack --zipfile ComplianceMatrix.zip --folder {args.out} "
+          "--packagetype Unmanaged")
     return 0
 
 

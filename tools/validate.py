@@ -17,6 +17,10 @@ Checks, in order:
      query behind it in both the Liquid and the JavaScript output
   9. portal/dist matches a fresh build of portal/src (needs Node; skipped
      without it)
+ 10. solution/src matches a fresh run of tools/build_solution.py, and passes
+     its import checks: <Language> carries the code as element text, the
+     Customizations.xml sections are empty, the publisher block is complete,
+     every lookup has a relationship
 
 This is a static check. It cannot verify Power Fx semantics, control @version
 strings, or delegation behaviour - only `pac` and a real environment can.
@@ -441,6 +445,36 @@ def check_schema_refs(loaded: dict[pathlib.Path, object]) -> None:
         ok(f"{len(tables)} tables, {n_cols} columns, {len(choices)} choice sets resolve")
 
 
+def check_solution_src() -> None:
+    print("\nSolution source (tools/build_solution.py)")
+    import filecmp  # noqa: PLC0415
+    import tempfile  # noqa: PLC0415
+    sys.path.insert(0, str(ROOT / "tools"))
+    import build_solution  # noqa: PLC0415 - local generator
+
+    schema_path = SCHEMA_DIR / "dataverse-schema.yaml"
+    schema = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
+    for err in build_solution.check_solution(SRC, schema):
+        fail(f"solution/src: {err}")
+    with tempfile.TemporaryDirectory() as tmp:
+        fresh = pathlib.Path(tmp) / "src"
+        import contextlib, io  # noqa: E401, PLC0415
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = build_solution.main(["--schema", str(schema_path), "--out", str(fresh),
+                                        "--test-schema", str(pathlib.Path(tmp) / "x" / "t.json")])
+        if code:
+            fail("tools/build_solution.py failed")
+            return
+        a = sorted(p.relative_to(fresh) for p in fresh.rglob("*") if p.is_file())
+        b = sorted(p.relative_to(SRC) for p in SRC.rglob("*") if p.is_file())
+        stale = [str(p) for p in a if p not in b or not filecmp.cmp(fresh / p, SRC / p, shallow=False)]
+        stale += [str(p) for p in b if p not in a]
+        if stale:
+            fail(f"solution/src is out of date, rerun tools/build_solution.py: {stale[:5]}")
+        else:
+            ok(f"solution/src is current ({len(a)} files) and passes the import checks")
+
+
 # ---------------------------------------------------------------------------
 def main() -> int:
     print("Compliance Matrix - static validation")
@@ -455,6 +489,7 @@ def main() -> int:
     check_portal()
     check_navigation(loaded)
     check_xml()
+    check_solution_src()
 
     print("\n" + "-" * 60)
     for note in notes:

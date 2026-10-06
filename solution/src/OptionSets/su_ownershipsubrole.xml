@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_ownershipsubrole" localizedName="Ownership Sub-role">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Ownership Sub-role" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="" languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000040" IsHidden="0">
+      <labels>
+        <label description="Primary" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000041" IsHidden="0">
+      <labels>
+        <label description="Advisory" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000042" IsHidden="0">
+      <labels>
+        <label description="Support" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>

@@ -89,14 +89,17 @@ otherwise surface as an opaque packer error.
 
 ---
 
-## 6. Expect the first import to need a fix or two
+## 6. What the build checks before you import
 
-The solution source in this repo has **never been through `pac solution pack`**:
-no Power Platform CLI was available in the environment where it was generated.
-It is well-formed XML with all internal references resolving, but the packer is
-stricter than "well-formed."
+`tools/build_solution.py` writes `solution/src` in the layout `pac solution
+unpack` produces from a real export, and re-reads it: the build fails if
+`<Language>` does not carry the code as element text, if a Customizations.xml
+section has content of its own, if the publisher block is incomplete, or if a
+lookup has no relationship. `tools/validate.py` runs the same checks and
+confirms `solution/src` matches a fresh build. `pac solution pack` of this
+folder finishes with no warnings.
 
-Likely first-run issues, in rough order of probability:
+Only an import proves the rest. What to expect:
 
 **Control version mismatch (PA2105).** Studio reports a control's `@version` is
 not current. It is a warning, not an error, and Studio usually auto-corrects on
@@ -105,20 +108,13 @@ re-pack. Controls used: `Label@2.5.1`, `Gallery@2.15.0`, `Classic/Button@2.2.0`,
 `Classic/TextInput@2.3.2`, `Classic/DropDown@2.3.1`, `GroupContainer@1.5.0`,
 `Rectangle@2.3.0`, `Image@2.2.3`, `PowerBI@1.4.0`.
 
-**Missing element in `Entity.xml`.** The packer wants an element the generator
-did not emit. Fix it in `tools/build_solution.py`, not in the generated file:
-`solution/src` is regenerated on every build and hand edits are lost.
-
-**Rollup or calculated column rejected on import.** `su_opengapcount`,
-`su_nextduedate`, and `su_daysopen` reference relationships that must exist
-first. If the import complains, comment those three columns out of
-`dataverse-schema.yaml`, import, then add them back and re-import. Dataverse
-sometimes needs the relationships committed before it will accept a rollup that
-depends on them.
+**Computed columns.** `su_opengapcount`, `su_nextduedate`, and `su_daysopen`
+are not in the solution. Add them by hand after the import, as in
+`docs/DATAVERSE-MIGRATION.md`, section 2.
 
 **Alternate key timing.** Keys on `su_email`, `su_functioncode`, `su_gapcode`,
-and the `(function, person, role)` triple are created asynchronously. If seed
-import runs immediately after solution import and complains about a missing key,
+and the `(function, person, role)` triple are created asynchronously. If a
+dataflow runs immediately after solution import and complains about a missing key,
 wait for key creation to finish (Power Apps → Tables → Keys → status **Active**)
 and retry.
 
@@ -126,9 +122,8 @@ and retry.
 
 ## 7. After a successful import
 
-1. **Load seed data** from `solution/schema/seed/`. Rows match on the alternate
-   keys, so re-running updates rather than duplicating. Deadline and gap dates
-   are offsets from the import date, so the calendar always straddles today.
+1. **Load the data** from the SharePoint lists with the dataflows in
+   `docs/DATAVERSE-MIGRATION.md`, section 3.
 2. **Create the environment variables** the Reporting screen reads:
    `su_PowerBIWorkspaceId`, `su_PowerBIExecutiveReportId`,
    `su_PowerBIDeadlineReportId`, `su_PowerBIGapAgingReportId`.

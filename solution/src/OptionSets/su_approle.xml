@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_approle" localizedName="Application Role">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Application Role" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="" languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000060" IsHidden="0">
+      <labels>
+        <label description="Administrator" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000061" IsHidden="0">
+      <labels>
+        <label description="Compliance Owner" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000062" IsHidden="0">
+      <labels>
+        <label description="Executive" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>

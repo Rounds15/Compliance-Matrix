@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_offsetunit" localizedName="Offset Unit">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Offset Unit" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="" languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000080" IsHidden="0">
+      <labels>
+        <label description="Days" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000081" IsHidden="0">
+      <labels>
+        <label description="Months" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>

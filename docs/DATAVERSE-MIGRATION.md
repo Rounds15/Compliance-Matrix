@@ -128,8 +128,9 @@ Change the two arguments for each choice column: `"Compliance Functions",
 `"Gap List", "field_2"`; `"Flags List", "field_2"`; `"Assessments", "field_17"`
 and `"field_18"`. Send me any value the maps do not cover.
 
-**The 23 orphans from the earlier export.** The seed built from the October
-CSV export rejected 23 owner rows whose person was not in the directory. Those
+**The 23 orphans from the earlier export.** A check of the October CSV
+export (`tools/build_seed.py`, run here, never loaded into Dataverse) found 23
+owner rows whose person was not in the directory. Those
 rows carry the export's own keys (FO numbers), not SharePoint IDs, so use the
 Orphaned owner rows query above for the current list; these names show where
 to look:
@@ -172,6 +173,54 @@ Whatever you find goes on the cutover list in section 10.
 
 ## 2. Tables and keys
 
+### Installing the solution (first install)
+
+SU Compliance Office has never had this solution, its publisher, or any su_
+table, so the first import creates them:
+
+- the publisher **Syracuse University** (`syracuseuniversity`), prefix `su`,
+  option value prefix 10000, so choice values start at 100000000;
+- the solution **Compliance Matrix** (`ComplianceMatrix`);
+- 16 tables and 14 global choices, all empty.
+
+1. Extract `ComplianceMatrix-solution-src.zip`. You get a `src` folder holding
+   `Entities`, `OptionSets` and `Other`.
+2. In a terminal in the folder that holds `src`:
+   ```
+   pac solution pack --zipfile ComplianceMatrix.zip --folder src --packagetype Unmanaged
+   ```
+   It ends with "Unmanaged Pack complete." and lists no warnings. A warning
+   about unexpected children, or about root components not defined, means the
+   folder is not this version; stop and tell me.
+3. make.powerapps.com > SU Compliance Office > **Solutions** > **Import
+   solution** > choose `ComplianceMatrix.zip` > Next > Import. When it
+   finishes, choose **Publish all customizations**.
+4. Check: Solutions lists Compliance Matrix, published by Syracuse
+   University; Tables (filter: Custom) lists the 16 su_ tables; each table >
+   **Keys** shows **Active**. Keys are built after the import and can take a
+   few minutes.
+
+The tables are user-owned: a row belongs to whoever created it (you, or the
+connection a dataflow or flow runs as). Ownership does not decide what the
+portal shows; table permissions do (section 5).
+
+**Three columns to add by hand.** The canvas app reads three computed
+columns; the portal does not use them. A solution file cannot carry their
+definitions reliably, so add them after the import: Tables > the table >
+Columns > **New column**, with these names (the `su_` prefix is added for
+you):
+
+| Table | Display name | Name | Data type | Definition |
+|---|---|---|---|---|
+| Compliance Function | Open Gaps | su_opengapcount | Whole number, behavior **Rollup** | Related table: Compliance Gaps (su_compliancefunction_su_compliancegap). Filter: Status does not equal Closed. Aggregation: Count of Compliance Gap |
+| Compliance Function | Next Due Date | su_nextduedate | Date only, behavior **Rollup** | Related table: Compliance Deadlines (su_compliancefunction_su_compliancedeadline). Filter: Complete equals No. Aggregation: Min of Next Due Date (su_duedate) |
+| Compliance Gap | Days Open | su_daysopen | **Formula** | `If(IsBlank(Closed), DateDiff(Opened, UTCToday()), DateDiff(Opened, Closed))` (Opened and Closed are su_openeddate and su_closeddate) |
+
+Rollups recalculate about once an hour; a rollup's **Recalculate** link
+updates one row at once.
+
+### Keys
+
 `legacyKey: true` in `solution/schema/dataverse-schema.yaml` adds a Whole
 Number column **su_legacyspid** (Legacy SharePoint ID) and an alternate key
 **su_key_legacyspid** on it. Dataflows upsert on that key, and lookups from
@@ -188,13 +237,13 @@ child rows resolve through the parent's key.
 | Flags List (60) | su_functionflag | su_legacyspid |
 | Gap List (22) | su_compliancegap | su_legacyspid (su_gapcode is no longer a key: it is multi-choice and repeats) |
 | Assessments (9) | su_assessment | su_legacyspid; su_assessmentcode |
-| Assessment Responses (4) | su_assessmentresponse (new) | su_legacyspid |
-| Assessment Schedule (1) | su_assessmentschedule (new) | su_legacyspid |
-| Archive (103) | su_archive (new) | su_legacyspid |
+| Assessment Responses (4) | su_assessmentresponse | su_legacyspid |
+| Assessment Schedule (1) | su_assessmentschedule | su_legacyspid |
+| Archive (103) | su_archive | su_legacyspid |
 
-One more new table, **su_portalaction** (section 8), has no SharePoint
-source. su_counselassignment, su_assessmentowner and su_appadmin are
-unchanged and are not loaded.
+Four tables have no SharePoint list behind them, so the dataflows do not load
+them and they start empty: **su_portalaction** (section 8),
+su_counselassignment, su_assessmentowner and su_appadmin.
 
 **Function ID.** su_functioncode is loaded with the SharePoint ID, so the
 portal shows the same number people know. It is an autonumber column
@@ -311,10 +360,8 @@ shortfall is a failed row; the refresh history names it.
 | Assessment Schedule | 1 | 1 |
 | Archive | 103 | 103 |
 
-**Before the first load,** delete the rows the seed put in these tables
-(Tables > table > Data > select all > Delete, or a bulk delete job). The
-seeded rows have no legacy ID, and the 127 seeded people would collide with
-the loaded ones on email.
+The tables start empty, so the first refresh creates each row and later
+refreshes update them in place.
 
 ---
 
@@ -836,7 +883,7 @@ the lists needs to move or stop:
 | Survey intake into Flags List (Source = Survey, RespondentEmail) | create items | repoint to Dataverse |
 | The portal's SharePoint flows and notification flows (`docs/SHAREPOINT-FLOWS.md`), if built | read and write | turn off once the portal is on Dataverse |
 | **The five dataflows** | write Dataverse from SharePoint | **turn off**, or they overwrite Dataverse with a stale copy |
-| `tools/build_seed.py` and the seed files | one-time CSV load | retire |
+| `tools/build_seed.py` and the seed files | offline checks of the CSV export, never loaded | retire |
 | Bookmarked list views and alerts | read | tell people where the portal is |
 
 ---
@@ -868,16 +915,17 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
 
 **Before (test phase)**
 
-1. Back up the environment (admin center > Backups > Create) and export the
-   current solution.
-2. Import the updated solution (unmanaged). Check Tables > each su_ table >
-   Keys: each key shows Active. Run the blank-key test in section 2.
+1. Back up the environment (admin center > Backups > Create).
+2. Pack and import the solution for the first time, then add the three
+   computed columns (section 2, Installing the solution). Check Tables > each
+   su_ table > Keys: each key shows Active. Run the blank-key test in
+   section 2.
 3. Switch on environment auditing (section 9). Set the Function ID seed to
    90000 (section 2).
 4. Run the section 1 checks in Excel; fix the orphans, duplicates and emails
    in SharePoint.
-5. Delete the seeded rows, build the five dataflows (section 3), run them in
-   order, and reconcile against the baseline counts.
+5. Build the five dataflows (section 3), run them in order, and reconcile
+   against the baseline counts.
 6. Build CM - Link directory to contact and CM - Process portal action, add
    the action flow to the site, set `ComplianceMatrix/Flow/Action`.
 7. Create the Testers web role; set the page's permissions to Testers and

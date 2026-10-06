@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_assessmentstatus" localizedName="Assessment Status">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Assessment Status" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="Normalized from the legacy free-text Progress field." languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000090" IsHidden="0">
+      <labels>
+        <label description="Drafting" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000091" IsHidden="0">
+      <labels>
+        <label description="Report Complete" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000092" IsHidden="0">
+      <labels>
+        <label description="Finalized" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000093" IsHidden="0">
+      <labels>
+        <label description="Closed" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>

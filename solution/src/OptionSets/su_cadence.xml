@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_cadence" localizedName="Cadence">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Cadence" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="Recurrence pattern for a fixed-recurring compliance deadline." languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000010" IsHidden="0">
+      <labels>
+        <label description="Annually" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000011" IsHidden="0">
+      <labels>
+        <label description="Semiannual" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000012" IsHidden="0">
+      <labels>
+        <label description="Quarterly" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000013" IsHidden="0">
+      <labels>
+        <label description="Monthly" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000014" IsHidden="0">
+      <labels>
+        <label description="Biennial" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000015" IsHidden="0">
+      <labels>
+        <label description="Ongoing" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000016" IsHidden="0">
+      <labels>
+        <label description="One-time" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>

@@ -152,7 +152,7 @@ tables:
       The 13 top-level risk areas (ERM's term for what the prototype called
       topics). Drill into a risk area to see its domains, then the functions.
     primaryName: su_name
-    ownership: OrganizationOwned
+    ownership: UserOwned
     hasActivities: false
     hasNotes: false
     legacyKey: true
@@ -175,7 +175,7 @@ tables:
       prototype's free-text area because the values were drifting and leadership
       wants a coverage map broken out by domain.
     primaryName: su_name
-    ownership: OrganizationOwned
+    ownership: UserOwned
     hasActivities: false
     hasNotes: false
     legacyKey: true
@@ -201,7 +201,7 @@ tables:
       The people layer: every owner in an ownership chain, with title, unit, and
       contact info. May be created manually or linked to Entra ID.
     primaryName: su_name
-    ownership: OrganizationOwned
+    ownership: UserOwned
     hasActivities: false
     hasNotes: false
     legacyKey: true
@@ -238,8 +238,8 @@ tables:
       it requires, when it is due, and the risk it carries. System of record.
     primaryName: su_name
     ownership: UserOwned
-    hasActivities: true
-    hasNotes: true
+    hasActivities: false
+    hasNotes: false
     legacyKey: true
     documentManagement: true
     columns:
@@ -314,7 +314,7 @@ tables:
       carry the calendar fields; Event-Relative rows carry a trigger and offset.
     primaryName: su_name
     ownership: UserOwned
-    hasActivities: true
+    hasActivities: false
     hasNotes: false
     legacyKey: true
     columns:
@@ -368,8 +368,8 @@ tables:
       Tracker.
     primaryName: su_name
     ownership: UserOwned
-    hasActivities: true
-    hasNotes: true
+    hasActivities: false
+    hasNotes: false
     legacyKey: true
     documentManagement: true
     columns:
@@ -461,8 +461,8 @@ tables:
       the assessment that surfaced it, and carries its own remediation target.
     primaryName: su_name
     ownership: UserOwned
-    hasActivities: true
-    hasNotes: true
+    hasActivities: false
+    hasNotes: false
     legacyKey: true
     columns:
       - { name: su_name, displayName: Gap Summary, type: String, maxLength: 400, required: SystemRequired }
@@ -581,7 +581,7 @@ tables:
       Office of University Counsel attorney of record per risk area. Exactly one
       row should carry Is Default, used when a risk area has no explicit one.
     primaryName: su_name
-    ownership: OrganizationOwned
+    ownership: UserOwned
     hasActivities: false
     hasNotes: false
     columns:
@@ -609,7 +609,7 @@ tables:
     primaryName: su_name
     ownership: UserOwned
     hasActivities: false
-    hasNotes: true
+    hasNotes: false
     legacyKey: true
     columns:
       - { name: su_name, displayName: Response, type: String, maxLength: 255, required: SystemRequired }
@@ -627,7 +627,7 @@ tables:
     primaryName: su_name
     ownership: UserOwned
     hasActivities: false
-    hasNotes: true
+    hasNotes: false
     legacyKey: true
     columns:
       - { name: su_name, displayName: Schedule Entry, type: String, maxLength: 255, required: SystemRequired }
@@ -644,7 +644,7 @@ tables:
       children. Written only by the CM - Process portal action flow (and the
       migration load), never by the browser.
     primaryName: su_name
-    ownership: OrganizationOwned
+    ownership: UserOwned
     hasActivities: false
     hasNotes: false
     legacyKey: true
@@ -682,7 +682,7 @@ tables:
       Closed By / Flagged By / Cleared By and the archive row, and records
       the result here.
     primaryName: su_name
-    ownership: OrganizationOwned
+    ownership: UserOwned
     hasActivities: false
     hasNotes: false
     columns:
@@ -724,7 +724,7 @@ tables:
     displayCollectionName: App Role Assignments
     description: Role gate for the canvas app.
     primaryName: su_name
-    ownership: OrganizationOwned
+    ownership: UserOwned
     hasActivities: false
     hasNotes: false
     columns:

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_deadlinetype" localizedName="Deadline Type">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Deadline Type" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="Discriminator. Only Fixed Recurring rows carry calendar fields and drive the reminder flow; Event-Relative rows carry a trigger and offset instead." languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000070" IsHidden="0">
+      <labels>
+        <label description="Fixed Recurring" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000071" IsHidden="0">
+      <labels>
+        <label description="Event-Relative" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000072" IsHidden="0">
+      <labels>
+        <label description="Ongoing" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000073" IsHidden="0">
+      <labels>
+        <label description="Conditional" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000074" IsHidden="0">
+      <labels>
+        <label description="One-time" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>

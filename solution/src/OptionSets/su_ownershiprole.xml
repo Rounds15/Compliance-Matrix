@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_ownershiprole" localizedName="Ownership Role">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Ownership Role" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="The three tiers of the ownership chain (an executive owner accountable at cabinet level, a unit owner who runs it, a compliance owner who files it), plus General Counsel and Support, as on the SharePoint list." languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000030" IsHidden="0">
+      <labels>
+        <label description="Executive Owner" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000031" IsHidden="0">
+      <labels>
+        <label description="Unit Owner" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000032" IsHidden="0">
+      <labels>
+        <label description="Compliance Owner" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000033" IsHidden="0">
+      <labels>
+        <label description="General Counsel" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000034" IsHidden="0">
+      <labels>
+        <label description="Support" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>
