@@ -7,11 +7,18 @@
      POST /_api/cloudflow/v1.0/trigger/<read|write|admin|find>
                                    the three SharePoint flows, implemented to the
                                    contract in docs/SHAREPOINT-FLOWS.md
+     GET  /cm-action/              the CM Portal Action basic form (Insert);
+     POST /cm-action/              its postback, which sets Requested By from
+                                   the session ("Associate current portal user
+                                   on insert") and ignores any field that is
+                                   not on the form, then redirects to
+     GET  /cm-action-done/?id=     with the new row's ID
      POST /_api/cloudflow/v1.0/trigger/action
                                    CM - Process portal action, the Dataverse
                                    flow that writes who-did-it and the archive
                                    (docs/DATAVERSE-MIGRATION.md, section 8)
-     *    /_api/<entityset>...     the Power Pages Web API over Dataverse
+     *    /_api/<entityset>...     the Power Pages Web API over Dataverse; off
+                                   for su_portalaction, as on the site
 
    Every write is checked against the real column set - the SharePoint lists'
    internal names from the canvas app's metadata (sp-schema.json) and the
@@ -41,7 +48,7 @@ const MEMBER_GAP_FIELDS = ["field_13", "field_14", "ClosedById"];
 const liquid = new Liquid();
 liquid.registerFilter("url_escape", v => encodeURIComponent(String(v ?? "")));
 
-export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {} } = {}) {
+export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null } = {}) {
   const sp = sharepointLists();
   const dv = dataverseTables();
   const log = [];
@@ -138,9 +145,9 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   /* ---------------- CM - Process portal action ----------------
      The Dataverse flow in docs/DATAVERSE-MIGRATION.md, section 8, as the
      tests run it: it trusts only the action row (whose Requested By the
-     Contact-scoped permission fixed), resolves the person through
-     su_contact, checks they may act, does the work, writes who did it and
-     the archive entry, and records the outcome on the action row. */
+     basic form set on the server), resolves the person through su_contact,
+     checks they may act, does the work, writes who did it and the archive
+     entry, and records the outcome on the action row. */
   const ACTIONS = { 100000120: "complete", 100000121: "reverse", 100000122: "close", 100000123: "resolve", 100000124: "flag", 100000125: "delete" };
   const CADENCE_LABEL = { 100000010: "Annually", 100000011: "Semiannual", 100000012: "Quarterly", 100000013: "Monthly", 100000014: "Biennial", 100000015: "Ongoing", 100000016: "One-time" };
   const ROLE_LABEL = { 100000030: "Executive Owner", 100000031: "Unit Owner", 100000032: "Compliance Owner", 100000033: "General Counsel", 100000034: "Support" };
@@ -150,7 +157,9 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     const a = dv.su_portalactions.find(r => r.su_portalactionid === actionId);
     if (!a) return { ok: false, error: "That action does not exist." };
     const done = (ok, msg) => { a.su_status = ok ? 100000131 : 100000132; a.su_result = msg || ""; a.su_processedon = new Date().toISOString(); return ok ? { ok: true } : { ok: false, error: msg }; };
-    if (a.su_status !== 100000130) return { ok: false, error: "That action has already been processed." };
+    /* the form leaves Status empty; a processed row is Done or Failed */
+    if (a.su_status != null && a.su_status !== 100000130) return { ok: false, error: "That action has already been processed." };
+    if (!a._su_requestedby_value) return done(false, "This action has no requester.");
     const person = dv.su_compliancedirectorys.find(p => p._su_contact_value === a._su_requestedby_value && p.su_active !== false);
     if (!person) return done(false, "Your sign-in is not linked to a Compliance Directory record yet. Ask the compliance office to check your directory email.");
     const kind = ACTIONS[a.su_action];
@@ -284,6 +293,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     const entry = tableOfSet(set);
     if (!entry) return fail(res, 404, `Resource not found for the segment '${set}'.`);
     const [tableName, t] = entry;
+    if (set === "su_portalactions") return fail(res, 403, "The Web API is not enabled for su_portalaction (no Webapi/su_portalaction/enabled site setting).");
     const rows = dv[set];
     if (req.method !== "GET" && req.headers["__requestverificationtoken"] !== TOKEN) return fail(res, 403, "Missing or invalid anti-forgery token");
     log.push({ api: req.method + " " + url.pathname + url.search });
@@ -303,12 +313,12 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
       return res.end(JSON.stringify(out));
     }
     /* The table permissions in docs/DATAVERSE-MIGRATION.md, section 5: owners
-       may log a gap and record a portal action; administrators edit the
-       matrix directly; nobody writes the archive or a who-did-it column from
-       the browser (the action flow does), and a portal action can only name
-       the signed-in contact (Contact scope). */
+       may log a gap; administrators edit the matrix directly; nobody writes
+       the archive or a who-did-it column from the browser (the action flow
+       does). Portal actions are created by the basic form only: the Web API
+       is not enabled for su_portalaction. */
     if (set === "su_archives") return fail(res, 403, "No table permission for this operation.");
-    const ownerMay = req.method === "POST" && ["su_compliancegaps", "su_portalactions"].includes(set);
+    const ownerMay = req.method === "POST" && set === "su_compliancegaps";
     if (!admin && !ownerMay) return fail(res, 403, "No table permission for this operation.");
     if (req.method === "DELETE" && nav) {
       const row = rows.find(r => r[t.id] === id); if (!row) return fail(res, 404, "Row not found");
@@ -328,8 +338,6 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     if (err) return fail(res, 400, err);
     const serverOnly = ["su_completedby", "su_closedby", "su_clearedby", "su_flaggedby"].find(c => (c + "@odata.bind") in b || c in b);
     if (serverOnly) return fail(res, 403, `${serverOnly} is written by the portal action flow, not the browser.`);
-    if (set === "su_portalactions" && b["su_requestedby@odata.bind"] !== `/contacts(${contactId})`)
-      return fail(res, 403, "No table permission for this operation.");
     if (req.method === "POST") {
       const row = { [t.id]: randomUUID() }; applyDv(tableName, row, b); rows.push(row);
       res.writeHead(204, { entityid: row[t.id], "OData-EntityId": `/_api/${set}(${row[t.id]})` }); return res.end();
@@ -339,6 +347,54 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
       applyDv(tableName, row, b); res.writeHead(204); return res.end();
     }
     return fail(res, 405, "Method not allowed");
+  }
+
+  /* ---------------- CM Portal Action basic form ----------------
+     Power Pages renders a basic form as an ASP.NET postback form: each field
+     has the column's logical name as its ID and a long control path as its
+     name, a lookup is a hidden ID plus _name and _entityname, and Submit is
+     #InsertButton. Only the form's own columns are read from a postback. */
+  const FORM_PREFIX = "ctl00$ContentContainer$EntityFormControl$EntityFormView$";
+  const FORM_LOOKUPS = { su_function: "su_compliancefunction", su_deadline: "su_compliancedeadline", su_gap: "su_compliancegap", su_flag: "su_functionflag" };
+  const ACTION_TYPES = { 100000120: "Complete deadline", 100000121: "Reverse completion", 100000122: "Close gap", 100000123: "Resolve flag", 100000124: "Raise flag", 100000125: "Delete function" };
+  const esc = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const formPage = (errors = []) => "<!DOCTYPE html><html><head><meta charset=utf-8><title>CM Action</title></head><body>" +
+    `<form method="post" action="/cm-action/" id="content_form">` +
+    `<input type="hidden" name="__RequestVerificationToken" value="${TOKEN}">` +
+    `<div id="ValidationSummaryEntityFormView" class="validation-summary">${errors.map(esc).join(" ")}</div>` +
+    `<input type="text" id="su_name" name="${FORM_PREFIX}su_name">` +
+    `<select id="su_action" name="${FORM_PREFIX}su_action"><option value=""></option>${Object.entries(ACTION_TYPES).map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}</select>` +
+    (formWithout === "su_reason" ? "" : `<textarea id="su_reason" name="${FORM_PREFIX}su_reason"></textarea>`) +
+    Object.keys(FORM_LOOKUPS).map(c => `<input type="text" id="${c}_name" readonly><input type="hidden" id="${c}" name="${FORM_PREFIX}${c}"><input type="hidden" id="${c}_entityname" name="${FORM_PREFIX}${c}_entityname">`).join("") +
+    `<input type="submit" id="InsertButton" name="${FORM_PREFIX}InsertButton" value="Submit">` +
+    "</form></body></html>";
+
+  async function actionForm(req, res) {
+    if (!user) { res.writeHead(302, { Location: "/SignIn?returnUrl=%2Fcm-action%2F" }); return res.end(); }
+    const html = (status, errors) => { res.writeHead(status, { "Content-Type": "text/html; charset=utf-8" }); res.end(formPage(errors)); };
+    if (req.method === "GET") return html(200, []);
+    if (req.method !== "POST") return fail(res, 405, "Method not allowed");
+    const posted = new URLSearchParams(await body(req));
+    if (posted.get("__RequestVerificationToken") !== TOKEN) return html(403, ["Your session has expired. Reload the page."]);
+    /* the form's columns only, by control name; anything else is ignored */
+    const f = {};
+    for (const [k, v] of posted) if (k.startsWith(FORM_PREFIX)) f[k.slice(FORM_PREFIX.length)] = v;
+    const errors = [];
+    if (!String(f.su_name || "").trim()) errors.push("Action is a required field.");
+    if (!ACTION_TYPES[f.su_action]) errors.push("Action Type is a required field.");
+    const row = { su_portalactionid: randomUUID(), su_name: String(f.su_name || "").slice(0, 400), su_action: Number(f.su_action), su_reason: f.su_reason || "",
+      _su_requestedby_value: contactId };
+    for (const [col, table] of Object.entries(FORM_LOOKUPS)) {
+      if (!f[col]) continue;
+      if (f[col + "_entityname"] !== table) { errors.push(`${col} must be a ${table}.`); continue; }
+      if (!dv[DV_SCHEMA[table].set].some(r => r[table + "id"] === f[col])) { errors.push(`${col} points at a missing ${table}.`); continue; }
+      row["_" + col + "_value"] = f[col];
+    }
+    log.push({ form: "cm-action", fields: Object.keys(f).filter(k => k !== "InsertButton" && f[k] !== "").sort() });
+    if (errors.length) return html(200, errors);
+    dv.su_portalactions.push(row);
+    res.writeHead(302, { Location: "/cm-action-done/?id=" + row.su_portalactionid });
+    return res.end();
   }
 
   const server = http.createServer(async (req, res) => {
@@ -373,6 +429,11 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
       if (url.pathname === "/cm-matrix.js" || url.pathname === "/cm-matrix.css") {
         res.writeHead(200, { "Content-Type": url.pathname.endsWith(".js") ? "text/javascript" : "text/css" });
         return res.end(readFileSync(join(DIST, url.pathname.slice(1))));
+      }
+      if (url.pathname === "/cm-action/") return actionForm(req, res);
+      if (url.pathname === "/cm-action-done/") {
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        return res.end("<!DOCTYPE html><html><head><meta charset=utf-8><title>Done</title></head><body><p>Recorded.</p></body></html>");
       }
       if (url.pathname === "/favicon.ico") { res.writeHead(204); return res.end(); }
       if (url.pathname === "/_layout/tokenhtml") {

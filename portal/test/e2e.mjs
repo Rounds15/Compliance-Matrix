@@ -489,6 +489,9 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   const act = dv.su_portalactions.at(-1);
   assert.equal(act.su_action, 100000124); assert.equal(act._su_requestedby_value, G(901)); assert.equal(act.su_status, 100000131, "the action row records the outcome");
   assert.ok(portal.log.some(x => x.flow === "action" && x.request.actionId === act.su_portalactionid), "the browser sends only the action's ID");
+  const posted = portal.log.filter(x => x.form === "cm-action").at(-1);
+  assert.deepEqual(posted.fields, ["su_action", "su_function", "su_function_entityname", "su_name", "su_reason"], "the page fills only the form's own fields");
+  assert.equal(portal.log.some(x => x.api && /su_portalactions/.test(x.api)), false, "no portal action goes through the Web API");
 
   await go("#/functions/" + G(201));
   await page.waitForSelector("h1:has-text('Clery Act')");
@@ -583,29 +586,42 @@ await session("Dataverse · the browser cannot write the archive or who did some
       .then(async x => ({ status: x.status, id: (x.headers.get("OData-EntityId") || "").match(/\(([0-9a-f-]{36})\)/)?.[1] }));
     const flow = id => fetch("/_api/cloudflow/v1.0/trigger/action", { method: "POST", headers: { "Content-Type": "application/json", __RequestVerificationToken: tok },
       body: JSON.stringify({ eventData: JSON.stringify({ request: JSON.stringify({ actionId: id }) }) }) }).then(x => x.json()).then(j => JSON.parse(j.result));
+    /* a hand-made postback to the basic form, as a crafted request would send it:
+       control names for the form's fields, plus anything extra the attacker adds */
+    const P = "ctl00$ContentContainer$EntityFormControl$EntityFormView$";
+    const form = async (fields, extra = {}) => {
+      const b = new URLSearchParams({ __RequestVerificationToken: tok, [P + "InsertButton"]: "Submit", ...extra });
+      for (const [k, v] of Object.entries(fields)) b.set(P + k, v);
+      const res = await fetch("/cm-action/", { method: "POST", body: b });
+      return new URL(res.url).searchParams.get("id");
+    };
+    const lk = (col, table, id) => ({ [col]: id, [col + "_entityname"]: table });
     const patchDeadline = await api("PATCH", `su_compliancedeadlines(${dl})`, { su_completeddate: "2026-10-01" });
     const archive = await api("POST", "su_archives", { su_name: "Forged" });
-    const asSomeoneElse = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, "su_requestedby@odata.bind": `/contacts(${other})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dl})` });
+    const viaWebApi = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, "su_requestedby@odata.bind": `/contacts(${mine})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dl})` });
+    const viaWebApiOther = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, "su_requestedby@odata.bind": `/contacts(${other})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dl})` });
     const forgedBy = await api("POST", "su_compliancegaps", { su_name: "x", su_status: 100000020, "su_function@odata.bind": `/su_compliancefunctions(${fnOther})`, "su_closedby@odata.bind": `/su_compliancedirectorys(${me})` });
-    const notMine = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000122, su_status: 100000130, "su_requestedby@odata.bind": `/contacts(${mine})`,
-      "su_function@odata.bind": `/su_compliancefunctions(${fnOther})` });
+    /* Requested By added to the postback, both as a control name and as a bare field: ignored */
+    const spoofed = await form({ su_name: "spoof test", su_action: "100000124", su_reason: "x", ...lk("su_function", "su_compliancefunction", fnMine) },
+      { [P + "su_requestedby"]: other, [P + "su_requestedby_entityname"]: "contact", su_requestedby: other, "su_requestedby@odata.bind": `/contacts(${other})` });
+    const notMine = await form({ su_name: "x", su_action: "100000122", ...lk("su_function", "su_compliancefunction", fnOther) });
     /* a deadline on someone else's function, labelled with one of Dwight's: the flow
        takes the function from the deadline itself and refuses */
-    const relabelled = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, su_reason: "x",
-      "su_requestedby@odata.bind": `/contacts(${mine})`, "su_function@odata.bind": `/su_compliancefunctions(${fnMine})`,
-      "su_deadline@odata.bind": `/su_compliancedeadlines(${dlOther})` });
-    const unlabelled = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, su_reason: "x",
-      "su_requestedby@odata.bind": `/contacts(${mine})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dlOther})` });
-    const own = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, su_reason: "Filed.",
-      "su_requestedby@odata.bind": `/contacts(${mine})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dl})` });
-    const ownResult = await flow(own.id);
-    return { patchDeadline: patchDeadline.status, archive: archive.status, asSomeoneElse: asSomeoneElse.status, forgedBy: forgedBy.status,
-      notMine: await flow(notMine.id), relabelled: await flow(relabelled.id), unlabelled: await flow(unlabelled.id), own: ownResult, replay: await flow(own.id) };
+    const relabelled = await form({ su_name: "x", su_action: "100000120", su_reason: "x", ...lk("su_function", "su_compliancefunction", fnMine), ...lk("su_deadline", "su_compliancedeadline", dlOther) });
+    const unlabelled = await form({ su_name: "x", su_action: "100000120", su_reason: "x", ...lk("su_deadline", "su_compliancedeadline", dlOther) });
+    const own = await form({ su_name: "x", su_action: "100000120", su_reason: "Filed.", ...lk("su_deadline", "su_compliancedeadline", dl) });
+    const ownResult = await flow(own);
+    return { patchDeadline: patchDeadline.status, archive: archive.status, viaWebApi: viaWebApi.status, viaWebApiOther: viaWebApiOther.status, forgedBy: forgedBy.status,
+      spoofed, notMine: await flow(notMine), relabelled: await flow(relabelled), unlabelled: await flow(unlabelled), own: ownResult, replay: await flow(own) };
   }, [G(401), G(203), G(103), G(901), G(903), G(202), G(403)]);
   assert.equal(r.patchDeadline, 403, "owners have no direct Write on deadlines");
   assert.equal(r.archive, 403, "nobody writes the archive from the browser");
-  assert.equal(r.asSomeoneElse, 403, "an action can only name the signed-in contact");
+  assert.equal(r.viaWebApi, 403, "the Web API cannot create a portal action, even naming yourself");
+  assert.equal(r.viaWebApiOther, 403, "or naming someone else");
   assert.equal(r.forgedBy, 403, "Closed By is written by the flow only");
+  const spoof = portal.dv.su_portalactions.find(a => a.su_portalactionid === r.spoofed);
+  assert.ok(spoof, "the spoof attempt still creates a row");
+  assert.equal(spoof._su_requestedby_value, G(903), "Requested By is the signed-in contact, whatever the request says");
   assert.equal(r.notMine.ok, false, "the flow refuses an owner acting on a function that is not theirs");
   assert.equal(r.relabelled.ok, false, "naming one of their own functions does not let them act on another's deadline");
   assert.equal(r.unlabelled.ok, false, "the ownership check uses the deadline's own function");
@@ -642,6 +658,18 @@ await session("A write the backend rejects is reported, and nothing changes", { 
   assert.ok(t);
   assert.equal(portal.sp["Compliance Functions"].find(r => r.Id === 201).Title, before);
   assert.equal(await page.locator(".cm-toast.err").count(), 1);
+});
+
+/* the site's basic form is missing a field: the page says which, and saves nothing */
+await session("Dataverse · a mis-built action form is reported, and nothing is saved", { backend: "dataverse", admin: true, formWithout: "su_reason" }, async ({ page, portal, go, toast, btn }) => {
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  await btn("Flag for review").click();
+  await page.locator(".fd-panel textarea").fill("Check the 2026 amendment.");
+  await btn("Submit flag").click();
+  await toast(/action form has no field su_reason/);
+  assert.equal(portal.dv.su_portalactions.length, 0, "no action row");
+  assert.equal(portal.log.some(x => x.flow === "action"), false, "the flow is not called");
 });
 
 /* ======================= phone width: no sideways scroll ======================= */

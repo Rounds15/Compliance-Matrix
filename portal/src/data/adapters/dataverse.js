@@ -13,13 +13,16 @@
    Who did something, and the archive row that records it, are never written
    from the browser. Completing or reversing a deadline, closing a gap,
    raising or resolving a flag and deleting a function each create a Portal
-   Action row (su_portalaction) bound to the signed-in contact, which the
-   table permission's Contact scope enforces, then call the CM - Process
-   portal action flow with its ID. The flow checks the person may act, does
-   the work, and writes Completed By / Closed By / Flagged By / Cleared By and
-   the Archive entry server-side (docs/DATAVERSE-MIGRATION.md). */
+   Action row (su_portalaction) through the CM Portal Action basic form, which
+   sets Requested By to the signed-in contact on the server (actionform.js),
+   then call the CM - Process portal action flow with its ID. The Web API is
+   off for su_portalaction, so there is no other way to create one. The flow
+   checks the person may act, does the work, and writes Completed By / Closed
+   By / Flagged By / Cleared By and the Archive entry server-side
+   (docs/DATAVERSE-MIGRATION.md, section 8). */
 
 import { webApi, webApiAll, callFlow, flowUrl } from "../transport.js";
+import { submitActionForm } from "../actionform.js";
 import { toDay, isoDate } from "../../lib/dates.js";
 
 export const DEFAULT_SETS = {
@@ -31,8 +34,7 @@ export const DEFAULT_SETS = {
   su_compliancedeadline: "su_compliancedeadlines",
   su_compliancegap: "su_compliancegaps",
   su_functionflag: "su_functionflags",
-  su_counselassignment: "su_counselassignments",
-  su_portalaction: "su_portalactions"
+  su_counselassignment: "su_counselassignments"
 };
 
 /* choice codes from dataverse-schema.yaml */
@@ -46,7 +48,6 @@ const invert = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [v, Num
 const RISK_CODE = invert(RISK), ROLE_CODE = invert(ROLE), SUB_CODE = invert(SUB);
 const GAP_OPEN = 100000020;
 export const ACTION = { completeDeadline: 100000120, reverseDeadline: 100000121, closeGap: 100000122, resolveFlag: 100000123, raiseFlag: 100000124, deleteFunction: 100000125 };
-export const ACTION_PENDING = 100000130;
 
 const TABLE_OF = {
   riskAreas: "su_riskarea", domains: "su_domain", people: "su_compliancedirectory",
@@ -127,20 +128,18 @@ export function createDataverseAdapter(cfg) {
   const unbind = (table, id, nav) => webApi("DELETE", `/_api/${set(table)}(${id})/${nav}/$ref`).catch(() => null);
   const actionUrl = flowUrl(cfg.flows && cfg.flows.action);
 
-  /* Record the request against the signed-in contact, then have the flow
-     carry it out. The flow's answer is the outcome: {ok, error}. */
+  /* Record the request through the basic form, which names the signed-in
+     contact on the server, then have the flow carry it out. The flow's
+     answer is the outcome: {ok, error}. */
   async function runAction(kind, label, targets, reason) {
     if (!actionUrl) throw new Error("The site setting ComplianceMatrix/Flow/Action is empty, so this change cannot be saved.");
     if (!cfg.user || !cfg.user.contactId) throw new Error("Sign in to make this change.");
-    const r = await post("su_portalaction", {
-      su_name: label.slice(0, 400), su_action: ACTION[kind], su_status: ACTION_PENDING, su_reason: reason || "",
-      "su_requestedby@odata.bind": "/contacts(" + cfg.user.contactId + ")",
-      ...bind("su_function", "su_compliancefunction", targets.fn),
-      ...bind("su_deadline", "su_compliancedeadline", targets.dl),
-      ...bind("su_gap", "su_compliancegap", targets.gap),
-      ...bind("su_flag", "su_functionflag", targets.flag)
+    const actionId = await submitActionForm({
+      name: label, action: ACTION[kind], reason: reason || "",
+      lookups: [["su_function", "su_compliancefunction", targets.fn], ["su_deadline", "su_compliancedeadline", targets.dl],
+        ["su_gap", "su_compliancegap", targets.gap], ["su_flag", "su_functionflag", targets.flag]]
     });
-    const res = await callFlow(actionUrl, { actionId: r.id });
+    const res = await callFlow(actionUrl, { actionId });
     if (!res || res.ok === false) throw new Error((res && res.error) || "The change could not be saved.");
     return res;
   }

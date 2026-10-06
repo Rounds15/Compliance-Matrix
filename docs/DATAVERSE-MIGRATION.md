@@ -199,6 +199,12 @@ table, so the first import creates them:
    University; Tables (filter: Custom) lists the 16 su_ tables; each table >
    **Keys** shows **Active**. Keys are built after the import and can take a
    few minutes.
+5. **Clear the site's configuration.** Sign in to the site as an
+   administrator, open `/_services/about`, and choose **Clear config**. The
+   site reads table and relationship metadata into its configuration, so it
+   does not see what an import added until this is done; **Clear cache**
+   alone is not enough. Do this after every solution import, the first and
+   each one after.
 
 The tables are user-owned: a row belongs to whoever created it (you, or the
 connection a dataflow or flow runs as). Ownership does not decide what the
@@ -628,7 +634,7 @@ narrow, and who did it is written server-side.
 | CM Read | su_riskarea, su_domain, su_compliancefunction, su_compliancedirectory, su_functionownership, su_counselassignment, su_compliancedeadline, su_compliancegap, su_functionflag | Global | Read | Testers, Administrators |
 | CM Log a gap | su_compliancegap | Global | Create, Append | Testers |
 | CM Gap lookups | su_compliancefunction, su_compliancedirectory | Global | Append To | Testers |
-| CM Own portal actions | su_portalaction | Contact, relationship su_requestedby_su_portalaction | Create, Read, Append | Testers, Administrators |
+| CM Portal action form | su_portalaction | Global | Create, Append | Testers, Administrators |
 | CM Action targets | su_compliancefunction, su_compliancedeadline, su_compliancegap, su_functionflag | Global | Append To | Testers, Administrators |
 | CM Self | contact | Self | Read, Append To | Testers, Administrators |
 | CM Administer | su_riskarea, su_domain, su_compliancefunction, su_compliancedirectory, su_functionownership, su_counselassignment, su_compliancedeadline, su_compliancegap, su_functionflag | Global | Create, Read, Write, Delete, Append, Append To | Administrators |
@@ -638,9 +644,16 @@ Nobody gets a permission on **su_archive**, and its Web API site setting stays
 off: only the action flow (section 8) and the dataflow write it.
 
 Owners have no Write on deadlines, gaps or flags at all: completing,
-reversing, closing, raising and resolving go through su_portalaction. The
-Contact scope on CM Own portal actions is what makes Requested By trustworthy:
-Power Pages refuses a row that names any contact but the signed-in one.
+reversing, closing, raising and resolving go through su_portalaction. A
+Portal Action is created only by the CM Portal Action basic form, which sets
+Requested By to the signed-in contact on the server (section 8). CM Portal
+action form has no Read and the Web API is off for su_portalaction, so the
+browser cannot create, list or change an action row any other way.
+
+Do not scope this permission by Contact: the section 8 scope test showed
+Power Pages does not use a Contact scope to refuse a new row that names
+another contact, and it refuses the link to contact unless Append To on
+contact is Global.
 
 **Column permissions** (Design Studio > Set up > Column permissions; enhanced
 data model). Make these read-only for Testers and Administrators, so a crafted
@@ -657,7 +670,10 @@ request cannot set them directly:
 and `*`: `Webapi/<table>/enable` and `Webapi/<table>/fields` for su_riskarea,
 su_domain, su_compliancedirectory, su_compliancefunction,
 su_functionownership, su_compliancedeadline, su_compliancegap,
-su_functionflag, su_counselassignment, su_portalaction. Not su_archive.
+su_functionflag, su_counselassignment. **Not su_archive, su_portalaction or
+contact.** If `Webapi/su_portalaction/*` or `Webapi/contact/*` settings were
+added for the scope test, delete them: with them off, the Web API refuses any
+request to create a Portal Action, whoever it names.
 
 **If risk ratings may not be visible to everyone.** The rating lives in one
 column, su_compliancefunction.su_risk, with no copies (the deadline's su_risk
@@ -757,48 +773,133 @@ ready:
 
 ## 8. CM - Process portal action
 
-The browser never writes who did something or an archive entry. It creates a
-**Portal Action** row and calls this flow with the row's ID. The flow reads
-everything it acts on from Dataverse, starting from that row; it ignores
-anything else the request carries.
+The browser never writes who did something or an archive entry. It records a
+**Portal Action** row through a Power Pages basic form, then calls this flow
+with the row's ID. The flow reads everything it acts on from Dataverse,
+starting from that row; it ignores anything else the request carries.
 
-**Who made the request.** Requested By (su_requestedby) is a lookup the
-browser sets when it creates the row, but it is not a free field: the only
-permission that lets anyone create a Portal Action is Contact-scoped on that
-lookup (CM Own portal actions, section 5), so Power Pages refuses a row that
-names any contact but the signed-in one. Nobody has Write on the table, so a
+**Who made the request.** Requested By (su_requestedby) is set by Power
+Pages on the server, never by the browser. The CM Portal Action basic form
+has **Associate Current Portal User on Insert** turned on with Requested By
+as the portal user lookup column. Microsoft's description of that setting
+(About basic forms, Additional settings,
+https://learn.microsoft.com/en-us/power-pages/configure/basic-forms): it
+"indicates the currently logged in user's record should be associated with
+the target table record", in the lookup column named in the next setting.
+The signed-in user is the session's, not a value in the post. Requested By
+is not a field on the form, and a basic form saves only its own fields, so a
+value added to the request is ignored. The test below proves that on your
+site.
+
+Nobody has Read or Write on the table and the Web API is off for it, so a
 row cannot be re-pointed after it is made, and the flow processes a row only
-while it is Pending, so it cannot be replayed. The person is then the
-Compliance Directory row whose Portal Contact is that contact (section 6).
+while its Status is empty or Pending, so it cannot be replayed. The person is
+then the Compliance Directory row whose Portal Contact is that contact
+(section 6).
 
-**Prove the Contact scope before you build this flow.** It is the one link in
-the chain the tests here can only imitate. With the solution imported, the
-Testers role, the CM Own portal actions permission and the
-`Webapi/su_portalaction/*` settings in place, sign in as a tester, open the
-matrix page, open the browser's developer tools (F12) > Console, and paste
-this with another person's contact ID (Tables > Contact > copy a row's ID):
+Why not the other two ways:
 
-```
-fetch("/_layout/tokenhtml").then(r => r.text()).then(t => fetch("/_api/su_portalactions", {
-  method: "POST",
-  headers: { "Content-Type": "application/json", "__RequestVerificationToken": t.match(/value="([^"]+)"/)[1] },
-  body: JSON.stringify({ su_name: "scope test", su_action: 100000124, su_status: 100000130,
-    "su_requestedby@odata.bind": "/contacts(PASTE-ANOTHER-CONTACT-ID)" })
-})).then(r => console.log(r.status))
-```
+- **The Web API with a Contact-scoped permission** (the earlier design). The
+  scope test showed it cannot be both usable and safe: with Self-scoped
+  Append To on contact the link is refused for everyone (error 90040106,
+  EntityPermissionAppendToIsMissingDuringAssociationChange), and with Global
+  Append To the Contact scope does not refuse a row naming another contact.
+- **The contact the cloud flow trigger passes.** Community posts say the
+  "When Power Pages calls a flow" trigger carries the caller's contact ID,
+  but I could not find that in Microsoft's documentation, so the design does
+  not depend on it.
 
-**It must print 403.** Then run it with your own contact ID (`{{ user.id }}`,
-or your row under Tables > Contact): that prints 204, and you can delete the
-test row. If the first prints 204, stop and tell me; the fallback is to create
-the row through a Power Pages basic form with "Associate current portal user
-on insert" set to Requested By, which Power Pages fills in on the server.
+**Set up the form** (by hand; nothing here is in the solution):
+
+1. **A main form.** make.powerapps.com > Tables > Portal Action > Forms > New
+   form > Main form, named **CM Portal Action**. Fields: Action (su_name),
+   Action Type, Reason, Compliance Function, Deadline, Gap, Flag. Remove
+   Owner. Leave Requested By, Status, Result and Processed On off the form.
+   Save and publish.
+2. **Two pages.** Design Studio > Pages > + Page, blank:
+   - **CM Action**, partial URL **`cm-action`**, directly under Home.
+   - **CM Action Done**, partial URL **`cm-action-done`**, directly under
+     Home, with any short text such as "Recorded."
+   For both: hide from navigation, and Permissions = Testers and
+   Administrators. The matrix opens `/cm-action/` itself, so the partial
+   URLs must be exactly these.
+3. **The basic form.** On the CM Action page, + Form > New form: table
+   Portal Action, form **CM Portal Action**, mode **Create a new record**, On
+   submit **Redirect to a webpage** > CM Action Done. Turn on table
+   permissions for the form.
+4. **Its server-side settings.** Portal Management > Basic Forms > the form
+   from step 3:
+   - **On Success Settings:** Append Record ID To Query String = Yes; Record
+     ID Query String Parameter Name = **`id`**.
+   - **Additional Settings:** Associate Current Portal User on Insert = Yes;
+     the portal user lookup column (Target Lookup Attribute Name) =
+     **`su_requestedby`**.
+5. **Permissions:** CM Portal action form and CM Self in section 5. CM Self
+   (contact, Self, Read and Append To) is what the form should need to link
+   the new row to you; the test shows whether it is enough.
+6. **Clear config** (`/_services/about`), as after an import.
+
+The page loads `/cm-action/` in a hidden frame, fills in the fields by their
+IDs, presses the form's Submit, and reads the new row's ID from
+`/cm-action-done/?id=...`. The site's default `HTTP/X-Frame-Options` site
+setting (SAMEORIGIN) allows this; if the setting is DENY, change it to
+SAMEORIGIN.
+
+**Prove it cannot be spoofed.** Sign in as a tester (not an administrator).
+
+1. **The Web API refuses a Portal Action.** On the matrix page, open the
+   developer tools (F12) > Console, and paste this once with your own contact
+   ID and once with the dummy's:
+   ```
+   fetch("/_layout/tokenhtml").then(r => r.text()).then(t => fetch("/_api/su_portalactions", {
+     method: "POST",
+     headers: { "Content-Type": "application/json", "__RequestVerificationToken": t.match(/value="([^"]+)"/)[1] },
+     body: JSON.stringify({ su_name: "web api test", su_action: 100000124,
+       "su_requestedby@odata.bind": "/contacts(PASTE-CONTACT-ID)" })
+   })).then(r => console.log(r.status))
+   ```
+   **Both must print an error status (403 or 404), not 204.** Tables >
+   Portal Actions has no "web api test" row.
+2. **The form ignores a planted Requested By.** Open `/cm-action/` directly
+   (the form shows). In the Console, paste this with the dummy's contact ID.
+   It adds Requested By to the form as if it were one of its fields, then
+   submits:
+   ```
+   (() => {
+     const name = document.getElementById("su_name"), form = name.form;
+     const prefix = name.name.replace(/su_name$/, "");
+     for (const [k, v] of [["su_requestedby", "PASTE-DUMMY-CONTACT-ID"], ["su_requestedby_entityname", "contact"], ["su_requestedby_name", "Dummy"]]) {
+       const i = document.createElement("input");
+       i.type = "hidden"; i.name = prefix + k; i.id = k; i.value = v; form.appendChild(i);
+     }
+     name.value = "spoof test";
+     document.getElementById("su_action").value = "100000124";
+     document.getElementById("InsertButton").click();
+   })()
+   ```
+   The page moves to `/cm-action-done/?id=...`. Open Tables > Portal Actions >
+   **spoof test**: **Requested By must be you, not the dummy.**
+3. **The matrix's own path.** On the matrix page, flag a function for review.
+   The new Portal Action row has Requested By = you and, once this flow is
+   built, Status Done.
+
+If step 1 prints 204, or step 2 saves the dummy, stop and tell me. If step 2
+does not save at all and the form shows a permission message about the link
+to contact (Append To), tell me the message: the next step is Global Append
+To on contact, which is safe here only because no table a tester can write
+through the Web API has a contact lookup. I would rather confirm that with
+you than assume it. Delete the test rows afterwards.
 
 **Build** (instant cloud flow, in the solution):
 
 1. Trigger: **Power Pages > When Power Pages calls a flow**, one Text input
-   `actionId`.
-2. **Get a row by ID**, Portal Actions, `actionId`. If Status is not Pending,
-   go to Fail with "That action has already been processed."
+   `request`. The page sends `{"actionId":"<the row's ID>"}` in it; read the
+   ID with `json(triggerBody()?['text'])?['actionId']` (the input's key may
+   show as `text` or `request` in the trigger's outputs; use the one there).
+2. **Get a row by ID**, Portal Actions, that ID. The form leaves Status
+   empty: if Status is Done or Failed, go to Fail with "That action has
+   already been processed." If Requested By is empty, go to Fail with "This
+   action has no requester."
 3. **List rows**, Compliance Directory, filter
    `_su_contact_value eq @{outputs('Get_action')?['body/_su_requestedby_value']} and su_active eq true`,
    top 1. None: Fail with "Your sign-in is not linked to a Compliance
@@ -917,7 +1018,7 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
 
 1. Back up the environment (admin center > Backups > Create).
 2. Pack and import the solution for the first time, then add the three
-   computed columns (section 2, Installing the solution). Check Tables > each
+   computed columns and Clear config (section 2, Installing the solution). Check Tables > each
    su_ table > Keys: each key shows Active. Run the blank-key test in
    section 2.
 3. Switch on environment auditing (section 9). Set the Function ID seed to
@@ -927,7 +1028,9 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
 5. Build the five dataflows (section 3), run them in order, and reconcile
    against the baseline counts.
 6. Build CM - Link directory to contact and CM - Process portal action, add
-   the action flow to the site, set `ComplianceMatrix/Flow/Action`.
+   the action flow to the site, set `ComplianceMatrix/Flow/Action`. Set up
+   the CM Portal Action form and its two pages, and run the spoof test
+   (section 8).
 7. Create the Testers web role; set the page's permissions to Testers and
    Administrators; add the table permissions, column permissions and Web API
    site settings (section 5); set `ComplianceMatrix/Backend` to `dataverse`.

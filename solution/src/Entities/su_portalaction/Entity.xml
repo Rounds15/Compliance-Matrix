@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Portal Actions" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="A request from the portal to complete or reverse a deadline, close a gap, raise or resolve a flag, or delete a function. The browser creates the row (table permission scoped to the signed-in contact, so Requested By cannot be someone else) and the CM - Process portal action flow does the work server-side: it checks the person may act, writes Completed By / Closed By / Flagged By / Cleared By and the archive row, and records the result here." languagecode="1033"/>
+        <Description description="A request from the portal to complete or reverse a deadline, close a gap, raise or resolve a flag, or delete a function. The CM Portal Action basic form creates the row and Power Pages sets Requested By to the signed-in contact on the server; the Web API is off for this table. The CM - Process portal action flow does the work server-side: it checks the person may act, writes Completed By / Closed By / Flagged By / Cleared By and the archive row, and records the result here." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
