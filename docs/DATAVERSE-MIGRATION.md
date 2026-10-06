@@ -642,7 +642,20 @@ lookup **su_compliancedirectory.su_contact** joins the two, so the action flow
 can tell who acted, and so permissions can be scoped to a person later.
 
 Most contacts only exist after the person's first sign-in, so the link cannot
-be made by the load; a flow keeps it:
+be made by the load; a flow keeps it. Because this link decides who the action
+flow believes someone is, it is set once, from an email the person cannot
+change, and never moved automatically:
+
+**First, lock the contact's email to the sign-in.**
+
+- Make the email read-only on the profile page: Portal Management > Basic
+  Forms > Profile Web Form (or the page's profile form) > the Email field >
+  read-only. Otherwise a signed-in person could change their contact email to
+  someone else's.
+- Refresh the email from Microsoft Entra ID at every sign-in: the identity
+  provider's login claims mapping (site setting
+  `Authentication/OpenIdConnect/<provider>/LoginClaimsMapping`, for example
+  `emailaddress1=email`; Set up > Identity providers shows the provider name).
 
 **CM - Link directory to contact** (automated cloud flow, in the solution)
 
@@ -652,14 +665,21 @@ be made by the load; a flow keeps it:
    `su_email eq '@{toLower(triggerOutputs()?['body/emailaddress1'])}' and su_active eq true`.
    (Dataverse compares text without regard to case, so this matches mixed-case
    addresses.)
-3. Apply to each: Update a row, Compliance Directory, row ID the item's ID,
-   **Portal Contact** = `contacts(@{triggerOutputs()?['body/contactid']})`.
-4. Add a second trigger flow, the same in reverse: **When a row is added or
+3. Continue only when exactly one row comes back, **its Portal Contact is
+   empty**, and no other directory row already has this contact. Otherwise
+   stop and email the compliance office (two people share the email, or the
+   link would move): an administrator sets or changes a link by hand.
+4. Update a row, Compliance Directory, that row's ID, **Portal Contact** =
+   `contacts(@{triggerOutputs()?['body/contactid']})`.
+5. A second flow does the same from the other side: **When a row is added or
    modified** on Compliance Directory (select column `su_email`), List rows on
-   Contacts by `emailaddress1`, set Portal Contact on the directory row.
+   Contacts by `emailaddress1`, and set Portal Contact under the same three
+   conditions.
 
-Run step 2 to 3 once by hand after the first load (or edit and save a
-contact) to link people who have already signed in.
+Run steps 2 to 4 once by hand after the first load (or edit and save a
+contact) to link people who have already signed in. Only administrators can
+write su_contact: it is not in any tester's table permission, and the
+dataflows leave it unmapped.
 
 The portal itself still matches the signed-in email to the directory in the
 browser for display (Home's "Assigned to you"), as it does today.
@@ -691,8 +711,40 @@ ready:
 ## 8. CM - Process portal action
 
 The browser never writes who did something or an archive entry. It creates a
-**Portal Action** row and calls this flow with the row's ID. The flow trusts
-only that row: its Requested By was fixed by the Contact-scoped permission.
+**Portal Action** row and calls this flow with the row's ID. The flow reads
+everything it acts on from Dataverse, starting from that row; it ignores
+anything else the request carries.
+
+**Who made the request.** Requested By (su_requestedby) is a lookup the
+browser sets when it creates the row, but it is not a free field: the only
+permission that lets anyone create a Portal Action is Contact-scoped on that
+lookup (CM Own portal actions, section 5), so Power Pages refuses a row that
+names any contact but the signed-in one. Nobody has Write on the table, so a
+row cannot be re-pointed after it is made, and the flow processes a row only
+while it is Pending, so it cannot be replayed. The person is then the
+Compliance Directory row whose Portal Contact is that contact (section 6).
+
+**Prove the Contact scope before you build this flow.** It is the one link in
+the chain the tests here can only imitate. With the solution imported, the
+Testers role, the CM Own portal actions permission and the
+`Webapi/su_portalaction/*` settings in place, sign in as a tester, open the
+matrix page, open the browser's developer tools (F12) > Console, and paste
+this with another person's contact ID (Tables > Contact > copy a row's ID):
+
+```
+fetch("/_layout/tokenhtml").then(r => r.text()).then(t => fetch("/_api/su_portalactions", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "__RequestVerificationToken": t.match(/value="([^"]+)"/)[1] },
+  body: JSON.stringify({ su_name: "scope test", su_action: 100000124, su_status: 100000130,
+    "su_requestedby@odata.bind": "/contacts(PASTE-ANOTHER-CONTACT-ID)" })
+})).then(r => console.log(r.status))
+```
+
+**It must print 403.** Then run it with your own contact ID (`{{ user.id }}`,
+or your row under Tables > Contact): that prints 204, and you can delete the
+test row. If the first prints 204, stop and tell me; the fallback is to create
+the row through a Power Pages basic form with "Associate current portal user
+on insert" set to Requested By, which Power Pages fills in on the server.
 
 **Build** (instant cloud flow, in the solution):
 
@@ -705,16 +757,22 @@ only that row: its Requested By was fixed by the Contact-scoped permission.
    top 1. None: Fail with "Your sign-in is not linked to a Compliance
    Directory record yet. Ask the compliance office to check your directory
    email."
-4. **Get a row by ID**, Compliance Functions, the action's Compliance
-   Function. For a deadline, gap or flag action, get that row too and check its
-   Compliance Function is the same function; otherwise Fail.
+4. **The target and its function, from Dataverse.** For a deadline, gap or
+   flag action, Get a row by ID on that table (the action's Deadline, Gap or
+   Flag) and take **its own** Compliance Function; if the action also names a
+   function and it differs, Fail. For Raise flag and Delete function, use the
+   action's Compliance Function. Get that function row; missing: Fail.
 5. **Administrator?** List the contact's web roles and look for "Compliance
    Matrix Administrators". On the enhanced data model, web roles are the
    **Web Role** table (mspp_webrole) with a many-to-many relationship to
    Contact; check its name under Tables > Contact > Relationships (it is
    usually `powerpagecomponent_mspp_webrole_contact`).
 6. **Owner?** List rows, Function Ownership, filter
-   `_su_function_value eq <function> and _su_person_value eq <person>`, top 1.
+   `_su_function_value eq <the function from step 4> and _su_person_value eq <the person from step 3>`,
+   top 1. Any role counts (Executive, Unit, Compliance, General Counsel,
+   Support), as in the canvas app's "own functions". This is checked on every
+   action, at the moment it runs, so someone removed from a function cannot act
+   on it afterwards even if the page they have open still offers the button.
 7. **Allowed:** an administrator may do any action; anyone may Raise flag; an
    owner (step 6) may Complete deadline, Reverse completion and Close gap.
    Otherwise Fail with "You are not allowed to do that on this function."

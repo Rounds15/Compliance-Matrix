@@ -153,8 +153,18 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     if (a.su_status !== 100000130) return { ok: false, error: "That action has already been processed." };
     const person = dv.su_compliancedirectorys.find(p => p._su_contact_value === a._su_requestedby_value && p.su_active !== false);
     if (!person) return done(false, "Your sign-in is not linked to a Compliance Directory record yet. Ask the compliance office to check your directory email.");
-    const fn = dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === a._su_function_value);
     const kind = ACTIONS[a.su_action];
+    /* the function comes from the target row itself; a different function
+       named on the action is refused */
+    const target = { complete: ["su_compliancedeadlines", "su_compliancedeadlineid", a._su_deadline_value],
+      reverse: ["su_compliancedeadlines", "su_compliancedeadlineid", a._su_deadline_value],
+      close: ["su_compliancegaps", "su_compliancegapid", a._su_gap_value],
+      resolve: ["su_functionflags", "su_functionflagid", a._su_flag_value] }[kind];
+    const row = target && dv[target[0]].find(r => r[target[1]] === target[2]);
+    if (target && !row) return done(false, "That record no longer exists.");
+    if (row && a._su_function_value && a._su_function_value !== row._su_function_value) return done(false, "That record is not on this function.");
+    const fnId = row ? row._su_function_value : a._su_function_value;
+    const fn = dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === fnId);
     const owns = fn && dv.su_functionownerships.some(o => o._su_function_value === fn.su_compliancefunctionid && o._su_person_value === person.su_compliancedirectoryid);
     const allowed = admin || kind === "flag" || ((kind === "complete" || kind === "reverse" || kind === "close") && owns);
     if (!fn || !allowed) return done(false, "You are not allowed to do that on this function.");
@@ -164,19 +174,16 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
       su_functionname: fn.su_name, su_functionnumber: fn.su_legacyspid ?? (Number(fn.su_functioncode) || null),
       _su_function_value: fn.su_compliancefunctionid, su_resolvedby: person.su_name, su_resolvedat: now, ...extra });
     if (kind === "complete" || kind === "reverse") {
-      const dl = dv.su_compliancedeadlines.find(d => d.su_compliancedeadlineid === a._su_deadline_value && d._su_function_value === fn.su_compliancefunctionid);
-      if (!dl) return done(false, "That deadline is not on this function.");
+      const dl = row;
       if (kind === "complete") Object.assign(dl, { su_completeddate: isoDay(), su_completedon: now, su_completedreason: a.su_reason, su_completedbyname: person.su_name, _su_completedby_value: person.su_compliancedirectoryid, su_complete: dl.su_cadence === 100000016 });
       else Object.assign(dl, { su_completeddate: null, su_completedon: null, su_completedreason: null, su_completedbyname: null, _su_completedby_value: null, su_complete: false });
       archive(kind === "complete" ? "Deadline Completed" : "Deadline Reversed", "Deadline Completion", kind === "complete" ? "Completed" : "Reversed",
         { su_reason: a.su_reason, su_completedoccurrence: dl.su_duedate || "", su_cadence: CADENCE_LABEL[dl.su_cadence] || "", su_sourceitemid: dl.su_legacyspid ?? null });
     } else if (kind === "close") {
-      const g = dv.su_compliancegaps.find(x => x.su_compliancegapid === a._su_gap_value && x._su_function_value === fn.su_compliancefunctionid);
-      if (!g) return done(false, "That gap is not on this function.");
+      const g = row;
       Object.assign(g, { su_status: 100000021, su_closeddate: isoDay(), su_closenote: a.su_reason || null, _su_closedby_value: person.su_compliancedirectoryid });
     } else if (kind === "resolve") {
-      const x = dv.su_functionflags.find(r => r.su_functionflagid === a._su_flag_value && r._su_function_value === fn.su_compliancefunctionid);
-      if (!x) return done(false, "That flag is not on this function.");
+      const x = row;
       Object.assign(x, { su_status: 100000051, su_clearedon: isoDay(), _su_clearedby_value: person.su_compliancedirectoryid });
       const by = dv.su_compliancedirectorys.find(p => p.su_compliancedirectoryid === x._su_flaggedby_value);
       archive("Flag Resolved", "Flag Resolution", "Resolved", { su_reason: x.su_reason, su_sourceitemid: x.su_legacyspid ?? null,

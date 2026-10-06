@@ -575,7 +575,9 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
 
 /* ======================= Dataverse: who-did-it is server-side ======================= */
 await session("Dataverse · the browser cannot write the archive or who did something", { backend: "dataverse", admin: false, user: { email: "dferrell@syr.edu", name: "Dwight Ferrell" } }, async ({ page, portal }) => {
-  const r = await page.evaluate(async ([dl, fnOther, me, other, mine]) => {
+  /* a deadline on HIPAA (203), where Dwight holds no role */
+  portal.dv.su_compliancedeadlines.push({ su_compliancedeadlineid: G(403), su_name: "Risk analysis refresh", _su_function_value: G(203), su_duedate: "2026-12-01", su_cadence: 100000010, su_complete: false });
+  const r = await page.evaluate(async ([dl, fnOther, me, other, mine, fnMine, dlOther]) => {
     const tok = (await (await fetch("/_layout/tokenhtml")).text()).match(/value="([^"]+)"/)[1];
     const api = (m, path, body) => fetch("/_api/" + path, { method: m, headers: { "Content-Type": "application/json", __RequestVerificationToken: tok }, body: body && JSON.stringify(body) })
       .then(async x => ({ status: x.status, id: (x.headers.get("OData-EntityId") || "").match(/\(([0-9a-f-]{36})\)/)?.[1] }));
@@ -587,14 +589,32 @@ await session("Dataverse · the browser cannot write the archive or who did some
     const forgedBy = await api("POST", "su_compliancegaps", { su_name: "x", su_status: 100000020, "su_function@odata.bind": `/su_compliancefunctions(${fnOther})`, "su_closedby@odata.bind": `/su_compliancedirectorys(${me})` });
     const notMine = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000122, su_status: 100000130, "su_requestedby@odata.bind": `/contacts(${mine})`,
       "su_function@odata.bind": `/su_compliancefunctions(${fnOther})` });
-    return { patchDeadline: patchDeadline.status, archive: archive.status, asSomeoneElse: asSomeoneElse.status, forgedBy: forgedBy.status, notMine: await flow(notMine.id) };
-  }, [G(401), G(203), G(103), G(901), G(903)]);
+    /* a deadline on someone else's function, labelled with one of Dwight's: the flow
+       takes the function from the deadline itself and refuses */
+    const relabelled = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, su_reason: "x",
+      "su_requestedby@odata.bind": `/contacts(${mine})`, "su_function@odata.bind": `/su_compliancefunctions(${fnMine})`,
+      "su_deadline@odata.bind": `/su_compliancedeadlines(${dlOther})` });
+    const unlabelled = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, su_reason: "x",
+      "su_requestedby@odata.bind": `/contacts(${mine})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dlOther})` });
+    const own = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, su_reason: "Filed.",
+      "su_requestedby@odata.bind": `/contacts(${mine})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dl})` });
+    const ownResult = await flow(own.id);
+    return { patchDeadline: patchDeadline.status, archive: archive.status, asSomeoneElse: asSomeoneElse.status, forgedBy: forgedBy.status,
+      notMine: await flow(notMine.id), relabelled: await flow(relabelled.id), unlabelled: await flow(unlabelled.id), own: ownResult, replay: await flow(own.id) };
+  }, [G(401), G(203), G(103), G(901), G(903), G(202), G(403)]);
   assert.equal(r.patchDeadline, 403, "owners have no direct Write on deadlines");
   assert.equal(r.archive, 403, "nobody writes the archive from the browser");
   assert.equal(r.asSomeoneElse, 403, "an action can only name the signed-in contact");
   assert.equal(r.forgedBy, 403, "Closed By is written by the flow only");
   assert.equal(r.notMine.ok, false, "the flow refuses an owner acting on a function that is not theirs");
-  assert.equal(portal.dv.su_archives.length, 0);
+  assert.equal(r.relabelled.ok, false, "naming one of their own functions does not let them act on another's deadline");
+  assert.equal(r.unlabelled.ok, false, "the ownership check uses the deadline's own function");
+  assert.equal(r.own.ok, true, "their own deadline goes through");
+  assert.equal(r.replay.ok, false, "an action runs once");
+  const dl = portal.dv.su_compliancedeadlines.find(d => d.su_compliancedeadlineid === G(401));
+  assert.equal(dl._su_completedby_value, G(103), "Completed By is the person behind the signed-in contact");
+  assert.equal(portal.dv.su_compliancedeadlines.find(d => d.su_compliancedeadlineid === G(403)).su_completeddate ?? null, null, "the other deadline is untouched");
+  assert.equal(portal.dv.su_archives.length, 1, "one archive entry, for the one action that ran");
 });
 
 /* ======================= Dataverse, owner ======================= */
