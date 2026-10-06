@@ -165,6 +165,38 @@
             <displayname description="Cadence" languagecode="1033"/>
           </displaynames>
         </attribute>
+        <attribute PhysicalName="su_cadencetext">
+          <Type>nvarchar</Type>
+          <Name>su_cadencetext</Name>
+          <LogicalName>su_cadencetext</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Cadence (SharePoint value)" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="The SharePoint cadence exactly as entered, kept so a value with no matching option (Bi-monthly, Triennial, Daily) is not lost." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
         <attribute PhysicalName="su_duemonthnum">
           <Type>int</Type>
           <Name>su_duemonthnum</Name>
@@ -341,10 +373,39 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>2000</MaxLength>
+          <MaxLength>1048576</MaxLength>
           <Format>textarea</Format>
           <displaynames>
             <displayname description="Deadline Notes" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_narrative">
+          <Type>ntext</Type>
+          <Name>su_narrative</Name>
+          <LogicalName>su_narrative</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>1048576</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="Deadline Narrative" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_complete">
@@ -422,6 +483,128 @@
             <displayname description="Last Completed Date" languagecode="1033"/>
           </displaynames>
         </attribute>
+        <attribute PhysicalName="su_completedreason">
+          <Type>ntext</Type>
+          <Name>su_completedreason</Name>
+          <LogicalName>su_completedreason</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>1048576</MaxLength>
+          <Format>textarea</Format>
+          <displaynames>
+            <displayname description="Completed Reason" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_completedbyname">
+          <Type>nvarchar</Type>
+          <Name>su_completedbyname</Name>
+          <LogicalName>su_completedbyname</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Completed By Name" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_completedon">
+          <Type>datetime</Type>
+          <Name>su_completedon</Name>
+          <LogicalName>su_completedon</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <Format>datetime</Format>
+          <Behavior>0</Behavior>
+          <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
+          <displaynames>
+            <displayname description="Completed Date And Time" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_completedby">
+          <Type>lookup</Type>
+          <Name>su_completedby</Name>
+          <LogicalName>su_completedby</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <LookupStyle>single</LookupStyle>
+          <lookupTypes>
+            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
+          </lookupTypes>
+          <displaynames>
+            <displayname description="Completed By" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="Written by the CM - Process portal action flow, never by the browser." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
         <attribute PhysicalName="su_owner">
           <Type>lookup</Type>
           <Name>su_owner</Name>
@@ -486,8 +669,57 @@
           <displaynames>
             <displayname description="Risk Rating" languagecode="1033"/>
           </displaynames>
+          <Descriptions>
+            <Description description="Legacy copy of the function's rating. Not loaded or written; the function holds the rating." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_legacyspid">
+          <Type>int</Type>
+          <Name>su_legacyspid</Name>
+          <LogicalName>su_legacyspid</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>0</MinValue>
+          <MaxValue>2147483647</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Legacy SharePoint ID" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="The SharePoint list item ID this row was loaded from. Alternate key; the dataflows upsert on it." languagecode="1033"/>
+          </Descriptions>
         </attribute>
       </attributes>
+      <EntityKeys>
+        <EntityKey>
+          <Name>su_key_legacyspid</Name>
+          <LogicalName>su_key_legacyspid</LogicalName>
+          <EntityKeyAttributes>
+            <AttributeName>su_legacyspid</AttributeName>
+          </EntityKeyAttributes>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <displaynames>
+            <displayname description="Legacy SharePoint ID" languagecode="1033"/>
+          </displaynames>
+        </EntityKey>
+      </EntityKeys>
       <EntitySetName>su_compliancedeadlines</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>

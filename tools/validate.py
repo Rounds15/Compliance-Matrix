@@ -426,7 +426,8 @@ def check_schema_refs(loaded: dict[pathlib.Path, object]) -> None:
                     clean = False
             elif ctype == "Lookup":
                 target = col.get("target")
-                if target != "systemuser" and target not in tables:
+                # standard Dataverse tables the schema points at but does not define
+                if target not in ("systemuser", "contact") and target not in tables:
                     fail(f"{logical}.{col['name']}: lookup target {target} undefined")
                     clean = False
             elif ctype == "Rollup":

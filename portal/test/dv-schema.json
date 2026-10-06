@@ -9,20 +9,66 @@
   "id": "su_appadminid",
   "set": "su_appadmins"
  },
+ "su_archive": {
+  "columns": {
+   "su_cadence": "String",
+   "su_completedoccurrence": "String",
+   "su_eventtype": "String",
+   "su_flaggedby": "String",
+   "su_flaggeddate": "String",
+   "su_flagsource": "String",
+   "su_function": "lookup:su_compliancefunction",
+   "su_functionname": "String",
+   "su_functionnumber": "Integer",
+   "su_legacyspid": "Integer",
+   "su_name": "String",
+   "su_reason": "Memo",
+   "su_recordtype": "String",
+   "su_resolvedat": "String",
+   "su_resolvedby": "String",
+   "su_sourceitemid": "Decimal"
+  },
+  "id": "su_archiveid",
+  "set": "su_archives"
+ },
  "su_assessment": {
   "columns": {
    "su_approverstext": "String",
+   "su_assessedby": "String",
    "su_assessmentcode": "String",
    "su_assessmentdate": "DateTime",
+   "su_createdvia": "String",
    "su_currentholder": "String",
    "su_domain": "lookup:su_domain",
+   "su_externalrisk": "Decimal",
    "su_fileurl": "String",
+   "su_fiscalyear": "String",
    "su_followupround": "Integer",
+   "su_formsresponseid": "Decimal",
+   "su_frequencyband": "String",
+   "su_function": "lookup:su_compliancefunction",
+   "su_impactanswer": "String",
+   "su_internalriskasassessed": "Decimal",
+   "su_internalriskcurrent": "Decimal",
    "su_keycontrolsmissing": "Integer",
+   "su_legacyspid": "Integer",
+   "su_method": "String",
    "su_name": "String",
+   "su_notes": "Memo",
+   "su_opencontrolgaps": "Decimal",
+   "su_pressureanswer": "String",
+   "su_questionnaireversion": "String",
+   "su_referencecode": "String",
+   "su_respondent": "lookup:su_compliancedirectory",
+   "su_respondentemail": "String",
    "su_risk": "Choice",
+   "su_sourcefile": "String",
    "su_status": "Choice",
-   "su_unit": "String"
+   "su_statustext": "String",
+   "su_submittedon": "DateTime",
+   "su_unit": "String",
+   "su_universityriskasassessed": "String",
+   "su_universityriskcurrent": "String"
   },
   "id": "su_assessmentid",
   "set": "su_assessments"
@@ -37,17 +83,46 @@
   "id": "su_assessmentownerid",
   "set": "su_assessmentowners"
  },
+ "su_assessmentresponse": {
+  "columns": {
+   "su_legacyspid": "Integer",
+   "su_name": "String",
+   "su_sourcecreated": "DateTime",
+   "su_sourcedata": "Memo",
+   "su_sourcemodified": "DateTime"
+  },
+  "id": "su_assessmentresponseid",
+  "set": "su_assessmentresponses"
+ },
+ "su_assessmentschedule": {
+  "columns": {
+   "su_legacyspid": "Integer",
+   "su_name": "String",
+   "su_sourcecreated": "DateTime",
+   "su_sourcedata": "Memo",
+   "su_sourcemodified": "DateTime"
+  },
+  "id": "su_assessmentscheduleid",
+  "set": "su_assessmentschedules"
+ },
  "su_compliancedeadline": {
   "columns": {
    "su_cadence": "Choice",
+   "su_cadencetext": "String",
    "su_complete": "Boolean",
+   "su_completedby": "lookup:su_compliancedirectory",
+   "su_completedbyname": "String",
    "su_completeddate": "DateTime",
+   "su_completedon": "DateTime",
+   "su_completedreason": "Memo",
    "su_deadlinetype": "Choice",
    "su_duedate": "DateTime",
    "su_dueday": "Integer",
    "su_duemonthnum": "Integer",
    "su_function": "lookup:su_compliancefunction",
+   "su_legacyspid": "Integer",
    "su_name": "String",
+   "su_narrative": "Memo",
    "su_notes": "Memo",
    "su_offsetunit": "Choice",
    "su_offsetvalue": "Integer",
@@ -61,9 +136,11 @@
  "su_compliancedirectory": {
   "columns": {
    "su_active": "Boolean",
+   "su_contact": "lookup:contact",
    "su_email": "String",
    "su_isexecutive": "Boolean",
    "su_jobtitle": "String",
+   "su_legacyspid": "Integer",
    "su_location": "String",
    "su_name": "String",
    "su_netid": "String",
@@ -85,6 +162,7 @@
    "su_functioncode": "String",
    "su_isflagged": "Boolean",
    "su_lastreviewed": "DateTime",
+   "su_legacyspid": "Integer",
    "su_name": "String",
    "su_reporting": "Memo",
    "su_resourcelabel": "String",
@@ -106,11 +184,16 @@
    "su_closenote": "Memo",
    "su_function": "lookup:su_compliancefunction",
    "su_gapcode": "String",
+   "su_gapsource": "String",
+   "su_legacyspid": "Integer",
    "su_name": "String",
+   "su_needsremediationplan": "String",
    "su_note": "Memo",
    "su_openeddate": "DateTime",
    "su_owner": "lookup:su_compliancedirectory",
+   "su_responsibleunit": "String",
    "su_severity": "Choice",
+   "su_sourcefile": "String",
    "su_status": "Choice",
    "su_targetfy": "String",
    "su_targetquarter": "String"
@@ -131,6 +214,7 @@
  "su_domain": {
   "columns": {
    "su_domaincode": "String",
+   "su_legacyspid": "Integer",
    "su_name": "String",
    "su_owner": "lookup:su_compliancedirectory",
    "su_riskarea": "lookup:su_riskarea"
@@ -145,8 +229,10 @@
    "su_flaggedby": "lookup:su_compliancedirectory",
    "su_flaggedon": "DateTime",
    "su_function": "lookup:su_compliancefunction",
+   "su_legacyspid": "Integer",
    "su_name": "String",
    "su_reason": "Memo",
+   "su_respondentemail": "String",
    "su_source": "Choice",
    "su_status": "Choice"
   },
@@ -156,6 +242,7 @@
  "su_functionownership": {
   "columns": {
    "su_function": "lookup:su_compliancefunction",
+   "su_legacyspid": "Integer",
    "su_name": "String",
    "su_person": "lookup:su_compliancedirectory",
    "su_role": "Choice",
@@ -164,10 +251,28 @@
   "id": "su_functionownershipid",
   "set": "su_functionownerships"
  },
+ "su_portalaction": {
+  "columns": {
+   "su_action": "Choice",
+   "su_deadline": "lookup:su_compliancedeadline",
+   "su_flag": "lookup:su_functionflag",
+   "su_function": "lookup:su_compliancefunction",
+   "su_gap": "lookup:su_compliancegap",
+   "su_name": "String",
+   "su_processedon": "DateTime",
+   "su_reason": "Memo",
+   "su_requestedby": "lookup:contact",
+   "su_result": "Memo",
+   "su_status": "Choice"
+  },
+  "id": "su_portalactionid",
+  "set": "su_portalactions"
+ },
  "su_riskarea": {
   "columns": {
    "su_colorhex": "String",
    "su_functioncount": "Integer",
+   "su_legacyspid": "Integer",
    "su_name": "String",
    "su_owner": "lookup:su_compliancedirectory",
    "su_riskareacode": "String",

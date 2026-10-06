@@ -26,7 +26,7 @@ pac 2.11.2. The cause is visible in `bolt.module.canvas.dll`:
 > exactly one `.msapr` file.
 
 The SourceCode packer requires a `.msapr` companion alongside the `.pa.yaml`
-files. Only Studio emits a `.msapr` — you get one from `pac canvas unpack
+files. Only Studio emits a `.msapr`: you get one from `pac canvas unpack
 --layout SourceCode` on an app that already exists. So SourceCode can round-trip
 an app, but it cannot originate one. Upgrading `pac` will not change this.
 
@@ -83,7 +83,7 @@ number of files that SchemaV3 keeps implicit.
 |---|---|
 | `CanvasManifest.json` | `FormatVersion` must be exactly `0.30`; carries Header, Properties, PublishInfo, ScreenOrder |
 | `Src/Themes.json` | the full canvas default theme. At the tree root instead it is ignored and the packer throws on a null theme |
-| `Src/EditorState/*.editorstate.json` | style name per control, and `ExtensionData` — a control state without it makes the component writer throw |
+| `Src/EditorState/*.editorstate.json` | style name per control, and `ExtensionData`: a control state without it makes the component writer throw |
 | `Entropy/Entropy.json` | control unique ids and publish order |
 | `ControlTemplates.json` | version per first-party template. `appinfo`, `screen` and `groupContainer` are added by the packer and must not be repeated |
 | `pkgs/galleryTemplate_2.15.0.xml` | see below |
@@ -94,7 +94,7 @@ number of files that SchemaV3 keeps implicit.
 - **Galleries need a `galleryTemplate` template on disk.** The gallery transform
   dereferences it without a null check, so any gallery in the source throws
   `NullReferenceException` unless `pkgs/galleryTemplate_<version>.xml` parses. A
-  bare `<widget>` envelope is enough — the template's `InputDefaults` only
+  bare `<widget>` envelope is enough: the template's `InputDefaults` only
   selects which gallery properties migrate onto the template child, and none of
   ours do. Gallery children are written flat under the gallery; the packer
   inserts the template child itself.
@@ -130,7 +130,7 @@ carry an empty style name.
 ## Known limits
 
 - Control `@version` strings are the ones the SchemaV3 source declares. Studio
-  may offer to upgrade them on open; accept — your tenant's versions are
+  may offer to upgrade them on open; accept: your tenant's versions are
   authoritative.
 - Components are packed with `AllowAccessToGlobals: true` regardless of the
   SchemaV3 `AccessAppScope: false` flag. Every component here reads `gblTheme`,

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity>
-  <Name LocalizedName="Domain" OriginalName="Domain">su_domain</Name>
+  <Name LocalizedName="Assessment Response" OriginalName="Assessment Response">su_assessmentresponse</Name>
   <EntityInfo>
-    <entity Name="su_domain">
+    <entity Name="su_assessmentresponse">
       <LocalizedNames>
-        <LocalizedName description="Domain" languagecode="1033"/>
+        <LocalizedName description="Assessment Response" languagecode="1033"/>
       </LocalizedNames>
       <LocalizedCollectionNames>
-        <LocalizedCollectionName description="Domains" languagecode="1033"/>
+        <LocalizedCollectionName description="Assessment Responses" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="The 61 sub-groupings, each under one risk area. Promoted from the prototype's free-text area because the values were drifting and leadership wants a coverage map broken out by domain." languagecode="1033"/>
+        <Description description="One row per item on the SharePoint Assessment Responses list. Until that list's columns are mapped one by one, su_sourcedata holds the whole item as JSON so nothing is lost on load." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -39,13 +39,13 @@
           <MaxLength>255</MaxLength>
           <Format>text</Format>
           <displaynames>
-            <displayname description="Domain" languagecode="1033"/>
+            <displayname description="Response" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_domaincode">
-          <Type>nvarchar</Type>
-          <Name>su_domaincode</Name>
-          <LogicalName>su_domaincode</LogicalName>
+        <attribute PhysicalName="su_sourcedata">
+          <Type>ntext</Type>
+          <Name>su_sourcedata</Name>
+          <LogicalName>su_sourcedata</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -65,50 +65,16 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>30</MaxLength>
-          <Format>text</Format>
+          <MaxLength>1048576</MaxLength>
+          <Format>textarea</Format>
           <displaynames>
-            <displayname description="Domain ID" languagecode="1033"/>
-          </displaynames>
-          <Descriptions>
-            <Description description="Legacy surrogate key for seed relationship resolution." languagecode="1033"/>
-          </Descriptions>
-        </attribute>
-        <attribute PhysicalName="su_riskarea">
-          <Type>lookup</Type>
-          <Name>su_riskarea</Name>
-          <LogicalName>su_riskarea</LogicalName>
-          <RequiredLevel>recommended</RequiredLevel>
-          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
-          <ImeMode>auto</ImeMode>
-          <ValidForCreateApi>1</ValidForCreateApi>
-          <ValidForReadApi>1</ValidForReadApi>
-          <ValidForUpdateApi>1</ValidForUpdateApi>
-          <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
-          <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <IsCustomizable>1</IsCustomizable>
-          <IsRenameable>1</IsRenameable>
-          <CanModifySearchSettings>1</CanModifySearchSettings>
-          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
-          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
-          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
-          <IsSortableEnabled>0</IsSortableEnabled>
-          <IsDataSourceSecret>0</IsDataSourceSecret>
-          <IsSearchable>0</IsSearchable>
-          <LookupStyle>single</LookupStyle>
-          <lookupTypes>
-            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_riskarea"/>
-          </lookupTypes>
-          <displaynames>
-            <displayname description="Risk Area" languagecode="1033"/>
+            <displayname description="Source Item (JSON)" languagecode="1033"/>
           </displaynames>
         </attribute>
-        <attribute PhysicalName="su_owner">
-          <Type>lookup</Type>
-          <Name>su_owner</Name>
-          <LogicalName>su_owner</LogicalName>
+        <attribute PhysicalName="su_sourcecreated">
+          <Type>datetime</Type>
+          <Name>su_sourcecreated</Name>
+          <LogicalName>su_sourcecreated</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -128,12 +94,41 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>0</IsSearchable>
-          <LookupStyle>single</LookupStyle>
-          <lookupTypes>
-            <lookupType id="{00000000-0000-0000-0000-000000000000}" name="su_compliancedirectory"/>
-          </lookupTypes>
+          <Format>datetime</Format>
+          <Behavior>0</Behavior>
+          <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
           <displaynames>
-            <displayname description="Domain Owner" languagecode="1033"/>
+            <displayname description="Created In SharePoint" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_sourcemodified">
+          <Type>datetime</Type>
+          <Name>su_sourcemodified</Name>
+          <LogicalName>su_sourcemodified</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <Format>datetime</Format>
+          <Behavior>0</Behavior>
+          <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
+          <displaynames>
+            <displayname description="Modified In SharePoint" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_legacyspid">
@@ -172,17 +167,6 @@
       </attributes>
       <EntityKeys>
         <EntityKey>
-          <Name>su_key_domaincode</Name>
-          <LogicalName>su_key_domaincode</LogicalName>
-          <EntityKeyAttributes>
-            <AttributeName>su_domaincode</AttributeName>
-          </EntityKeyAttributes>
-          <IntroducedVersion>1.0.0.0</IntroducedVersion>
-          <displaynames>
-            <displayname description="Domain ID" languagecode="1033"/>
-          </displaynames>
-        </EntityKey>
-        <EntityKey>
           <Name>su_key_legacyspid</Name>
           <LogicalName>su_key_legacyspid</LogicalName>
           <EntityKeyAttributes>
@@ -194,7 +178,7 @@
           </displaynames>
         </EntityKey>
       </EntityKeys>
-      <EntitySetName>su_domains</EntitySetName>
+      <EntitySetName>su_assessmentresponses</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>
       <IsRenameable>1</IsRenameable>
@@ -211,9 +195,9 @@
       <IsCustomEntity>1</IsCustomEntity>
       <IsQuickCreateEnabled>1</IsQuickCreateEnabled>
       <IntroducedVersion>1.0.0.0</IntroducedVersion>
-      <OwnershipTypeMask>OrganizationOwned</OwnershipTypeMask>
+      <OwnershipTypeMask>UserOwned</OwnershipTypeMask>
       <PrimaryNameAttribute>su_name</PrimaryNameAttribute>
-      <HasNotes>0</HasNotes>
+      <HasNotes>1</HasNotes>
       <HasActivities>0</HasActivities>
       <IsChildEntity>0</IsChildEntity>
     </entity>

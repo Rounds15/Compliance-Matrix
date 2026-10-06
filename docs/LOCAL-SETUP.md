@@ -20,13 +20,13 @@ Pick a folder, open it when prompted, then switch to the working branch:
 
 ## 2. Install the extensions
 
-VS Code will prompt "This workspace has extension recommendations" — click
+VS Code will prompt "This workspace has extension recommendations": click
 **Install All**. If you miss the prompt, open the Extensions panel and filter by
 `@recommended`.
 
 The one that matters is **Power Platform Tools**
 (`microsoft-IsvExpTools.powerplatform-vscode`). It bundles the `pac` CLI, so
-there is no separate CLI install. Verify after it activates — open a terminal
+there is no separate CLI install. Verify after it activates: open a terminal
 (**Ctrl+`**) and run:
 
 ```powershell
@@ -91,7 +91,7 @@ otherwise surface as an opaque packer error.
 
 ## 6. Expect the first import to need a fix or two
 
-The solution source in this repo has **never been through `pac solution pack`** —
+The solution source in this repo has **never been through `pac solution pack`**:
 no Power Platform CLI was available in the environment where it was generated.
 It is well-formed XML with all internal references resolving, but the packer is
 stricter than "well-formed."
@@ -106,7 +106,7 @@ re-pack. Controls used: `Label@2.5.1`, `Gallery@2.15.0`, `Classic/Button@2.2.0`,
 `Rectangle@2.3.0`, `Image@2.2.3`, `PowerBI@1.4.0`.
 
 **Missing element in `Entity.xml`.** The packer wants an element the generator
-did not emit. Fix it in `tools/build_solution.py`, not in the generated file —
+did not emit. Fix it in `tools/build_solution.py`, not in the generated file:
 `solution/src` is regenerated on every build and hand edits are lost.
 
 **Rollup or calculated column rejected on import.** `su_opengapcount`,
@@ -132,7 +132,7 @@ and retry.
 2. **Create the environment variables** the Reporting screen reads:
    `su_PowerBIWorkspaceId`, `su_PowerBIExecutiveReportId`,
    `su_PowerBIDeadlineReportId`, `su_PowerBIGapAgingReportId`.
-   Until these exist, the Reporting screen renders empty — nothing else breaks.
+   Until these exist, the Reporting screen renders empty: nothing else breaks.
 3. **Give yourself an Administrator row** in **App Role Assignments**, or Gap
    Tracker, Risk Dashboard, and Reporting stay locked for everyone.
 4. **Open the canvas app in Studio** and check the screens render. This is where
@@ -146,7 +146,7 @@ and retry.
   it. `.vscode/settings.json` pins this and disables trailing-whitespace
   trimming for YAML so multi-line formulas survive a save.
 - **Comments differ by level.** YAML structure uses `#`; Power Fx formula bodies
-  use `//`. Getting this wrong breaks the parse in a confusing way — a `//` at
+  use `//`. Getting this wrong breaks the parse in a confusing way: a `//` at
   structural level is read as a value, not a comment. Run the
   `Normalize YAML comments` task if in doubt; it only touches structural-level
   lines and leaves formula bodies alone.

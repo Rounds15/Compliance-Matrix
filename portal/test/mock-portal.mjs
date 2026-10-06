@@ -7,6 +7,10 @@
      POST /_api/cloudflow/v1.0/trigger/<read|write|admin|find>
                                    the three SharePoint flows, implemented to the
                                    contract in docs/SHAREPOINT-FLOWS.md
+     POST /_api/cloudflow/v1.0/trigger/action
+                                   CM - Process portal action, the Dataverse
+                                   flow that writes who-did-it and the archive
+                                   (docs/DATAVERSE-MIGRATION.md, section 8)
      *    /_api/<entityset>...     the Power Pages Web API over Dataverse
 
    Every write is checked against the real column set - the SharePoint lists'
@@ -21,7 +25,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { Liquid } from "liquidjs";
-import { sharepointLists, dataverseTables } from "./fixtures.mjs";
+import { sharepointLists, dataverseTables, CONTACTS } from "./fixtures.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DIST = join(HERE, "..", "dist");
@@ -50,6 +54,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     "ComplianceMatrix/Flow/Write": "/_api/cloudflow/v1.0/trigger/write",
     "ComplianceMatrix/Flow/AdminWrite": "/_api/cloudflow/v1.0/trigger/admin",
     "ComplianceMatrix/Flow/FindPerson": "/_api/cloudflow/v1.0/trigger/find",
+    "ComplianceMatrix/Flow/Action": "/_api/cloudflow/v1.0/trigger/action",
     "ComplianceMatrix/CacheMinutes": "0",
     "ComplianceMatrix/PageUrl": "/matrix/",
     ...extra
@@ -69,7 +74,8 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     { name: "Resources", url: "/resources/", display_page_child_links: true, weblinks: [] },
     { name: "Contact", url: "/contact/", weblinks: [] }] } };
   const sitemap = { "/resources/": { children: [{ title: "Forms", url: "/resources/forms/", description: "<p>Every form the office uses</p>" }] } };
-  const userCtx = () => (user ? { emailaddress1: user.email, fullname: user.name, id: "c0ffee00-0000-4000-8000-000000000001", roles: admin ? ["Authenticated Users", "Compliance Matrix Administrators"] : ["Authenticated Users"] } : null);
+  const contactId = user ? (CONTACTS[String(user.email).toLowerCase()] || "c0ffee00-0000-4000-8000-000000000001") : null;
+  const userCtx = () => (user ? { emailaddress1: user.email, fullname: user.name, id: contactId, roles: admin ? ["Authenticated Users", "Compliance Matrix Administrators"] : ["Authenticated Users"] } : null);
 
   /* ---------------- SharePoint: value checks per column kind ---------------- */
   const checkSpFields = (list, fields, op) => {
@@ -129,6 +135,72 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   /* SharePoint returns a hyperlink as {Description, Url} without the metadata */
   const unwrap = f => Object.fromEntries(Object.entries(f).map(([k, v]) => [k, v && v.__metadata ? { Description: v.Description, Url: v.Url } : v]));
 
+  /* ---------------- CM - Process portal action ----------------
+     The Dataverse flow in docs/DATAVERSE-MIGRATION.md, section 8, as the
+     tests run it: it trusts only the action row (whose Requested By the
+     Contact-scoped permission fixed), resolves the person through
+     su_contact, checks they may act, does the work, writes who did it and
+     the archive entry, and records the outcome on the action row. */
+  const ACTIONS = { 100000120: "complete", 100000121: "reverse", 100000122: "close", 100000123: "resolve", 100000124: "flag", 100000125: "delete" };
+  const CADENCE_LABEL = { 100000010: "Annually", 100000011: "Semiannual", 100000012: "Quarterly", 100000013: "Monthly", 100000014: "Biennial", 100000015: "Ongoing", 100000016: "One-time" };
+  const ROLE_LABEL = { 100000030: "Executive Owner", 100000031: "Unit Owner", 100000032: "Compliance Owner", 100000033: "General Counsel", 100000034: "Support" };
+  const isoDay = () => new Date().toISOString().slice(0, 10);
+  const mdY = s => (s ? `${s.slice(5, 7)}/${s.slice(8, 10)}/${s.slice(0, 4)}` : "");
+  function processAction(actionId) {
+    const a = dv.su_portalactions.find(r => r.su_portalactionid === actionId);
+    if (!a) return { ok: false, error: "That action does not exist." };
+    const done = (ok, msg) => { a.su_status = ok ? 100000131 : 100000132; a.su_result = msg || ""; a.su_processedon = new Date().toISOString(); return ok ? { ok: true } : { ok: false, error: msg }; };
+    if (a.su_status !== 100000130) return { ok: false, error: "That action has already been processed." };
+    const person = dv.su_compliancedirectorys.find(p => p._su_contact_value === a._su_requestedby_value && p.su_active !== false);
+    if (!person) return done(false, "Your sign-in is not linked to a Compliance Directory record yet. Ask the compliance office to check your directory email.");
+    const fn = dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === a._su_function_value);
+    const kind = ACTIONS[a.su_action];
+    const owns = fn && dv.su_functionownerships.some(o => o._su_function_value === fn.su_compliancefunctionid && o._su_person_value === person.su_compliancedirectoryid);
+    const allowed = admin || kind === "flag" || ((kind === "complete" || kind === "reverse" || kind === "close") && owns);
+    if (!fn || !allowed) return done(false, "You are not allowed to do that on this function.");
+    const now = new Date().toISOString();
+    const archive = (title, recordType, eventType, extra = {}) => dv.su_archives.push({
+      su_archiveid: randomUUID(), su_name: (title + " - " + fn.su_name).slice(0, 255), su_recordtype: recordType, su_eventtype: eventType,
+      su_functionname: fn.su_name, su_functionnumber: fn.su_legacyspid ?? (Number(fn.su_functioncode) || null),
+      _su_function_value: fn.su_compliancefunctionid, su_resolvedby: person.su_name, su_resolvedat: now, ...extra });
+    if (kind === "complete" || kind === "reverse") {
+      const dl = dv.su_compliancedeadlines.find(d => d.su_compliancedeadlineid === a._su_deadline_value && d._su_function_value === fn.su_compliancefunctionid);
+      if (!dl) return done(false, "That deadline is not on this function.");
+      if (kind === "complete") Object.assign(dl, { su_completeddate: isoDay(), su_completedon: now, su_completedreason: a.su_reason, su_completedbyname: person.su_name, _su_completedby_value: person.su_compliancedirectoryid, su_complete: dl.su_cadence === 100000016 });
+      else Object.assign(dl, { su_completeddate: null, su_completedon: null, su_completedreason: null, su_completedbyname: null, _su_completedby_value: null, su_complete: false });
+      archive(kind === "complete" ? "Deadline Completed" : "Deadline Reversed", "Deadline Completion", kind === "complete" ? "Completed" : "Reversed",
+        { su_reason: a.su_reason, su_completedoccurrence: dl.su_duedate || "", su_cadence: CADENCE_LABEL[dl.su_cadence] || "", su_sourceitemid: dl.su_legacyspid ?? null });
+    } else if (kind === "close") {
+      const g = dv.su_compliancegaps.find(x => x.su_compliancegapid === a._su_gap_value && x._su_function_value === fn.su_compliancefunctionid);
+      if (!g) return done(false, "That gap is not on this function.");
+      Object.assign(g, { su_status: 100000021, su_closeddate: isoDay(), su_closenote: a.su_reason || null, _su_closedby_value: person.su_compliancedirectoryid });
+    } else if (kind === "resolve") {
+      const x = dv.su_functionflags.find(r => r.su_functionflagid === a._su_flag_value && r._su_function_value === fn.su_compliancefunctionid);
+      if (!x) return done(false, "That flag is not on this function.");
+      Object.assign(x, { su_status: 100000051, su_clearedon: isoDay(), _su_clearedby_value: person.su_compliancedirectoryid });
+      const by = dv.su_compliancedirectorys.find(p => p.su_compliancedirectoryid === x._su_flaggedby_value);
+      archive("Flag Resolved", "Flag Resolution", "Resolved", { su_reason: x.su_reason, su_sourceitemid: x.su_legacyspid ?? null,
+        su_flaggedby: by ? by.su_name : "", su_flaggeddate: x.su_flaggedon || "", su_flagsource: x.su_source === 100000111 ? "Survey" : "Manual" });
+    } else if (kind === "flag") {
+      if (!String(a.su_reason || "").trim()) return done(false, "A flag needs a reason.");
+      dv.su_functionflags.push({ su_functionflagid: randomUUID(), su_name: fn.su_name.slice(0, 400), _su_function_value: fn.su_compliancefunctionid,
+        su_reason: a.su_reason, su_status: 100000050, su_source: 100000110, su_flaggedon: isoDay(), _su_flaggedby_value: person.su_compliancedirectoryid });
+    } else if (kind === "delete") {
+      const id = fn.su_compliancefunctionid, mine = r => r._su_function_value === id;
+      const name = pid => (dv.su_compliancedirectorys.find(p => p.su_compliancedirectoryid === pid) || {}).su_name || "";
+      const copy = (reason, item) => archive("Function Deleted", "Function Deleted", "Deleted", { su_reason: reason, su_sourceitemid: item ?? null });
+      dv.su_compliancegaps.filter(mine).forEach(g => copy("Gap: " + (g.su_name || ""), g.su_legacyspid));
+      dv.su_compliancedeadlines.filter(mine).forEach(d => copy("Deadline: " + mdY(d.su_duedate) + " " + (CADENCE_LABEL[d.su_cadence] || ""), d.su_legacyspid));
+      dv.su_functionflags.filter(mine).forEach(x => copy("Flag: " + (x.su_reason || ""), x.su_legacyspid));
+      dv.su_functionownerships.filter(mine).forEach(o => copy(`Owner: ${name(o._su_person_value)} (${ROLE_LABEL[o.su_role] || ""})`, o.su_legacyspid));
+      copy("Function record deleted", fn.su_legacyspid);
+      dv.su_compliancefunctions.splice(dv.su_compliancefunctions.indexOf(fn), 1);
+      for (const s of ["su_compliancedeadlines", "su_compliancegaps", "su_functionownerships", "su_functionflags"]) dv[s] = dv[s].filter(r => !mine(r));
+      a._su_function_value = null; // the lookup is cleared, not cascaded
+    }
+    return done(true, "Done");
+  }
+
   async function flow(name, req, res) {
     const raw = await body(req);
     let request;
@@ -152,6 +224,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         const users = [{ displayName: "Priya Raghavan", mail: "praghavan@syr.edu", jobTitle: "Director of Export Control", department: "Office of Research" }];
         return reply({ ok: true, users: users.filter(u => (u.displayName + u.mail).toLowerCase().includes(q)) });
       }
+      if (name === "action") return reply(processAction(request.actionId));
       return reply({ ok: true, results: runOps(request.ops || [], name === "write") });
     } catch (e) {
       return reply({ ok: false, error: e.message });
@@ -172,6 +245,11 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         const target = col.slice(7);
         const m = /^\/([a-z_]+)\(([0-9a-f-]{36})\)$/i.exec(String(v));
         if (!m) return `${k} must be /<entityset>(<guid>), got ${v}`;
+        if (target === "contact") {
+          if (m[1] !== "contacts") return `${k} must bind to contacts, got ${m[1]}`;
+          if (!Object.values(CONTACTS).includes(m[2]) && m[2] !== contactId) return `${k} points at a missing contact`;
+          continue;
+        }
         if (target !== "systemuser" && m[1] !== DV_SCHEMA[target].set) return `${k} must bind to ${DV_SCHEMA[target].set}, got ${m[1]}`;
         if (target !== "systemuser" && !dv[m[1]].some(r => r[target + "id"] === m[2])) return `${k} points at a missing ${target}`;
         continue;
@@ -217,8 +295,14 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
       res.writeHead(200, { "Content-Type": "application/json" });
       return res.end(JSON.stringify(out));
     }
-    if (!admin && !["su_functionflags", "su_compliancegaps", "su_compliancedeadlines"].includes(set))
-      return fail(res, 403, "No table permission for this operation.");
+    /* The table permissions in docs/DATAVERSE-MIGRATION.md, section 5: owners
+       may log a gap and record a portal action; administrators edit the
+       matrix directly; nobody writes the archive or a who-did-it column from
+       the browser (the action flow does), and a portal action can only name
+       the signed-in contact (Contact scope). */
+    if (set === "su_archives") return fail(res, 403, "No table permission for this operation.");
+    const ownerMay = req.method === "POST" && ["su_compliancegaps", "su_portalactions"].includes(set);
+    if (!admin && !ownerMay) return fail(res, 403, "No table permission for this operation.");
     if (req.method === "DELETE" && nav) {
       const row = rows.find(r => r[t.id] === id); if (!row) return fail(res, 404, "Row not found");
       row["_" + nav + "_value"] = null; res.writeHead(204); return res.end();
@@ -235,6 +319,10 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     const b = JSON.parse(await body(req) || "{}");
     const err = checkDvBody(tableName, b);
     if (err) return fail(res, 400, err);
+    const serverOnly = ["su_completedby", "su_closedby", "su_clearedby", "su_flaggedby"].find(c => (c + "@odata.bind") in b || c in b);
+    if (serverOnly) return fail(res, 403, `${serverOnly} is written by the portal action flow, not the browser.`);
+    if (set === "su_portalactions" && b["su_requestedby@odata.bind"] !== `/contacts(${contactId})`)
+      return fail(res, 403, "No table permission for this operation.");
     if (req.method === "POST") {
       const row = { [t.id]: randomUUID() }; applyDv(tableName, row, b); rows.push(row);
       res.writeHead(204, { entityid: row[t.id], "OData-EntityId": `/_api/${set}(${row[t.id]})` }); return res.end();

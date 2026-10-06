@@ -85,6 +85,11 @@ export function sharepointLists() {
 const G = n => "00000000-0000-4000-8000-" + String(n).padStart(12, "0");
 export const DV_IDS = G;
 
+/* Power Pages contacts for the people who sign in during the tests. The
+   CM - Link directory to contact flow sets su_contact on their directory
+   rows; the fixtures start with that link in place. */
+export const CONTACTS = { "cruiz@syr.edu": G(901), "dferrell@syr.edu": G(903), "mdelgado@syr.edu": G(900) };
+
 export function dataverseTables() {
   return {
     su_riskareas: [
@@ -99,22 +104,22 @@ export function dataverseTables() {
     ],
     su_compliancedirectorys: [
       { su_compliancedirectoryid: G(100), su_name: "Marcus Delgado", su_email: "mdelgado@syr.edu", su_jobtitle: "SVP for Safety", su_unit: "Campus Safety", su_active: true },
-      { su_compliancedirectoryid: G(101), su_name: "Camila Ruiz", su_email: "cruiz@syr.edu", su_jobtitle: "Clery Coordinator", su_unit: "Campus Safety", su_active: true },
+      { su_compliancedirectoryid: G(101), su_name: "Camila Ruiz", su_email: "cruiz@syr.edu", su_jobtitle: "Clery Coordinator", su_unit: "Campus Safety", su_active: true, _su_contact_value: G(901) },
       { su_compliancedirectoryid: G(102), su_name: "Andrea Whitaker", su_email: "awhitaker@syr.edu", su_active: true },
-      { su_compliancedirectoryid: G(103), su_name: "Dwight Ferrell", su_email: "dferrell@syr.edu", su_active: true },
+      { su_compliancedirectoryid: G(103), su_name: "Dwight Ferrell", su_email: "dferrell@syr.edu", su_active: true, _su_contact_value: G(903) },
       { su_compliancedirectoryid: G(104), su_name: "Grace Whitfield", su_email: "gwhitfield@syr.edu", su_active: true },
       { su_compliancedirectoryid: G(105), su_name: "Left Already", su_email: "gone@syr.edu", su_active: false }
     ],
     su_compliancefunctions: [
-      { su_compliancefunctionid: G(201), su_name: "Clery Act Annual Security Report", su_functioncode: "CF-3020",
+      { su_compliancefunctionid: G(201), su_name: "Clery Act Annual Security Report", su_functioncode: "201", su_legacyspid: 201,
         _su_riskarea_value: G(1), _su_domain_value: G(10), su_statute: "Jeanne Clery Act", su_citation: "20 U.S.C. § 1092(f)",
         su_statuteurl: "https://www.ed.gov/campus-safety", su_description: "Publish an annual security report.",
         su_risk: 100000001, su_lastreviewed: "2026-05-01",
         _su_executiveowner_value: G(100), _su_unitowner_value: null, _su_complianceowner_value: G(101) },
-      { su_compliancefunctionid: G(202), su_name: "Form I-9 Employment Verification", su_functioncode: "CF-2012",
+      { su_compliancefunctionid: G(202), su_name: "Form I-9 Employment Verification", su_functioncode: "202", su_legacyspid: 202,
         _su_riskarea_value: G(2), _su_domain_value: G(11), su_statute: "Immigration Reform and Control Act", su_risk: null,
         _su_executiveowner_value: G(102), _su_unitowner_value: G(103), _su_complianceowner_value: null },
-      { su_compliancefunctionid: G(203), su_name: "HIPAA Security Rule Risk Analysis", su_functioncode: "CF-9080",
+      { su_compliancefunctionid: G(203), su_name: "HIPAA Security Rule Risk Analysis", su_functioncode: "203", su_legacyspid: 203,
         _su_riskarea_value: G(3), _su_domain_value: null, su_statute: "HIPAA", su_risk: 100000002 }
     ],
     su_functionownerships: [
@@ -133,6 +138,8 @@ export function dataverseTables() {
       { su_functionflagid: G(501), _su_function_value: G(201), su_reason: "Citation may be superseded.", su_status: 100000050, _su_flaggedby_value: G(103), su_flaggedon: "2026-09-18" },
       { su_functionflagid: G(502), _su_function_value: G(202), su_reason: "Old flag", su_status: 100000051, _su_flaggedby_value: G(101), su_flaggedon: "2026-08-01" }
     ],
+    su_archives: [],
+    su_portalactions: [],
     su_counselassignments: [
       { su_counselassignmentid: G(701), _su_riskarea_value: G(1), _su_attorney_value: G(104), su_isdefault: false },
       { su_counselassignmentid: G(702), _su_riskarea_value: null, _su_attorney_value: G(100), su_isdefault: true }

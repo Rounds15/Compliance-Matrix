@@ -166,7 +166,66 @@
             <displayname description="Sub-role" languagecode="1033"/>
           </displaynames>
         </attribute>
+        <attribute PhysicalName="su_legacyspid">
+          <Type>int</Type>
+          <Name>su_legacyspid</Name>
+          <LogicalName>su_legacyspid</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>0</MinValue>
+          <MaxValue>2147483647</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Legacy SharePoint ID" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="The SharePoint list item ID this row was loaded from. Alternate key; the dataflows upsert on it." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
       </attributes>
+      <EntityKeys>
+        <EntityKey>
+          <Name>su_uniqueassignment</Name>
+          <LogicalName>su_uniqueassignment</LogicalName>
+          <EntityKeyAttributes>
+            <AttributeName>su_function</AttributeName>
+            <AttributeName>su_person</AttributeName>
+            <AttributeName>su_role</AttributeName>
+          </EntityKeyAttributes>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <displaynames>
+            <displayname description="su_uniqueassignment" languagecode="1033"/>
+          </displaynames>
+        </EntityKey>
+        <EntityKey>
+          <Name>su_key_legacyspid</Name>
+          <LogicalName>su_key_legacyspid</LogicalName>
+          <EntityKeyAttributes>
+            <AttributeName>su_legacyspid</AttributeName>
+          </EntityKeyAttributes>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <displaynames>
+            <displayname description="Legacy SharePoint ID" languagecode="1033"/>
+          </displaynames>
+        </EntityKey>
+      </EntityKeys>
       <EntitySetName>su_functionownerships</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>

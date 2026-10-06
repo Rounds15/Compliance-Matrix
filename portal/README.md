@@ -214,6 +214,7 @@ for SharePoint, the flow URLs.
 | `ComplianceMatrix/Flow/Write` | … for **CM - Write (members)** | |
 | `ComplianceMatrix/Flow/AdminWrite` | … for **CM - Write (administrators)** | |
 | `ComplianceMatrix/Flow/FindPerson` | … for **CM - Find person** | Entra lookup hidden |
+| `ComplianceMatrix/Flow/Action` | Dataverse: URL Power Pages shows for **CM - Process portal action** | completions, closures, flags and deletes cannot be saved |
 | `ComplianceMatrix/AdminWebRole` | web role name | `Compliance Matrix Administrators` |
 | `ComplianceMatrix/CacheMinutes` | how long a browser reuses what it read | `5` |
 | `ComplianceMatrix/TimeZone` | zone SharePoint date-only columns are stored in | `America/New_York` |
@@ -232,31 +233,27 @@ paste their URLs into the settings above.
 
 ### 7b. Dataverse backend
 
-Import and seed the solution (root README, *Deploy*). Then:
+The full guide, including the SharePoint-to-Dataverse load, is
+[docs/DATAVERSE-MIGRATION.md](../docs/DATAVERSE-MIGRATION.md). In short:
 
-**Web API site settings**, for each of `su_riskarea`, `su_domain`,
-`su_compliancedirectory`, `su_compliancefunction`, `su_functionownership`,
-`su_compliancedeadline`, `su_compliancegap`, `su_functionflag`,
-`su_counselassignment`:
+1. Import the solution, then load it from the SharePoint lists with the five
+   dataflows (section 3 of the guide). SharePoint stays the system of record
+   until cutover; a refresh makes Dataverse match it again.
+2. Build **CM - Link directory to contact** and **CM - Process portal action**
+   (sections 6 and 8), add the action flow under **Set up › Cloud flows** for
+   the Testers and Administrators roles, and paste its URL into
+   `ComplianceMatrix/Flow/Action`.
+3. Add the web roles, table permissions, column permissions and
+   `Webapi/<table>/enable` and `/fields` site settings in section 5. Do not
+   enable the Web API on `su_archive`.
+4. Set `ComplianceMatrix/Backend` to `dataverse`.
 
-- `Webapi/<table>/enable` = `true`
-- `Webapi/<table>/fields` = `*`
-
-**Table permissions** (Design Studio › Set up › Table permissions), Global
-access:
-
-| Role | Tables | Privileges |
-|---|---|---|
-| Authenticated Users | all nine | Read |
-| Authenticated Users | `su_functionflag`, `su_compliancegap` | Create, Append |
-| Authenticated Users | `su_compliancedeadline`, `su_compliancegap` | Write |
-| Authenticated Users | `su_compliancefunction`, `su_compliancedirectory` | Append To |
-| Compliance Matrix Administrators | all nine | Read, Create, Write, Delete, Append, Append To |
-
-Owners completing deadlines and closing gaps need Write on those two tables.
-Global scope means any signed-in user could, with a crafted request, write any
-deadline or gap; if that matters, scope the Write permission through the
-function to the owner's contact (a parent-relationship permission) instead.
+**Who did it is written server-side.** On Dataverse the page never writes
+Completed By, Closed By, Flagged By, Cleared By or an Archive entry. To
+complete or reverse a deadline, close a gap, raise or resolve a flag, or delete
+a function, it creates a Portal Action row (whose Requested By the Contact
+scope fixes to the signed-in person) and calls the action flow with the row's
+ID; the flow checks the person may act and does the rest.
 
 ### 8. Point the home page at it
 

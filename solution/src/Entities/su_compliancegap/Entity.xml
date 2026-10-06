@@ -65,11 +65,14 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>20</MaxLength>
+          <MaxLength>4000</MaxLength>
           <Format>text</Format>
           <displaynames>
             <displayname description="Gap ID" languagecode="1033"/>
           </displaynames>
+          <Descriptions>
+            <Description description="Multi-choice on the SharePoint list, joined with commas. Not a key: values repeat." languagecode="1033"/>
+          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_function">
           <Type>lookup</Type>
@@ -281,13 +284,13 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>20</MaxLength>
+          <MaxLength>4000</MaxLength>
           <Format>text</Format>
           <displaynames>
             <displayname description="Target Quarter" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="Owner's estimated remediation quarter (per gap)." languagecode="1033"/>
+            <Description description="Owner's estimated remediation quarter (per gap); multi-choice on SharePoint, joined with commas." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_targetfy">
@@ -313,7 +316,7 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>20</MaxLength>
+          <MaxLength>4000</MaxLength>
           <Format>text</Format>
           <displaynames>
             <displayname description="Target FY" languagecode="1033"/>
@@ -342,7 +345,7 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>4000</MaxLength>
+          <MaxLength>1048576</MaxLength>
           <Format>textarea</Format>
           <displaynames>
             <displayname description="Detail And Remediation Plan" languagecode="1033"/>
@@ -371,10 +374,126 @@
           <IsSortableEnabled>0</IsSortableEnabled>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <IsSearchable>1</IsSearchable>
-          <MaxLength>4000</MaxLength>
+          <MaxLength>1048576</MaxLength>
           <Format>textarea</Format>
           <displaynames>
             <displayname description="Closure Notes" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_gapsource">
+          <Type>nvarchar</Type>
+          <Name>su_gapsource</Name>
+          <LogicalName>su_gapsource</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Gap Source" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_responsibleunit">
+          <Type>nvarchar</Type>
+          <Name>su_responsibleunit</Name>
+          <LogicalName>su_responsibleunit</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Responsible Unit" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_needsremediationplan">
+          <Type>nvarchar</Type>
+          <Name>su_needsremediationplan</Name>
+          <LogicalName>su_needsremediationplan</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Needs Remediation Plan" languagecode="1033"/>
+          </displaynames>
+        </attribute>
+        <attribute PhysicalName="su_sourcefile">
+          <Type>nvarchar</Type>
+          <Name>su_sourcefile</Name>
+          <LogicalName>su_sourcefile</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>1</IsSearchable>
+          <MaxLength>4000</MaxLength>
+          <Format>text</Format>
+          <displaynames>
+            <displayname description="Source File" languagecode="1033"/>
           </displaynames>
         </attribute>
         <attribute PhysicalName="su_owner">
@@ -438,6 +557,9 @@
           <displaynames>
             <displayname description="Closed By" languagecode="1033"/>
           </displaynames>
+          <Descriptions>
+            <Description description="Written by the CM - Process portal action flow, never by the browser." languagecode="1033"/>
+          </Descriptions>
         </attribute>
         <attribute PhysicalName="su_daysopen">
           <Type>int</Type>
@@ -471,7 +593,53 @@
             <displayname description="Days Open" languagecode="1033"/>
           </displaynames>
         </attribute>
+        <attribute PhysicalName="su_legacyspid">
+          <Type>int</Type>
+          <Name>su_legacyspid</Name>
+          <LogicalName>su_legacyspid</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <IsSearchable>0</IsSearchable>
+          <MinValue>0</MinValue>
+          <MaxValue>2147483647</MaxValue>
+          <Format>none</Format>
+          <displaynames>
+            <displayname description="Legacy SharePoint ID" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="The SharePoint list item ID this row was loaded from. Alternate key; the dataflows upsert on it." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
       </attributes>
+      <EntityKeys>
+        <EntityKey>
+          <Name>su_key_legacyspid</Name>
+          <LogicalName>su_key_legacyspid</LogicalName>
+          <EntityKeyAttributes>
+            <AttributeName>su_legacyspid</AttributeName>
+          </EntityKeyAttributes>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <displaynames>
+            <displayname description="Legacy SharePoint ID" languagecode="1033"/>
+          </displaynames>
+        </EntityKey>
+      </EntityKeys>
       <EntitySetName>su_compliancegaps</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>

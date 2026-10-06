@@ -50,7 +50,9 @@ export function readConfig(el) {
       read: d.flowRead || "",
       write: d.flowWrite || "",
       adminWrite: d.flowAdminWrite || "",
-      findPerson: d.flowFindPerson || ""
+      findPerson: d.flowFindPerson || "",
+      /* Dataverse: the server-side flow that carries out portal actions */
+      action: d.flowAction || ""
     },
     dataverseSets: json(d.dataverseSets, {}),
     timeZone: d.timeZone || "America/New_York",

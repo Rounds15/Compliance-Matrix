@@ -198,7 +198,7 @@ test("Dataverse rows map choice codes and lookups", () => {
 test("Dataverse model: junction first, fixed lookups fill gaps, counsel by risk area", () => {
   const ds = buildDataset(dvRaw(), { today: T, meEmail: "cruiz@syr.edu" });
   const clery = ds.fnById.get(G(201));
-  assert.equal(clery.code, "CF-3020");
+  assert.equal(clery.code, "201");                          // the SharePoint ID is the function ID
   assert.equal(clery.owner.n, "Camila Ruiz");
   assert.equal(clery.chain.compliance.length, 2);            // junction wins over the fixed lookup
   assert.equal(clery.exec.n, "Marcus Delgado");              // no junction row: fixed lookup used
@@ -207,6 +207,27 @@ test("Dataverse model: junction first, fixed lookups fill gaps, counsel by risk 
   const i9 = ds.fnById.get(G(202));
   assert.equal(i9.unitOwner.n, "Dwight Ferrell");
   assert.equal(ds.gaps.find(g => g.id === G(601)).severity, "High"); // Dataverse gaps carry their own severity
+});
+
+test("Dataverse: General Counsel and Support are ownership roles; counsel per function wins", () => {
+  const t = dataverseTables();
+  t.su_functionownerships.push(
+    { su_functionownershipid: G(310), _su_function_value: G(201), _su_person_value: G(102), su_role: 100000033, su_subrole: 100000041 },
+    { su_functionownershipid: G(311), _su_function_value: G(201), _su_person_value: G(100), su_role: 100000034, su_subrole: 100000040 });
+  t.su_compliancedeadlines[1].su_completedreason = "Sample reviewed";
+  Object.assign(t.su_compliancegaps[0], { su_responsibleunit: "Human Resources", su_gapsource: "Assessment" });
+  t.su_functionflags[0].su_respondentemail = "dferrell@syr.edu";
+  const raw = mapTables({ riskAreas: t.su_riskareas, domains: t.su_domains, people: t.su_compliancedirectorys, functions: t.su_compliancefunctions,
+    ownership: t.su_functionownerships, deadlines: t.su_compliancedeadlines, gaps: t.su_compliancegaps, flags: t.su_functionflags, counsel: t.su_counselassignments });
+  assert.deepEqual(raw.ownership.slice(-2).map(o => [o.role, o.sub]), [["General Counsel", "Advisory"], ["Support", "Primary"]]);
+  assert.equal(raw.deadlines[1].reason, "Sample reviewed");
+  assert.equal(raw.gaps[0].unit, "Human Resources");
+  assert.equal(raw.gaps[0].source, "Assessment");
+  assert.equal(raw.flags[0].byEmail, "dferrell@syr.edu");
+  const ds = buildDataset(raw, { today: T, meEmail: "cruiz@syr.edu" });
+  const clery = ds.fnById.get(G(201));
+  assert.equal(clery.counsel.n, "Andrea Whitaker");          // the function's own General Counsel row
+  assert.equal(clery.chain.support[0].person.n, "Marcus Delgado");
 });
 
 test("both backends describe the same matrix the same way", () => {

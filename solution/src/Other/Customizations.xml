@@ -105,6 +105,11 @@
             <label description="Conditional" languagecode="1033"/>
           </labels>
         </option>
+        <option value="100000074">
+          <labels>
+            <label description="One-time" languagecode="1033"/>
+          </labels>
+        </option>
       </options>
     </optionset>
     <optionset Name="su_offsetunit" localizedName="Offset Unit" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
@@ -151,7 +156,7 @@
         <displayname description="Ownership Role" languagecode="1033"/>
       </displaynames>
       <Descriptions>
-        <Description description="The three tiers of the ownership chain: an executive owner accountable at cabinet level, a unit owner who runs it, a compliance owner who files it." languagecode="1033"/>
+        <Description description="The three tiers of the ownership chain (an executive owner accountable at cabinet level, a unit owner who runs it, a compliance owner who files it), plus General Counsel and Support, as on the SharePoint list." languagecode="1033"/>
       </Descriptions>
       <options>
         <option value="100000030">
@@ -167,6 +172,16 @@
         <option value="100000032">
           <labels>
             <label description="Compliance Owner" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000033">
+          <labels>
+            <label description="General Counsel" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000034">
+          <labels>
+            <label description="Support" languagecode="1033"/>
           </labels>
         </option>
       </options>
@@ -274,6 +289,68 @@
         </option>
       </options>
     </optionset>
+    <optionset Name="su_portalactiontype" localizedName="Portal Action" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Portal Action" languagecode="1033"/>
+      </displaynames>
+      <Descriptions>
+        <Description description="What a portal user asked the server to do. The browser only records the request; the CM - Process portal action flow carries it out and writes the who and the archive row." languagecode="1033"/>
+      </Descriptions>
+      <options>
+        <option value="100000120">
+          <labels>
+            <label description="Complete deadline" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000121">
+          <labels>
+            <label description="Reverse completion" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000122">
+          <labels>
+            <label description="Close gap" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000123">
+          <labels>
+            <label description="Resolve flag" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000124">
+          <labels>
+            <label description="Raise flag" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000125">
+          <labels>
+            <label description="Delete function" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
+    <optionset Name="su_portalactionstatus" localizedName="Portal Action Status" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
+      <displaynames>
+        <displayname description="Portal Action Status" languagecode="1033"/>
+      </displaynames>
+      <options>
+        <option value="100000130">
+          <labels>
+            <label description="Pending" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000131">
+          <labels>
+            <label description="Done" languagecode="1033"/>
+          </labels>
+        </option>
+        <option value="100000132">
+          <labels>
+            <label description="Failed" languagecode="1033"/>
+          </labels>
+        </option>
+      </options>
+    </optionset>
     <optionset Name="su_approle" localizedName="Application Role" OptionSetType="picklist" IsCustomizable="1" IntroducedVersion="1.0.0.0">
       <displaynames>
         <displayname description="Application Role" languagecode="1033"/>
@@ -339,6 +416,23 @@
       <ReferencingEntityName>su_domain</ReferencingEntityName>
       <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
       <ReferencingAttributeName>su_owner</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_contact_su_compliancedirectory">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancedirectory</ReferencingEntityName>
+      <ReferencedEntityName>contact</ReferencedEntityName>
+      <ReferencingAttributeName>su_contact</ReferencingAttributeName>
       <RelationshipDescription/>
       <CascadeLinks>
         <CascadeAssign>NoCascade</CascadeAssign>
@@ -451,6 +545,23 @@
         <CascadeMerge>NoCascade</CascadeMerge>
       </CascadeLinks>
     </EntityRelationship>
+    <EntityRelationship Name="su_completedby_su_compliancedeadline">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_compliancedeadline</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_completedby</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
     <EntityRelationship Name="su_compliancedirectory_su_compliancedeadline_su_owner">
       <EntityRelationshipType>OneToMany</EntityRelationshipType>
       <IsCustomizable>1</IsCustomizable>
@@ -475,6 +586,40 @@
       <ReferencingEntityName>su_assessment</ReferencingEntityName>
       <ReferencedEntityName>su_domain</ReferencedEntityName>
       <ReferencingAttributeName>su_domain</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancefunction_su_assessment">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_assessment</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancefunction</ReferencedEntityName>
+      <ReferencingAttributeName>su_function</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_respondent_su_assessment">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_assessment</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
+      <ReferencingAttributeName>su_respondent</ReferencingAttributeName>
       <RelationshipDescription/>
       <CascadeLinks>
         <CascadeAssign>NoCascade</CascadeAssign>
@@ -696,6 +841,108 @@
       <ReferencingEntityName>su_counselassignment</ReferencingEntityName>
       <ReferencedEntityName>su_compliancedirectory</ReferencedEntityName>
       <ReferencingAttributeName>su_attorney</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancefunction_su_archive">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_archive</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancefunction</ReferencedEntityName>
+      <ReferencingAttributeName>su_function</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_requestedby_su_portalaction">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_portalaction</ReferencingEntityName>
+      <ReferencedEntityName>contact</ReferencedEntityName>
+      <ReferencingAttributeName>su_requestedby</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancefunction_su_portalaction">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_portalaction</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancefunction</ReferencedEntityName>
+      <ReferencingAttributeName>su_function</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancedeadline_su_portalaction">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_portalaction</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancedeadline</ReferencedEntityName>
+      <ReferencingAttributeName>su_deadline</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_compliancegap_su_portalaction">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_portalaction</ReferencingEntityName>
+      <ReferencedEntityName>su_compliancegap</ReferencedEntityName>
+      <ReferencingAttributeName>su_gap</ReferencingAttributeName>
+      <RelationshipDescription/>
+      <CascadeLinks>
+        <CascadeAssign>NoCascade</CascadeAssign>
+        <CascadeDelete>RemoveLink</CascadeDelete>
+        <CascadeReparent>NoCascade</CascadeReparent>
+        <CascadeShare>NoCascade</CascadeShare>
+        <CascadeUnshare>NoCascade</CascadeUnshare>
+        <CascadeMerge>NoCascade</CascadeMerge>
+      </CascadeLinks>
+    </EntityRelationship>
+    <EntityRelationship Name="su_functionflag_su_portalaction">
+      <EntityRelationshipType>OneToMany</EntityRelationshipType>
+      <IsCustomizable>1</IsCustomizable>
+      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <ReferencingEntityName>su_portalaction</ReferencingEntityName>
+      <ReferencedEntityName>su_functionflag</ReferencedEntityName>
+      <ReferencingAttributeName>su_flag</ReferencingAttributeName>
       <RelationshipDescription/>
       <CascadeLinks>
         <CascadeAssign>NoCascade</CascadeAssign>

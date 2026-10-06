@@ -151,6 +151,12 @@ or this repo's Dataverse tables (through the Power Pages Web API), chosen by a
 site setting. Open `portal/dist/preview.html` to see it with sample data;
 deployment is in [`portal/README.md`](portal/README.md).
 
+The move to Dataverse (SharePoint stays the system of record until cutover;
+dataflows refresh Dataverse from it on demand; the portal is test-only for a
+tester role) is in [`docs/DATAVERSE-MIGRATION.md`](docs/DATAVERSE-MIGRATION.md):
+the list-to-table mapping, keys, load order, permissions, the server-side
+action flow and the cutover checklist.
+
 ---
 
 ## Home page
@@ -202,20 +208,19 @@ pac canvas pack --sources solution/canvas --msapp ComplianceMatrix.msapp
 
 Then, in the target environment:
 
-1. Import seed data from `solution/schema/seed/`, in this order: risk areas,
-   domains, directory, functions, ownership, deadlines, flags, assessments,
-   assessment owners, gaps. Rows match on the alternate keys (`su_riskareacode`,
-   `su_domaincode`, `su_email`, `su_functioncode`, `su_assessmentcode`,
-   `su_gapcode`), so re-running updates rather than duplicates. Dates are real
-   calendar dates, not offsets; a compliance register needs true dates.
+1. Load the data from the SharePoint lists with the dataflows in
+   [`docs/DATAVERSE-MIGRATION.md`](docs/DATAVERSE-MIGRATION.md), which upsert
+   on each item's legacy SharePoint ID and can be re-run any time. (The
+   one-time seed in `solution/schema/seed/` predates that and is superseded;
+   delete seeded rows before the first dataflow load.)
 2. Create the environment variables the Reporting screen reads:
    `su_PowerBIWorkspaceId`, `su_PowerBIExecutiveReportId`,
    `su_PowerBIDeadlineReportId`, `su_PowerBIGapAgingReportId`.
 3. Grant at least one person an `Administrator` row in **App Role Assignments**,
    or nobody can reach Gap Tracker, Risk Dashboard, or Reporting.
 4. Build the reminder flow per [`docs/REMINDER-FLOW.md`](docs/REMINDER-FLOW.md).
-   It must filter to `su_deadlinetype` = Fixed Recurring; the other three types
-   have no due date and must never trigger reminders.
+   It must filter to `su_deadlinetype` = Fixed Recurring or One-time; the
+   other types have no due date and must not trigger reminders.
 
 ---
 

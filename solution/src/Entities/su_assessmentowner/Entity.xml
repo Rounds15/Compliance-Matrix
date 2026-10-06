@@ -136,6 +136,21 @@
           </displaynames>
         </attribute>
       </attributes>
+      <EntityKeys>
+        <EntityKey>
+          <Name>su_uniqueassessmentowner</Name>
+          <LogicalName>su_uniqueassessmentowner</LogicalName>
+          <EntityKeyAttributes>
+            <AttributeName>su_assessment</AttributeName>
+            <AttributeName>su_person</AttributeName>
+            <AttributeName>su_role</AttributeName>
+          </EntityKeyAttributes>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <displaynames>
+            <displayname description="su_uniqueassessmentowner" languagecode="1033"/>
+          </displaynames>
+        </EntityKey>
+      </EntityKeys>
       <EntitySetName>su_assessmentowners</EntitySetName>
       <IsDuplicateCheckSupported>1</IsDuplicateCheckSupported>
       <IsBusinessProcessEnabled>0</IsBusinessProcessEnabled>

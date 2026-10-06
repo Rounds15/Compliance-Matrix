@@ -474,7 +474,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
 
   await go("#/functions/" + G(201));
   await page.waitForSelector("h1:has-text('Clery Act')");
-  assert.match(await page.locator(".fd-tags").innerText(), /CF-3020/);
+  assert.match(await page.locator(".fd-tags").innerText(), /ID 201/, "the SharePoint ID is the function ID");
   assert.match(await page.locator(".rail-card.gc").innerText(), /Grace Whitfield/);
 
   await go("#/functions/" + G(202));
@@ -484,8 +484,11 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await btn("Submit flag").click();
   await toast(/Flag submitted/);
   const flag = dv.su_functionflags.at(-1);
-  assert.equal(flag._su_function_value, G(202)); assert.equal(flag._su_flaggedby_value, G(101));
+  assert.equal(flag._su_function_value, G(202)); assert.equal(flag._su_flaggedby_value, G(101), "Flagged By set by the flow, from the contact link");
   assert.equal(flag.su_status, 100000050); assert.equal(flag.su_source, 100000110);
+  const act = dv.su_portalactions.at(-1);
+  assert.equal(act.su_action, 100000124); assert.equal(act._su_requestedby_value, G(901)); assert.equal(act.su_status, 100000131, "the action row records the outcome");
+  assert.ok(portal.log.some(x => x.flow === "action" && x.request.actionId === act.su_portalactionid), "the browser sends only the action's ID");
 
   await go("#/functions/" + G(201));
   await page.waitForSelector("h1:has-text('Clery Act')");
@@ -494,14 +497,18 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await btn("Log gap").click();
   await toast(/Gap logged/);
   const gap = dv.su_compliancegaps.at(-1);
-  assert.equal(gap.su_status, 100000020); assert.equal(gap.su_severity, 100000001); assert.equal(gap._su_owner_value, G(101));
+  assert.equal(gap.su_status, 100000020); assert.equal(gap._su_owner_value, G(101)); assert.equal(gap.su_gapsource, "Manual");
+  assert.equal(gap.su_severity, undefined, "the function's rating is not copied onto the gap");
 
   await btn("Mark complete for this cycle").click();
   await modal().locator("textarea").fill("Published.");
   await btn("Confirm", modal()).click();
   await toast(/Deadline marked complete/);
   const dl = dv.su_compliancedeadlines.find(r => r.su_compliancedeadlineid === G(401));
-  assert.match(dl.su_completeddate, /^\d{4}-\d{2}-\d{2}$/); assert.match(dl.su_notes, /Completed: Published\./);
+  assert.match(dl.su_completeddate, /^\d{4}-\d{2}-\d{2}$/); assert.equal(dl.su_completedreason, "Published.");
+  assert.equal(dl._su_completedby_value, G(101)); assert.equal(dl.su_completedbyname, "Camila Ruiz");
+  const ar = dv.su_archives.at(-1);
+  assert.deepEqual([ar.su_recordtype, ar.su_eventtype, ar.su_resolvedby, ar.su_reason, ar.su_functionnumber], ["Deadline Completion", "Completed", "Camila Ruiz", "Published.", 201]);
 
   await btn("Edit this record").click();
   await page.locator("#fd-risk").selectOption("Moderate");
@@ -511,9 +518,9 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   assert.equal(fn.su_risk, 100000002);
 
   await btn("Manage people").click();
-  assert.equal(await page.locator(".orole.counsel").count(), 0, "Dataverse keeps counsel by risk area");
-  assert.equal(await page.locator(".gc-edit").count(), 0, "and the counsel card has no editor there");
-  assert.deepEqual(await page.locator(".orole .orole-t").allTextContents(), ["Executive Owner", "Unit Owner", "Compliance Owner"]);
+  assert.equal(await page.locator(".orole.counsel").count(), 0, "General Counsel has the rail card, not a tier");
+  assert.equal(await page.locator(".gc-edit").count(), 1, "General Counsel is per function on Dataverse too");
+  assert.deepEqual(await page.locator(".orole .orole-t").allTextContents(), ["Executive Owner", "Unit Owner", "Compliance Owner", "Support"]);
   await page.locator(".orole.unit .oadd").click();
   await page.locator(".orole.unit .opick-r select").selectOption("Advisory");
   await pick(page.locator(".orole.unit"), "Andrea", "Andrea Whitaker");
@@ -561,6 +568,33 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await toast(/Function deleted/);
   assert.equal(dv.su_compliancefunctions.some(r => r.su_compliancefunctionid === G(203)), false);
   assert.equal(dv.su_compliancegaps.some(r => r._su_function_value === G(203)), false, "cascade");
+  const del = dv.su_archives.filter(a => a.su_recordtype === "Function Deleted" && a.su_functionnumber === 203);
+  assert.deepEqual(del.map(a => a.su_reason), ["Gap: Old gap", "Function record deleted"], "children archived first, server-side");
+  assert.equal(portal.log.some(x => x.api && /^DELETE \/_api\/su_compliancefunctions/.test(x.api)), false, "the browser did not delete the function itself");
+});
+
+/* ======================= Dataverse: who-did-it is server-side ======================= */
+await session("Dataverse · the browser cannot write the archive or who did something", { backend: "dataverse", admin: false, user: { email: "dferrell@syr.edu", name: "Dwight Ferrell" } }, async ({ page, portal }) => {
+  const r = await page.evaluate(async ([dl, fnOther, me, other, mine]) => {
+    const tok = (await (await fetch("/_layout/tokenhtml")).text()).match(/value="([^"]+)"/)[1];
+    const api = (m, path, body) => fetch("/_api/" + path, { method: m, headers: { "Content-Type": "application/json", __RequestVerificationToken: tok }, body: body && JSON.stringify(body) })
+      .then(async x => ({ status: x.status, id: (x.headers.get("OData-EntityId") || "").match(/\(([0-9a-f-]{36})\)/)?.[1] }));
+    const flow = id => fetch("/_api/cloudflow/v1.0/trigger/action", { method: "POST", headers: { "Content-Type": "application/json", __RequestVerificationToken: tok },
+      body: JSON.stringify({ eventData: JSON.stringify({ request: JSON.stringify({ actionId: id }) }) }) }).then(x => x.json()).then(j => JSON.parse(j.result));
+    const patchDeadline = await api("PATCH", `su_compliancedeadlines(${dl})`, { su_completeddate: "2026-10-01" });
+    const archive = await api("POST", "su_archives", { su_name: "Forged" });
+    const asSomeoneElse = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000120, su_status: 100000130, "su_requestedby@odata.bind": `/contacts(${other})`, "su_deadline@odata.bind": `/su_compliancedeadlines(${dl})` });
+    const forgedBy = await api("POST", "su_compliancegaps", { su_name: "x", su_status: 100000020, "su_function@odata.bind": `/su_compliancefunctions(${fnOther})`, "su_closedby@odata.bind": `/su_compliancedirectorys(${me})` });
+    const notMine = await api("POST", "su_portalactions", { su_name: "x", su_action: 100000122, su_status: 100000130, "su_requestedby@odata.bind": `/contacts(${mine})`,
+      "su_function@odata.bind": `/su_compliancefunctions(${fnOther})` });
+    return { patchDeadline: patchDeadline.status, archive: archive.status, asSomeoneElse: asSomeoneElse.status, forgedBy: forgedBy.status, notMine: await flow(notMine.id) };
+  }, [G(401), G(203), G(103), G(901), G(903)]);
+  assert.equal(r.patchDeadline, 403, "owners have no direct Write on deadlines");
+  assert.equal(r.archive, 403, "nobody writes the archive from the browser");
+  assert.equal(r.asSomeoneElse, 403, "an action can only name the signed-in contact");
+  assert.equal(r.forgedBy, 403, "Closed By is written by the flow only");
+  assert.equal(r.notMine.ok, false, "the flow refuses an owner acting on a function that is not theirs");
+  assert.equal(portal.dv.su_archives.length, 0);
 });
 
 /* ======================= Dataverse, owner ======================= */

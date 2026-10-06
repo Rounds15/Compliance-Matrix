@@ -30,6 +30,10 @@
       <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
       <RootComponent type="1" schemaName="su_functionflag" behavior="0"/>
       <RootComponent type="1" schemaName="su_counselassignment" behavior="0"/>
+      <RootComponent type="1" schemaName="su_assessmentresponse" behavior="0"/>
+      <RootComponent type="1" schemaName="su_assessmentschedule" behavior="0"/>
+      <RootComponent type="1" schemaName="su_archive" behavior="0"/>
+      <RootComponent type="1" schemaName="su_portalaction" behavior="0"/>
       <RootComponent type="1" schemaName="su_appadmin" behavior="0"/>
       <RootComponent type="9" schemaName="su_risklevel" behavior="0"/>
       <RootComponent type="9" schemaName="su_cadence" behavior="0"/>
@@ -42,6 +46,8 @@
       <RootComponent type="9" schemaName="su_flagsource" behavior="0"/>
       <RootComponent type="9" schemaName="su_assessmentstatus" behavior="0"/>
       <RootComponent type="9" schemaName="su_assessmentownerrole" behavior="0"/>
+      <RootComponent type="9" schemaName="su_portalactiontype" behavior="0"/>
+      <RootComponent type="9" schemaName="su_portalactionstatus" behavior="0"/>
       <RootComponent type="9" schemaName="su_approle" behavior="0"/>
     </RootComponents>
     <MissingDependencies/>

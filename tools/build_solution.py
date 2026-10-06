@@ -20,6 +20,7 @@ development environment. Run that before promoting anything.
 from __future__ import annotations
 
 import argparse
+import json
 import pathlib
 import sys
 import xml.etree.ElementTree as ET
@@ -35,6 +36,7 @@ TYPE_MAP = {
     "String": "nvarchar",
     "Memo": "ntext",
     "Integer": "int",
+    "Decimal": "decimal",
     "Boolean": "bit",
     "DateTime": "datetime",
     "Lookup": "lookup",
@@ -50,6 +52,39 @@ FORMAT_MAP = {
     "Text": "text",
     "DateOnly": "dateonly",
 }
+
+# The SharePoint item ID a migrated row came from (docs/DATAVERSE-MIGRATION.md).
+LEGACY_COLUMN = {
+    "name": "su_legacyspid",
+    "displayName": "Legacy SharePoint ID",
+    "type": "Integer",
+    "minValue": 0,
+    "description": "The SharePoint list item ID this row was loaded from. "
+                   "Alternate key; the dataflows upsert on it.",
+}
+
+
+def columns_of(table: dict) -> list[dict]:
+    """The table's columns, with the legacy ID column added where asked."""
+    cols = list(table["columns"])
+    if table.get("legacyKey") and not any(c["name"] == LEGACY_COLUMN["name"] for c in cols):
+        cols.append(dict(LEGACY_COLUMN))
+    return cols
+
+
+def keys_of(table: dict) -> list[dict]:
+    """Alternate keys: one per column marked alternateKey, the table's own
+    alternateKeys list, and the legacy ID key."""
+    keys = [{"name": f"su_key_{c['name'].removeprefix('su_')}", "columns": [c["name"]],
+             "displayName": c["displayName"]}
+            for c in columns_of(table) if c.get("alternateKey")]
+    for k in table.get("alternateKeys", []) or []:
+        keys.append({"name": k["name"], "columns": list(k["columns"]),
+                     "displayName": k.get("displayName", k["name"])})
+    if table.get("legacyKey"):
+        keys.append({"name": "su_key_legacyspid", "columns": [LEGACY_COLUMN["name"]],
+                     "displayName": LEGACY_COLUMN["displayName"]})
+    return keys
 
 REQUIRED_MAP = {
     "None": "none",
@@ -117,6 +152,8 @@ def build_attribute(attrs_el: ET.Element, col: dict, table: dict, prefix: str) -
     if ctype == "String":
         _sub(a, "MaxLength", col.get("maxLength", 100))
         _sub(a, "Format", FORMAT_MAP.get(col.get("format", "Text"), "text"))
+        if col.get("autoNumber"):
+            _sub(a, "AutoNumberFormat", col["autoNumber"])
     elif ctype == "Memo":
         _sub(a, "MaxLength", col.get("maxLength", 2000))
         _sub(a, "Format", "textarea")
@@ -124,6 +161,10 @@ def build_attribute(attrs_el: ET.Element, col: dict, table: dict, prefix: str) -
         _sub(a, "MinValue", col.get("minValue", -2147483648))
         _sub(a, "MaxValue", col.get("maxValue", 2147483647))
         _sub(a, "Format", "none")
+    elif ctype == "Decimal":
+        _sub(a, "MinValue", col.get("minValue", -100000000000))
+        _sub(a, "MaxValue", col.get("maxValue", 100000000000))
+        _sub(a, "Accuracy", col.get("precision", 2))
     elif ctype == "Boolean":
         opts = _sub(a, "optionset", Name=f"{name}_optionset")
         _localized(opts, "displaynames", "displayname", col["displayName"])
@@ -193,8 +234,21 @@ def build_entity(logical: str, table: dict, prefix: str) -> ET.Element:
                    " ".join(table["description"].split()))
 
     attrs = _sub(ent, "attributes")
-    for col in table["columns"]:
+    for col in columns_of(table):
         build_attribute(attrs, col, table, prefix)
+
+    keys = keys_of(table)
+    if keys:
+        ks = _sub(ent, "EntityKeys")
+        for k in keys:
+            ke = _sub(ks, "EntityKey")
+            _sub(ke, "Name", k["name"])
+            _sub(ke, "LogicalName", k["name"])
+            ka = _sub(ke, "EntityKeyAttributes")
+            for c in k["columns"]:
+                _sub(ka, "AttributeName", c)
+            _sub(ke, "IntroducedVersion", VERSION)
+            _localized(ke, "displaynames", "displayname", k["displayName"])
 
     # Entity-level settings
     _sub(ent, "EntitySetName", logical + "s")
@@ -209,7 +263,7 @@ def build_entity(logical: str, table: dict, prefix: str) -> ET.Element:
     _sub(ent, "IsVisibleInMobile", "1")
     _sub(ent, "IsVisibleInMobileClient", "1")
     _sub(ent, "IsConnectionsEnabled", "0")
-    _sub(ent, "IsDocumentManagementEnabled", "0")
+    _sub(ent, "IsDocumentManagementEnabled", "1" if table.get("documentManagement") else "0")
     _sub(ent, "IsMailMergeEnabled", "0")
     _sub(ent, "IsCustomEntity", "1")
     _sub(ent, "IsQuickCreateEnabled", "1")
@@ -260,7 +314,7 @@ def build_customizations(schema: dict) -> ET.Element:
     # -- relationships -------------------------------------------------------
     rels = _sub(root, "EntityRelationships")
     for logical, table in schema["tables"].items():
-        for col in table["columns"]:
+        for col in columns_of(table):
             if col["type"] != "Lookup" or col["target"] == "systemuser":
                 continue
             rel_name = col.get(
@@ -321,12 +375,28 @@ def build_solution_xml(schema: dict) -> ET.Element:
     return root
 
 
+def build_test_schema(schema: dict) -> dict:
+    """The writable column set per table, for portal/test/mock-portal.mjs,
+    which refuses any Web API write the real tables would refuse."""
+    out = {}
+    for logical, table in sorted(schema["tables"].items()):
+        cols = {}
+        for col in columns_of(table):
+            if col["type"] in ("Rollup", "Calculated"):
+                continue
+            cols[col["name"]] = "lookup:" + col["target"] if col["type"] == "Lookup" else col["type"]
+        out[logical] = {"columns": dict(sorted(cols.items())), "id": logical + "id", "set": logical + "s"}
+    return out
+
+
 # ---------------------------------------------------------------------------
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--schema", type=pathlib.Path,
                     default=pathlib.Path("solution/schema/dataverse-schema.yaml"))
     ap.add_argument("--out", type=pathlib.Path, default=pathlib.Path("solution/src"))
+    ap.add_argument("--test-schema", type=pathlib.Path, default=pathlib.Path("portal/test/dv-schema.json"),
+                    help="where to write the column set the portal's mock Web API checks against")
     args = ap.parse_args(argv)
 
     if not args.schema.is_file():
@@ -354,9 +424,13 @@ def main(argv: list[str]) -> int:
         (d / "Entity.xml").write_text(
             _pretty(build_entity(logical, table, prefix)), encoding="utf-8"
         )
-        n = len(table["columns"])
+        n = len(columns_of(table))
         col_total += n
         print(f"  {d / 'Entity.xml'}  ({n} columns)")
+
+    if args.test_schema.parent.is_dir():
+        args.test_schema.write_text(json.dumps(build_test_schema(schema), indent=1) + "\n", encoding="utf-8")
+        print(f"  {args.test_schema}")
 
     print(
         f"\n{len(schema['tables'])} tables, {col_total} columns, "

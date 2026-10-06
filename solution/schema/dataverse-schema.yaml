@@ -11,6 +11,14 @@
 #   - Risk Rating and the Risk Area / Domain lookups made non-required so the
 #     real data (Risk Rating mostly empty; one function missing its grouping)
 #     imports without row failures
+# Migration from the SharePoint lists (docs/DATAVERSE-MIGRATION.md):
+#   - legacyKey: true adds su_legacyspid (the SharePoint item ID) and an
+#     alternate key on it, so a Power Query dataflow can upsert any time
+#   - text limits are at least the SharePoint column's (255 for Title, 4000
+#     for other single-line text, the Dataverse maximum for multiline text)
+#     so nothing is truncated on load
+#   - documentManagement: true leaves the table ready for SharePoint document
+#     management (evidence files), with no library bound yet
 # =============================================================================
 publisher:
   name: syracuseuniversity
@@ -56,6 +64,7 @@ choices:
       - { value: 100000071, label: Event-Relative }
       - { value: 100000072, label: Ongoing }
       - { value: 100000073, label: Conditional }
+      - { value: 100000074, label: One-time }
   su_offsetunit:
     displayName: Offset Unit
     options:
@@ -70,12 +79,15 @@ choices:
   su_ownershiprole:
     displayName: Ownership Role
     description: >-
-      The three tiers of the ownership chain: an executive owner accountable at
-      cabinet level, a unit owner who runs it, a compliance owner who files it.
+      The three tiers of the ownership chain (an executive owner accountable at
+      cabinet level, a unit owner who runs it, a compliance owner who files
+      it), plus General Counsel and Support, as on the SharePoint list.
     options:
       - { value: 100000030, label: Executive Owner }
       - { value: 100000031, label: Unit Owner }
       - { value: 100000032, label: Compliance Owner }
+      - { value: 100000033, label: General Counsel }
+      - { value: 100000034, label: Support }
   su_ownershipsubrole:
     displayName: Ownership Sub-role
     options:
@@ -105,6 +117,25 @@ choices:
     options:
       - { value: 100000100, label: Compliance }
       - { value: 100000101, label: Executive }
+  su_portalactiontype:
+    displayName: Portal Action
+    description: >-
+      What a portal user asked the server to do. The browser only records the
+      request; the CM - Process portal action flow carries it out and writes
+      the who and the archive row.
+    options:
+      - { value: 100000120, label: Complete deadline }
+      - { value: 100000121, label: Reverse completion }
+      - { value: 100000122, label: Close gap }
+      - { value: 100000123, label: Resolve flag }
+      - { value: 100000124, label: Raise flag }
+      - { value: 100000125, label: Delete function }
+  su_portalactionstatus:
+    displayName: Portal Action Status
+    options:
+      - { value: 100000130, label: Pending }
+      - { value: 100000131, label: Done }
+      - { value: 100000132, label: Failed }
   su_approle:
     displayName: Application Role
     options:
@@ -124,10 +155,11 @@ tables:
     ownership: OrganizationOwned
     hasActivities: false
     hasNotes: false
+    legacyKey: true
     columns:
-      - { name: su_name, displayName: Risk Area, type: String, maxLength: 150, required: SystemRequired }
+      - { name: su_name, displayName: Risk Area, type: String, maxLength: 255, required: SystemRequired }
       - { name: su_riskareacode, displayName: Risk Area ID, type: String, maxLength: 20, alternateKey: true, description: "Legacy surrogate key for seed relationship resolution." }
-      - { name: su_colorhex, displayName: Color Hex, type: String, maxLength: 9, description: "Brand color the app uses for this risk area." }
+      - { name: su_colorhex, displayName: Color Hex, type: String, maxLength: 4000, description: "Brand color the app uses for this risk area." }
       - name: su_owner
         displayName: Risk Area Owner
         type: Lookup
@@ -146,8 +178,9 @@ tables:
     ownership: OrganizationOwned
     hasActivities: false
     hasNotes: false
+    legacyKey: true
     columns:
-      - { name: su_name, displayName: Domain, type: String, maxLength: 200, required: SystemRequired }
+      - { name: su_name, displayName: Domain, type: String, maxLength: 255, required: SystemRequired }
       - { name: su_domaincode, displayName: Domain ID, type: String, maxLength: 30, alternateKey: true, description: "Legacy surrogate key for seed relationship resolution." }
       - name: su_riskarea
         displayName: Risk Area
@@ -171,11 +204,12 @@ tables:
     ownership: OrganizationOwned
     hasActivities: false
     hasNotes: false
+    legacyKey: true
     columns:
-      - { name: su_name, displayName: Full Name, type: String, maxLength: 150, required: SystemRequired }
+      - { name: su_name, displayName: Full Name, type: String, maxLength: 255, required: SystemRequired }
       - { name: su_jobtitle, displayName: Title, type: String, maxLength: 250 }
-      - { name: su_unit, displayName: Unit, type: String, maxLength: 200 }
-      - { name: su_email, displayName: Email, type: String, format: Email, maxLength: 150, alternateKey: true }
+      - { name: su_unit, displayName: Unit, type: String, maxLength: 255 }
+      - { name: su_email, displayName: Email, type: String, format: Email, maxLength: 320, alternateKey: true }
       - { name: su_phone, displayName: Phone, type: String, format: Phone, maxLength: 40 }
       - { name: su_location, displayName: Location, type: String, maxLength: 200 }
       - { name: su_netid, displayName: NetID, type: String, maxLength: 50 }
@@ -186,6 +220,15 @@ tables:
         type: Lookup
         target: systemuser
       - { name: su_isexecutive, displayName: Executive Team Member, type: Boolean, default: false }
+      - name: su_contact
+        displayName: Portal Contact
+        description: >-
+          The person's Power Pages contact, matched by email. Set by the CM -
+          Link directory to contact flow, never by the dataflow, so table
+          permissions can scope rows to the signed-in person.
+        type: Lookup
+        target: contact
+        relationshipName: su_contact_su_compliancedirectory
 
   su_compliancefunction:
     displayName: Compliance Function
@@ -197,9 +240,11 @@ tables:
     ownership: UserOwned
     hasActivities: true
     hasNotes: true
+    legacyKey: true
+    documentManagement: true
     columns:
       - { name: su_name, displayName: Compliance Function, type: String, maxLength: 300, required: SystemRequired }
-      - { name: su_functioncode, displayName: Function ID, type: String, maxLength: 20, alternateKey: true, description: "Stable public identifier, e.g. CF-1041." }
+      - { name: su_functioncode, displayName: Function ID, type: String, maxLength: 20, alternateKey: true, autoNumber: "{SEQNUM:1}", description: "The SharePoint item ID for migrated functions. New functions are numbered automatically; set the seed above the highest migrated ID at cutover." }
       - name: su_riskarea
         displayName: Risk Area
         type: Lookup
@@ -212,8 +257,8 @@ tables:
         target: su_domain
         required: Recommended
         relationshipName: su_domain_su_compliancefunction
-      - { name: su_statute, displayName: Statute, type: String, maxLength: 300 }
-      - { name: su_citation, displayName: Citation, type: String, maxLength: 300 }
+      - { name: su_statute, displayName: Statute, type: String, maxLength: 4000 }
+      - { name: su_citation, displayName: Citation, type: String, maxLength: 4000 }
       - { name: su_statuteurl, displayName: Statute URL, type: String, format: Url, maxLength: 500 }
       - name: su_executiveowner
         displayName: Executive Owner
@@ -227,17 +272,20 @@ tables:
         displayName: Compliance Owner
         type: Lookup
         target: su_compliancedirectory
-      - { name: su_description, displayName: What The Obligation Is, type: Memo, maxLength: 4000 }
-      - { name: su_reporting, displayName: Reporting Requirement, type: Memo, maxLength: 4000 }
-      - { name: su_deadlinenarrative, displayName: Deadline And Cadence, type: Memo, maxLength: 2000 }
-      - { name: su_resourcelabel, displayName: Resource Label, type: String, maxLength: 200 }
+      - { name: su_description, displayName: What The Obligation Is, type: Memo, maxLength: 1048576 }
+      - { name: su_reporting, displayName: Reporting Requirement, type: Memo, maxLength: 1048576 }
+      - { name: su_deadlinenarrative, displayName: Deadline And Cadence, type: Memo, maxLength: 1048576 }
+      - { name: su_resourcelabel, displayName: Resource Label, type: String, maxLength: 4000 }
       - { name: su_resourceurl, displayName: Resource URL, type: String, format: Url, maxLength: 500 }
       - name: su_risk
         displayName: Risk Rating
         type: Choice
         choice: su_risklevel
         required: Recommended
-        description: "Not required: empty on nearly all rows today, populated over time."
+        description: >-
+          Not required: empty on nearly all rows today, populated over time.
+          The only place a function's rating is stored (no copies), so it can
+          move to its own permission-scoped table if ratings are restricted.
       - { name: su_lastreviewed, displayName: Last Reviewed, type: DateTime, format: DateOnly }
       - name: su_opengapcount
         displayName: Open Gaps
@@ -268,6 +316,7 @@ tables:
     ownership: UserOwned
     hasActivities: true
     hasNotes: false
+    legacyKey: true
     columns:
       - { name: su_name, displayName: Deadline, type: String, maxLength: 300, required: SystemRequired }
       - name: su_function
@@ -284,20 +333,31 @@ tables:
         required: ApplicationRequired
       - { name: su_duedate, displayName: Next Due Date, type: DateTime, format: DateOnly, required: Recommended }
       - { name: su_cadence, displayName: Cadence, type: Choice, choice: su_cadence }
+      - { name: su_cadencetext, displayName: Cadence (SharePoint value), type: String, maxLength: 4000, description: "The SharePoint cadence exactly as entered, kept so a value with no matching option (Bi-monthly, Triennial, Daily) is not lost." }
       - { name: su_duemonthnum, displayName: Due Month Number, type: Integer, minValue: 1, maxValue: 12 }
       - { name: su_dueday, displayName: Due Day, type: Integer, minValue: 1, maxValue: 31 }
       - { name: su_triggerevent, displayName: Trigger Event, type: String, maxLength: 250, description: "Event-Relative only: what starts the clock." }
       - { name: su_offsetvalue, displayName: Offset Value, type: Integer, minValue: 0, maxValue: 3650 }
       - { name: su_offsetunit, displayName: Offset Unit, type: Choice, choice: su_offsetunit }
-      - { name: su_notes, displayName: Deadline Notes, type: Memo, maxLength: 2000 }
+      - { name: su_notes, displayName: Deadline Notes, type: Memo, maxLength: 1048576 }
+      - { name: su_narrative, displayName: Deadline Narrative, type: Memo, maxLength: 1048576 }
       - { name: su_complete, displayName: Complete, type: Boolean, default: false }
       - { name: su_completeddate, displayName: Last Completed Date, type: DateTime, format: DateOnly }
+      - { name: su_completedreason, displayName: Completed Reason, type: Memo, maxLength: 1048576 }
+      - { name: su_completedbyname, displayName: Completed By Name, type: String, maxLength: 4000 }
+      - { name: su_completedon, displayName: Completed Date And Time, type: DateTime, format: DateAndTime }
+      - name: su_completedby
+        displayName: Completed By
+        description: "Written by the CM - Process portal action flow, never by the browser."
+        type: Lookup
+        target: su_compliancedirectory
+        relationshipName: su_completedby_su_compliancedeadline
       - name: su_owner
         displayName: Owner
         description: "Copied from the parent function's compliance owner on save."
         type: Lookup
         target: su_compliancedirectory
-      - { name: su_risk, displayName: Risk Rating, type: Choice, choice: su_risklevel }
+      - { name: su_risk, displayName: Risk Rating, type: Choice, choice: su_risklevel, description: "Legacy copy of the function's rating. Not loaded or written; the function holds the rating." }
 
   su_assessment:
     displayName: Assessment
@@ -310,6 +370,8 @@ tables:
     ownership: UserOwned
     hasActivities: true
     hasNotes: true
+    legacyKey: true
+    documentManagement: true
     columns:
       - { name: su_name, displayName: Assessment Name, type: String, maxLength: 300, required: SystemRequired }
       - { name: su_assessmentcode, displayName: Assessment ID, type: String, maxLength: 20, alternateKey: true, description: "Legacy surrogate key for seed relationship resolution." }
@@ -318,7 +380,7 @@ tables:
       - { name: su_status, displayName: Status, type: Choice, choice: su_assessmentstatus }
       - { name: su_currentholder, displayName: Current Holder, type: String, maxLength: 150 }
       - { name: su_followupround, displayName: Follow-up Round, type: Integer, minValue: 0, maxValue: 20 }
-      - { name: su_unit, displayName: Unit, type: String, maxLength: 200 }
+      - { name: su_unit, displayName: Unit, type: String, maxLength: 4000 }
       - { name: su_keycontrolsmissing, displayName: Key Controls Missing, type: Integer, minValue: 0, maxValue: 1000 }
       - { name: su_approverstext, displayName: Approvers, type: String, maxLength: 400, description: "Approver names; becomes a junction once matched to directory." }
       - { name: su_fileurl, displayName: Assessment File URL, type: String, format: Url, maxLength: 500 }
@@ -328,6 +390,40 @@ tables:
         type: Lookup
         target: su_domain
         relationshipName: su_domain_su_assessment
+      # Survey columns from the SharePoint Assessments list. Choice columns
+      # whose SharePoint values are not yet confirmed are kept as text so no
+      # value is lost or forced into the wrong option.
+      - name: su_function
+        displayName: Compliance Function
+        type: Lookup
+        target: su_compliancefunction
+        relationshipName: su_compliancefunction_su_assessment
+      - name: su_respondent
+        displayName: Respondent
+        type: Lookup
+        target: su_compliancedirectory
+        relationshipName: su_respondent_su_assessment
+      - { name: su_respondentemail, displayName: Respondent Email, type: String, maxLength: 320 }
+      - { name: su_fiscalyear, displayName: Fiscal Year, type: String, maxLength: 4000 }
+      - { name: su_method, displayName: Method, type: String, maxLength: 4000 }
+      - { name: su_assessedby, displayName: Assessed By, type: String, maxLength: 4000 }
+      - { name: su_opencontrolgaps, displayName: Open Control Gaps Now, type: Decimal }
+      - { name: su_frequencyband, displayName: Frequency Band, type: String, maxLength: 4000 }
+      - { name: su_impactanswer, displayName: Impact Answer, type: String, maxLength: 4000 }
+      - { name: su_pressureanswer, displayName: Pressure Answer, type: String, maxLength: 4000 }
+      - { name: su_internalriskasassessed, displayName: Internal Risk As Assessed, type: Decimal }
+      - { name: su_externalrisk, displayName: External Risk, type: Decimal }
+      - { name: su_universityriskasassessed, displayName: University Risk As Assessed, type: String, maxLength: 4000 }
+      - { name: su_internalriskcurrent, displayName: Internal Risk Current, type: Decimal }
+      - { name: su_universityriskcurrent, displayName: University Risk Current, type: String, maxLength: 4000 }
+      - { name: su_statustext, displayName: Status (SharePoint values), type: String, maxLength: 4000 }
+      - { name: su_questionnaireversion, displayName: Questionnaire Version, type: String, maxLength: 4000 }
+      - { name: su_sourcefile, displayName: Source File, type: String, maxLength: 4000 }
+      - { name: su_notes, displayName: Notes, type: Memo, maxLength: 1048576 }
+      - { name: su_referencecode, displayName: Reference Code, type: String, maxLength: 4000 }
+      - { name: su_formsresponseid, displayName: Forms Response ID, type: Decimal }
+      - { name: su_submittedon, displayName: Submitted On, type: DateTime, format: DateAndTime }
+      - { name: su_createdvia, displayName: Created Via, type: String, maxLength: 4000 }
 
   su_assessmentowner:
     displayName: Assessment Owner
@@ -367,9 +463,10 @@ tables:
     ownership: UserOwned
     hasActivities: true
     hasNotes: true
+    legacyKey: true
     columns:
       - { name: su_name, displayName: Gap Summary, type: String, maxLength: 400, required: SystemRequired }
-      - { name: su_gapcode, displayName: Gap ID, type: String, maxLength: 20, alternateKey: true }
+      - { name: su_gapcode, displayName: Gap ID, type: String, maxLength: 4000, description: "Multi-choice on the SharePoint list, joined with commas. Not a key: values repeat." }
       - name: su_function
         displayName: Compliance Function
         type: Lookup
@@ -387,16 +484,21 @@ tables:
       - { name: su_status, displayName: Status, type: Choice, choice: su_gapstatus, required: SystemRequired }
       - { name: su_openeddate, displayName: Opened, type: DateTime, format: DateOnly }
       - { name: su_closeddate, displayName: Closed, type: DateTime, format: DateOnly }
-      - { name: su_targetquarter, displayName: Target Quarter, type: String, maxLength: 20, description: "Owner's estimated remediation quarter (per gap)." }
-      - { name: su_targetfy, displayName: Target FY, type: String, maxLength: 20 }
-      - { name: su_note, displayName: Detail And Remediation Plan, type: Memo, maxLength: 4000 }
-      - { name: su_closenote, displayName: Closure Notes, type: Memo, maxLength: 4000 }
+      - { name: su_targetquarter, displayName: Target Quarter, type: String, maxLength: 4000, description: "Owner's estimated remediation quarter (per gap); multi-choice on SharePoint, joined with commas." }
+      - { name: su_targetfy, displayName: Target FY, type: String, maxLength: 4000 }
+      - { name: su_note, displayName: Detail And Remediation Plan, type: Memo, maxLength: 1048576 }
+      - { name: su_closenote, displayName: Closure Notes, type: Memo, maxLength: 1048576 }
+      - { name: su_gapsource, displayName: Gap Source, type: String, maxLength: 4000 }
+      - { name: su_responsibleunit, displayName: Responsible Unit, type: String, maxLength: 4000 }
+      - { name: su_needsremediationplan, displayName: Needs Remediation Plan, type: String, maxLength: 4000 }
+      - { name: su_sourcefile, displayName: Source File, type: String, maxLength: 4000 }
       - name: su_owner
         displayName: Owner
         type: Lookup
         target: su_compliancedirectory
       - name: su_closedby
         displayName: Closed By
+        description: "Written by the CM - Process portal action flow, never by the browser."
         type: Lookup
         target: su_compliancedirectory
       - name: su_daysopen
@@ -419,6 +521,7 @@ tables:
     ownership: UserOwned
     hasActivities: false
     hasNotes: false
+    legacyKey: true
     columns:
       - { name: su_name, displayName: Assignment, type: String, maxLength: 400, required: SystemRequired }
       - name: su_function
@@ -446,6 +549,7 @@ tables:
     ownership: UserOwned
     hasActivities: false
     hasNotes: false
+    legacyKey: true
     columns:
       - { name: su_name, displayName: Flag, type: String, maxLength: 400, required: SystemRequired }
       - name: su_function
@@ -455,7 +559,7 @@ tables:
         required: ApplicationRequired
         relationshipName: su_compliancefunction_su_functionflag
         cascade: { delete: Cascade }
-      - { name: su_reason, displayName: Reason, type: Memo, maxLength: 2000, required: ApplicationRequired }
+      - { name: su_reason, displayName: Reason, type: Memo, maxLength: 1048576, required: ApplicationRequired }
       - { name: su_source, displayName: Source, type: Choice, choice: su_flagsource }
       - { name: su_status, displayName: Status, type: Choice, choice: su_flagstatus, required: SystemRequired }
       - name: su_flaggedby
@@ -468,6 +572,7 @@ tables:
         type: Lookup
         target: su_compliancedirectory
       - { name: su_clearedon, displayName: Cleared On, type: DateTime, format: DateOnly }
+      - { name: su_respondentemail, displayName: Respondent Email, type: String, maxLength: 320 }
 
   su_counselassignment:
     displayName: Counsel Assignment
@@ -493,6 +598,126 @@ tables:
         target: su_compliancedirectory
         required: ApplicationRequired
       - { name: su_isdefault, displayName: Is Default Escalation, type: Boolean, default: false }
+
+  su_assessmentresponse:
+    displayName: Assessment Response
+    displayCollectionName: Assessment Responses
+    description: >-
+      One row per item on the SharePoint Assessment Responses list. Until that
+      list's columns are mapped one by one, su_sourcedata holds the whole item
+      as JSON so nothing is lost on load.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: false
+    hasNotes: true
+    legacyKey: true
+    columns:
+      - { name: su_name, displayName: Response, type: String, maxLength: 255, required: SystemRequired }
+      - { name: su_sourcedata, displayName: Source Item (JSON), type: Memo, maxLength: 1048576 }
+      - { name: su_sourcecreated, displayName: Created In SharePoint, type: DateTime, format: DateAndTime }
+      - { name: su_sourcemodified, displayName: Modified In SharePoint, type: DateTime, format: DateAndTime }
+
+  su_assessmentschedule:
+    displayName: Assessment Schedule
+    displayCollectionName: Assessment Schedule
+    description: >-
+      One row per item on the SharePoint Assessment Schedule list. Until that
+      list's columns are mapped one by one, su_sourcedata holds the whole item
+      as JSON so nothing is lost on load.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: false
+    hasNotes: true
+    legacyKey: true
+    columns:
+      - { name: su_name, displayName: Schedule Entry, type: String, maxLength: 255, required: SystemRequired }
+      - { name: su_sourcedata, displayName: Source Item (JSON), type: Memo, maxLength: 1048576 }
+      - { name: su_sourcecreated, displayName: Created In SharePoint, type: DateTime, format: DateAndTime }
+      - { name: su_sourcemodified, displayName: Modified In SharePoint, type: DateTime, format: DateAndTime }
+
+  su_archive:
+    displayName: Archive Entry
+    displayCollectionName: Archive
+    description: >-
+      Append-only history, as on the SharePoint Archive list: deadline
+      completions and reversals, resolved flags, deleted functions and their
+      children. Written only by the CM - Process portal action flow (and the
+      migration load), never by the browser.
+    primaryName: su_name
+    ownership: OrganizationOwned
+    hasActivities: false
+    hasNotes: false
+    legacyKey: true
+    columns:
+      - { name: su_name, displayName: Entry, type: String, maxLength: 255, required: SystemRequired }
+      - { name: su_recordtype, displayName: Record Type, type: String, maxLength: 4000 }
+      - { name: su_eventtype, displayName: Event Type, type: String, maxLength: 4000 }
+      - { name: su_functionname, displayName: Function Name, type: String, maxLength: 4000 }
+      - { name: su_functionnumber, displayName: Function ID, type: Integer, minValue: 0, description: "The function's ID as a number, kept after the function is deleted." }
+      - name: su_function
+        displayName: Compliance Function
+        description: "Set while the function exists; cleared, not cascaded, when it is deleted."
+        type: Lookup
+        target: su_compliancefunction
+        relationshipName: su_compliancefunction_su_archive
+      - { name: su_resolvedby, displayName: Resolved By, type: String, maxLength: 4000 }
+      - { name: su_resolvedat, displayName: Resolved Date And Time, type: String, maxLength: 4000 }
+      - { name: su_sourceitemid, displayName: Source Item ID, type: Decimal }
+      - { name: su_reason, displayName: Reason, type: Memo, maxLength: 1048576 }
+      - { name: su_completedoccurrence, displayName: Completed Occurrence, type: String, maxLength: 4000 }
+      - { name: su_cadence, displayName: Cadence, type: String, maxLength: 4000 }
+      - { name: su_flaggedby, displayName: Flagged By, type: String, maxLength: 4000 }
+      - { name: su_flaggeddate, displayName: Flagged Date, type: String, maxLength: 4000 }
+      - { name: su_flagsource, displayName: Flag Source, type: String, maxLength: 4000 }
+
+  su_portalaction:
+    displayName: Portal Action
+    displayCollectionName: Portal Actions
+    description: >-
+      A request from the portal to complete or reverse a deadline, close a gap,
+      raise or resolve a flag, or delete a function. The browser creates the
+      row (table permission scoped to the signed-in contact, so Requested By
+      cannot be someone else) and the CM - Process portal action flow does the
+      work server-side: it checks the person may act, writes Completed By /
+      Closed By / Flagged By / Cleared By and the archive row, and records
+      the result here.
+    primaryName: su_name
+    ownership: OrganizationOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - { name: su_name, displayName: Action, type: String, maxLength: 400, required: SystemRequired }
+      - { name: su_action, displayName: Action Type, type: Choice, choice: su_portalactiontype, required: ApplicationRequired }
+      - name: su_requestedby
+        displayName: Requested By
+        type: Lookup
+        target: contact
+        required: ApplicationRequired
+        relationshipName: su_requestedby_su_portalaction
+      - name: su_function
+        displayName: Compliance Function
+        type: Lookup
+        target: su_compliancefunction
+        relationshipName: su_compliancefunction_su_portalaction
+      - name: su_deadline
+        displayName: Deadline
+        type: Lookup
+        target: su_compliancedeadline
+        relationshipName: su_compliancedeadline_su_portalaction
+      - name: su_gap
+        displayName: Gap
+        type: Lookup
+        target: su_compliancegap
+        relationshipName: su_compliancegap_su_portalaction
+      - name: su_flag
+        displayName: Flag
+        type: Lookup
+        target: su_functionflag
+        relationshipName: su_functionflag_su_portalaction
+      - { name: su_reason, displayName: Reason, type: Memo, maxLength: 1048576 }
+      - { name: su_status, displayName: Status, type: Choice, choice: su_portalactionstatus, required: SystemRequired }
+      - { name: su_result, displayName: Result, type: Memo, maxLength: 1048576 }
+      - { name: su_processedon, displayName: Processed On, type: DateTime, format: DateAndTime }
 
   su_appadmin:
     displayName: App Role Assignment
