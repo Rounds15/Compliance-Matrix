@@ -506,7 +506,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await toast(/Deadline marked complete/);
   const dl = dv.su_compliancedeadlines.find(r => r.su_compliancedeadlineid === G(401));
   assert.match(dl.su_completeddate, /^\d{4}-\d{2}-\d{2}$/); assert.equal(dl.su_completedreason, "Published.");
-  assert.equal(dl._su_completedby_value, G(101)); assert.equal(dl.su_completedbyname, "Camila Ruiz");
+  assert.equal(dl._su_completedby_value, G(101)); assert.equal(dl.su_completedbydisplayname, "Camila Ruiz");
   const ar = dv.su_archives.at(-1);
   assert.deepEqual([ar.su_recordtype, ar.su_eventtype, ar.su_resolvedby, ar.su_reason, ar.su_functionnumber], ["Deadline Completion", "Completed", "Camila Ruiz", "Published.", 201]);
 

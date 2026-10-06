@@ -94,8 +94,10 @@ otherwise surface as an opaque packer error.
 `tools/build_solution.py` writes `solution/src` in the layout `pac solution
 unpack` produces from a real export, and re-reads it: the build fails if
 `<Language>` does not carry the code as element text, if a Customizations.xml
-section has content of its own, if the publisher block is incomplete, or if a
-lookup has no relationship. `tools/validate.py` runs the same checks and
+section has content of its own, if the publisher block is incomplete, if a
+lookup has no relationship, or if a column takes a name Dataverse reserves
+(`<column>name` or `<column>yominame` beside a lookup, owner, choice, status
+or yes/no column; names ignore case). `tools/validate.py` runs the same checks and
 confirms `solution/src` matches a fresh build. `pac solution pack` of this
 folder finishes with no warnings.
 

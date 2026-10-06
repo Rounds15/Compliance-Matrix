@@ -667,10 +667,10 @@
             <Description description="" languagecode="1033"/>
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="su_completedbyname">
+        <attribute PhysicalName="su_completedbydisplayname">
           <Type>nvarchar</Type>
-          <Name>su_completedbyname</Name>
-          <LogicalName>su_completedbyname</LogicalName>
+          <Name>su_completedbydisplayname</Name>
+          <LogicalName>su_completedbydisplayname</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -704,7 +704,7 @@
             <displayname description="Completed By Name" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="" languagecode="1033"/>
+            <Description description="Not su_completedbyname: Dataverse reserves that name for the su_completedby lookup." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_completedon">

@@ -171,12 +171,12 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     const now = new Date().toISOString();
     const archive = (title, recordType, eventType, extra = {}) => dv.su_archives.push({
       su_archiveid: randomUUID(), su_name: (title + " - " + fn.su_name).slice(0, 255), su_recordtype: recordType, su_eventtype: eventType,
-      su_functionname: fn.su_name, su_functionnumber: fn.su_legacyspid ?? (Number(fn.su_functioncode) || null),
+      su_archivedfunctionname: fn.su_name, su_functionnumber: fn.su_legacyspid ?? (Number(fn.su_functioncode) || null),
       _su_function_value: fn.su_compliancefunctionid, su_resolvedby: person.su_name, su_resolvedat: now, ...extra });
     if (kind === "complete" || kind === "reverse") {
       const dl = row;
-      if (kind === "complete") Object.assign(dl, { su_completeddate: isoDay(), su_completedon: now, su_completedreason: a.su_reason, su_completedbyname: person.su_name, _su_completedby_value: person.su_compliancedirectoryid, su_complete: dl.su_cadence === 100000016 });
-      else Object.assign(dl, { su_completeddate: null, su_completedon: null, su_completedreason: null, su_completedbyname: null, _su_completedby_value: null, su_complete: false });
+      if (kind === "complete") Object.assign(dl, { su_completeddate: isoDay(), su_completedon: now, su_completedreason: a.su_reason, su_completedbydisplayname: person.su_name, _su_completedby_value: person.su_compliancedirectoryid, su_complete: dl.su_cadence === 100000016 });
+      else Object.assign(dl, { su_completeddate: null, su_completedon: null, su_completedreason: null, su_completedbydisplayname: null, _su_completedby_value: null, su_complete: false });
       archive(kind === "complete" ? "Deadline Completed" : "Deadline Reversed", "Deadline Completion", kind === "complete" ? "Completed" : "Reversed",
         { su_reason: a.su_reason, su_completedoccurrence: dl.su_duedate || "", su_cadence: CADENCE_LABEL[dl.su_cadence] || "", su_sourceitemid: dl.su_legacyspid ?? null });
     } else if (kind === "close") {

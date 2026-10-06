@@ -133,10 +133,10 @@
             <Description description="" languagecode="1033"/>
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="su_functionname">
+        <attribute PhysicalName="su_archivedfunctionname">
           <Type>nvarchar</Type>
-          <Name>su_functionname</Name>
-          <LogicalName>su_functionname</LogicalName>
+          <Name>su_archivedfunctionname</Name>
+          <LogicalName>su_archivedfunctionname</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -170,7 +170,7 @@
             <displayname description="Function Name" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="" languagecode="1033"/>
+            <Description description="The function name as it was when archived. Not su_functionname: Dataverse reserves that name for the su_function lookup." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_functionnumber">

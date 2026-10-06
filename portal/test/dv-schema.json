@@ -11,6 +11,7 @@
  },
  "su_archive": {
   "columns": {
+   "su_archivedfunctionname": "String",
    "su_cadence": "String",
    "su_completedoccurrence": "String",
    "su_eventtype": "String",
@@ -18,7 +19,6 @@
    "su_flaggeddate": "String",
    "su_flagsource": "String",
    "su_function": "lookup:su_compliancefunction",
-   "su_functionname": "String",
    "su_functionnumber": "Integer",
    "su_legacyspid": "Integer",
    "su_name": "String",
@@ -111,7 +111,7 @@
    "su_cadencetext": "String",
    "su_complete": "Boolean",
    "su_completedby": "lookup:su_compliancedirectory",
-   "su_completedbyname": "String",
+   "su_completedbydisplayname": "String",
    "su_completeddate": "DateTime",
    "su_completedon": "DateTime",
    "su_completedreason": "Memo",

@@ -344,7 +344,7 @@ tables:
       - { name: su_complete, displayName: Complete, type: Boolean, default: false }
       - { name: su_completeddate, displayName: Last Completed Date, type: DateTime, format: DateOnly }
       - { name: su_completedreason, displayName: Completed Reason, type: Memo, maxLength: 1048576 }
-      - { name: su_completedbyname, displayName: Completed By Name, type: String, maxLength: 4000 }
+      - { name: su_completedbydisplayname, displayName: Completed By Name, type: String, maxLength: 4000, description: "Not su_completedbyname: Dataverse reserves that name for the su_completedby lookup." }
       - { name: su_completedon, displayName: Completed Date And Time, type: DateTime, format: DateAndTime }
       - name: su_completedby
         displayName: Completed By
@@ -652,7 +652,7 @@ tables:
       - { name: su_name, displayName: Entry, type: String, maxLength: 255, required: SystemRequired }
       - { name: su_recordtype, displayName: Record Type, type: String, maxLength: 4000 }
       - { name: su_eventtype, displayName: Event Type, type: String, maxLength: 4000 }
-      - { name: su_functionname, displayName: Function Name, type: String, maxLength: 4000 }
+      - { name: su_archivedfunctionname, displayName: Function Name, type: String, maxLength: 4000, description: "The function name as it was when archived. Not su_functionname: Dataverse reserves that name for the su_function lookup." }
       - { name: su_functionnumber, displayName: Function ID, type: Integer, minValue: 0, description: "The function's ID as a number, kept after the function is deleted." }
       - name: su_function
         displayName: Compliance Function

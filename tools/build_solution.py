@@ -484,6 +484,41 @@ def build_solution_xml(schema: dict) -> ET.Element:
 # ---------------------------------------------------------------------------
 # checks a Dataverse import is known to depend on
 # ---------------------------------------------------------------------------
+# Dataverse adds a read-only virtual column beside each of these column types,
+# named <column>name (and <column>yominame for people lookups). Names are
+# case-insensitive, so a real column with one of those names fails the import
+# ("An attribute with the specified name ... already exists").
+VIRTUAL_SUFFIXES = {
+    "lookup": ("name", "yominame"),
+    "owner": ("name", "yominame"),
+    "customer": ("name", "yominame"),
+    "picklist": ("name",),
+    "state": ("name",),
+    "status": ("name",),
+    "bit": ("name",),
+}
+
+
+def virtual_name_clashes(logical: str, attrs: dict, table: dict) -> list[str]:
+    """Columns whose name collides, ignoring case, with another column or with
+    a virtual name Dataverse reserves. Covers the hand-added computed columns
+    too, since they are created in the same table."""
+    names: dict[str, str] = {}
+    errors = []
+    for name in list(attrs) + [c["name"] for c in columns_of(table) if c["type"] in MANUAL_TYPES]:
+        key = name.lower()
+        if key in names:
+            errors.append(f"{logical}: two columns named {name} (names ignore case)")
+        names[key] = name
+    for name, a in attrs.items():
+        for suffix in VIRTUAL_SUFFIXES.get(a.findtext("Type"), ()):
+            clash = names.get((name + suffix).lower())
+            if clash:
+                errors.append(f"{logical}.{clash}: Dataverse reserves this name for the virtual "
+                              f"{suffix} column of {name} ({a.findtext('Type')}); rename it")
+    return errors
+
+
 def check_solution(out: pathlib.Path, schema: dict) -> list[str]:
     errors = []
 
@@ -575,6 +610,8 @@ def check_solution(out: pathlib.Path, schema: dict) -> list[str]:
                 errors.append(f"{logical}.{a.findtext('Name')}: yes/no option set must be type bit")
             if t == "lookup" and a.find("LookupTypes") is None:
                 errors.append(f"{logical}.{a.findtext('Name')}: lookup without <LookupTypes />")
+        for err in virtual_name_clashes(logical, attrs, table):
+            errors.append(err)
         for col in solution_columns_of(table):
             if col["type"] == "Lookup" and relationship_name(logical, col) not in found:
                 errors.append(f"{logical}.{col['name']}: no relationship for this lookup")

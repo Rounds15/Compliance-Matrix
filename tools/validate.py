@@ -20,7 +20,8 @@ Checks, in order:
  10. solution/src matches a fresh run of tools/build_solution.py, and passes
      its import checks: <Language> carries the code as element text, the
      Customizations.xml sections are empty, the publisher block is complete,
-     every lookup has a relationship
+     every lookup has a relationship, no column takes a reserved virtual
+     name (<column>name, <column>yominame)
 
 This is a static check. It cannot verify Power Fx semantics, control @version
 strings, or delegation behaviour - only `pac` and a real environment can.

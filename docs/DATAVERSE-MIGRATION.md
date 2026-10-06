@@ -467,7 +467,7 @@ SharePoint (section 1).
 | field_4 (LastCompletedDate) | su_completeddate | `Day([field_4])` |
 | field_4, field_2 | su_complete | `true` only when cadence is One-time and field_4 has a date |
 | field_5 (CompletedReason) | su_completedreason | new column |
-| field_6 (CompletedByName) | su_completedbyname | new column |
+| field_6 (CompletedByName) | su_completedbydisplayname | new column (not su_completedbyname, which Dataverse reserves for the su_completedby lookup) |
 | field_7 (CompletedDateTime) | su_completedon | new column |
 | CompletedById | su_completedby | lookup, new column |
 | (parent function) | su_owner | optional: the function's ComplianceLegacyId, for the reminder flow |
@@ -586,7 +586,7 @@ https://sumailsyr.sharepoint.com/sites/SyracuseComplianceMatrix/_api/web/lists/g
 | Title | su_name | `OrElse([Title], "Archive " & Text.From([Id]))` |
 | field_1 (RecordType) | su_recordtype | |
 | field_2 (EventType) | su_eventtype | |
-| field_3 (FunctionName) | su_functionname | |
+| field_3 (FunctionName) | su_archivedfunctionname | not su_functionname, which Dataverse reserves for the su_function lookup |
 | field_4 (FunctionID) | su_functionnumber | `Number.Round([field_4])` |
 | field_4 | su_function | lookup to su_compliancefunction.su_legacyspid, only while the function exists (blank the column otherwise, or the row fails) |
 | field_5 (ResolvedBy) | su_resolvedby | |
@@ -648,7 +648,7 @@ request cannot set them directly:
 
 | Table | Columns |
 |---|---|
-| su_compliancedeadline | su_completedby, su_completedbyname, su_completedon, su_completedreason, su_completeddate, su_complete |
+| su_compliancedeadline | su_completedby, su_completedbydisplayname, su_completedon, su_completedreason, su_completeddate, su_complete |
 | su_compliancegap | su_closedby, su_closeddate |
 | su_functionflag | su_flaggedby, su_clearedby, su_clearedon |
 | su_compliancefunction | su_functioncode |
@@ -827,14 +827,14 @@ on insert" set to Requested By, which Power Pages fills in on the server.
 
 | Action | Update | Archive entry |
 |---|---|---|
-| Complete deadline | Deadline: Last Completed Date = today, Completed Date And Time = now, Completed Reason = Reason, Completed By Name = person's name, Completed By = person, Complete = true only for a One-time cadence | Entry "Deadline Completed - <function>", Record Type "Deadline Completion", Event Type "Completed", Reason, Completed Occurrence = the deadline's due date, Cadence |
+| Complete deadline | Deadline: Last Completed Date = today, Completed Date And Time = now, Completed Reason = Reason, Completed By Name (su_completedbydisplayname) = person's name, Completed By = person, Complete = true only for a One-time cadence | Entry "Deadline Completed - <function>", Record Type "Deadline Completion", Event Type "Completed", Reason, Completed Occurrence = the deadline's due date, Cadence |
 | Reverse completion | Deadline: clear those six columns, Complete = false | "Deadline Reversed - <function>", "Deadline Completion", "Reversed", Reason |
 | Close gap | Gap: Status Closed, Closed = today, Closure Notes = Reason, Closed By = person | none (the canvas app writes none) |
 | Raise flag | Add a Function Flag: Name = function name, Reason, Status Active, Source Manual, Flagged On = today, Flagged By = person | none |
 | Resolve flag | Flag: Status Cleared, Cleared On = today, Cleared By = person | "Flag Resolved - <function>", "Flag Resolution", "Resolved", Reason = the flag's reason, Source Item ID, Flagged By (name), Flagged Date, Flag Source |
 | Delete function | first an archive entry per gap ("Gap: <name>"), deadline ("Deadline: MM/DD/YYYY <cadence>"), flag ("Flag: <reason>") and owner row ("Owner: <name> (<role>)"), then "Function record deleted"; then delete the function (the schema cascades to its children) | Record Type "Function Deleted", Event Type "Deleted" |
 
-   Every archive entry also sets Function Name, Function ID (the function's
+   Every archive entry also sets Function Name (su_archivedfunctionname), Function ID (the function's
    su_legacyspid, or its Function ID as a number), Compliance Function
    (lookup, cleared when the function is deleted), Resolved By = person's
    name, Resolved Date And Time = now.
