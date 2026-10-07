@@ -1557,7 +1557,7 @@
           <CanChangeDateTimeBehavior>0</CanChangeDateTimeBehavior>
           <Behavior>1</Behavior>
           <displaynames>
-            <displayname description="Failed On" languagecode="1033"/>
+            <displayname description="Created On" languagecode="1033"/>
           </displaynames>
           <Descriptions>
             <Description description="Date and time when the record was created." languagecode="1033"/>

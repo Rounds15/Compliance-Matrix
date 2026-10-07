@@ -484,6 +484,19 @@ def build_solution_xml(schema: dict) -> ET.Element:
 # ---------------------------------------------------------------------------
 # checks a Dataverse import is known to depend on
 # ---------------------------------------------------------------------------
+# The system columns' labels, as Dataverse names them on a new table. The
+# template was copied from a table that had renamed some of them.
+SYSTEM_LABELS = {
+    "createdby": "Created By", "createdon": "Created On",
+    "createdonbehalfby": "Created By (Delegate)", "importsequencenumber": "Import Sequence Number",
+    "modifiedby": "Modified By", "modifiedon": "Modified On",
+    "modifiedonbehalfby": "Modified By (Delegate)", "overriddencreatedon": "Record Created On",
+    "ownerid": "Owner", "owningbusinessunit": "Owning Business Unit", "owningteam": "Owning Team",
+    "owninguser": "Owning User", "statecode": "Status", "statuscode": "Status Reason",
+    "timezoneruleversionnumber": "Time Zone Rule Version Number",
+    "utcconversiontimezonecode": "UTC Conversion Time Zone Code",
+}
+
 # Dataverse adds a read-only virtual column beside each of these column types,
 # named <column>name (and <column>yominame for people lookups). Names are
 # case-insensitive, so a real column with one of those names fails the import
@@ -610,6 +623,11 @@ def check_solution(out: pathlib.Path, schema: dict) -> list[str]:
                 errors.append(f"{logical}.{a.findtext('Name')}: yes/no option set must be type bit")
             if t == "lookup" and a.find("LookupTypes") is None:
                 errors.append(f"{logical}.{a.findtext('Name')}: lookup without <LookupTypes />")
+        for col, label in SYSTEM_LABELS.items():
+            a = attrs.get(col)
+            got = a.find("displaynames/displayname").get("description") if a is not None else None
+            if got != label:
+                errors.append(f"{logical}.{col}: label is {got!r}; Dataverse's own label is {label!r}")
         for err in virtual_name_clashes(logical, attrs, table):
             errors.append(err)
         for col in solution_columns_of(table):
