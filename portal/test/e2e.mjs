@@ -645,6 +645,20 @@ await session("Dataverse · owner · permitted writes succeed, admin UI absent",
   assert.equal(portal.dv.su_functionflags.at(-1)._su_flaggedby_value, G(103));
 });
 
+/* a contact with no email: the page finds the person through the directory's Portal Contact link */
+await session("Dataverse · a contact with no email is matched by the Portal Contact link", { backend: "dataverse", admin: false, user: { email: "", name: "Dwight Ferrell", contactId: G(903) } }, async ({ page, portal, go, toast, btn, fig }) => {
+  assert.match(await page.locator(".sec-h", { hasText: "Assigned to you" }).innerText(), /Dwight Ferrell/);
+  assert.ok(await page.locator(".hm-assigned .srow").count() > 0, "his functions are listed as his");
+  assert.notEqual(await fig(0), "0");
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  await btn("Flag for review").click();
+  await page.locator(".fd-panel textarea").fill("Unit owner changed.");
+  await btn("Submit flag").click();
+  await toast(/Flag submitted/);
+  assert.equal(portal.dv.su_functionflags.at(-1)._su_flaggedby_value, G(103));
+});
+
 /* ======================= failure is visible, not silent ======================= */
 await session("A write the backend rejects is reported, and nothing changes", { backend: "sharepoint", admin: true }, async ({ page, portal, go, toast, btn }) => {
   await go("#/functions/201");

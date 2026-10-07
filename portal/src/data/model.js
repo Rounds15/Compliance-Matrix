@@ -57,6 +57,8 @@ export function toPerson(p) {
     ph: p.phone || "",
     l: p.location || "",
     netid: p.netid || (p.email && /@syr\.edu$/i.test(p.email) ? p.email.split("@")[0].toLowerCase() : ""),
+    /* the Power Pages contact linked to this person (Dataverse only) */
+    contact: p.contactId ? lc(p.contactId) : null,
     /* resolvable (counsel of record) but not a Compliance Directory entry */
     counselOnly: !!p.counselOnly
   };
@@ -64,7 +66,7 @@ export function toPerson(p) {
 
 const primaryOf = list => (list.find(x => x.sub === "Primary") || list[0] || null);
 
-export function buildDataset(raw, { today, meEmail, meName }) {
+export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
   const people = (raw.people || []).map(toPerson);
   const personById = new Map(people.map(p => [String(p.id), p]));
   const findPerson = id => (id == null ? null : personById.get(String(id)) || null);
@@ -223,7 +225,10 @@ export function buildDataset(raw, { today, meEmail, meName }) {
   const lastName = p => p.n.split(" ").slice(-1)[0];
   const executives = [...execSet.values()].sort((a, b) => lastName(a).localeCompare(lastName(b)));
 
-  const me = people.find(p => p.e && lc(p.e) === lc(meEmail))
+  /* who is signed in: by the directory's link to their contact where the
+     backend has one (a contact may have no email), otherwise by email */
+  const me = (meContactId && people.find(p => p.contact && p.contact === lc(meContactId)))
+    || people.find(p => p.e && lc(p.e) === lc(meEmail))
     || { ...NOBODY, none: false, id: null, n: meName || meEmail || "Signed-in user", e: meEmail || "" };
 
   return {

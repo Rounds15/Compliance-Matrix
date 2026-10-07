@@ -22,18 +22,21 @@ export function createAdapter(cfg) {
 const CACHE_KEY = "cm-matrix-cache-v1";
 const reviveDates = (k, v) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v) ? new Date(v) : v);
 
+/* whose copy the cached data is: a contact may have no email */
+const cacheUser = cfg => cfg.user.contactId || cfg.user.email;
+
 function readCache(cfg) {
   if (!cfg.cacheMinutes || cfg.backend === "sample") return null;
   try {
     const box = JSON.parse(window.sessionStorage.getItem(CACHE_KEY) || "null", reviveDates);
-    if (!box || box.backend !== cfg.backend || box.user !== cfg.user.email) return null;
+    if (!box || box.backend !== cfg.backend || box.user !== cacheUser(cfg)) return null;
     return box;
   } catch (e) { return null; }
 }
 function writeCache(cfg, raw) {
   if (!cfg.cacheMinutes || cfg.backend === "sample") return;
   try {
-    window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({ backend: cfg.backend, user: cfg.user.email, t: Date.now(), raw }));
+    window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({ backend: cfg.backend, user: cacheUser(cfg), t: Date.now(), raw }));
   } catch (e) { /* storage full or disabled: the page works without it */ }
 }
 
@@ -90,7 +93,7 @@ export function useStore(cfg) {
     }
   }, [cfg, loadAll]);
 
-  const ds = useMemo(() => raw && buildDataset(raw, { today, meEmail: cfg.user.email, meName: cfg.user.name }), [raw, today, cfg]);
+  const ds = useMemo(() => raw && buildDataset(raw, { today, meEmail: cfg.user.email, meName: cfg.user.name, meContactId: cfg.user.contactId }), [raw, today, cfg]);
 
   /* who the "me"-scoped figures are drawn for: the signed-in user, or, when
      an administrator picks View as specific user, that person. Writes are

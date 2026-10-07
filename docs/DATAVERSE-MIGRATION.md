@@ -700,52 +700,132 @@ duplicates:
 ## 6. People and Contact records
 
 Power Pages knows a signed-in person as a **Contact**. The matrix knows them as
-a **Compliance Directory** row, which Function Ownership points at. The new
-lookup **su_compliancedirectory.su_contact** joins the two, so the action flow
-can tell who acted, and so permissions can be scoped to a person later.
+a **Compliance Directory** row, which Function Ownership points at. The lookup
+**su_compliancedirectory.su_contact** (Portal Contact) joins the two. The
+action flow (section 8) uses it to tell who acted, and the matrix page uses
+it to tell who is signed in ("Assigned to you", and the actions an owner is
+offered).
 
-Most contacts only exist after the person's first sign-in, so the link cannot
-be made by the load; a flow keeps it. Because this link decides who the action
-flow believes someone is, it is set once, from an email the person cannot
-change, and never moved automatically:
+**The link does not use the contact's email.** On SU Compliance Office a
+contact can have no email at all (the site does not capture it at first
+sign-in, and the claims-mapping settings had no effect). The link is made
+from the person's **Microsoft Entra account** instead:
 
-**First, lock the contact's email to the sign-in.**
+1. At sign-in, Power Pages writes an **External Identity** row
+   (adx_externalidentity) for the contact. Its **Username** (adx_username)
+   is the identifier the Entra provider sent. Microsoft's FAQ on OpenID
+   Connect in Power Pages
+   (https://learn.microsoft.com/en-us/power-pages/security/authentication/openid-faqs)
+   says this is the value of the **sub** claim or of the **object ID (oid)**
+   claim. Only the object ID can be looked up in Entra, so check which one
+   your site stores first (below).
+2. A flow looks that object ID up in Entra with the **Office 365 Users**
+   connector and gets the account's user principal name (NetID@syr.edu) and
+   mail address.
+3. It links the contact to the one active Compliance Directory row whose
+   email is that UPN or mail address.
 
-- Make the email read-only on the profile page: Portal Management > Basic
-  Forms > Profile Web Form (or the page's profile form) > the Email field >
-  read-only. Otherwise a signed-in person could change their contact email to
-  someone else's.
-- Refresh the email from Microsoft Entra ID at every sign-in: the identity
-  provider's login claims mapping (site setting
-  `Authentication/OpenIdConnect/<provider>/LoginClaimsMapping`, for example
-  `emailaddress1=email`; Set up > Identity providers shows the provider name).
+A signed-in person cannot choose these values. No web role has a permission on External
+Identity, so a signed-in person cannot write their own Username. Only
+administrators set UPN and mail in Entra, and only administrators can write
+su_contact (it is in no tester's table permission, and the dataflows leave
+it unmapped).
+
+**First, check what Username holds.** make.powerapps.com > Tables > External
+Identity > Data. Find your own row (Contact = you) and note its **Username**
+and **Identity Provider** (adx_identityprovidername). Then Entra admin
+center > Users > you > Overview > **Object ID**.
+
+- **They match:** go on. Copy the Identity Provider value exactly; the flows
+  filter on it.
+- **They differ:** Username is the sub claim. Stop and tell me; do not change
+  the provider's settings to fix it, because existing sign-ins are matched
+  on the value already stored.
+
+**Connector and permissions**
+
+- **Office 365 Users**, action **Get user profile (V2)**. Its **User (UPN)**
+  input takes a user principal name or an object ID. Set **Select fields** to
+  `id,userPrincipalName,mail,accountEnabled,userType` so nothing else is
+  read.
+- The connector reads Entra as the account its connection signs in with.
+  That is ordinary directory read access for a member account, and it
+  normally needs no admin consent or app registration. Use a licensed member account
+  that owns the solution's flows (a service account if you have one, not a
+  guest), and make the connection through a **connection reference** in the
+  solution.
+- The environment's data loss prevention policy must put **Office 365
+  Users** in the same group as **Microsoft Dataverse**, or the flow cannot be
+  saved. Ask IT if it is in another group.
+- If the tenant restricts members from reading other users' profiles, Get
+  user profile (V2) returns 403 for other people; IT can grant the
+  connection account directory read access, or exempt it.
 
 **CM - Link directory to contact** (automated cloud flow, in the solution)
 
 1. Trigger: Dataverse, **When a row is added, modified or deleted**, change
-   type Added or Modified, table **Contacts**, select columns `emailaddress1`.
-2. List rows, **Compliance Directory**, filter
-   `su_email eq '@{toLower(triggerOutputs()?['body/emailaddress1'])}' and su_active eq true`.
-   (Dataverse compares text without regard to case, so this matches mixed-case
-   addresses.)
-3. Continue only when exactly one row comes back, **its Portal Contact is
-   empty**, and no other directory row already has this contact. Otherwise
-   stop and email the compliance office (two people share the email, or the
-   link would move): an administrator sets or changes a link by hand.
-4. Update a row, Compliance Directory, that row's ID, **Portal Contact** =
-   `contacts(@{triggerOutputs()?['body/contactid']})`.
-5. A second flow does the same from the other side: **When a row is added or
-   modified** on Compliance Directory (select column `su_email`), List rows on
-   Contacts by `emailaddress1`, and set Portal Contact under the same three
-   conditions.
+   type **Added**, table **External Identities**. Trigger condition:
+   `@equals(triggerOutputs()?['body/adx_identityprovidername'], '<the Identity Provider value you copied>')`.
+2. **Get user profile (V2)**, User (UPN) = the row's **Username**, Select
+   fields as above. On failure (no such user): stop and email the compliance
+   office with the contact's name. If **userType** is not `Member` or
+   **accountEnabled** is false, stop.
+3. List rows, **Compliance Directory**, filter
+   `(su_email eq '<userPrincipalName>' or su_email eq '<mail>') and su_active eq true`
+   (leave out the mail clause when mail is empty; Dataverse compares text
+   without regard to case).
+4. Continue only when exactly one row comes back, **its Portal Contact is
+   empty**, and no other directory row already has this contact (List rows,
+   `_su_contact_value eq <the row's Contact>`). Otherwise stop and email the
+   compliance office: two directory rows share the address, the person is
+   not in the directory, or the link would move. An administrator sets or
+   changes a link by hand.
+5. Update a row, Compliance Directory, that row's ID, **Portal Contact** =
+   `contacts(<the External Identity's Contact>)`.
 
-Run steps 2 to 4 once by hand after the first load (or edit and save a
-contact) to link people who have already signed in. Only administrators can
-write su_contact: it is not in any tester's table permission, and the
-dataflows leave it unmapped.
+**CM - Link contact to directory** (automated cloud flow, in the solution):
+the same from the other side, for someone who signed in before they were
+added to the directory, or whose directory email was corrected.
 
-The portal itself still matches the signed-in email to the directory in the
-browser for display (Home's "Assigned to you"), as it does today.
+1. Trigger: **When a row is added or modified**, Compliance Directory,
+   select columns `su_email`.
+2. Get user profile (V2), User (UPN) = **su_email**. No such user: stop
+   (the person may not have an Entra account yet).
+3. List rows, External Identities, filter
+   `adx_username eq '<id>' and adx_identityprovidername eq '<the Identity Provider value>'`.
+   None: stop (they have not signed in yet; the first flow links them when
+   they do).
+4. Link under the same three conditions as step 4 above.
+
+**For people who signed in before these flows existed** (you included): save a
+copy of CM - Link directory to contact, replace its trigger with **Manually
+trigger a flow** plus List rows on External Identities filtered on the
+Identity Provider value, put steps 2 to 5 inside an **Apply to each**, and run
+it once. Then delete the copy.
+
+**Test it.** After the one-off run, open your own Compliance Directory row:
+Portal Contact is your contact (9d4cbc03-...). Then sign in as a tester whose
+contact has no email and open the matrix: Home's "Assigned to you" lists
+their functions.
+
+**The claims-mapping settings.** Delete
+`Authentication/OpenIdConnect/AzureAD/LoginClaimsMapping` and
+`Authentication/OpenIdConnect/AzureAD/RegistrationClaimsMapping`. They had no
+effect, and nothing in this design reads the contact's email. Set
+`Authentication/LoginTrackingEnabled` back to false, or delete it; nothing
+depends on it.
+
+**The profile email.** Keep Email read-only on the profile page. On this site
+the profile page is Power Pages' built-in one (`/profile`), and its fields
+come from the Dataverse form **Profile Web Form (Enhanced)** on Contact:
+make.powerapps.com > Tables > Contact > Forms > Profile Web Form (Enhanced) >
+Email > Properties > **Read-only**, then save and publish. The link no
+longer depends on it, but it stops a contact's email being edited to look
+like someone else's.
+
+**On the SharePoint backend** the page has no Portal Contact link and still
+finds the signed-in person by the contact's email, so a contact with no
+email sees "Nothing assigned" there.
 
 ---
 
@@ -795,7 +875,8 @@ Nobody has Read or Write on the table and the Web API is off for it, so a
 row cannot be re-pointed after it is made, and the flow processes a row only
 while its Status is empty or Pending, so it cannot be replayed. The person is
 then the Compliance Directory row whose Portal Contact is that contact
-(section 6).
+(section 6). That link comes from the person's Entra account, not the
+contact's email, so it works for a contact with no email.
 
 Why not the other two ways:
 
@@ -904,7 +985,10 @@ you than assume it. Delete the test rows afterwards.
    `_su_contact_value eq @{outputs('Get_action')?['body/_su_requestedby_value']} and su_active eq true`,
    top 1. None: Fail with "Your sign-in is not linked to a Compliance
    Directory record yet. Ask the compliance office to check your directory
-   email."
+   email." For the office, that means: the person's directory email must be
+   their Entra user principal name (NetID@syr.edu) or mail address, and the
+   CM - Link directory to contact run for their sign-in says why it stopped
+   (section 6).
 4. **The target and its function, from Dataverse.** For a deadline, gap or
    flag action, Get a row by ID on that table (the action's Deadline, Gap or
    Flag) and take **its own** Compliance Function; if the action also names a
@@ -1027,7 +1111,9 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
    in SharePoint.
 5. Build the five dataflows (section 3), run them in order, and reconcile
    against the baseline counts.
-6. Build CM - Link directory to contact and CM - Process portal action, add
+6. Check what External Identity Username holds, then build CM - Link
+   directory to contact, CM - Link contact to directory and its one-off copy
+   (section 6), and CM - Process portal action; add
    the action flow to the site, set `ComplianceMatrix/Flow/Action`. Set up
    the CM Portal Action form and its two pages, and run the spoof test
    (section 8).

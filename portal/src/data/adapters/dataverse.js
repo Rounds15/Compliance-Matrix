@@ -59,7 +59,7 @@ const TABLE_OF = {
 const SELECT = {
   su_riskarea: "su_riskareaid,su_name,su_colorhex,su_sortorder",
   su_domain: "su_domainid,su_name,_su_riskarea_value",
-  su_compliancedirectory: "su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active",
+  su_compliancedirectory: "su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value",
   su_compliancefunction: "su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value",
   su_functionownership: "su_functionownershipid,_su_function_value,_su_person_value,su_role,su_subrole",
   su_compliancedeadline: "su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes",
@@ -74,7 +74,9 @@ export function mapTables(t) {
   if (t.domains) out.domains = t.domains.map(r => ({ id: r.su_domainid, name: r.su_name, riskAreaId: r._su_riskarea_value || null }));
   if (t.people) out.people = t.people.filter(r => r.su_active !== false).map(r => ({
     id: r.su_compliancedirectoryid, name: r.su_name, email: r.su_email || "", title: r.su_jobtitle || "",
-    unit: r.su_unit || "", phone: r.su_phone || "", location: r.su_location || "", netid: r.su_netid || ""
+    unit: r.su_unit || "", phone: r.su_phone || "", location: r.su_location || "", netid: r.su_netid || "",
+    /* the signed-in contact this person is, set server-side (docs/DATAVERSE-MIGRATION.md, section 6) */
+    contactId: r._su_contact_value || null
   }));
   if (t.functions) out.functions = t.functions.map(r => ({
     id: r.su_compliancefunctionid, code: r.su_functioncode || "", name: r.su_name,

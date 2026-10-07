@@ -81,7 +81,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     { name: "Resources", url: "/resources/", display_page_child_links: true, weblinks: [] },
     { name: "Contact", url: "/contact/", weblinks: [] }] } };
   const sitemap = { "/resources/": { children: [{ title: "Forms", url: "/resources/forms/", description: "<p>Every form the office uses</p>" }] } };
-  const contactId = user ? (CONTACTS[String(user.email).toLowerCase()] || "c0ffee00-0000-4000-8000-000000000001") : null;
+  const contactId = user ? (user.contactId || CONTACTS[String(user.email).toLowerCase()] || "c0ffee00-0000-4000-8000-000000000001") : null;
   const userCtx = () => (user ? { emailaddress1: user.email, fullname: user.name, id: contactId, roles: admin ? ["Authenticated Users", "Compliance Matrix Administrators"] : ["Authenticated Users"] } : null);
 
   /* ---------------- SharePoint: value checks per column kind ---------------- */

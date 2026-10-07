@@ -223,9 +223,10 @@ tables:
       - name: su_contact
         displayName: Portal Contact
         description: >-
-          The person's Power Pages contact, matched by email. Set by the CM -
-          Link directory to contact flow, never by the dataflow, so table
-          permissions can scope rows to the signed-in person.
+          The person's Power Pages contact, matched through their Microsoft
+          Entra account (the External Identity's object ID, looked up for its
+          UPN and mail), not the contact's email. Set by the CM - Link
+          directory to contact flows, never by the dataflow or the browser.
         type: Lookup
         target: contact
         relationshipName: su_contact_su_compliancedirectory

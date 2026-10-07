@@ -490,7 +490,7 @@
             <displayname description="Portal Contact" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="The person's Power Pages contact, matched by email. Set by the CM - Link directory to contact flow, never by the dataflow, so table permissions can scope rows to the signed-in person." languagecode="1033"/>
+            <Description description="The person's Power Pages contact, matched through their Microsoft Entra account (the External Identity's object ID, looked up for its UPN and mail), not the contact's email. Set by the CM - Link directory to contact flows, never by the dataflow or the browser." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_legacyspid">
