@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" WorkflowId="{f26fab86-8ccf-5d75-afee-09c1ef199510}" Name="CM - Link existing sign-ins">
+  <JsonFileName>/Workflows/CMLinkexistingsignins-F26FAB86-8CCF-5D75-AFEE-09C1EF199510.json</JsonFileName>
+  <Type>1</Type>
+  <Subprocess>0</Subprocess>
+  <Category>5</Category>
+  <Mode>0</Mode>
+  <Scope>4</Scope>
+  <OnDemand>0</OnDemand>
+  <TriggerOnCreate>0</TriggerOnCreate>
+  <TriggerOnDelete>0</TriggerOnDelete>
+  <AsyncAutodelete>0</AsyncAutodelete>
+  <SyncWorkflowLogOnFailure>0</SyncWorkflowLogOnFailure>
+  <StateCode>0</StateCode>
+  <StatusCode>1</StatusCode>
+  <RunAs>1</RunAs>
+  <IsTransacted>1</IsTransacted>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <BusinessProcessType>0</BusinessProcessType>
+  <IsCustomProcessingStepAllowedForOtherPublishers>1</IsCustomProcessingStepAllowedForOtherPublishers>
+  <PrimaryEntity>none</PrimaryEntity>
+  <LocalizedNames>
+    <LocalizedName languagecode="1033" description="CM - Link existing sign-ins"/>
+  </LocalizedNames>
+  <Descriptions>
+    <Description languagecode="1033" description="Run by hand: links every Entra sign-in already on the site (section 6)."/>
+  </Descriptions>
+</Workflow>

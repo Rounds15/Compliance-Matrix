@@ -98,6 +98,10 @@
       <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
       <RootComponent type="1" schemaName="su_portalaction" behavior="0"/>
       <RootComponent type="1" schemaName="su_riskarea" behavior="0"/>
+      <RootComponent type="29" id="{4e033ef7-61bd-5c3d-9beb-2b4f9a4f2fb2}" behavior="0"/>
+      <RootComponent type="29" id="{a2bb433a-2fd4-56ae-bcca-ec3598eaa2cb}" behavior="0"/>
+      <RootComponent type="29" id="{c5a6a09b-c4cb-5fe9-aaed-77ea5c9cee34}" behavior="0"/>
+      <RootComponent type="29" id="{f26fab86-8ccf-5d75-afee-09c1ef199510}" behavior="0"/>
       <RootComponent type="9" schemaName="su_approle" behavior="0"/>
       <RootComponent type="9" schemaName="su_assessmentownerrole" behavior="0"/>
       <RootComponent type="9" schemaName="su_assessmentstatus" behavior="0"/>

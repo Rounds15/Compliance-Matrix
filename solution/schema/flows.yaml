@@ -1,0 +1,39 @@
+# =============================================================================
+# Settings the solution's cloud flows are generated with (tools/build_flows.py).
+# Change a value here, rebuild, and re-import; the flows read nothing else.
+# =============================================================================
+
+# Exactly as stored in adx_identityprovidername on an External Identity row
+# made by a Microsoft Entra sign-in to the site.
+identityProvider: https://sts.windows.net/4278a402-1a9e-4eb9-8414-ffb55a5fcf1e/
+
+# Where "not linked" notices and flow failure alerts go.
+alertTo: SyracuseComplianceMatrix@groups.syr.edu
+
+# The web role whose members may do any portal action (section 5 of
+# docs/DATAVERSE-MIGRATION.md); same as the site setting
+# ComplianceMatrix/AdminWebRole.
+adminWebRole: Compliance Matrix Administrators
+
+# The many-to-many relationship between Contact and its web roles on the
+# enhanced data model (make.powerapps.com > Tables > Contact > Relationships).
+webRoleRelationship: powerpagecomponent_mspp_webrole_contact
+
+# Connection references the flows use. Logical names carry the publisher
+# prefix; the post-import steps set each to a connection.
+connectionReferences:
+  dataverse:
+    logicalName: su_CMDataverse
+    displayName: CM - Microsoft Dataverse
+    api: shared_commondataserviceforapps
+    description: Reads and writes the Compliance Matrix tables and External Identities.
+  users:
+    logicalName: su_CMOffice365Users
+    displayName: CM - Office 365 Users
+    api: shared_office365users
+    description: Looks a signed-in person's Entra account up by object ID or user principal name.
+  outlook:
+    logicalName: su_CMOffice365Outlook
+    displayName: CM - Office 365 Outlook
+    api: shared_office365
+    description: Sends not-linked notices and failure alerts to the compliance office.

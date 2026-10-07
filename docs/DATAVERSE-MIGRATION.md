@@ -181,7 +181,9 @@ table, so the first import creates them:
 - the publisher **Syracuse University** (`syracuseuniversity`), prefix `su`,
   option value prefix 10000, so choice values start at 100000000;
 - the solution **Compliance Matrix** (`ComplianceMatrix`);
-- 16 tables and 14 global choices, all empty.
+- 16 tables and 14 global choices, all empty;
+- four cloud flows, imported turned off, and the three connection
+  references they use (After the import, below).
 
 1. Extract `ComplianceMatrix-solution-src.zip`. You get a `src` folder holding
    `Entities`, `OptionSets` and `Other`.
@@ -205,6 +207,53 @@ table, so the first import creates them:
    does not see what an import added until this is done; **Clear cache**
    alone is not enough. Do this after every solution import, the first and
    each one after.
+
+### After the import: connections and flows
+
+The solution carries three **connection references** and four **cloud flows**.
+The flows import turned off; they need connections first.
+
+| Connection reference | Connector | Used by |
+|---|---|---|
+| CM - Microsoft Dataverse (su_CMDataverse) | Microsoft Dataverse | all four flows |
+| CM - Office 365 Users (su_CMOffice365Users) | Office 365 Users | the three link flows |
+| CM - Office 365 Outlook (su_CMOffice365Outlook) | Office 365 Outlook | all four flows (notices and failure alerts) |
+
+1. **Pick the account.** One licensed member account makes all three
+   connections and owns the flows: a service account if you have one,
+   otherwise you. Notices are sent from its mailbox. Section 6 lists what it
+   needs.
+2. **Set the connection references.** The import wizard may ask for them
+   (choose or create a connection for each, signed in as that account).
+   If it did not, or to check: Solutions > Compliance Matrix > Connection
+   references > each one > Edit > Connection > choose or add a connection >
+   Save. A reference with no connection shows a warning icon.
+3. **Check the web role relationship.** Tables > Contact > Relationships,
+   search "webrole". The many-to-many relationship to Web Role should be
+   `powerpagecomponent_mspp_webrole_contact`, the name the action flow uses to
+   find administrators. If yours is named differently, tell me before going
+   on.
+4. **Turn the flows on.** Solutions > Compliance Matrix > Cloud flows > each
+   flow > **Turn on**: CM - Process portal action, CM - Link directory to
+   contact, CM - Link contact to directory, and CM - Link existing sign-ins
+   (a manual flow still has to be on to run). Turning one on fails if its
+   connection references are empty or the data loss prevention policy splits
+   its connectors.
+5. **Add the action flow to the site.** Design Studio > Set up > **Cloud
+   flows** > + Add cloud flow > **CM - Process portal action**; roles
+   Compliance Matrix Testers and Compliance Matrix Administrators. Copy the
+   URL it shows (`/_api/cloudflow/v1.0/trigger/<id>`) into the site setting
+   **`ComplianceMatrix/Flow/Action`** (create the setting if it is not
+   there).
+6. **Clear config** on `/_services/about`.
+7. **Link the sign-ins made so far:** Cloud flows > CM - Link existing
+   sign-ins > **Run**. With an empty directory it links nobody and sends a
+   "not linked" notice for each sign-in; that is expected until the people
+   are in the directory (section 6 has a one-row test).
+
+If CM - Process portal action does not appear under Set up > Cloud flows,
+open it in Power Automate: its trigger should read "When Power Pages calls a
+flow". Tell me what it shows instead.
 
 The tables are user-owned: a row belongs to whoever created it (you, or the
 connection a dataflow or flow runs as). Ownership does not decide what the
@@ -736,77 +785,91 @@ Identity > Data. Find your own row (Contact = you) and note its **Username**
 and **Identity Provider** (adx_identityprovidername). Then Entra admin
 center > Users > you > Overview > **Object ID**.
 
-- **They match:** go on. Copy the Identity Provider value exactly; the flows
-  filter on it.
+- **They match:** go on. The flows filter on the Identity Provider value
+  `https://sts.windows.net/4278a402-1a9e-4eb9-8414-ffb55a5fcf1e/`, as stored
+  on your row; if another Entra provider is ever added, its sign-ins are
+  left alone.
 - **They differ:** Username is the sub claim. Stop and tell me; do not change
   the provider's settings to fix it, because existing sign-ins are matched
   on the value already stored.
 
+**The flows** are in the solution (section 2, After the import). They run as
+the account behind the solution's connection references, and send each
+notice to **SyracuseComplianceMatrix@groups.syr.edu**. Their settings (the
+Identity Provider value above, the alert address, the administrator web role)
+are in `solution/schema/flows.yaml`; a change there is a rebuild and re-import.
+
+| Flow | Starts when | Does |
+|---|---|---|
+| CM - Link directory to contact | an External Identity row is added for the Entra provider (`https://sts.windows.net/4278a402-1a9e-4eb9-8414-ffb55a5fcf1e/`) | looks the Username up in Entra, then links the contact as below |
+| CM - Link contact to directory | a Compliance Directory row is added, or its email changes, while it is active and has no Portal Contact | looks the email up in Entra, finds that account's sign-in on the site, then links as below; silent when the person has no Entra account or has not signed in yet |
+| CM - Link existing sign-ins | you run it (manual trigger) | the first flow's steps for every Entra sign-in already on the site; safe to run again, since a row already linked to the same contact is left as it is |
+
+**Safe to link.** For the person's Entra account, the flow looks for active
+Compliance Directory rows whose email is the account's user principal name or
+its mail address (Dataverse compares them without regard to case), then:
+
+| Found | Result |
+|---|---|
+| one row, Portal Contact empty, and the contact linked to no other row | **links** the row to the contact |
+| one row already linked to **this** contact | success, nothing changes, no email |
+| one row linked to a **different** contact | no change; notice: the link would move |
+| one row, but the contact is already linked to a **different** row | no change; notice |
+| no row | notice: the person is not in the directory, or their directory email is not their NetID address |
+| two rows | no change; notice |
+
+su_email is an alternate key, so two rows cannot share an email, and the
+flow does not test for that. Two rows can still come back in one case: the
+account's user principal name is one row's email and its mail address is
+another's, which means two people's rows. The flow refuses to choose.
+
+A guest or disabled account is left alone without a notice. A sign-in whose
+Username is not an Entra object ID gets a notice saying so. If a step fails
+for any other reason, the run fails and the office gets an alert with a link
+to the run.
+
 **Connector and permissions**
 
-- **Office 365 Users**, action **Get user profile (V2)**. Its **User (UPN)**
-  input takes a user principal name or an object ID. Set **Select fields** to
-  `id,userPrincipalName,mail,accountEnabled,userType` so nothing else is
-  read.
-- The connector reads Entra as the account its connection signs in with.
-  That is ordinary directory read access for a member account, and it
-  normally needs no admin consent or app registration. Use a licensed member account
-  that owns the solution's flows (a service account if you have one, not a
-  guest), and make the connection through a **connection reference** in the
-  solution.
-- The environment's data loss prevention policy must put **Office 365
-  Users** in the same group as **Microsoft Dataverse**, or the flow cannot be
-  saved. Ask IT if it is in another group.
+- **Office 365 Users**, action **Get user profile (V2)**. Its User (UPN)
+  input takes a user principal name or an object ID. The flows read only
+  `id,displayName,userPrincipalName,mail,accountEnabled,userType`.
+- The connector reads Entra as the account its connection signs in with:
+  ordinary directory read access for a member account, which normally needs
+  no admin consent or app registration. Use a licensed member account (a
+  service account if you have one, not a guest).
+- **Microsoft Dataverse**: the same account needs to read Contacts, External
+  Identities and web roles, and read and write the su_ tables, across the
+  organization. A System Administrator has this.
+- **Office 365 Outlook** sends the notices from that account's mailbox.
+- The environment's data loss prevention policy must put Office 365 Users,
+  Office 365 Outlook and Microsoft Dataverse in the same group, or the flows
+  cannot be turned on. Ask IT if they are not.
 - If the tenant restricts members from reading other users' profiles, Get
   user profile (V2) returns 403 for other people; IT can grant the
-  connection account directory read access, or exempt it.
+  connection account directory read access.
 
-**CM - Link directory to contact** (automated cloud flow, in the solution)
+**Test the link before the data load.** Compliance Directory is empty until
+the dataflows run, so add one row by hand: make.powerapps.com > Tables >
+Compliance Directory > Data > **New row**, with:
 
-1. Trigger: Dataverse, **When a row is added, modified or deleted**, change
-   type **Added**, table **External Identities**. Trigger condition:
-   `@equals(triggerOutputs()?['body/adx_identityprovidername'], '<the Identity Provider value you copied>')`.
-2. **Get user profile (V2)**, User (UPN) = the row's **Username**, Select
-   fields as above. On failure (no such user): stop and email the compliance
-   office with the contact's name. If **userType** is not `Member` or
-   **accountEnabled** is false, stop.
-3. List rows, **Compliance Directory**, filter
-   `(su_email eq '<userPrincipalName>' or su_email eq '<mail>') and su_active eq true`
-   (leave out the mail clause when mail is empty; Dataverse compares text
-   without regard to case).
-4. Continue only when exactly one row comes back, **its Portal Contact is
-   empty**, and no other directory row already has this contact (List rows,
-   `_su_contact_value eq <the row's Contact>`). Otherwise stop and email the
-   compliance office: two directory rows share the address, the person is
-   not in the directory, or the link would move. An administrator sets or
-   changes a link by hand.
-5. Update a row, Compliance Directory, that row's ID, **Portal Contact** =
-   `contacts(<the External Identity's Contact>)`.
+- **Full Name**: your name
+- **Email**: your NetID address, exactly your user principal name (for
+  example `ajhepbur@syr.edu`)
+- **Active**: Yes
 
-**CM - Link contact to directory** (automated cloud flow, in the solution):
-the same from the other side, for someone who signed in before they were
-added to the directory, or whose directory email was corrected.
+Leave everything else empty, including Legacy SharePoint ID and Portal
+Contact. With the flows on, saving the row starts CM - Link contact to
+directory, which finds your sign-in and sets **Portal Contact** to your
+contact (9d4cbc03-...) within a minute or two. To test the manual flow too,
+clear Portal Contact and run CM - Link existing sign-ins. Then sign in as a
+tester whose contact has no email and open the matrix: Home's "Assigned to
+you" lists the functions their directory row owns.
 
-1. Trigger: **When a row is added or modified**, Compliance Directory,
-   select columns `su_email`.
-2. Get user profile (V2), User (UPN) = **su_email**. No such user: stop
-   (the person may not have an Entra account yet).
-3. List rows, External Identities, filter
-   `adx_username eq '<id>' and adx_identityprovidername eq '<the Identity Provider value>'`.
-   None: stop (they have not signed in yet; the first flow links them when
-   they do).
-4. Link under the same three conditions as step 4 above.
-
-**For people who signed in before these flows existed** (you included): save a
-copy of CM - Link directory to contact, replace its trigger with **Manually
-trigger a flow** plus List rows on External Identities filtered on the
-Identity Provider value, put steps 2 to 5 inside an **Apply to each**, and run
-it once. Then delete the copy.
-
-**Test it.** After the one-off run, open your own Compliance Directory row:
-Portal Contact is your contact (9d4cbc03-...). Then sign in as a tester whose
-contact has no email and open the matrix: Home's "Assigned to you" lists
-their functions.
+**Delete this row before the first dataflow load.** It has no Legacy
+SharePoint ID, so the dataflow would delete it anyway, and until it does the
+row holds your email under the su_email key, which can make the dataflow's
+row for you fail. Once the dataflow has loaded your real row, CM - Link
+contact to directory links it.
 
 **The claims-mapping settings.** Delete
 `Authentication/OpenIdConnect/AzureAD/LoginClaimsMapping` and
@@ -971,16 +1034,16 @@ To on contact, which is safe here only because no table a tester can write
 through the Web API has a contact lookup. I would rather confirm that with
 you than assume it. Delete the test rows afterwards.
 
-**Build** (instant cloud flow, in the solution):
+**What the flow does.** CM - Process portal action is in the solution (section
+2, After the import); these steps describe it, so you can follow a run.
 
 1. Trigger: **Power Pages > When Power Pages calls a flow**, one Text input
-   `request`. The page sends `{"actionId":"<the row's ID>"}` in it; read the
-   ID with `json(triggerBody()?['text'])?['actionId']` (the input's key may
-   show as `text` or `request` in the trigger's outputs; use the one there).
-2. **Get a row by ID**, Portal Actions, that ID. The form leaves Status
-   empty: if Status is Done or Failed, go to Fail with "That action has
-   already been processed." If Requested By is empty, go to Fail with "This
-   action has no requester."
+   `request`. The page sends `{"actionId":"<the row's ID>"}` in it.
+2. **Get a row by ID**, Portal Actions, that ID. None: Fail with "That action
+   does not exist." The form leaves Status empty: if Status is Done or
+   Failed, Fail with "That action has already been processed." (the row is
+   left as it was). If Requested By is empty, Fail with "This action has no
+   requester."
 3. **List rows**, Compliance Directory, filter
    `_su_contact_value eq @{outputs('Get_action')?['body/_su_requestedby_value']} and su_active eq true`,
    top 1. None: Fail with "Your sign-in is not linked to a Compliance
@@ -994,11 +1057,11 @@ you than assume it. Delete the test rows afterwards.
    Flag) and take **its own** Compliance Function; if the action also names a
    function and it differs, Fail. For Raise flag and Delete function, use the
    action's Compliance Function. Get that function row; missing: Fail.
-5. **Administrator?** List the contact's web roles and look for "Compliance
-   Matrix Administrators". On the enhanced data model, web roles are the
-   **Web Role** table (mspp_webrole) with a many-to-many relationship to
-   Contact; check its name under Tables > Contact > Relationships (it is
-   usually `powerpagecomponent_mspp_webrole_contact`).
+5. **Administrator?** The contact's web roles include "Compliance Matrix
+   Administrators". The flow reads them through the Contact to web role
+   relationship named in `solution/schema/flows.yaml`
+   (`powerpagecomponent_mspp_webrole_contact`; check it under Tables >
+   Contact > Relationships, section 2).
 6. **Owner?** List rows, Function Ownership, filter
    `_su_function_value eq <the function from step 4> and _su_person_value eq <the person from step 3>`,
    top 1. Any role counts (Executive, Unit, Compliance, General Counsel,
@@ -1025,17 +1088,17 @@ you than assume it. Delete the test rows afterwards.
    name, Resolved Date And Time = now.
 9. **Done:** update the action row, Status Done, Processed On = now; Return
    value(s) to Power Pages, Text `result` = `{"ok":true}`.
-10. **Fail** (and a scope with *run after: has failed*): update the action
-    row, Status Failed, Result = the message; return
-    `{"ok":false,"error":"<message>"}`.
+10. **Fail:** update the action row, Status Failed, Result = the message;
+    return `{"ok":false,"error":"<message>"}`.
+11. **Anything else goes wrong:** the row is marked Failed, the page is told
+    "The change could not be saved. The compliance office has been told.",
+    the office gets an alert with a link to the run, and the run fails.
 
-**Add to the site:** Set up > Cloud flows > + Add cloud flow, roles Testers and
-Administrators. Copy its URL (`/_api/cloudflow/v1.0/trigger/<id>`) into the
-site setting **`ComplianceMatrix/Flow/Action`**.
+The portal's tests run this flow's generated definition (the same file the
+solution imports) through `portal/test/flow-runner.mjs`, so the end-to-end
+tests drive the real steps. What they cannot check is how Power Automate
+reads the definition; the import and the first runs do that.
 
-`portal/test/mock-portal.mjs` implements this flow step for step, and the
-end-to-end tests drive the portal against it, so a flow built to this table
-behaves the way the tests expect.
 
 ---
 
@@ -1111,11 +1174,10 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
    in SharePoint.
 5. Build the five dataflows (section 3), run them in order, and reconcile
    against the baseline counts.
-6. Check what External Identity Username holds, then build CM - Link
-   directory to contact, CM - Link contact to directory and its one-off copy
-   (section 6), and CM - Process portal action; add
-   the action flow to the site, set `ComplianceMatrix/Flow/Action`. Set up
-   the CM Portal Action form and its two pages, and run the spoof test
+6. Check what External Identity Username holds (section 6). Set the
+   connection references, turn the four flows on, add the action flow to the
+   site and set `ComplianceMatrix/Flow/Action` (section 2, After the import).
+   Set up the CM Portal Action form and its two pages, and run the spoof test
    (section 8).
 7. Create the Testers web role; set the page's permissions to Testers and
    Administrators; add the table permissions, column permissions and Web API

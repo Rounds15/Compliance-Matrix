@@ -455,7 +455,7 @@ def check_solution_src() -> None:
 
     schema_path = SCHEMA_DIR / "dataverse-schema.yaml"
     schema = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
-    for err in build_solution.check_solution(SRC, schema):
+    for err in build_solution.check_solution(SRC, schema, build_solution.build_flows.load_settings(SCHEMA_DIR / "flows.yaml")):
         fail(f"solution/src: {err}")
     with tempfile.TemporaryDirectory() as tmp:
         fresh = pathlib.Path(tmp) / "src"

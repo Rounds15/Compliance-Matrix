@@ -1,0 +1,1305 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMDataverse"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Outlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerPages",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "text"
+              ],
+              "properties": {
+                "text": {
+                  "title": "request",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "The request, as JSON: {\"actionId\": \"<Portal Action ID>\"}",
+                  "x-ms-content-hint": "TEXT"
+                }
+              }
+            }
+          }
+        }
+      },
+      "actions": {
+        "Initialize_ActionId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ActionId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          }
+        },
+        "Initialize_Error": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Error",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ActionId": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "Read_request": {
+              "type": "SetVariable",
+              "inputs": {
+                "name": "ActionId",
+                "value": "@{coalesce(json(triggerBody()?['text'])?['actionId'], '')}"
+              },
+              "runAfter": {}
+            },
+            "Get_action": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_portalactions",
+                  "recordId": "@{variables('ActionId')}",
+                  "$select": "su_portalactionid,su_name,su_action,su_status,su_reason,_su_requestedby_value,_su_function_value,_su_deadline_value,_su_gap_value,_su_flag_value"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Read_request": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Action_missing": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), not(equals(actions('Get_action')?['status'], 'Succeeded')))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Action_missing": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That action does not exist."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Get_action": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            },
+            "Already_processed": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), or(equals(body('Get_action')?['su_status'], 100000131), equals(body('Get_action')?['su_status'], 100000132)))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Already_processed": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That action has already been processed."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Action_missing": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "No_requester": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), empty(coalesce(body('Get_action')?['_su_requestedby_value'], '')))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_No_requester": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "This action has no requester."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Already_processed": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Find_person": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_compliancedirectorys",
+                  "$filter": "@{concat('_su_contact_value eq ', coalesce(body('Get_action')?['_su_requestedby_value'], '00000000-0000-0000-0000-000000000000'), ' and su_active eq true')}",
+                  "$select": "su_compliancedirectoryid,su_name",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "No_requester": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Not_linked": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), equals(length(body('Find_person')?['value']), 0))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Not_linked": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "Your sign-in is not linked to a Compliance Directory record yet. Ask the compliance office to check your directory email."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Find_person": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Target_table": {
+              "type": "Compose",
+              "inputs": "@if(or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121)), 'su_compliancedeadlines', if(equals(body('Get_action')?['su_action'], 100000122), 'su_compliancegaps', if(equals(body('Get_action')?['su_action'], 100000123), 'su_functionflags', '')))",
+              "runAfter": {
+                "Not_linked": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Find_target": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "@{if(not(empty(outputs('Target_table'))), outputs('Target_table'), 'su_portalactions')}",
+                  "$filter": "@{concat(if(not(empty(outputs('Target_table'))), substring(outputs('Target_table'), 0, sub(length(outputs('Target_table')), 1)), 'su_portalaction'), 'id eq ', coalesce(if(or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121)), body('Get_action')?['_su_deadline_value'], if(equals(body('Get_action')?['su_action'], 100000122), body('Get_action')?['_su_gap_value'], if(equals(body('Get_action')?['su_action'], 100000123), body('Get_action')?['_su_flag_value'], null))), '00000000-0000-0000-0000-000000000000'))}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Target_table": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Target_missing": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(not(empty(outputs('Target_table'))), equals(length(body('Find_target')?['value']), 0)))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Target_missing": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That record no longer exists."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Find_target": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Other_function": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(not(empty(outputs('Target_table'))), not(empty(coalesce(body('Get_action')?['_su_function_value'], ''))), not(equals(first(body('Find_target')?['value'])?['_su_function_value'], body('Get_action')?['_su_function_value']))))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Other_function": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That record is not on this function."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Target_missing": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Find_function": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_compliancefunctions",
+                  "$filter": "@{concat('su_compliancefunctionid eq ', coalesce(if(not(empty(outputs('Target_table'))), first(body('Find_target')?['value'])?['_su_function_value'], body('Get_action')?['_su_function_value']), '00000000-0000-0000-0000-000000000000'))}",
+                  "$select": "su_compliancefunctionid,su_name,su_functioncode,su_legacyspid",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Other_function": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Find_web_roles": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "contacts",
+                  "$filter": "@{concat('contactid eq ', coalesce(body('Get_action')?['_su_requestedby_value'], '00000000-0000-0000-0000-000000000000'))}",
+                  "$select": "contactid",
+                  "$expand": "powerpagecomponent_mspp_webrole_contact($select=name)",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Find_function": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Administrator_roles": {
+              "type": "Query",
+              "inputs": {
+                "from": "@coalesce(first(body('Find_web_roles')?['value'])?['powerpagecomponent_mspp_webrole_contact'], json('[]'))",
+                "where": "@equals(item()?['name'], 'Compliance Matrix Administrators')"
+              },
+              "runAfter": {
+                "Find_web_roles": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Find_ownership": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_functionownerships",
+                  "$filter": "@{concat('_su_function_value eq ', coalesce(first(body('Find_function')?['value'])?['su_compliancefunctionid'], '00000000-0000-0000-0000-000000000000'), ' and _su_person_value eq ', coalesce(first(body('Find_person')?['value'])?['su_compliancedirectoryid'], '00000000-0000-0000-0000-000000000000'))}",
+                  "$select": "su_functionownershipid",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Administrator_roles": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Not_allowed": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), or(equals(length(body('Find_function')?['value']), 0), not(or(greater(length(body('Administrator_roles')), 0), equals(body('Get_action')?['su_action'], 100000124), and(greater(length(body('Find_ownership')?['value']), 0), or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121), equals(body('Get_action')?['su_action'], 100000122)))))))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Not_allowed": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "You are not allowed to do that on this function."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Find_ownership": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "No_reason": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(equals(body('Get_action')?['su_action'], 100000124), empty(trim(coalesce(body('Get_action')?['su_reason'], '')))))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_No_reason": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "A flag needs a reason."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Not_allowed": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Do_the_work": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@empty(variables('Error'))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Switch_on_action_type": {
+                  "type": "Switch",
+                  "expression": "@body('Get_action')?['su_action']",
+                  "cases": {
+                    "Complete_deadline": {
+                      "case": 100000120,
+                      "actions": {
+                        "Update_deadline_complete": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancedeadlines",
+                              "recordId": "@{first(body('Find_target')?['value'])?['su_compliancedeadlineid']}",
+                              "item/su_completeddate": "@{convertFromUtc(utcNow(), 'Eastern Standard Time', 'yyyy-MM-dd')}",
+                              "item/su_completedon": "@{utcNow()}",
+                              "item/su_completedreason": "@{body('Get_action')?['su_reason']}",
+                              "item/su_completedbydisplayname": "@{first(body('Find_person')?['value'])?['su_name']}",
+                              "item/su_completedby@odata.bind": "@{concat('su_compliancedirectorys(', first(body('Find_person')?['value'])?['su_compliancedirectoryid'], ')')}",
+                              "item/su_complete": "@equals(first(body('Find_target')?['value'])?['su_cadence'], 100000016)"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "Archive_completion": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_archives",
+                              "item/su_name": "@{substring(concat('Deadline Completed - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Deadline Completed - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                              "item/su_recordtype": "Deadline Completion",
+                              "item/su_eventtype": "Completed",
+                              "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                              "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                              "item/su_resolvedat": "@{utcNow()}",
+                              "item/su_reason": "@{body('Get_action')?['su_reason']}",
+                              "item/su_completedoccurrence": "@{coalesce(first(body('Find_target')?['value'])?['su_duedate'], '')}",
+                              "item/su_cadence": "@{coalesce(first(body('Find_target')?['value'])?['su_cadence@OData.Community.Display.V1.FormattedValue'], '')}",
+                              "item/su_sourceitemid": "@first(body('Find_target')?['value'])?['su_legacyspid']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Update_deadline_complete": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "Reverse_completion": {
+                      "case": 100000121,
+                      "actions": {
+                        "Update_deadline_reverse": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancedeadlines",
+                              "recordId": "@{first(body('Find_target')?['value'])?['su_compliancedeadlineid']}",
+                              "item/su_completeddate": "@null",
+                              "item/su_completedon": "@null",
+                              "item/su_completedreason": "@null",
+                              "item/su_completedbydisplayname": "@null",
+                              "item/su_completedby@odata.bind": "@null",
+                              "item/su_complete": false
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "Archive_reversal": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_archives",
+                              "item/su_name": "@{substring(concat('Deadline Reversed - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Deadline Reversed - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                              "item/su_recordtype": "Deadline Completion",
+                              "item/su_eventtype": "Reversed",
+                              "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                              "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                              "item/su_resolvedat": "@{utcNow()}",
+                              "item/su_reason": "@{body('Get_action')?['su_reason']}",
+                              "item/su_completedoccurrence": "@{coalesce(first(body('Find_target')?['value'])?['su_duedate'], '')}",
+                              "item/su_cadence": "@{coalesce(first(body('Find_target')?['value'])?['su_cadence@OData.Community.Display.V1.FormattedValue'], '')}",
+                              "item/su_sourceitemid": "@first(body('Find_target')?['value'])?['su_legacyspid']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Update_deadline_reverse": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "Close_gap": {
+                      "case": 100000122,
+                      "actions": {
+                        "Update_gap": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancegaps",
+                              "recordId": "@{first(body('Find_target')?['value'])?['su_compliancegapid']}",
+                              "item/su_status": 100000021,
+                              "item/su_closeddate": "@{convertFromUtc(utcNow(), 'Eastern Standard Time', 'yyyy-MM-dd')}",
+                              "item/su_closenote": "@if(empty(coalesce(body('Get_action')?['su_reason'], '')), null, body('Get_action')?['su_reason'])",
+                              "item/su_closedby@odata.bind": "@{concat('su_compliancedirectorys(', first(body('Find_person')?['value'])?['su_compliancedirectoryid'], ')')}"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        }
+                      }
+                    },
+                    "Resolve_flag": {
+                      "case": 100000123,
+                      "actions": {
+                        "Update_flag": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_functionflags",
+                              "recordId": "@{first(body('Find_target')?['value'])?['su_functionflagid']}",
+                              "item/su_status": 100000051,
+                              "item/su_clearedon": "@{convertFromUtc(utcNow(), 'Eastern Standard Time', 'yyyy-MM-dd')}",
+                              "item/su_clearedby@odata.bind": "@{concat('su_compliancedirectorys(', first(body('Find_person')?['value'])?['su_compliancedirectoryid'], ')')}"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "Archive_resolution": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_archives",
+                              "item/su_name": "@{substring(concat('Flag Resolved - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Flag Resolved - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                              "item/su_recordtype": "Flag Resolution",
+                              "item/su_eventtype": "Resolved",
+                              "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                              "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                              "item/su_resolvedat": "@{utcNow()}",
+                              "item/su_reason": "@{first(body('Find_target')?['value'])?['su_reason']}",
+                              "item/su_sourceitemid": "@first(body('Find_target')?['value'])?['su_legacyspid']",
+                              "item/su_flaggedby": "@{coalesce(first(body('Find_target')?['value'])?['_su_flaggedby_value@OData.Community.Display.V1.FormattedValue'], '')}",
+                              "item/su_flaggeddate": "@{coalesce(first(body('Find_target')?['value'])?['su_flaggedon'], '')}",
+                              "item/su_flagsource": "@{if(equals(first(body('Find_target')?['value'])?['su_source'], 100000111), 'Survey', 'Manual')}"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Update_flag": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "Raise_flag": {
+                      "case": 100000124,
+                      "actions": {
+                        "Add_flag": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_functionflags",
+                              "item/su_name": "@{substring(coalesce(first(body('Find_function')?['value'])?['su_name'], ''), 0, min(400, length(coalesce(first(body('Find_function')?['value'])?['su_name'], ''))))}",
+                              "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                              "item/su_reason": "@{body('Get_action')?['su_reason']}",
+                              "item/su_status": 100000050,
+                              "item/su_source": 100000110,
+                              "item/su_flaggedon": "@{convertFromUtc(utcNow(), 'Eastern Standard Time', 'yyyy-MM-dd')}",
+                              "item/su_flaggedby@odata.bind": "@{concat('su_compliancedirectorys(', first(body('Find_person')?['value'])?['su_compliancedirectoryid'], ')')}"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        }
+                      }
+                    },
+                    "Delete_function": {
+                      "case": 100000125,
+                      "actions": {
+                        "List_gaps": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "ListRecords",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancegaps",
+                              "$filter": "@{concat('_su_function_value eq ', first(body('Find_function')?['value'])?['su_compliancefunctionid'])}",
+                              "$select": "su_name,su_legacyspid"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "For_each_gap": {
+                          "type": "Foreach",
+                          "foreach": "@body('List_gaps')?['value']",
+                          "actions": {
+                            "Archive_gap": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "CreateRecord",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                                },
+                                "parameters": {
+                                  "entityName": "su_archives",
+                                  "item/su_name": "@{substring(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                                  "item/su_recordtype": "Function Deleted",
+                                  "item/su_eventtype": "Deleted",
+                                  "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                                  "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                                  "item/su_resolvedat": "@{utcNow()}",
+                                  "item/su_reason": "@{concat('Gap: ', coalesce(items('For_each_gap')?['su_name'], ''))}",
+                                  "item/su_sourceitemid": "@items('For_each_gap')?['su_legacyspid']"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              },
+                              "runAfter": {}
+                            }
+                          },
+                          "runtimeConfiguration": {
+                            "concurrency": {
+                              "repetitions": 1
+                            }
+                          },
+                          "runAfter": {
+                            "List_gaps": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "List_deadlines": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "ListRecords",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancedeadlines",
+                              "$filter": "@{concat('_su_function_value eq ', first(body('Find_function')?['value'])?['su_compliancefunctionid'])}",
+                              "$select": "su_duedate,su_cadence,su_legacyspid"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "For_each_gap": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "For_each_deadline": {
+                          "type": "Foreach",
+                          "foreach": "@body('List_deadlines')?['value']",
+                          "actions": {
+                            "Archive_deadline": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "CreateRecord",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                                },
+                                "parameters": {
+                                  "entityName": "su_archives",
+                                  "item/su_name": "@{substring(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                                  "item/su_recordtype": "Function Deleted",
+                                  "item/su_eventtype": "Deleted",
+                                  "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                                  "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                                  "item/su_resolvedat": "@{utcNow()}",
+                                  "item/su_reason": "@{concat('Deadline: ', if(empty(coalesce(items('For_each_deadline')?['su_duedate'], '')), '', formatDateTime(items('For_each_deadline')?['su_duedate'], 'MM/dd/yyyy')), ' ', coalesce(items('For_each_deadline')?['su_cadence@OData.Community.Display.V1.FormattedValue'], ''))}",
+                                  "item/su_sourceitemid": "@items('For_each_deadline')?['su_legacyspid']"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              },
+                              "runAfter": {}
+                            }
+                          },
+                          "runtimeConfiguration": {
+                            "concurrency": {
+                              "repetitions": 1
+                            }
+                          },
+                          "runAfter": {
+                            "List_deadlines": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "List_flags": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "ListRecords",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_functionflags",
+                              "$filter": "@{concat('_su_function_value eq ', first(body('Find_function')?['value'])?['su_compliancefunctionid'])}",
+                              "$select": "su_reason,su_legacyspid"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "For_each_deadline": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "For_each_flag": {
+                          "type": "Foreach",
+                          "foreach": "@body('List_flags')?['value']",
+                          "actions": {
+                            "Archive_flag": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "CreateRecord",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                                },
+                                "parameters": {
+                                  "entityName": "su_archives",
+                                  "item/su_name": "@{substring(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                                  "item/su_recordtype": "Function Deleted",
+                                  "item/su_eventtype": "Deleted",
+                                  "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                                  "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                                  "item/su_resolvedat": "@{utcNow()}",
+                                  "item/su_reason": "@{concat('Flag: ', coalesce(items('For_each_flag')?['su_reason'], ''))}",
+                                  "item/su_sourceitemid": "@items('For_each_flag')?['su_legacyspid']"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              },
+                              "runAfter": {}
+                            }
+                          },
+                          "runtimeConfiguration": {
+                            "concurrency": {
+                              "repetitions": 1
+                            }
+                          },
+                          "runAfter": {
+                            "List_flags": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "List_owners": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "ListRecords",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_functionownerships",
+                              "$filter": "@{concat('_su_function_value eq ', first(body('Find_function')?['value'])?['su_compliancefunctionid'])}",
+                              "$select": "_su_person_value,su_role,su_legacyspid"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "For_each_flag": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "For_each_owner": {
+                          "type": "Foreach",
+                          "foreach": "@body('List_owners')?['value']",
+                          "actions": {
+                            "Archive_owner": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "CreateRecord",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                                },
+                                "parameters": {
+                                  "entityName": "su_archives",
+                                  "item/su_name": "@{substring(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                                  "item/su_recordtype": "Function Deleted",
+                                  "item/su_eventtype": "Deleted",
+                                  "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                                  "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                                  "item/su_resolvedat": "@{utcNow()}",
+                                  "item/su_reason": "@{concat('Owner: ', coalesce(items('For_each_owner')?['_su_person_value@OData.Community.Display.V1.FormattedValue'], ''), ' (', coalesce(items('For_each_owner')?['su_role@OData.Community.Display.V1.FormattedValue'], ''), ')')}",
+                                  "item/su_sourceitemid": "@items('For_each_owner')?['su_legacyspid']"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              },
+                              "runAfter": {}
+                            }
+                          },
+                          "runtimeConfiguration": {
+                            "concurrency": {
+                              "repetitions": 1
+                            }
+                          },
+                          "runAfter": {
+                            "List_owners": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "Archive_function": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_archives",
+                              "item/su_name": "@{substring(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Function Deleted - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                              "item/su_recordtype": "Function Deleted",
+                              "item/su_eventtype": "Deleted",
+                              "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
+                              "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                              "item/su_resolvedat": "@{utcNow()}",
+                              "item/su_reason": "Function record deleted",
+                              "item/su_sourceitemid": "@first(body('Find_function')?['value'])?['su_legacyspid']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "For_each_owner": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "Delete_the_function": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "DeleteRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancefunctions",
+                              "recordId": "@{first(body('Find_function')?['value'])?['su_compliancefunctionid']}"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Archive_function": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default": {
+                    "actions": {
+                      "Set_Error_unknown": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "Error",
+                          "value": "That action type is not known."
+                        },
+                        "runAfter": {}
+                      }
+                    }
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "No_reason": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_Error": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Finish": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@empty(variables('Error'))",
+                  true
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Record_done": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "UpdateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_portalactions",
+                  "recordId": "@{variables('ActionId')}",
+                  "item/su_status": 100000131,
+                  "item/su_result": "@{'Done'}",
+                  "item/su_processedon": "@{utcNow()}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Reply_done": {
+              "type": "Response",
+              "kind": "PowerPages",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "result": "@{string(json('{\"ok\":true}'))}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "title": "result",
+                      "type": "string",
+                      "x-ms-dynamically-added": true
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Record_done": [
+                  "Succeeded",
+                  "Failed",
+                  "Skipped"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Has_an_action_row": {
+                "type": "If",
+                "expression": {
+                  "and": [
+                    {
+                      "equals": [
+                        "@and(equals(actions('Get_action')?['status'], 'Succeeded'), not(or(equals(body('Get_action')?['su_status'], 100000131), equals(body('Get_action')?['su_status'], 100000132))))",
+                        true
+                      ]
+                    }
+                  ]
+                },
+                "actions": {
+                  "Record_failed": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_commondataserviceforapps",
+                        "operationId": "UpdateRecord",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                      },
+                      "parameters": {
+                        "entityName": "su_portalactions",
+                        "recordId": "@{variables('ActionId')}",
+                        "item/su_status": 100000132,
+                        "item/su_result": "@{variables('Error')}",
+                        "item/su_processedon": "@{utcNow()}"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    },
+                    "runAfter": {}
+                  }
+                },
+                "else": {
+                  "actions": {}
+                },
+                "runAfter": {}
+              },
+              "Reply_refused": {
+                "type": "Response",
+                "kind": "PowerPages",
+                "inputs": {
+                  "statusCode": 200,
+                  "body": {
+                    "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', variables('Error')))}"
+                  },
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "result": {
+                        "title": "result",
+                        "type": "string",
+                        "x-ms-dynamically-added": true
+                      }
+                    }
+                  }
+                },
+                "runAfter": {
+                  "Has_an_action_row": [
+                    "Succeeded",
+                    "Failed"
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {
+            "Record_error": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "UpdateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_portalactions",
+                  "recordId": "@{variables('ActionId')}",
+                  "item/su_status": 100000132,
+                  "item/su_result": "The change could not be saved. The compliance office has been told.",
+                  "item/su_processedon": "@{utcNow()}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Reply_error": {
+              "type": "Response",
+              "kind": "PowerPages",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', 'The change could not be saved. The compliance office has been told.'))}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "title": "result",
+                      "type": "string",
+                      "x-ms-dynamically-added": true
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Record_error": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            },
+            "Alert_the_office": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                  "emailMessage/Subject": "Compliance Matrix: CM - Process portal action failed",
+                  "emailMessage/Body": "@{concat('<p>A portal action could not be processed. The person was told the change was not saved.</p><ul><li>Portal Action ID: ', variables('ActionId'), '</li></ul><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Reply_error": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            },
+            "Fail_the_run": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Failed",
+                "runError": {
+                  "code": "CMFlowFailed",
+                  "message": "CM - Process portal action failed; the office was emailed."
+                }
+              },
+              "runAfter": {
+                "Alert_the_office": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

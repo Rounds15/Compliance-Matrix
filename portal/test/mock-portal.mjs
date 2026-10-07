@@ -33,12 +33,14 @@ import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { Liquid } from "liquidjs";
 import { sharepointLists, dataverseTables, CONTACTS } from "./fixtures.mjs";
+import { loadFlows, runFlow, dataverseConnector, usersConnector, outlookConnector } from "./flow-runner.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DIST = join(HERE, "..", "dist");
 const SP_SCHEMA = JSON.parse(readFileSync(join(HERE, "sp-schema.json"), "utf8"));
 const DV_SCHEMA = JSON.parse(readFileSync(join(HERE, "dv-schema.json"), "utf8"));
 const TOKEN = "mock-antiforgery-token";
+const FLOWS = loadFlows();
 
 const READ_LISTS = ["Risk Areas", "Domains", "Compliance Directory", "Compliance Functions", "Accountability Structure", "Deadlines", "Flags List", "Gap List"];
 const MEMBER_OPS = ["create|Flags List", "create|Gap List", "create|Archive", "update|Deadlines", "update|Gap List"];
@@ -143,84 +145,25 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   const unwrap = f => Object.fromEntries(Object.entries(f).map(([k, v]) => [k, v && v.__metadata ? { Description: v.Description, Url: v.Url } : v]));
 
   /* ---------------- CM - Process portal action ----------------
-     The Dataverse flow in docs/DATAVERSE-MIGRATION.md, section 8, as the
-     tests run it: it trusts only the action row (whose Requested By the
-     basic form set on the server), resolves the person through su_contact,
-     checks they may act, does the work, writes who did it and the archive
-     entry, and records the outcome on the action row. */
-  const ACTIONS = { 100000120: "complete", 100000121: "reverse", 100000122: "close", 100000123: "resolve", 100000124: "flag", 100000125: "delete" };
-  const CADENCE_LABEL = { 100000010: "Annually", 100000011: "Semiannual", 100000012: "Quarterly", 100000013: "Monthly", 100000014: "Biennial", 100000015: "Ongoing", 100000016: "One-time" };
-  const ROLE_LABEL = { 100000030: "Executive Owner", 100000031: "Unit Owner", 100000032: "Compliance Owner", 100000033: "General Counsel", 100000034: "Support" };
-  const isoDay = () => new Date().toISOString().slice(0, 10);
-  const mdY = s => (s ? `${s.slice(5, 7)}/${s.slice(8, 10)}/${s.slice(0, 4)}` : "");
-  function processAction(actionId) {
-    const a = dv.su_portalactions.find(r => r.su_portalactionid === actionId);
-    if (!a) return { ok: false, error: "That action does not exist." };
-    const done = (ok, msg) => { a.su_status = ok ? 100000131 : 100000132; a.su_result = msg || ""; a.su_processedon = new Date().toISOString(); return ok ? { ok: true } : { ok: false, error: msg }; };
-    /* the form leaves Status empty; a processed row is Done or Failed */
-    if (a.su_status != null && a.su_status !== 100000130) return { ok: false, error: "That action has already been processed." };
-    if (!a._su_requestedby_value) return done(false, "This action has no requester.");
-    const person = dv.su_compliancedirectorys.find(p => p._su_contact_value === a._su_requestedby_value && p.su_active !== false);
-    if (!person) return done(false, "Your sign-in is not linked to a Compliance Directory record yet. Ask the compliance office to check your directory email.");
-    const kind = ACTIONS[a.su_action];
-    /* the function comes from the target row itself; a different function
-       named on the action is refused */
-    const target = { complete: ["su_compliancedeadlines", "su_compliancedeadlineid", a._su_deadline_value],
-      reverse: ["su_compliancedeadlines", "su_compliancedeadlineid", a._su_deadline_value],
-      close: ["su_compliancegaps", "su_compliancegapid", a._su_gap_value],
-      resolve: ["su_functionflags", "su_functionflagid", a._su_flag_value] }[kind];
-    const row = target && dv[target[0]].find(r => r[target[1]] === target[2]);
-    if (target && !row) return done(false, "That record no longer exists.");
-    if (row && a._su_function_value && a._su_function_value !== row._su_function_value) return done(false, "That record is not on this function.");
-    const fnId = row ? row._su_function_value : a._su_function_value;
-    const fn = dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === fnId);
-    const owns = fn && dv.su_functionownerships.some(o => o._su_function_value === fn.su_compliancefunctionid && o._su_person_value === person.su_compliancedirectoryid);
-    const allowed = admin || kind === "flag" || ((kind === "complete" || kind === "reverse" || kind === "close") && owns);
-    if (!fn || !allowed) return done(false, "You are not allowed to do that on this function.");
-    const now = new Date().toISOString();
-    const archive = (title, recordType, eventType, extra = {}) => dv.su_archives.push({
-      su_archiveid: randomUUID(), su_name: (title + " - " + fn.su_name).slice(0, 255), su_recordtype: recordType, su_eventtype: eventType,
-      su_archivedfunctionname: fn.su_name, su_functionnumber: fn.su_legacyspid ?? (Number(fn.su_functioncode) || null),
-      _su_function_value: fn.su_compliancefunctionid, su_resolvedby: person.su_name, su_resolvedat: now, ...extra });
-    if (kind === "complete" || kind === "reverse") {
-      const dl = row;
-      if (kind === "complete") Object.assign(dl, { su_completeddate: isoDay(), su_completedon: now, su_completedreason: a.su_reason, su_completedbydisplayname: person.su_name, _su_completedby_value: person.su_compliancedirectoryid, su_complete: dl.su_cadence === 100000016 });
-      else Object.assign(dl, { su_completeddate: null, su_completedon: null, su_completedreason: null, su_completedbydisplayname: null, _su_completedby_value: null, su_complete: false });
-      archive(kind === "complete" ? "Deadline Completed" : "Deadline Reversed", "Deadline Completion", kind === "complete" ? "Completed" : "Reversed",
-        { su_reason: a.su_reason, su_completedoccurrence: dl.su_duedate || "", su_cadence: CADENCE_LABEL[dl.su_cadence] || "", su_sourceitemid: dl.su_legacyspid ?? null });
-    } else if (kind === "close") {
-      const g = row;
-      Object.assign(g, { su_status: 100000021, su_closeddate: isoDay(), su_closenote: a.su_reason || null, _su_closedby_value: person.su_compliancedirectoryid });
-    } else if (kind === "resolve") {
-      const x = row;
-      Object.assign(x, { su_status: 100000051, su_clearedon: isoDay(), _su_clearedby_value: person.su_compliancedirectoryid });
-      const by = dv.su_compliancedirectorys.find(p => p.su_compliancedirectoryid === x._su_flaggedby_value);
-      archive("Flag Resolved", "Flag Resolution", "Resolved", { su_reason: x.su_reason, su_sourceitemid: x.su_legacyspid ?? null,
-        su_flaggedby: by ? by.su_name : "", su_flaggeddate: x.su_flaggedon || "", su_flagsource: x.su_source === 100000111 ? "Survey" : "Manual" });
-    } else if (kind === "flag") {
-      if (!String(a.su_reason || "").trim()) return done(false, "A flag needs a reason.");
-      dv.su_functionflags.push({ su_functionflagid: randomUUID(), su_name: fn.su_name.slice(0, 400), _su_function_value: fn.su_compliancefunctionid,
-        su_reason: a.su_reason, su_status: 100000050, su_source: 100000110, su_flaggedon: isoDay(), _su_flaggedby_value: person.su_compliancedirectoryid });
-    } else if (kind === "delete") {
-      const id = fn.su_compliancefunctionid, mine = r => r._su_function_value === id;
-      const name = pid => (dv.su_compliancedirectorys.find(p => p.su_compliancedirectoryid === pid) || {}).su_name || "";
-      const copy = (reason, item) => archive("Function Deleted", "Function Deleted", "Deleted", { su_reason: reason, su_sourceitemid: item ?? null });
-      dv.su_compliancegaps.filter(mine).forEach(g => copy("Gap: " + (g.su_name || ""), g.su_legacyspid));
-      dv.su_compliancedeadlines.filter(mine).forEach(d => copy("Deadline: " + mdY(d.su_duedate) + " " + (CADENCE_LABEL[d.su_cadence] || ""), d.su_legacyspid));
-      dv.su_functionflags.filter(mine).forEach(x => copy("Flag: " + (x.su_reason || ""), x.su_legacyspid));
-      dv.su_functionownerships.filter(mine).forEach(o => copy(`Owner: ${name(o._su_person_value)} (${ROLE_LABEL[o.su_role] || ""})`, o.su_legacyspid));
-      copy("Function record deleted", fn.su_legacyspid);
-      dv.su_compliancefunctions.splice(dv.su_compliancefunctions.indexOf(fn), 1);
-      for (const s of ["su_compliancedeadlines", "su_compliancegaps", "su_functionownerships", "su_functionflags"]) dv[s] = dv[s].filter(r => !mine(r));
-      a._su_function_value = null; // the lookup is cleared, not cascaded
-    }
-    return done(true, "Done");
+     The generated flow itself (solution/src/Workflows), run by
+     flow-runner.mjs over these tables. The signed-in contact holds the
+     administrator web role when the session is an administrator's. */
+  const ADMIN_ROLE = "Compliance Matrix Administrators", ROLE_REL = "powerpagecomponent_mspp_webrole_contact";
+  const contactRows = [...new Set([...Object.values(CONTACTS), contactId].filter(Boolean))].map(id => ({
+    contactid: id, fullname: id === contactId && user ? user.name : "Contact",
+    [ROLE_REL]: ["Authenticated Users", ...(id === contactId && admin ? [ADMIN_ROLE] : [])] }));
+  const outlook = outlookConnector();
+  const dataverse = dataverseConnector({ dv, schema: DV_SCHEMA, contacts: contactRows, roleRelationship: ROLE_REL });
+  function processAction(requestText) {
+    const r = runFlow(FLOWS["CM - Process portal action"], { trigger: { body: { text: requestText } }, dataverse, users: usersConnector([]), outlook });
+    if (!r.response) throw new Error("CM - Process portal action ended without replying: " + r.status);
+    return r.response.body;
   }
 
   async function flow(name, req, res) {
     const raw = await body(req);
-    let request;
-    try { request = JSON.parse(JSON.parse(raw).eventData).request; request = JSON.parse(request); }
+    let request, requestText;
+    try { requestText = JSON.parse(JSON.parse(raw).eventData).request; request = JSON.parse(requestText); }
     catch (e) { return fail(res, 400, "Body must be {eventData: '{\"request\": \"<json>\"}'}"); }
     log.push({ flow: name, request });
     const reply = obj => { res.writeHead(200, { "Content-Type": "application/json" }); res.end(JSON.stringify({ result: JSON.stringify(obj) })); };
@@ -240,7 +183,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         const users = [{ displayName: "Priya Raghavan", mail: "praghavan@syr.edu", jobTitle: "Director of Export Control", department: "Office of Research" }];
         return reply({ ok: true, users: users.filter(u => (u.displayName + u.mail).toLowerCase().includes(q)) });
       }
-      if (name === "action") return reply(processAction(request.actionId));
+      if (name === "action") { const out = processAction(requestText); res.writeHead(200, { "Content-Type": "application/json" }); return res.end(JSON.stringify(out)); }
       return reply({ ok: true, results: runOps(request.ops || [], name === "write") });
     } catch (e) {
       return reply({ ok: false, error: e.message });
@@ -454,5 +397,5 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   });
   await new Promise(r => server.listen(0, "127.0.0.1", r));
   const { port } = server.address();
-  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, close: () => new Promise(r => server.close(r)) };
+  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, emails: outlook.sent, close: () => new Promise(r => server.close(r)) };
 }

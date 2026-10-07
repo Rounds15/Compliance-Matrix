@@ -1,0 +1,305 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMDataverse"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_office365users": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Users"
+        },
+        "api": {
+          "name": "shared_office365users"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Outlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_a_sign_in_is_added": {
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/entityname": "adx_externalidentity",
+              "subscriptionRequest/scope": 4
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "conditions": [
+            {
+              "expression": "@equals(triggerOutputs()?['body/adx_identityprovidername'], 'https://sts.windows.net/4278a402-1a9e-4eb9-8414-ffb55a5fcf1e/')"
+            }
+          ]
+        }
+      },
+      "actions": {
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "Get_Entra_user": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365users",
+                  "operationId": "UserProfile_V2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365users"
+                },
+                "parameters": {
+                  "id": "@{triggerOutputs()?['body/adx_username']}",
+                  "$select": "id,displayName,userPrincipalName,mail,accountEnabled,userType"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Found_in_Entra": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@equals(actions('Get_Entra_user')?['status'], 'Succeeded')",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Is_a_member": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@and(equals(body('Get_Entra_user')?['userType'], 'Member'), equals(body('Get_Entra_user')?['accountEnabled'], true))",
+                          true
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Find_directory_row": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_compliancedirectorys",
+                          "$filter": "@{concat('(su_email eq ', concat('''', replace(toLower(coalesce(body('Get_Entra_user')?['userPrincipalName'], '')), '''', ''''''), ''''), if(empty(toLower(coalesce(body('Get_Entra_user')?['mail'], ''))), '', concat(' or su_email eq ', concat('''', replace(toLower(coalesce(body('Get_Entra_user')?['mail'], '')), '''', ''''''), ''''))), ') and su_active eq true')}",
+                          "$select": "su_compliancedirectoryid,su_name,su_email,_su_contact_value",
+                          "$top": 2
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {}
+                    },
+                    "Find_rows_linked_to_contact": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_compliancedirectorys",
+                          "$filter": "@{concat('_su_contact_value eq ', triggerOutputs()?['body/_adx_contactid_value'])}",
+                          "$select": "su_compliancedirectoryid",
+                          "$top": 2
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Find_directory_row": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Safe_to_link": {
+                      "type": "Compose",
+                      "inputs": "@if(equals(length(body('Find_directory_row')?['value']), 0), 'none', if(greater(length(body('Find_directory_row')?['value']), 1), 'ambiguous', if(equals(toLower(coalesce(first(body('Find_directory_row')?['value'])?['_su_contact_value'], '')), toLower(triggerOutputs()?['body/_adx_contactid_value'])), 'already', if(not(empty(coalesce(first(body('Find_directory_row')?['value'])?['_su_contact_value'], ''))), 'moved', if(greater(length(body('Find_rows_linked_to_contact')?['value']), 0), 'elsewhere', 'link')))))",
+                      "runAfter": {
+                        "Find_rows_linked_to_contact": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Link_or_tell_the_office": {
+                      "type": "Switch",
+                      "expression": "@outputs('Safe_to_link')",
+                      "cases": {
+                        "Link": {
+                          "case": "link",
+                          "actions": {
+                            "Set_Portal_Contact": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "UpdateRecord",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                                },
+                                "parameters": {
+                                  "entityName": "su_compliancedirectorys",
+                                  "recordId": "@{first(body('Find_directory_row')?['value'])?['su_compliancedirectoryid']}",
+                                  "item/su_contact@odata.bind": "@{concat('contacts(', triggerOutputs()?['body/_adx_contactid_value'], ')')}"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              },
+                              "runAfter": {}
+                            }
+                          }
+                        },
+                        "Already_linked": {
+                          "case": "already",
+                          "actions": {}
+                        }
+                      },
+                      "default": {
+                        "actions": {
+                          "Tell_the_office": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connectionName": "shared_office365",
+                                "operationId": "SendEmailV2",
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                              },
+                              "parameters": {
+                                "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                                "emailMessage/Subject": "Compliance Matrix: a sign-in is not linked to the directory",
+                                "emailMessage/Body": "@{concat('<p>A sign-in to the Compliance Matrix site could not be linked to the Compliance Directory, so the person cannot act on functions in the matrix yet.</p><p><b>Why:</b> ', if(equals(outputs('Safe_to_link'), 'none'), 'No active Compliance Directory row has this person''s user principal name or mail address as its email. Add them to the directory, or correct their directory email to their NetID address.', if(equals(outputs('Safe_to_link'), 'ambiguous'), 'Their user principal name and their mail address match two different Compliance Directory rows. Correct the row that is not theirs.', if(equals(outputs('Safe_to_link'), 'moved'), 'The Compliance Directory row with their email is already linked to a different contact. Check which contact is right, then change Portal Contact on the row by hand.', 'This contact is already linked to a different Compliance Directory row. Check which row is right, then change Portal Contact by hand.'))), '</p><ul><li>Name: ', coalesce(body('Get_Entra_user')?['displayName'], ''), '</li><li>User principal name: ', coalesce(body('Get_Entra_user')?['userPrincipalName'], ''), '</li><li>Mail: ', coalesce(body('Get_Entra_user')?['mail'], ''), '</li><li>Contact ID: ', triggerOutputs()?['body/_adx_contactid_value'], '</li></ul><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                                "emailMessage/Importance": "Normal"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            },
+                            "runAfter": {}
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Safe_to_link": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {
+                  "Tell_the_office_no_account": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_office365",
+                        "operationId": "SendEmailV2",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                      },
+                      "parameters": {
+                        "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                        "emailMessage/Subject": "Compliance Matrix: a sign-in is not linked to the directory",
+                        "emailMessage/Body": "@{concat('<p>A sign-in to the Compliance Matrix site has no matching Microsoft Entra account, so it was not linked to the Compliance Directory.</p><ul><li>Contact: ', coalesce(triggerOutputs()?['body/_adx_contactid_value@OData.Community.Display.V1.FormattedValue'], ''), '</li><li>Contact ID: ', triggerOutputs()?['body/_adx_contactid_value'], '</li><li>External Identity username: ', triggerOutputs()?['body/adx_username'], '</li></ul><p>If the username is not the person''s Entra object ID, the site stores the sub claim instead (docs/DATAVERSE-MIGRATION.md, section 6).</p><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                        "emailMessage/Importance": "Normal"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    },
+                    "runAfter": {}
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Entra_user": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Alert_the_office": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "SendEmailV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+              "emailMessage/Subject": "Compliance Matrix: CM - Link directory to contact failed",
+              "emailMessage/Body": "@{concat('<p>The flow CM - Link directory to contact failed. Open the run to see the step that failed.</p><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+              "emailMessage/Importance": "Normal"
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        },
+        "Fail_the_run": {
+          "type": "Terminate",
+          "inputs": {
+            "runStatus": "Failed",
+            "runError": {
+              "code": "CMFlowFailed",
+              "message": "CM - Link directory to contact failed; the office was emailed."
+            }
+          },
+          "runAfter": {
+            "Alert_the_office": [
+              "Succeeded",
+              "Failed"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

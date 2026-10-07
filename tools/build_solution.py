@@ -40,6 +40,9 @@ from xml.dom import minidom
 
 import yaml
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import build_flows  # noqa: E402 - the solution's cloud flows
+
 LCID = "1033"
 VERSION = "1.0"
 XSI = "http://www.w3.org/2001/XMLSchema-instance"
@@ -417,12 +420,43 @@ CUSTOMIZATION_SECTIONS = [
 ]
 
 
-def build_customizations() -> ET.Element:
+def build_customizations(flow_settings: dict) -> ET.Element:
     root = _root("ImportExportXml")
     for tag in CUSTOMIZATION_SECTIONS:
         _sub(root, tag)
+    # connection references stay in Customizations.xml when unpacked
+    refs = _sub(root, "connectionreferences")
+    for ref in flow_settings["connectionReferences"].values():
+        r = _sub(refs, "connectionreference", connectionreferencelogicalname=ref["logicalName"])
+        _sub(r, "connectionreferencedisplayname", ref["displayName"])
+        _sub(r, "connectorid", "/providers/Microsoft.PowerApps/apis/" + ref["api"])
+        _sub(r, "description", ref["description"])
+        _sub(r, "iscustomizable", "1")
+        _sub(r, "promptingbehavior", "0")
+        _sub(r, "statecode", "0")
+        _sub(r, "statuscode", "1")
     _sub(_sub(root, "Languages"), "Language", LCID)
     return root
+
+
+def build_workflow_data(flow: dict) -> ET.Element:
+    """Workflows/<stem>.json.data.xml, as `pac solution unpack` writes it. The
+    flow imports turned off (Draft); the post-import steps turn it on once its
+    connection references are set."""
+    w = _root("Workflow", WorkflowId="{" + flow["id"] + "}", Name=flow["name"])
+    _sub(w, "JsonFileName", f"/Workflows/{flow['stem']}.json")
+    for tag, value in [("Type", "1"), ("Subprocess", "0"), ("Category", "5"), ("Mode", "0"), ("Scope", "4"),
+                       ("OnDemand", "0"), ("TriggerOnCreate", "0"), ("TriggerOnDelete", "0"),
+                       ("AsyncAutodelete", "0"), ("SyncWorkflowLogOnFailure", "0"), ("StateCode", "0"),
+                       ("StatusCode", "1"), ("RunAs", "1"), ("IsTransacted", "1"), ("IntroducedVersion", "1.0.0.0"),
+                       ("IsCustomizable", "1"), ("BusinessProcessType", "0"),
+                       ("IsCustomProcessingStepAllowedForOtherPublishers", "1"), ("PrimaryEntity", "none")]:
+        _sub(w, tag, value)
+    names = _sub(w, "LocalizedNames")
+    _sub(names, "LocalizedName", languagecode=LCID, description=flow["name"])
+    descs = _sub(w, "Descriptions")
+    _sub(descs, "Description", languagecode=LCID, description=flow["description"])
+    return w
 
 
 ADDRESS_FIELDS = [
@@ -440,7 +474,7 @@ def _nil(parent: ET.Element, tag: str) -> None:
     _sub(parent, tag).set("xsi:nil", "true")
 
 
-def build_solution_xml(schema: dict) -> ET.Element:
+def build_solution_xml(schema: dict, flows: list[dict]) -> ET.Element:
     pub = schema["publisher"]
     sol = schema["solution"]
 
@@ -475,6 +509,9 @@ def build_solution_xml(schema: dict) -> ET.Element:
     comps = _sub(m, "RootComponents")
     for logical in sorted(schema["tables"]):
         _sub(comps, "RootComponent", type="1", schemaName=logical, behavior="0")
+    # pac orders root components by type as text: 1, 29, 9
+    for flow in sorted(flows, key=lambda f: f["id"]):
+        _sub(comps, "RootComponent", type="29", id="{" + flow["id"] + "}", behavior="0")
     for choice in sorted(schema["choices"]):
         _sub(comps, "RootComponent", type="9", schemaName=choice, behavior="0")
     _sub(m, "MissingDependencies")
@@ -532,7 +569,7 @@ def virtual_name_clashes(logical: str, attrs: dict, table: dict) -> list[str]:
     return errors
 
 
-def check_solution(out: pathlib.Path, schema: dict) -> list[str]:
+def check_solution(out: pathlib.Path, schema: dict, flow_settings: dict) -> list[str]:
     errors = []
 
     def parse(path: pathlib.Path):
@@ -558,6 +595,38 @@ def check_solution(out: pathlib.Path, schema: dict) -> list[str]:
             elif len(el):
                 errors.append(f"Customizations.xml: <{tag}> must be empty; its content "
                               "belongs in its own files")
+        refs = {r.get("connectionreferencelogicalname"): r.findtext("connectorid")
+                for r in cust.findall("connectionreferences/connectionreference")}
+        for ref in flow_settings["connectionReferences"].values():
+            if refs.get(ref["logicalName"]) != "/providers/Microsoft.PowerApps/apis/" + ref["api"]:
+                errors.append(f"Customizations.xml: connection reference {ref['logicalName']} missing or wrong")
+
+    # cloud flows: definition, data file and root component agree
+    root_ids = set()
+    sol_root = parse(out / "Other" / "Solution.xml")
+    if sol_root is not None:
+        root_ids = {c.get("id") for c in sol_root.iter("RootComponent") if c.get("type") == "29"}
+    by_logical = {r["api"]: r["logicalName"] for r in flow_settings["connectionReferences"].values()}
+    for data in sorted((out / "Workflows").glob("*.json.data.xml")):
+        w = parse(data)
+        if w is None:
+            continue
+        stem = data.name[:-len(".json.data.xml")]
+        if w.findtext("JsonFileName") != f"/Workflows/{stem}.json":
+            errors.append(f"{data.name}: JsonFileName does not name its own .json")
+        if w.get("WorkflowId") not in root_ids:
+            errors.append(f"{data.name}: flow is not a root component in Solution.xml")
+        try:
+            defn = json.loads((out / "Workflows" / f"{stem}.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            errors.append(f"{stem}.json: {e}")
+            continue
+        for api, ref in defn["properties"]["connectionReferences"].items():
+            if by_logical.get(api) != ref["connection"]["connectionReferenceLogicalName"]:
+                errors.append(f"{stem}.json: {api} does not use the solution's connection reference")
+        errors += [f"{stem}.json: {e}" for e in build_flows.lint(defn)]
+    if len(list((out / "Workflows").glob("*.json"))) != len(build_flows.FLOWS):
+        errors.append(f"Workflows: expected {len(build_flows.FLOWS)} flows")
 
     sol = parse(out / "Other" / "Solution.xml")
     if sol is not None:
@@ -643,10 +712,15 @@ def build_test_schema(schema: dict) -> dict:
     which refuses any Web API write the real tables would refuse."""
     out = {}
     for logical, table in sorted(schema["tables"].items()):
-        cols = {}
+        cols, labels, cascade = {}, {}, {}
         for col in solution_columns_of(table):
             cols[col["name"]] = "lookup:" + col["target"] if col["type"] == "Lookup" else col["type"]
-        out[logical] = {"columns": dict(sorted(cols.items())), "id": logical + "id", "set": logical + "s"}
+            if col["type"] == "Choice":
+                labels[col["name"]] = {str(o["value"]): o["label"] for o in schema["choices"][col["choice"]]["options"]}
+            if col["type"] == "Lookup" and col.get("cascade", {}).get("delete") == "Cascade":
+                cascade[col["name"]] = "Cascade"
+        out[logical] = {"columns": dict(sorted(cols.items())), "id": logical + "id", "set": logical + "s",
+                        "primaryName": table["primaryName"], "choiceLabels": labels, "cascadeDelete": cascade}
     return out
 
 
@@ -656,6 +730,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--schema", type=pathlib.Path,
                     default=pathlib.Path("solution/schema/dataverse-schema.yaml"))
     ap.add_argument("--out", type=pathlib.Path, default=pathlib.Path("solution/src"))
+    ap.add_argument("--flows", type=pathlib.Path, default=pathlib.Path("solution/schema/flows.yaml"),
+                    help="settings the cloud flows are generated with")
     ap.add_argument("--test-schema", type=pathlib.Path, default=pathlib.Path("portal/test/dv-schema.json"),
                     help="where to write the column set the portal's mock Web API checks against")
     args = ap.parse_args(argv)
@@ -677,8 +753,16 @@ def main(argv: list[str]) -> int:
     (other / "Relationships").mkdir(parents=True)
     (args.out / "OptionSets").mkdir()
 
-    (other / "Solution.xml").write_text(_pretty(build_solution_xml(schema)), encoding="utf-8")
-    (other / "Customizations.xml").write_text(_pretty(build_customizations()), encoding="utf-8")
+    flow_settings = build_flows.load_settings(args.flows)
+    flows = build_flows.build_all(flow_settings)
+    (other / "Solution.xml").write_text(_pretty(build_solution_xml(schema, flows)), encoding="utf-8")
+    (other / "Customizations.xml").write_text(_pretty(build_customizations(flow_settings)), encoding="utf-8")
+    (args.out / "Workflows").mkdir()
+    for flow in flows:
+        (args.out / "Workflows" / f"{flow['stem']}.json").write_text(
+            json.dumps(flow["definition"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        (args.out / "Workflows" / f"{flow['stem']}.json.data.xml").write_text(
+            _pretty(build_workflow_data(flow)), encoding="utf-8")
 
     groups = relationships_by_file(schema)
     index = _root("EntityRelationships")
@@ -706,7 +790,7 @@ def main(argv: list[str]) -> int:
     if args.test_schema.parent.is_dir():
         args.test_schema.write_text(json.dumps(build_test_schema(schema), indent=1) + "\n", encoding="utf-8")
 
-    errors = check_solution(args.out, schema)
+    errors = check_solution(args.out, schema, flow_settings)
     if errors:
         for e in errors:
             print(f"error: {e}", file=sys.stderr)
@@ -714,7 +798,8 @@ def main(argv: list[str]) -> int:
 
     n_rels = sum(len(v) for v in groups.values())
     print(f"{len(schema['tables'])} tables, {col_total} columns, {len(schema['choices'])} "
-          f"global choices, {n_rels} relationships written to {args.out}. Checks passed.")
+          f"global choices, {n_rels} relationships, {len(flows)} cloud flows written to {args.out}. "
+          "Checks passed.")
     for logical, col in manual_columns(schema):
         print(f"  add after import: {logical}.{col['name']} ({col['type']})")
     print(f"Next: pac solution pack --zipfile ComplianceMatrix.zip --folder {args.out} "

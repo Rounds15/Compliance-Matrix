@@ -7,7 +7,16 @@
    "su_role": "Choice"
   },
   "id": "su_appadminid",
-  "set": "su_appadmins"
+  "set": "su_appadmins",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_role": {
+    "100000060": "Administrator",
+    "100000061": "Compliance Owner",
+    "100000062": "Executive"
+   }
+  },
+  "cascadeDelete": {}
  },
  "su_archive": {
   "columns": {
@@ -29,7 +38,10 @@
    "su_sourceitemid": "Decimal"
   },
   "id": "su_archiveid",
-  "set": "su_archives"
+  "set": "su_archives",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {}
  },
  "su_assessment": {
   "columns": {
@@ -71,7 +83,22 @@
    "su_universityriskcurrent": "String"
   },
   "id": "su_assessmentid",
-  "set": "su_assessments"
+  "set": "su_assessments",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_risk": {
+    "100000001": "High",
+    "100000002": "Moderate",
+    "100000003": "Low"
+   },
+   "su_status": {
+    "100000090": "Drafting",
+    "100000091": "Report Complete",
+    "100000092": "Finalized",
+    "100000093": "Closed"
+   }
+  },
+  "cascadeDelete": {}
  },
  "su_assessmentowner": {
   "columns": {
@@ -81,7 +108,17 @@
    "su_role": "Choice"
   },
   "id": "su_assessmentownerid",
-  "set": "su_assessmentowners"
+  "set": "su_assessmentowners",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_role": {
+    "100000100": "Compliance",
+    "100000101": "Executive"
+   }
+  },
+  "cascadeDelete": {
+   "su_assessment": "Cascade"
+  }
  },
  "su_assessmentresponse": {
   "columns": {
@@ -92,7 +129,10 @@
    "su_sourcemodified": "DateTime"
   },
   "id": "su_assessmentresponseid",
-  "set": "su_assessmentresponses"
+  "set": "su_assessmentresponses",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {}
  },
  "su_assessmentschedule": {
   "columns": {
@@ -103,7 +143,10 @@
    "su_sourcemodified": "DateTime"
   },
   "id": "su_assessmentscheduleid",
-  "set": "su_assessmentschedules"
+  "set": "su_assessmentschedules",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {}
  },
  "su_compliancedeadline": {
   "columns": {
@@ -131,7 +174,38 @@
    "su_triggerevent": "String"
   },
   "id": "su_compliancedeadlineid",
-  "set": "su_compliancedeadlines"
+  "set": "su_compliancedeadlines",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_deadlinetype": {
+    "100000070": "Fixed Recurring",
+    "100000071": "Event-Relative",
+    "100000072": "Ongoing",
+    "100000073": "Conditional",
+    "100000074": "One-time"
+   },
+   "su_cadence": {
+    "100000010": "Annually",
+    "100000011": "Semiannual",
+    "100000012": "Quarterly",
+    "100000013": "Monthly",
+    "100000014": "Biennial",
+    "100000015": "Ongoing",
+    "100000016": "One-time"
+   },
+   "su_offsetunit": {
+    "100000080": "Days",
+    "100000081": "Months"
+   },
+   "su_risk": {
+    "100000001": "High",
+    "100000002": "Moderate",
+    "100000003": "Low"
+   }
+  },
+  "cascadeDelete": {
+   "su_function": "Cascade"
+  }
  },
  "su_compliancedirectory": {
   "columns": {
@@ -149,7 +223,10 @@
    "su_unit": "String"
   },
   "id": "su_compliancedirectoryid",
-  "set": "su_compliancedirectorys"
+  "set": "su_compliancedirectorys",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {}
  },
  "su_compliancefunction": {
   "columns": {
@@ -174,7 +251,16 @@
    "su_unitowner": "lookup:su_compliancedirectory"
   },
   "id": "su_compliancefunctionid",
-  "set": "su_compliancefunctions"
+  "set": "su_compliancefunctions",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_risk": {
+    "100000001": "High",
+    "100000002": "Moderate",
+    "100000003": "Low"
+   }
+  },
+  "cascadeDelete": {}
  },
  "su_compliancegap": {
   "columns": {
@@ -199,7 +285,23 @@
    "su_targetquarter": "String"
   },
   "id": "su_compliancegapid",
-  "set": "su_compliancegaps"
+  "set": "su_compliancegaps",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_severity": {
+    "100000001": "High",
+    "100000002": "Moderate",
+    "100000003": "Low"
+   },
+   "su_status": {
+    "100000020": "Open",
+    "100000022": "In Progress",
+    "100000021": "Closed"
+   }
+  },
+  "cascadeDelete": {
+   "su_function": "Cascade"
+  }
  },
  "su_counselassignment": {
   "columns": {
@@ -209,7 +311,10 @@
    "su_riskarea": "lookup:su_riskarea"
   },
   "id": "su_counselassignmentid",
-  "set": "su_counselassignments"
+  "set": "su_counselassignments",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {}
  },
  "su_domain": {
   "columns": {
@@ -220,7 +325,10 @@
    "su_riskarea": "lookup:su_riskarea"
   },
   "id": "su_domainid",
-  "set": "su_domains"
+  "set": "su_domains",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {}
  },
  "su_functionflag": {
   "columns": {
@@ -237,7 +345,21 @@
    "su_status": "Choice"
   },
   "id": "su_functionflagid",
-  "set": "su_functionflags"
+  "set": "su_functionflags",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_source": {
+    "100000110": "Manual",
+    "100000111": "Survey"
+   },
+   "su_status": {
+    "100000050": "Active",
+    "100000051": "Cleared"
+   }
+  },
+  "cascadeDelete": {
+   "su_function": "Cascade"
+  }
  },
  "su_functionownership": {
   "columns": {
@@ -249,7 +371,25 @@
    "su_subrole": "Choice"
   },
   "id": "su_functionownershipid",
-  "set": "su_functionownerships"
+  "set": "su_functionownerships",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_role": {
+    "100000030": "Executive Owner",
+    "100000031": "Unit Owner",
+    "100000032": "Compliance Owner",
+    "100000033": "General Counsel",
+    "100000034": "Support"
+   },
+   "su_subrole": {
+    "100000040": "Primary",
+    "100000041": "Advisory",
+    "100000042": "Support"
+   }
+  },
+  "cascadeDelete": {
+   "su_function": "Cascade"
+  }
  },
  "su_portalaction": {
   "columns": {
@@ -266,7 +406,24 @@
    "su_status": "Choice"
   },
   "id": "su_portalactionid",
-  "set": "su_portalactions"
+  "set": "su_portalactions",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_action": {
+    "100000120": "Complete deadline",
+    "100000121": "Reverse completion",
+    "100000122": "Close gap",
+    "100000123": "Resolve flag",
+    "100000124": "Raise flag",
+    "100000125": "Delete function"
+   },
+   "su_status": {
+    "100000130": "Pending",
+    "100000131": "Done",
+    "100000132": "Failed"
+   }
+  },
+  "cascadeDelete": {}
  },
  "su_riskarea": {
   "columns": {
@@ -279,6 +436,9 @@
    "su_sortorder": "Integer"
   },
   "id": "su_riskareaid",
-  "set": "su_riskareas"
+  "set": "su_riskareas",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {}
  }
 }

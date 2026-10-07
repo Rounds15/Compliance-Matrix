@@ -12,6 +12,35 @@
   <CustomControls/>
   <SolutionPluginAssemblies/>
   <EntityDataProviders/>
+  <connectionreferences>
+    <connectionreference connectionreferencelogicalname="su_CMDataverse">
+      <connectionreferencedisplayname>CM - Microsoft Dataverse</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps</connectorid>
+      <description>Reads and writes the Compliance Matrix tables and External Identities.</description>
+      <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+    <connectionreference connectionreferencelogicalname="su_CMOffice365Users">
+      <connectionreferencedisplayname>CM - Office 365 Users</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_office365users</connectorid>
+      <description>Looks a signed-in person's Entra account up by object ID or user principal name.</description>
+      <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+    <connectionreference connectionreferencelogicalname="su_CMOffice365Outlook">
+      <connectionreferencedisplayname>CM - Office 365 Outlook</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_office365</connectorid>
+      <description>Sends not-linked notices and failure alerts to the compliance office.</description>
+      <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+  </connectionreferences>
   <Languages>
     <Language>1033</Language>
   </Languages>
