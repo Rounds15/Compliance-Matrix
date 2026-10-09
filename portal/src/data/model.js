@@ -183,8 +183,9 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
     return {
       id: g.id,
       code: g.code || String(g.id),
-      functionId: g.functionId,
-      functionName: f ? f.name : "Unknown function",
+      functionId: g.functionId || null,
+      /* a gap with no function: blank, as the canvas app's Gap Tracker shows it */
+      functionName: f ? f.name : "",
       topic: f ? f.topic : "",
       title: g.title || "Untitled gap",
       /* the live Gap Tracker rates a gap by its function's risk rating */
@@ -201,7 +202,11 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
       targetFY: g.targetFY || "",
       owner: responsible || (f ? f.owner : NOBODY)
     };
-  }).filter(g => fnById.has(String(g.functionId)))
+  /* Gaps with no function are kept (only administrators see them: the
+     Gap Tracker's Admin view, and the gap table permission in
+     docs/DATAVERSE-MIGRATION.md, section 5); a gap whose function is gone
+     is dropped. */
+  }).filter(g => !g.functionId || fnById.has(String(g.functionId)))
     .sort((a, b) => riskRank(a.severity) - riskRank(b.severity) || (a.opened || 0) - (b.opened || 0));
 
   const allFlags = (raw.flags || []).map(x => {

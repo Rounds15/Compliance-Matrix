@@ -500,7 +500,9 @@ def process_portal_action(s: dict) -> dict:
                                   f"concat('_su_function_value eq ', coalesce({F}?['su_compliancefunctionid'], {q(ZERO)}), "
                                   f"' and _su_person_value eq ', coalesce({P}?['su_compliancedirectoryid'], {q(ZERO)}))",
                                   "su_functionownershipid", 1)),
-        check("Not_allowed", f"or(equals({count('Find_function')}, 0), not(or({is_admin}, equals({act}, {RAISE}), {owner_may})))",
+        # a gap with no function has no owner chain: only an administrator may close it
+        check("Not_allowed", f"or(and(equals({count('Find_function')}, 0), not(and({is_admin}, equals({act}, {CLOSE})))), "
+                             f"not(or({is_admin}, equals({act}, {RAISE}), {owner_may})))",
               "You are not allowed to do that on this function."),
         check("No_reason", f"and(equals({act}, {RAISE}), empty(trim(coalesce({A}?['su_reason'], ''))))", "A flag needs a reason."),
         ("Do_the_work", when(f"empty({err})", seq(("Switch_on_action_type", work)))),

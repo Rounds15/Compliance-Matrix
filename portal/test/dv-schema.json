@@ -95,7 +95,8 @@
     "100000090": "Drafting",
     "100000091": "Report Complete",
     "100000092": "Finalized",
-    "100000093": "Closed"
+    "100000093": "Closed",
+    "100000094": "Accepted"
    }
   },
   "cascadeDelete": {}

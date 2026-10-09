@@ -247,11 +247,14 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         if (c !== t.id && !t.columns[c] && !(lk && String(t.columns[lk[1]] || "").startsWith("lookup:")) && c !== "statecode")
           return fail(res, 400, `Could not find a property named '${c}' on type 'Microsoft.Dynamics.CRM.${tableName}'.`);
       }
+      /* CM Read gaps reaches a gap through its function (Parent scope), so
+         only administrators read a gap that has no function */
+      const visible = set === "su_compliancegaps" && !admin ? rows.filter(r => r._su_function_value) : rows;
       const size = set === "su_functionownerships" ? 1 : 5000;
       const skip = Number(url.searchParams.get("$skiptoken") || 0);
-      const page = rows.slice(skip, skip + size);
+      const page = visible.slice(skip, skip + size);
       const out = { value: page };
-      if (skip + size < rows.length) { const n = new URL(url); n.searchParams.set("$skiptoken", String(skip + size)); out["@odata.nextLink"] = n.pathname + n.search; }
+      if (skip + size < visible.length) { const n = new URL(url); n.searchParams.set("$skiptoken", String(skip + size)); out["@odata.nextLink"] = n.pathname + n.search; }
       res.writeHead(200, { "Content-Type": "application/json" });
       return res.end(JSON.stringify(out));
     }

@@ -441,7 +441,7 @@
                 "and": [
                   {
                     "equals": [
-                      "@and(empty(variables('Error')), or(equals(length(body('Find_function')?['value']), 0), not(or(greater(length(body('Administrator_roles')), 0), equals(body('Get_action')?['su_action'], 100000124), and(greater(length(body('Find_ownership')?['value']), 0), or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121), equals(body('Get_action')?['su_action'], 100000122)))))))",
+                      "@and(empty(variables('Error')), or(and(equals(length(body('Find_function')?['value']), 0), not(and(greater(length(body('Administrator_roles')), 0), equals(body('Get_action')?['su_action'], 100000122)))), not(or(greater(length(body('Administrator_roles')), 0), equals(body('Get_action')?['su_action'], 100000124), and(greater(length(body('Find_ownership')?['value']), 0), or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121), equals(body('Get_action')?['su_action'], 100000122)))))))",
                       true
                     ]
                   }

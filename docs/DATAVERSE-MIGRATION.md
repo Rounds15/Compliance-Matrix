@@ -285,9 +285,9 @@ child rows resolve through the parent's key.
 |---|---|---|
 | Risk Areas (13) | su_riskarea | su_legacyspid; su_riskareacode |
 | Domains (61) | su_domain | su_legacyspid; su_domaincode |
-| Compliance Directory (138) | su_compliancedirectory | su_legacyspid; su_email |
+| Compliance Directory (137) | su_compliancedirectory | su_legacyspid; su_email |
 | Compliance Functions (392) | su_compliancefunction | su_legacyspid; su_functioncode |
-| Accountability Structure (1,174) | su_functionownership | su_legacyspid; (su_function, su_person, su_role) |
+| Accountability Structure (1,172) | su_functionownership | su_legacyspid; (su_function, su_person, su_role) |
 | Deadlines (146) | su_compliancedeadline | su_legacyspid |
 | Flags List (60) | su_functionflag | su_legacyspid |
 | Gap List (22) | su_compliancegap | su_legacyspid (su_gapcode is no longer a key: it is multi-choice and repeats) |
@@ -389,7 +389,9 @@ SubRoleMap  = [Primary = 100000040, Advisory = 100000041, Support = 100000042],
 CadenceMap  = Record.FromList({100000010, 100000010, 100000011, 100000011, 100000012, 100000013, 100000014, 100000015, 100000016, 100000016},
                               {"Annual", "Annually", "Semi-Annual", "Semiannual", "Quarterly", "Monthly", "Biennial", "Ongoing", "One-time", "One-Time"}),
 GapStatusMap = Record.FromList({100000020, 100000022, 100000021}, {"Open", "In Progress", "Closed"}),
-FlagSourceMap = [Manual = 100000110, Survey = 100000111]
+FlagSourceMap = [Manual = 100000110, Survey = 100000111],
+AssessmentStatusMap = Record.FromList({100000090, 100000091, 100000092, 100000093, 100000094},
+                              {"Drafting", "Report Complete", "Finalized", "Closed", "Accepted"})
 ```
 
 **Refreshing.** Run the five in order from the Dataflows page (Refresh now),
@@ -404,12 +406,12 @@ shortfall is a failed row; the refresh history names it.
 |---|---|---|
 | Risk Areas | 13 | 13 |
 | Domains | 61 | 61 |
-| Compliance Directory | 138 | 138 |
+| Compliance Directory | 137 | 137 |
 | Compliance Functions | 392 | 392 |
-| Accountability Structure | 1,174 | 1,174 less orphans and duplicates (section 1) |
+| Accountability Structure | 1,172 | 1,172 (section 1 checks done: no orphans or duplicates left) |
 | Deadlines | 146 | 146 less rows with a missing function |
-| Flags List | 60 | 60 less rows with a missing function |
-| Gap List | 22 | 22 less rows with a missing function |
+| Flags List | 60 | 59: flag 89 still points at deleted function 407, so its row fails, unless you clear its Function in SharePoint first |
+| Gap List | 22 | 22, including the 14 with no function (IDs 6 to 11 and 15 to 22) |
 | Assessments | 9 | 9 |
 | Assessment Responses | 4 | 4 |
 | Assessment Schedule | 1 | 1 |
@@ -575,6 +577,31 @@ Cleared By and Cleared On are not on the list; the matching Archive rows
 su_severity has no SharePoint source and stays blank; the portal shows the
 function's rating instead.
 
+**Gaps with no function.** Compliance Function is optional on su_compliancegap:
+14 of the 22 gaps (IDs 6 to 11 and 15 to 22) have no FunctionId and no
+AssessmentId, and load with both lookups blank. Map FunctionId as above for
+every gap: a blank FunctionId loads as a blank lookup, and only an ID that
+points at a deleted function fails the row. Today no gap has an
+Assessment, a Responsible Person or a Closed By, so those three load blank on
+all 22.
+
+How a gap with no function behaves:
+
+- **Who sees it:** administrators only. CM Read gaps (section 5) reaches gaps
+  through their function, so the Web API gives an owner no row for a gap with
+  no function; administrators read every gap through CM Administer.
+- **Gap Tracker:** in Admin view it is listed with the others, with the
+  function name blank and the **Function** button turned off, as the canvas
+  app shows it. It is left out of "Open gaps by risk area", which has no risk
+  area to put it under. Its severity shows as Not rated (no function rating to
+  borrow), and its person is blank (no Responsible Person, no function owner).
+  "View as user" and owners' own views leave it out.
+- **Function Detail:** never shown; it belongs to no function.
+- **Closing it:** an administrator can close it from the Gap Tracker; the
+  action flow allows Close gap on a gap with no function for an administrator
+  only and refuses everyone else with "You are not allowed to do that on this
+  function." (section 8).
+
 ### Assessments → su_assessment
 
 Every column is kept. Choice columns whose values are not confirmed load as
@@ -604,7 +631,7 @@ text, so no value is forced into the wrong option.
 | field_17 (UniversityRisk_Current) | su_universityriskcurrent | new, text |
 | field_17 | su_risk | `Choice(RiskMap, [field_17])`, when the value is High, Moderate or Low |
 | field_18 (Status, multi-choice) | su_statustext | `Multi([field_18])`, new |
-| field_18 | su_status | only when the single value matches Drafting, Report Complete, Finalized or Closed |
+| field_18 | su_status | `Choice(AssessmentStatusMap, Multi([field_18]))`: a single value of Drafting, Report Complete, Finalized, Closed or Accepted; blank when there are several. All 9 are Accepted today |
 | field_19 (QuestionnaireVersion) | su_questionnaireversion | new |
 | field_20 (SourceFile) | su_sourcefile | new |
 | field_21 (Notes) | su_notes | new, multiline |
@@ -680,7 +707,8 @@ narrow, and who did it is written server-side.
 
 | Name | Table | Access | Privileges | Roles |
 |---|---|---|---|---|
-| CM Read | su_riskarea, su_domain, su_compliancefunction, su_compliancedirectory, su_functionownership, su_counselassignment, su_compliancedeadline, su_compliancegap, su_functionflag | Global | Read | Testers, Administrators |
+| CM Read | su_riskarea, su_domain, su_compliancefunction, su_compliancedirectory, su_functionownership, su_counselassignment, su_compliancedeadline, su_functionflag | Global | Read | Testers, Administrators |
+| CM Read gaps | su_compliancegap | Parent: CM Read on su_compliancefunction, relationship su_compliancefunction_su_compliancegap | Read | Testers, Administrators |
 | CM Log a gap | su_compliancegap | Global | Create, Append | Testers |
 | CM Gap lookups | su_compliancefunction, su_compliancedirectory | Global | Append To | Testers |
 | CM Portal action form | su_portalaction | Global | Create, Append | Testers, Administrators |
@@ -688,6 +716,11 @@ narrow, and who did it is written server-side.
 | CM Self | contact | Self | Read, Append To | Testers, Administrators |
 | CM Administer | su_riskarea, su_domain, su_compliancefunction, su_compliancedirectory, su_functionownership, su_counselassignment, su_compliancedeadline, su_compliancegap, su_functionflag | Global | Create, Read, Write, Delete, Append, Append To | Administrators |
 | CM Assessments (read) | su_assessment, su_assessmentresponse, su_assessmentschedule | Global | Read | Administrators |
+
+Gaps are read **through their function** (Parent scope), not Global, so a gap
+with no function is readable only through CM Administer, by administrators.
+Create the CM Read gaps permission as a child: Table permissions > CM Read
+(the su_compliancefunction one) > Add child permission.
 
 Nobody gets a permission on **su_archive**, and its Web API site setting stays
 off: only the action flow (section 8) and the dataflow write it.
@@ -1070,7 +1103,9 @@ you than assume it. Delete the test rows afterwards.
    on it afterwards even if the page they have open still offers the button.
 7. **Allowed:** an administrator may do any action; anyone may Raise flag; an
    owner (step 6) may Complete deadline, Reverse completion and Close gap.
-   Otherwise Fail with "You are not allowed to do that on this function."
+   A gap with no function has no owners, so only an administrator may close
+   it; every other action needs a function. Otherwise Fail with "You are not
+   allowed to do that on this function."
 8. **Switch** on Action Type:
 
 | Action | Update | Archive entry |

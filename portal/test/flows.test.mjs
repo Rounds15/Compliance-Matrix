@@ -247,3 +247,16 @@ test("Process portal action: an unexpected error replies, records, alerts and fa
   assert.equal(r.row.su_status, 100000132);
   assert.match(env.outlook.sent.at(-1).subject, /CM - Process portal action failed/);
 });
+
+test("Process portal action: a gap with no function can be closed by an administrator only", () => {
+  const owner = actionWorld();
+  assert.equal(owner.act({ su_action: 100000122, _su_gap_value: G(604) }).reply.error, "You are not allowed to do that on this function.");
+  assert.equal(owner.dv.su_compliancegaps.find(g => g.su_compliancegapid === G(604)).su_status, 100000020);
+  const admin = actionWorld(["Compliance Matrix Administrators"]);
+  const r = admin.act({ su_action: 100000122, su_reason: "Adopted.", _su_gap_value: G(604) });
+  assert.equal(r.reply.ok, true);
+  const g = admin.dv.su_compliancegaps.find(x => x.su_compliancegapid === G(604));
+  assert.deepEqual([g.su_status, g.su_closenote, g._su_closedby_value], [100000021, "Adopted.", G(103)]);
+  /* an administrator still cannot raise a flag without a function */
+  assert.equal(admin.act({ su_action: 100000124, su_reason: "x" }).reply.error, "You are not allowed to do that on this function.");
+});

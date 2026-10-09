@@ -543,6 +543,17 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   const g = dv.su_compliancegaps.find(r => r.su_compliancegapid === G(601));
   assert.equal(g.su_status, 100000021); assert.equal(g._su_closedby_value, G(101));
 
+  /* a gap with no function: listed for the administrator, blank function, no Function link; closing it is allowed */
+  const loose = page.locator(".gcard2", { hasText: "Records retention schedule not adopted" });
+  await loose.waitFor();
+  assert.equal(await loose.locator(".nm").innerText(), "", "no function name");
+  assert.equal(await loose.locator("button", { hasText: "Function" }).isDisabled(), true);
+  await loose.locator("button", { hasText: "Close" }).click();
+  await btn("Close gap", modal()).click();
+  await toast(/Gap closed/);
+  const lg = dv.su_compliancegaps.find(r => r.su_compliancegapid === G(604));
+  assert.equal(lg.su_status, 100000021); assert.equal(lg._su_closedby_value, G(101));
+
   await go("#/flags");
   await page.locator(".fl-list .srow", { hasText: "Clery Act" }).click();
   await page.locator(".fl-entry", { hasText: "Citation may be superseded." }).locator("button", { hasText: "Resolve" }).click();
@@ -609,11 +620,16 @@ await session("Dataverse · the browser cannot write the archive or who did some
        takes the function from the deadline itself and refuses */
     const relabelled = await form({ su_name: "x", su_action: "100000120", su_reason: "x", ...lk("su_function", "su_compliancefunction", fnMine), ...lk("su_deadline", "su_compliancedeadline", dlOther) });
     const unlabelled = await form({ su_name: "x", su_action: "100000120", su_reason: "x", ...lk("su_deadline", "su_compliancedeadline", dlOther) });
+    const gapIds = (await (await fetch("/_api/su_compliancegaps?$select=su_compliancegapid")).json()).value.map(g => g.su_compliancegapid);
+    const loose = await flow(await form({ su_name: "x", su_action: "100000122", ...lk("su_gap", "su_compliancegap", "00000000-0000-4000-8000-000000000604") }));
     const own = await form({ su_name: "x", su_action: "100000120", su_reason: "Filed.", ...lk("su_deadline", "su_compliancedeadline", dl) });
     const ownResult = await flow(own);
     return { patchDeadline: patchDeadline.status, archive: archive.status, viaWebApi: viaWebApi.status, viaWebApiOther: viaWebApiOther.status, forgedBy: forgedBy.status,
-      spoofed, notMine: await flow(notMine), relabelled: await flow(relabelled), unlabelled: await flow(unlabelled), own: ownResult, replay: await flow(own) };
+      spoofed, gapIds, loose, notMine: await flow(notMine), relabelled: await flow(relabelled), unlabelled: await flow(unlabelled), own: ownResult, replay: await flow(own) };
   }, [G(401), G(203), G(103), G(901), G(903), G(202), G(403)]);
+  assert.equal(r.gapIds.includes(G(604)), false, "a gap with no function is not readable by an owner");
+  assert.equal(r.loose.ok, false, "an owner cannot close a gap that has no function");
+  assert.equal(portal.dv.su_compliancegaps.find(g => g.su_compliancegapid === G(604)).su_status, 100000020);
   assert.equal(r.patchDeadline, 403, "owners have no direct Write on deadlines");
   assert.equal(r.archive, 403, "nobody writes the archive from the browser");
   assert.equal(r.viaWebApi, 403, "the Web API cannot create a portal action, even naming yourself");
@@ -643,6 +659,9 @@ await session("Dataverse · owner · permitted writes succeed, admin UI absent",
   await btn("Submit flag").click();
   await toast(/Flag submitted/);
   assert.equal(portal.dv.su_functionflags.at(-1)._su_flaggedby_value, G(103));
+  await go("#/gaps");
+  await page.locator("h1", { hasText: "Gap Tracker" }).waitFor();
+  assert.equal(await page.locator(".gcard2", { hasText: "Records retention schedule not adopted" }).count(), 0, "an owner does not see a gap with no function");
 });
 
 /* a contact with no email: the page finds the person through the directory's Portal Contact link */

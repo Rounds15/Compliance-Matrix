@@ -112,6 +112,7 @@ choices:
       - { value: 100000091, label: Report Complete }
       - { value: 100000092, label: Finalized }
       - { value: 100000093, label: Closed }
+      - { value: 100000094, label: Accepted }
   su_assessmentownerrole:
     displayName: Assessment Owner Role
     options:
@@ -472,7 +473,10 @@ tables:
         displayName: Compliance Function
         type: Lookup
         target: su_compliancefunction
-        required: ApplicationRequired
+        description: >-
+          Optional: some gaps on the SharePoint Gap List have no function yet.
+          A gap with no function is visible to administrators only (no owner
+          chain applies; docs/DATAVERSE-MIGRATION.md, section 5).
         relationshipName: su_compliancefunction_su_compliancegap
         cascade: { delete: Cascade }
       - name: su_assessment

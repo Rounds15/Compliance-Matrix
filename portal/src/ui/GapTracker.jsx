@@ -27,7 +27,7 @@ export function GapTracker() {
   const list = (tab === "open" ? open : closed).filter(g => sev === "All" || g.severity === sev).sort((a, b) => days(b) - days(a));
   const byTopic = useMemo(() => {
     const m = {};
-    open.forEach(g => { m[g.topic] = (m[g.topic] || 0) + 1; });
+    open.filter(g => g.topic).forEach(g => { m[g.topic] = (m[g.topic] || 0) + 1; });
     return Object.entries(m).sort((a, b) => b[1] - a[1]);
   }, [gaps]); // eslint-disable-line react-hooks/exhaustive-deps
   const jump = g => { const f = ds.fnById.get(String(g.functionId)); if (f) openFn(f); };
@@ -77,7 +77,7 @@ export function GapTracker() {
           <Avatar person={g.owner} size={26} />
           <div style={{ minWidth: 0, flex: 1 }}><div className="nm" style={{ fontSize: 12.5, fontWeight: 600 }}>{g.functionName}</div>
             <div className="ti">{g.topic}</div></div>
-          <button className="button button-secondary-outline button-sm" onClick={() => jump(g)}>Function</button>
+          <button className="button button-secondary-outline button-sm" onClick={() => jump(g)} disabled={!ds.fnById.has(String(g.functionId))}>Function</button>
           {g.open && <button className="button button-primary button-sm" onClick={() => { setSel(g); setNote(""); }}><Icon n="check" s={13} />Close</button>}
         </div></div>)}
     </div>

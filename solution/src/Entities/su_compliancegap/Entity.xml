@@ -97,7 +97,7 @@
           <Type>lookup</Type>
           <Name>su_function</Name>
           <LogicalName>su_function</LogicalName>
-          <RequiredLevel>required</RequiredLevel>
+          <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
           <ValidForUpdateApi>1</ValidForUpdateApi>
@@ -129,7 +129,7 @@
             <displayname description="Compliance Function" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="" languagecode="1033"/>
+            <Description description="Optional: some gaps on the SharePoint Gap List have no function yet. A gap with no function is visible to administrators only (no owner chain applies; docs/DATAVERSE-MIGRATION.md, section 5)." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_assessment">

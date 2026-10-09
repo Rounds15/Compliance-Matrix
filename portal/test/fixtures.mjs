@@ -132,7 +132,9 @@ export function dataverseTables() {
     ],
     su_compliancegaps: [
       { su_compliancegapid: G(601), su_name: "I-9 Section 2 completed late for 14 hires", su_gapcode: "GAP-1", _su_function_value: G(202), su_severity: 100000001, su_status: 100000020, su_openeddate: "2026-08-01", su_note: "Remediation training scheduled." },
-      { su_compliancegapid: G(603), su_name: "Old gap", _su_function_value: G(203), su_status: 100000021, su_closeddate: "2026-06-01", su_closenote: "Fixed." }
+      { su_compliancegapid: G(603), su_name: "Old gap", _su_function_value: G(203), su_status: 100000021, su_closeddate: "2026-06-01", su_closenote: "Fixed." },
+      /* no function and no assessment, like 14 of the 22 gaps on the SharePoint list */
+      { su_compliancegapid: G(604), su_name: "Records retention schedule not adopted", su_gapcode: "GAP-14", _su_function_value: null, su_status: 100000020, su_openeddate: "2026-07-15" }
     ],
     su_functionflags: [
       { su_functionflagid: G(501), _su_function_value: G(201), su_reason: "Citation may be superseded.", su_status: 100000050, _su_flaggedby_value: G(103), su_flaggedon: "2026-09-18" },
