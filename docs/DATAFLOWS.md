@@ -57,6 +57,24 @@ updated, not duplicated, because the key is the SharePoint ID.
 
 After the first full load, refresh them in the same order, an hour apart, or on a schedule.
 
+## If a table loads 0 rows
+
+A refresh that reports Succeeded with 0 created, 0 updated and 0 failed wrote nothing and rejected
+nothing. Each query now ends with a check that fails the refresh with "SharePoint returned no items
+from <list>" when its read is empty, so an empty read shows as an error instead of a silent zero,
+and can never empty a table through Delete rows.
+
+To tell the destination from the source, add this one-row query to a new dataflow, map it to the
+same table with key Legacy SharePoint ID and Delete rows off, and refresh. One row created means the
+table accepts dataflow writes and the problem is the SharePoint read; delete the test row afterwards.
+
+```powerquery
+let
+    Result = #table(type table [su_legacyspid = Int64.Type, su_name = nullable text], {{9001, "Dataflow write test"}})
+in
+    Result
+```
+
 ## Can this be imported instead of pasted?
 
 Pasting is the route these queries are checked for: each table is one self-contained paste, with
@@ -132,9 +150,11 @@ let
         su_name = nullable text,
         su_riskareacode = nullable text,
         su_colorhex = nullable text
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Risk Areas, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ### Compliance Directory -> su_compliancedirectory
@@ -200,9 +220,11 @@ let
         su_name = nullable text,
         su_email = nullable text,
         su_active = nullable logical
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Compliance Directory, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ## 2. CM Load 2 - Domains
@@ -272,9 +294,11 @@ let
         su_name = nullable text,
         su_domaincode = nullable text,
         #"su_riskarea.su_legacyspid" = Int64.Type
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Domains, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ## 3. CM Load 3 - Functions
@@ -380,9 +404,11 @@ let
         #"su_executiveowner.su_legacyspid" = Int64.Type,
         #"su_unitowner.su_legacyspid" = Int64.Type,
         #"su_complianceowner.su_legacyspid" = Int64.Type
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Compliance Functions, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ## 4. CM Load 4 - Assessments
@@ -506,9 +532,11 @@ let
         su_formsresponseid = nullable number,
         su_submittedon = nullable datetimezone,
         su_createdvia = nullable text
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Assessments, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ## 5. CM Load 5 - Records
@@ -582,9 +610,11 @@ let
         #"su_person.su_legacyspid" = Int64.Type,
         su_role = Int64.Type,
         su_subrole = Int64.Type
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Accountability Structure, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ### Deadlines -> su_compliancedeadline
@@ -684,9 +714,11 @@ let
         su_completedon = nullable datetimezone,
         #"su_completedby.su_legacyspid" = Int64.Type,
         #"su_owner.su_legacyspid" = Int64.Type
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Deadlines, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ### Flags List -> su_functionflag
@@ -765,9 +797,11 @@ let
         su_status = Int64.Type,
         su_flaggedon = nullable date,
         su_respondentemail = nullable text
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Flags List, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ### Gap List -> su_compliancegap
@@ -861,9 +895,11 @@ let
         #"su_assessment.su_legacyspid" = Int64.Type,
         #"su_owner.su_legacyspid" = Int64.Type,
         #"su_closedby.su_legacyspid" = Int64.Type
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Gap List, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ### Assessment Responses -> su_assessmentresponse
@@ -943,9 +979,11 @@ let
         su_sourcedata = nullable text,
         su_sourcecreated = nullable datetimezone,
         su_sourcemodified = nullable datetimezone
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Assessment Responses, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ### Assessment Schedule -> su_assessmentschedule
@@ -1025,9 +1063,11 @@ let
         su_sourcedata = nullable text,
         su_sourcecreated = nullable datetimezone,
         su_sourcemodified = nullable datetimezone
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Assessment Schedule, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ### Archive -> su_archive
@@ -1120,9 +1160,11 @@ let
         su_flaggedby = nullable text,
         su_flaggeddate = nullable text,
         su_flagsource = nullable text
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Archive, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
 ```
 
 ## Notes on particular columns

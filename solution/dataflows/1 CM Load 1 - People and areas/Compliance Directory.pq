@@ -56,6 +56,8 @@ let
         su_name = nullable text,
         su_email = nullable text,
         su_active = nullable logical
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Compliance Directory, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked

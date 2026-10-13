@@ -30,7 +30,7 @@ const LIBRARY = new Set([
   "Date.From", "Date.ToText", "DateTimeZone.ToUtc", "DateTimeZone.From", "DateTimeZone.ToText",
   "Int64.From", "Int64.Type", "Number.Round", "Number.From",
   "Table.Buffer", "Table.SelectColumns", "Table.SelectRows", "Table.Sort", "Table.RowCount", "Table.ToRecords", "Table.FromRecords",
-  "Json.FromValue", "TextEncoding.Utf8", "MissingField.Ignore"
+  "Json.FromValue", "TextEncoding.Utf8", "MissingField.Ignore", "Error.Record"
 ]);
 
 function files(dir) {

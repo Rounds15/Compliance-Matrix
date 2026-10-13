@@ -70,6 +70,8 @@ let
         su_sourcedata = nullable text,
         su_sourcecreated = nullable datetimezone,
         su_sourcemodified = nullable datetimezone
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Assessment Responses, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked

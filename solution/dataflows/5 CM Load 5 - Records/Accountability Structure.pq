@@ -60,6 +60,8 @@ let
         #"su_person.su_legacyspid" = Int64.Type,
         su_role = Int64.Type,
         su_subrole = Int64.Type
-    ])
+    ]),
+    // ---- refuse an empty read: with Delete rows on, loading nothing would empty the table ----
+    Checked = if Table.RowCount(Result) = 0 then error Error.Record("Empty read", "SharePoint returned no items from Accountability Structure, so nothing was loaded. Check that the connection's account can read every item on the list.") else Result
 in
-    Result
+    Checked
