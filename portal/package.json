@@ -16,6 +16,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@microsoft/powerquery-parser": "^2.0.0",
     "esbuild": "0.23.1",
     "liquidjs": "^10.16.1",
     "playwright-core": "1.63.0",

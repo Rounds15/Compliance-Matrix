@@ -17,6 +17,9 @@ Checks, in order:
      query behind it in both the Liquid and the JavaScript output
   9. portal/dist matches a fresh build of portal/src (needs Node; skipped
      without it)
+ 11. solution/dataflows and docs/DATAFLOWS.md match a fresh run of
+     tools/build_dataflows.py, whose checks pass, and every query parses and
+     names only defined steps (tools/check_m.mjs; needs Node)
  10. solution/src matches a fresh run of tools/build_solution.py, and passes
      its import checks: <Language> carries the code as element text, the
      Customizations.xml sections are empty, the publisher block is complete,
@@ -476,6 +479,44 @@ def check_solution_src() -> None:
             ok(f"solution/src is current ({len(a)} files) and passes the import checks")
 
 
+def check_dataflows() -> None:
+    print("\nDataflow queries (tools/build_dataflows.py)")
+    import json as _json  # noqa: PLC0415
+    import shutil  # noqa: PLC0415
+    import subprocess  # noqa: PLC0415
+    sys.path.insert(0, str(ROOT / "tools"))
+    import build_dataflows as bd  # noqa: PLC0415
+
+    schema = yaml.safe_load(bd.SCHEMA.read_text(encoding="utf-8"))
+    sp = _json.loads(bd.SP_SCHEMA.read_text(encoding="utf-8"))
+    errs = bd.check(schema, sp)
+    for e in errs:
+        fail(f"dataflows: {e}")
+    stale = []
+    by_df = {i: [q for q in bd.QUERIES if q[0] == i] for i in range(len(bd.DATAFLOWS))}
+    for i, (dfname, _) in enumerate(bd.DATAFLOWS):
+        for q in by_df[i]:
+            f = bd.OUT / f"{i + 1} {dfname}" / f"{q[1]}.pq"
+            if not f.is_file() or f.read_text(encoding="utf-8") != bd.render(q):
+                stale.append(str(f.relative_to(ROOT)))
+    if not bd.DOC.is_file() or bd.DOC.read_text(encoding="utf-8") != bd.doc(by_df):
+        stale.append(str(bd.DOC.relative_to(ROOT)))
+    if stale:
+        fail(f"out of date, rerun tools/build_dataflows.py: {stale[:4]}")
+    elif not errs:
+        ok(f"{len(bd.QUERIES)} queries match the schema and are current")
+    node = shutil.which("node")
+    if not node or not (ROOT / "portal" / "node_modules" / "@microsoft" / "powerquery-parser").is_dir():
+        notes.append("Power Query parse check skipped (needs Node and portal dev dependencies)")
+        print("  skip  parse check")
+        return
+    r = subprocess.run([node, str(ROOT / "tools" / "check_m.mjs")], capture_output=True, text=True)
+    if r.returncode:
+        fail("tools/check_m.mjs: " + " | ".join(l for l in r.stdout.splitlines() if l.startswith("FAIL")))
+    else:
+        ok(r.stdout.strip().splitlines()[-1])
+
+
 # ---------------------------------------------------------------------------
 def main() -> int:
     print("Compliance Matrix - static validation")
@@ -491,6 +532,7 @@ def main() -> int:
     check_navigation(loaded)
     check_xml()
     check_solution_src()
+    check_dataflows()
 
     print("\n" + "-" * 60)
     for note in notes:

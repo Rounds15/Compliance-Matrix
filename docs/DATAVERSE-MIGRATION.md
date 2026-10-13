@@ -319,6 +319,12 @@ does.
 
 ## 3. Dataflows: load order and settings
 
+**The queries are ready to paste:** `docs/DATAFLOWS.md` has one
+self-contained query per table, in load order, with its Map tables settings
+and expected row count (the same queries are in `solution/dataflows/`). They
+build in every conversion below; the rest of this section and section 4 say
+what they do.
+
 Create them in make.powerapps.com > Dataflows > New dataflow > Start from
 blank, one per tier, **in this order**. A lookup to a row created in the same
 refresh can fail, so each tier loads only after the one before it.
@@ -410,7 +416,7 @@ shortfall is a failed row; the refresh history names it.
 | Compliance Functions | 392 | 392 |
 | Accountability Structure | 1,172 | 1,172 (section 1 checks done: no orphans or duplicates left) |
 | Deadlines | 146 | 146 less rows with a missing function |
-| Flags List | 60 | 59: flag 89 still points at deleted function 407, so its row fails, unless you clear its Function in SharePoint first |
+| Flags List | 60 | 60; flag 89, whose function 407 was deleted, loads with no function (59 if you delete flag 89) |
 | Gap List | 22 | 22, including the 14 with no function (IDs 6 to 11 and 15 to 22) |
 | Assessments | 9 | 9 |
 | Assessment Responses | 4 | 4 |
@@ -541,7 +547,7 @@ to it today.
 | SharePoint | Dataverse | Transform |
 |---|---|---|
 | Title | su_name | `OrElse([Title], Text.Start(OrElse([field_1], "Flag"), 120))` |
-| FunctionId | su_function | lookup |
+| FunctionId | su_function | lookup; blank when that function no longer exists, as for the Archive (flag 89) |
 | FlaggedById | su_flaggedby | lookup |
 | field_1 (EntryText) | su_reason | `OrElse([field_1], "(no text)")` (required) |
 | field_2 (Source) | su_source | `Choice(FlagSourceMap, [field_2])` |
