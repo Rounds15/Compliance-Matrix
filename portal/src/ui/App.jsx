@@ -59,11 +59,11 @@ function LoadError({ store }) {
   const hints = [];
   if (store.adapter.name === "sharepoint" && !store.adapter.configured) hints.push("The site setting ComplianceMatrix/Flow/Read is empty, so the page has no flow to read the lists through.");
   if (e.status === 401 || e.status === 403) hints.push(store.adapter.name === "dataverse"
-    ? `Your web role has no Read table permission on ${e.table || "one of the Compliance Matrix tables"}, or the site setting Webapi/${e.table || "<table>"}/enabled is not true.`
+    ? `Your web role has no Read table permission on ${e.table || "one of the Compliance Matrix tables"}, or the site setting Webapi/${e.table || "<table>"}/fields is not exactly ${e.fields || "the list in the migration guide, section 5"} (a value of * is refused).`
     : "Your web role is not allowed to run the read flow. In Power Pages Set up, Cloud flows, add the role to the flow.");
   if (e.status === 404 && store.adapter.name === "dataverse") {
     const t = e.table || "<table>";
-    hints.push(`The Web API is not turned on for ${t}. Add the site settings Webapi/${t}/enabled = true and Webapi/${t}/fields = *, then clear the site cache.`);
+    hints.push(`The Web API is not turned on for ${t}. Add the site settings Webapi/${t}/enabled = true and Webapi/${t}/fields = ${e.fields || "the list in the migration guide, section 5"}, then clear the site cache.`);
     if (e.renamed) hints.push(`The site setting ComplianceMatrix/Dataverse/EntitySets names ${t}'s entity set ${e.entitySet}. Delete that setting unless this environment's entity set names differ from the solution's.`);
   } else if (e.status === 404) hints.push("The flow trigger URL in ComplianceMatrix/Flow/Read does not exist.");
   return <div className="page wrap" style={{ paddingTop: 48, paddingBottom: 80 }}>

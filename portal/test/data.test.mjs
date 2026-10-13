@@ -7,7 +7,7 @@ import { nextOccurrence, cadenceMonths } from "../src/lib/deadlines.js";
 import { addMonths, monthDiff, fiscalQ, toDay } from "../src/lib/dates.js";
 import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
-import { mapTables, DEFAULT_SETS } from "../src/data/adapters/dataverse.js";
+import { mapTables, DEFAULT_SETS, WEBAPI_FIELDS } from "../src/data/adapters/dataverse.js";
 import { readFileSync } from "node:fs";
 import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY } from "../src/data/model.js";
 import { createSampleAdapter } from "../src/data/adapters/sample.js";
@@ -279,5 +279,14 @@ test("the Dataverse adapter requests each table by the solution's entity set nam
     assert.ok(schema[table], table + " is in the solution");
     assert.equal(set, schema[table].set, table + " is requested as its EntitySetName");
     assert.notEqual(set, table, "the entity set is plural, not the logical name");
+  }
+});
+
+test("the guide lists each table's Webapi fields value exactly as the adapter uses it", () => {
+  const guide = readFileSync(new URL("../../docs/DATAVERSE-MIGRATION.md", import.meta.url), "utf8");
+  for (const [table, fields] of Object.entries(WEBAPI_FIELDS)) {
+    assert.ok(guide.includes(`| ${table} | ${DEFAULT_SETS[table]} | \`${fields}\` |`), table + " row in section 5");
+    assert.ok(!fields.includes("*") && !fields.includes(" "), table + ": explicit, no spaces");
+    for (const c of fields.split(",")) assert.ok(!/^_.*_value$/.test(c), table + ": lookups by logical name, not " + c);
   }
 });

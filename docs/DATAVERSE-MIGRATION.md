@@ -757,23 +757,37 @@ request cannot set them directly:
 **Web API site settings** (Portal Management > Site Settings > New, website
 = this site). Two per table, named with the table's **logical name**
 (singular); the page's requests use the **entity set name** (plural), which
-Power Pages maps for you:
+Power Pages maps for you.
 
-| Table (logical name) | Entity set the page requests | Site settings |
+- `Webapi/<table>/enabled` = `true` for each of the nine tables below.
+- `Webapi/<table>/fields` = the value in the table below, exactly: the
+  columns the page reads or writes, comma-separated with no spaces. A lookup
+  is listed under its own logical name (su_riskarea), not as
+  `_su_riskarea_value`. Do not use `*`: Power Pages no longer accepts it, and
+  a table set to `*` answers every request with 403.
+
+| Table (logical name) | Entity set the page requests | `Webapi/<table>/fields` |
 |---|---|---|
-| su_riskarea | su_riskareas | `Webapi/su_riskarea/enabled` = `true`; `Webapi/su_riskarea/fields` = `*` |
-| su_domain | su_domains | `Webapi/su_domain/enabled` = `true`; `Webapi/su_domain/fields` = `*` |
-| su_compliancedirectory | su_compliancedirectorys | `Webapi/su_compliancedirectory/enabled` = `true`; `Webapi/su_compliancedirectory/fields` = `*` |
-| su_compliancefunction | su_compliancefunctions | `Webapi/su_compliancefunction/enabled` = `true`; `Webapi/su_compliancefunction/fields` = `*` |
-| su_functionownership | su_functionownerships | `Webapi/su_functionownership/enabled` = `true`; `Webapi/su_functionownership/fields` = `*` |
-| su_compliancedeadline | su_compliancedeadlines | `Webapi/su_compliancedeadline/enabled` = `true`; `Webapi/su_compliancedeadline/fields` = `*` |
-| su_compliancegap | su_compliancegaps | `Webapi/su_compliancegap/enabled` = `true`; `Webapi/su_compliancegap/fields` = `*` |
-| su_functionflag | su_functionflags | `Webapi/su_functionflag/enabled` = `true`; `Webapi/su_functionflag/fields` = `*` |
-| su_counselassignment | su_counselassignments | `Webapi/su_counselassignment/enabled` = `true`; `Webapi/su_counselassignment/fields` = `*` |
+| su_riskarea | su_riskareas | `su_riskareaid,su_name,su_colorhex,su_sortorder` |
+| su_domain | su_domains | `su_domainid,su_name,su_riskarea` |
+| su_compliancedirectory | su_compliancedirectorys | `su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,su_contact` |
+| su_compliancefunction | su_compliancefunctions | `su_compliancefunctionid,su_name,su_functioncode,su_riskarea,su_domain,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_lastreviewed,su_executiveowner,su_unitowner,su_complianceowner` |
+| su_functionownership | su_functionownerships | `su_functionownershipid,su_function,su_person,su_role,su_subrole,su_name` |
+| su_compliancedeadline | su_compliancedeadlines | `su_compliancedeadlineid,su_name,su_function,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes` |
+| su_compliancegap | su_compliancegaps | `su_compliancegapid,su_name,su_gapcode,su_function,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,su_owner,su_responsibleunit,su_gapsource` |
+| su_functionflag | su_functionflags | `su_functionflagid,su_function,su_reason,su_status,su_flaggedby,su_flaggedon,su_respondentemail` |
+| su_counselassignment | su_counselassignments | `su_counselassignmentid,su_riskarea,su_attorney,su_isdefault` |
+
+Power Pages refuses a request that reads or writes a column not on its
+table's list, so the list is also a guard: Completed By, Closed By, Flagged
+By and Cleared By are on no list, and only the action flow writes them.
+These values come from `WEBAPI_FIELDS` in
+`portal/src/data/adapters/dataverse.js`; when a page change needs a new
+column, the reply that ships it names the setting to update.
 
 The setting is `enabled`, with a d. A table without it answers the page with
 404 "Resource not found for the segment", which is what the page shows when
-one is missing; after adding settings, clear the site cache
+one is missing; after adding or changing settings, clear the site cache
 (`/_services/about` > Clear cache). Do not add
 `ComplianceMatrix/Dataverse/EntitySets`: the page already uses the
 solution's entity set names, and that setting only overrides them.
@@ -799,8 +813,8 @@ duplicates:
    (choice su_risklevel), su_legacyspid (the function's ID).
 2. Load it in dataflow 3 from Compliance Functions field_11; stop mapping
    su_risk on the function and clear it.
-3. List the function's Web API fields explicitly (`Webapi/su_compliancefunction/fields`
-   = every column except su_risk).
+3. Take su_risk out of `Webapi/su_compliancefunction/fields` (and the page
+   stops reading it there).
 4. Permissions on su_functionrating: Read through the ownership chain for
    owners (parent permissions from CM Self > directory via su_contact >
    ownership via su_person > function > rating), and Global for

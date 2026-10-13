@@ -68,6 +68,17 @@ const SELECT = {
   su_counselassignment: "su_counselassignmentid,_su_riskarea_value,_su_attorney_value,su_isdefault"
 };
 
+/* Columns the page writes but does not read back. */
+const WRITE_ONLY = { su_functionownership: ["su_name"] };
+
+/* The value of each table's Webapi/<table>/fields site setting: every column
+   the page reads or writes, with a lookup under its own logical name
+   (su_riskarea, not _su_riskarea_value). Power Pages refuses a request that
+   reads or writes any other column, and no longer accepts "*".
+   docs/DATAVERSE-MIGRATION.md, section 5, lists these values. */
+export const WEBAPI_FIELDS = Object.fromEntries(Object.entries(SELECT).map(([table, select]) => [table,
+  [...new Set([...select.split(",").map(c => (/^_(.+)_value$/.exec(c) || [])[1] || c), ...(WRITE_ONLY[table] || [])])].join(",")]));
+
 export function mapTables(t) {
   const out = {};
   if (t.riskAreas) out.riskAreas = t.riskAreas.map(r => ({ id: r.su_riskareaid, name: r.su_name, color: r.su_colorhex || "" }));
@@ -171,6 +182,7 @@ export function createDataverseAdapter(cfg) {
           /* say which table failed, so the page can name its site settings */
           e.table = table;
           e.entitySet = set(table);
+          e.fields = WEBAPI_FIELDS[table];
           e.renamed = !!(cfg.dataverseSets && cfg.dataverseSets[table]);
           throw e;
         }

@@ -34,6 +34,7 @@ import { randomUUID } from "node:crypto";
 import { Liquid } from "liquidjs";
 import { sharepointLists, dataverseTables, CONTACTS } from "./fixtures.mjs";
 import { loadFlows, runFlow, dataverseConnector, usersConnector, outlookConnector } from "./flow-runner.mjs";
+import { WEBAPI_FIELDS } from "../src/data/adapters/dataverse.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DIST = join(HERE, "..", "dist");
@@ -239,6 +240,14 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     if (set === "su_portalactions") return fail(res, 403, "The Web API is not enabled for su_portalaction (no Webapi/su_portalaction/enabled site setting).");
     /* a table without Webapi/<table>/enabled answers 404, as Power Pages does */
     if (webApiOff.includes(tableName)) return fail(res, 404, `Resource not found for the segment '${set}'.`);
+    /* Webapi/<table>/fields: only the listed columns may be read or written */
+    const allowed = new Set(String(WEBAPI_FIELDS[tableName] || "").split(","));
+    const notListed = cols => cols.map(c => (/^_(.+)_value$/.exec(c) || [])[1] || c.replace("@odata.bind", "")).find(c => !allowed.has(c));
+    if (req.method === "GET") {
+      const bad = notListed((url.searchParams.get("$select") || "").split(",").filter(Boolean));
+      if (bad) return fail(res, 403, `Attribute ${bad} in table ${tableName} is not enabled for Web Api.`);
+    }
+    if (nav && !allowed.has(nav)) return fail(res, 403, `Attribute ${nav} in table ${tableName} is not enabled for Web Api.`);
     const rows = dv[set];
     if (req.method !== "GET" && req.headers["__requestverificationtoken"] !== TOKEN) return fail(res, 403, "Missing or invalid anti-forgery token");
     log.push({ api: req.method + " " + url.pathname + url.search });
@@ -282,6 +291,8 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
       res.writeHead(204); return res.end();
     }
     const b = JSON.parse(await body(req) || "{}");
+    const unlisted = notListed(Object.keys(b));
+    if (unlisted) return fail(res, 403, `Attribute ${unlisted} in table ${tableName} is not enabled for Web Api.`);
     const err = checkDvBody(tableName, b);
     if (err) return fail(res, 400, err);
     const serverOnly = ["su_completedby", "su_closedby", "su_clearedby", "su_flaggedby"].find(c => (c + "@odata.bind") in b || c in b);

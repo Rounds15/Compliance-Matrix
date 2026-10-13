@@ -714,7 +714,7 @@ await session("Dataverse · a mis-built action form is reported, and nothing is 
     await page.locator("h2", { hasText: "The matrix could not be loaded" }).waitFor({ timeout: 20000 });
     const text = await page.locator(".cm-panel").first().innerText();
     assert.match(text, /Resource not found for the segment 'su_riskareas'/);
-    assert.match(text, /Webapi\/su_riskarea\/enabled = true and Webapi\/su_riskarea\/fields = \*/);
+    assert.match(text, /Webapi\/su_riskarea\/enabled = true and Webapi\/su_riskarea\/fields = su_riskareaid,su_name,su_colorhex,su_sortorder,/);
     assert.doesNotMatch(text, /EntitySets/, "no rename hint without an override");
     results.push("PASS  Dataverse · a table without the Web API names its site settings"); passed++;
   } catch (e) {
