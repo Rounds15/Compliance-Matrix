@@ -754,14 +754,41 @@ request cannot set them directly:
 | su_functionflag | su_flaggedby, su_clearedby, su_clearedon |
 | su_compliancefunction | su_functioncode |
 
-**Web API site settings** (Portal Management > Site Settings), each `true`
-and `*`: `Webapi/<table>/enable` and `Webapi/<table>/fields` for su_riskarea,
-su_domain, su_compliancedirectory, su_compliancefunction,
-su_functionownership, su_compliancedeadline, su_compliancegap,
-su_functionflag, su_counselassignment. **Not su_archive, su_portalaction or
-contact.** If `Webapi/su_portalaction/*` or `Webapi/contact/*` settings were
-added for the scope test, delete them: with them off, the Web API refuses any
-request to create a Portal Action, whoever it names.
+**Web API site settings** (Portal Management > Site Settings > New, website
+= this site). Two per table, named with the table's **logical name**
+(singular); the page's requests use the **entity set name** (plural), which
+Power Pages maps for you:
+
+| Table (logical name) | Entity set the page requests | Site settings |
+|---|---|---|
+| su_riskarea | su_riskareas | `Webapi/su_riskarea/enabled` = `true`; `Webapi/su_riskarea/fields` = `*` |
+| su_domain | su_domains | `Webapi/su_domain/enabled` = `true`; `Webapi/su_domain/fields` = `*` |
+| su_compliancedirectory | su_compliancedirectorys | `Webapi/su_compliancedirectory/enabled` = `true`; `Webapi/su_compliancedirectory/fields` = `*` |
+| su_compliancefunction | su_compliancefunctions | `Webapi/su_compliancefunction/enabled` = `true`; `Webapi/su_compliancefunction/fields` = `*` |
+| su_functionownership | su_functionownerships | `Webapi/su_functionownership/enabled` = `true`; `Webapi/su_functionownership/fields` = `*` |
+| su_compliancedeadline | su_compliancedeadlines | `Webapi/su_compliancedeadline/enabled` = `true`; `Webapi/su_compliancedeadline/fields` = `*` |
+| su_compliancegap | su_compliancegaps | `Webapi/su_compliancegap/enabled` = `true`; `Webapi/su_compliancegap/fields` = `*` |
+| su_functionflag | su_functionflags | `Webapi/su_functionflag/enabled` = `true`; `Webapi/su_functionflag/fields` = `*` |
+| su_counselassignment | su_counselassignments | `Webapi/su_counselassignment/enabled` = `true`; `Webapi/su_counselassignment/fields` = `*` |
+
+The setting is `enabled`, with a d. A table without it answers the page with
+404 "Resource not found for the segment", which is what the page shows when
+one is missing; after adding settings, clear the site cache
+(`/_services/about` > Clear cache). Do not add
+`ComplianceMatrix/Dataverse/EntitySets`: the page already uses the
+solution's entity set names, and that setting only overrides them.
+
+**Not su_archive, su_portalaction or contact.** If `Webapi/su_portalaction/*`
+or `Webapi/contact/*` settings were added for the scope test, delete them:
+with them off, the Web API refuses any request to create a Portal Action,
+whoever it names.
+
+**No anonymous access.** No table permission goes to Anonymous Users: the
+matrix page is limited to Testers and Administrators until cutover, and to
+Authenticated Users after it (section 11, which moves each Testers table
+permission to Authenticated Users). A permission for anonymous users would
+let anyone on the internet read the tables through `/_api` without opening
+the page.
 
 **If risk ratings may not be visible to everyone.** The rating lives in one
 column, su_compliancefunction.su_risk, with no copies (the deadline's su_risk

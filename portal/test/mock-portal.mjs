@@ -50,7 +50,7 @@ const MEMBER_GAP_FIELDS = ["field_13", "field_14", "ClosedById"];
 const liquid = new Liquid();
 liquid.registerFilter("url_escape", v => encodeURIComponent(String(v ?? "")));
 
-export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null } = {}) {
+export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [] } = {}) {
   const sp = sharepointLists();
   const dv = dataverseTables();
   const log = [];
@@ -237,6 +237,8 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     if (!entry) return fail(res, 404, `Resource not found for the segment '${set}'.`);
     const [tableName, t] = entry;
     if (set === "su_portalactions") return fail(res, 403, "The Web API is not enabled for su_portalaction (no Webapi/su_portalaction/enabled site setting).");
+    /* a table without Webapi/<table>/enabled answers 404, as Power Pages does */
+    if (webApiOff.includes(tableName)) return fail(res, 404, `Resource not found for the segment '${set}'.`);
     const rows = dv[set];
     if (req.method !== "GET" && req.headers["__requestverificationtoken"] !== TOKEN) return fail(res, 403, "Missing or invalid anti-forgery token");
     log.push({ api: req.method + " " + url.pathname + url.search });

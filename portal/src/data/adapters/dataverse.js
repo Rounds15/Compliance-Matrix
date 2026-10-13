@@ -168,6 +168,10 @@ export function createDataverseAdapter(cfg) {
         } catch (e) {
           // counsel assignments are optional; everything else must load
           if (k === "counsel") return [k, []];
+          /* say which table failed, so the page can name its site settings */
+          e.table = table;
+          e.entitySet = set(table);
+          e.renamed = !!(cfg.dataverseSets && cfg.dataverseSets[table]);
           throw e;
         }
       }));

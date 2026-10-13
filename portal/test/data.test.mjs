@@ -7,7 +7,8 @@ import { nextOccurrence, cadenceMonths } from "../src/lib/deadlines.js";
 import { addMonths, monthDiff, fiscalQ, toDay } from "../src/lib/dates.js";
 import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
-import { mapTables } from "../src/data/adapters/dataverse.js";
+import { mapTables, DEFAULT_SETS } from "../src/data/adapters/dataverse.js";
+import { readFileSync } from "node:fs";
 import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY } from "../src/data/model.js";
 import { createSampleAdapter } from "../src/data/adapters/sample.js";
 import { parseFlowResult, flowUrl } from "../src/data/transport.js";
@@ -270,4 +271,13 @@ test("toDay reads both backends' date-only values as the local calendar day", ()
   assert.deepEqual(toDay("2026-10-01"), D("2026-10-01"));           // Dataverse DateOnly
   assert.equal(toDay(""), null);
   assert.equal(toDay("not a date"), null);
+});
+
+test("the Dataverse adapter requests each table by the solution's entity set name", () => {
+  const schema = JSON.parse(readFileSync(new URL("./dv-schema.json", import.meta.url), "utf8"));
+  for (const [table, set] of Object.entries(DEFAULT_SETS)) {
+    assert.ok(schema[table], table + " is in the solution");
+    assert.equal(set, schema[table].set, table + " is requested as its EntitySetName");
+    assert.notEqual(set, table, "the entity set is plural, not the logical name");
+  }
 });

@@ -705,6 +705,23 @@ await session("Dataverse · a mis-built action form is reported, and nothing is 
   assert.equal(portal.log.some(x => x.flow === "action"), false, "the flow is not called");
 });
 
+/* a table whose Web API is off: the page names the two site settings it needs */
+{
+  const portal = await startPortal({ backend: "dataverse", admin: true, webApiOff: ["su_riskarea"] });
+  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  try {
+    await page.goto(portal.url);
+    await page.locator("h2", { hasText: "The matrix could not be loaded" }).waitFor({ timeout: 20000 });
+    const text = await page.locator(".cm-panel").first().innerText();
+    assert.match(text, /Resource not found for the segment 'su_riskareas'/);
+    assert.match(text, /Webapi\/su_riskarea\/enabled = true and Webapi\/su_riskarea\/fields = \*/);
+    assert.doesNotMatch(text, /EntitySets/, "no rename hint without an override");
+    results.push("PASS  Dataverse · a table without the Web API names its site settings"); passed++;
+  } catch (e) {
+    results.push("FAIL  Dataverse · a table without the Web API names its site settings\n      " + String(e.message).split("\n")[0]);
+  } finally { await page.close(); await portal.close(); }
+}
+
 /* ======================= phone width: no sideways scroll ======================= */
 await session("Phone width · every screen fits, the drawer and profile open", { backend: "sharepoint", admin: true }, async ({ page, go, view }) => {
   await page.setViewportSize({ width: 390, height: 800 });
