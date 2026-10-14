@@ -405,7 +405,7 @@
               "type": "Query",
               "inputs": {
                 "from": "@coalesce(first(body('Find_web_roles')?['value'])?['powerpagecomponent_mspp_webrole_contact'], json('[]'))",
-                "where": "@equals(item()?['name'], 'Compliance Matrix Administrators')"
+                "where": "@equals(item()?['name'], 'Administrators')"
               },
               "runAfter": {
                 "Find_web_roles": [

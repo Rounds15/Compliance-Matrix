@@ -85,7 +85,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     { name: "Contact", url: "/contact/", weblinks: [] }] } };
   const sitemap = { "/resources/": { children: [{ title: "Forms", url: "/resources/forms/", description: "<p>Every form the office uses</p>" }] } };
   const contactId = user ? (user.contactId || CONTACTS[String(user.email).toLowerCase()] || "c0ffee00-0000-4000-8000-000000000001") : null;
-  const userCtx = () => (user ? { emailaddress1: user.email, fullname: user.name, id: contactId, roles: admin ? ["Authenticated Users", "Compliance Matrix Administrators"] : ["Authenticated Users"] } : null);
+  const userCtx = () => (user ? { emailaddress1: user.email, fullname: user.name, id: contactId, roles: admin ? ["Authenticated Users", "Administrators"] : ["Authenticated Users"] } : null);
 
   /* ---------------- SharePoint: value checks per column kind ---------------- */
   const checkSpFields = (list, fields, op) => {
@@ -149,7 +149,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
      The generated flow itself (solution/src/Workflows), run by
      flow-runner.mjs over these tables. The signed-in contact holds the
      administrator web role when the session is an administrator's. */
-  const ADMIN_ROLE = "Compliance Matrix Administrators", ROLE_REL = "powerpagecomponent_mspp_webrole_contact";
+  const ADMIN_ROLE = "Administrators", ROLE_REL = "powerpagecomponent_mspp_webrole_contact";
   const contactRows = [...new Set([...Object.values(CONTACTS), contactId].filter(Boolean))].map(id => ({
     contactid: id, fullname: id === contactId && user ? user.name : "Contact",
     [ROLE_REL]: ["Authenticated Users", ...(id === contactId && admin ? [ADMIN_ROLE] : [])] }));

@@ -13,7 +13,7 @@ alertTo: SyracuseComplianceMatrix@groups.syr.edu
 # The web role whose members may do any portal action (section 5 of
 # docs/DATAVERSE-MIGRATION.md); same as the site setting
 # ComplianceMatrix/AdminWebRole.
-adminWebRole: Compliance Matrix Administrators
+adminWebRole: Administrators
 
 # The many-to-many relationship between Contact and its web roles on the
 # enhanced data model (make.powerapps.com > Tables > Contact > Relationships).

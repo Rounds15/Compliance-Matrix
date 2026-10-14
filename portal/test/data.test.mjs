@@ -303,9 +303,25 @@ test("deadline titles drop the record number the SharePoint Title led with", () 
   assert.equal(deadlineTitle("Title IX | Annual training"), "Title IX | Annual training", "a name with a bar is left alone");
   assert.equal(deadlineTitle("Publish Annual Security Report"), "Publish Annual Security Report");
   assert.equal(deadlineTitle(""), "");
+  assert.equal(deadlineTitle("\uFEFF344 | Annual Security Report"), "Annual Security Report", "a leading byte-order mark");
+  assert.equal(deadlineTitle("\u200B344\u00A0|\u00A0Annual Security Report"), "Annual Security Report", "zero-width and non-breaking spaces");
+  assert.equal(deadlineTitle("344 \uFF5C Annual Security Report"), "Annual Security Report", "a full-width bar");
+  assert.equal(deadlineTitle("#344 | Annual Security Report"), "Annual Security Report");
+  assert.equal(deadlineTitle("344|Annual Security Report|10/1/2026"), "Annual Security Report|10/1/2026", "no spaces round the bar");
+  assert.equal(deadlineTitle("344"), "", "a bare number falls back to the function name");
   const ds = buildDataset({
     functions: [{ id: 344, code: "344", name: "Clery Act", riskAreaId: 1 }], riskAreas: [{ id: 1, name: "Safety" }],
     deadlines: [{ id: 1, functionId: 344, title: "344 | Annual Security Report | 10/1/2026", base: new Date(2026, 9, 1), cadence: "Annual" }]
   }, { today: new Date(2026, 6, 1) });
   assert.equal(ds.allDeadlines[0].title, "Annual Security Report | 10/1/2026");
+});
+
+test("the administrator web role is the site's Administrators role, the same in both templates and the flow", () => {
+  const role = t => (t.match(/AdminWebRole'\] \| default: '([^']*)'/) || [])[1];
+  const page = readFileSync(new URL("../power-pages/compliance-matrix.webtemplate.liquid", import.meta.url), "utf8");
+  const header = readFileSync(new URL("../power-pages/site-header.webtemplate.liquid", import.meta.url), "utf8");
+  const flows = readFileSync(new URL("../../solution/schema/flows.yaml", import.meta.url), "utf8");
+  assert.equal(role(page), "Administrators");
+  assert.equal(role(header), "Administrators");
+  assert.equal((flows.match(/^adminWebRole: (.*)$/m) || [])[1], "Administrators");
 });

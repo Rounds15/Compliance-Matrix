@@ -241,7 +241,7 @@ The flows import turned off; they need connections first.
    its connectors.
 5. **Add the action flow to the site.** Design Studio > Set up > **Cloud
    flows** > + Add cloud flow > **CM - Process portal action**; roles
-   Compliance Matrix Testers and Compliance Matrix Administrators. Copy the
+   Compliance Matrix Testers and Administrators. Copy the
    URL it shows (`/_api/cloudflow/v1.0/trigger/<id>`) into the site setting
    **`ComplianceMatrix/Flow/Action`** (create the setting if it is not
    there).
@@ -699,7 +699,7 @@ For the su_function lookup, merge against the Compliance Functions IDs:
 | Role | Who | When |
 |---|---|---|
 | Compliance Matrix Testers | the small test group | until cutover |
-| Compliance Matrix Administrators | compliance office staff (`ComplianceMatrix/AdminWebRole`) | always |
+| Administrators | compliance office staff (`ComplianceMatrix/AdminWebRole`; the site's own Administrators role, so no new role is needed) | always |
 | Authenticated Users | every signed-in person | takes over the Testers rows at cutover |
 
 The matrix page's permissions (Design Studio > Pages > Compliance Matrix >

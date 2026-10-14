@@ -12,8 +12,8 @@ You build four flows once, plus two optional notification flows. Each is short.
 |---|---|---|
 | **CM - Read list** | Authenticated Users | Returns one list's items |
 | **CM - Write (members)** | Authenticated Users | Raise a flag, log or close a gap, complete or reverse a deadline |
-| **CM - Write (administrators)** | Compliance Matrix Administrators | Every create, update and delete the app makes |
-| **CM - Find person** *(optional)* | Compliance Matrix Administrators | Looks someone up in Entra ID for the directory |
+| **CM - Write (administrators)** | Administrators | Every create, update and delete the app makes |
+| **CM - Find person** *(optional)* | Administrators | Looks someone up in Entra ID for the directory |
 
 The page sends each flow one text value, `request`, holding JSON, and expects
 one text value back, `result`, holding JSON. The contract below is exactly what

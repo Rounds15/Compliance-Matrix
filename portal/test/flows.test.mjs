@@ -224,7 +224,7 @@ test("Process portal action: only the administrator web role may delete a functi
   const owner = actionWorld();
   assert.equal(owner.act({ su_action: 100000125, _su_function_value: G(201) }).reply.error, "You are not allowed to do that on this function.");
   assert.ok(owner.dv.su_compliancefunctions.some(f => f.su_compliancefunctionid === G(201)));
-  const admin = actionWorld(["Compliance Matrix Administrators"]);
+  const admin = actionWorld(["Administrators"]);
   assert.equal(admin.act({ su_action: 100000125, _su_function_value: G(201) }).reply.ok, true);
   assert.equal(admin.dv.su_compliancefunctions.some(f => f.su_compliancefunctionid === G(201)), false);
 });
@@ -252,7 +252,7 @@ test("Process portal action: a gap with no function can be closed by an administ
   const owner = actionWorld();
   assert.equal(owner.act({ su_action: 100000122, _su_gap_value: G(604) }).reply.error, "You are not allowed to do that on this function.");
   assert.equal(owner.dv.su_compliancegaps.find(g => g.su_compliancegapid === G(604)).su_status, 100000020);
-  const admin = actionWorld(["Compliance Matrix Administrators"]);
+  const admin = actionWorld(["Administrators"]);
   const r = admin.act({ su_action: 100000122, su_reason: "Adopted.", _su_gap_value: G(604) });
   assert.equal(r.reply.ok, true);
   const g = admin.dv.su_compliancegaps.find(x => x.su_compliancegapid === G(604));

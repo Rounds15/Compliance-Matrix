@@ -48,10 +48,15 @@ export function samePerson(a, b) {
 
 /* A deadline's title as the lists stored it, without the record number the
    SharePoint Title led with ("344 | Annual Security Report | 10/1/2026"):
-   a leading segment that is a number, or the function's own code, is dropped. */
+   a leading segment that is a number (or "#344"), or the function's own
+   code, is dropped. Invisible characters a copy can carry are ignored, and
+   the full-width and box-drawing bars count as the bar. */
+const BAR = "|\uFF5C\u00A6\u2502";
+const LEAD = new RegExp("^#?\\s*([^" + BAR + "]+?)\\s*[" + BAR + "]\\s*(\\S[\\s\\S]*)$");
 export function deadlineTitle(title, f) {
-  const s = String(title || "").trim();
-  const m = s.match(/^([^|]+?)\s*\|\s*(\S[\s\S]*)$/);
+  const s = String(title || "").replace(/[\u200B-\u200D\u2060\uFEFF]/g, "").trim();
+  if (/^#?\d+$/.test(s)) return "";
+  const m = s.match(LEAD);
   if (!m) return s;
   const head = m[1].trim();
   return /^\d+$/.test(head) || (f && f.code != null && head === String(f.code)) ? m[2].trim() : s;

@@ -154,7 +154,7 @@ async function sitePreview(header, footer) {
     settings: {},
     website: { name: "Office of Compliance" },
     request: { path: "/policies-and-training/", path_and_query: "/policies-and-training/" },
-    user: { fullname: "Camila Ruiz", emailaddress1: "cruiz@syr.edu", roles: ["Authenticated Users", "Compliance Matrix Administrators"] },
+    user: { fullname: "Camila Ruiz", emailaddress1: "cruiz@syr.edu", roles: ["Authenticated Users", "Administrators"] },
     weblinks: { Default: { weblinks: [
       { name: "Home", url: "/", weblinks: [] },
       { name: "Compliance Matrix", url: "/compliance-matrix/", weblinks: [] },
