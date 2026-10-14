@@ -60,8 +60,15 @@ button.hm-fig:focus-visible { outline: 3px solid var(--navy); outline-offset: 4p
 .mx-table tbody tr:focus-visible { outline: 3px solid var(--orange); outline-offset: -3px }
 
 /* ---------- Function Detail ---------- */
-.fd-del { color: var(--crit) !important }
-.fd-del:hover { background: var(--crit) !important; color: #fff !important; border-color: var(--crit) !important }
+/* Take action: outlined buttons; orange for the work steps, red for delete */
+.rail-acts .button { border-width: 2px; border-style: solid; padding: 4px 12px; font-weight: 700 }
+.button-warn-outline { background: transparent; color: var(--orange-link); border: 2px solid var(--orange) }
+.button-warn-outline:hover, .button-warn-outline.on { background: var(--orange); color: #fff; border-color: var(--orange) }
+.button-info-outline { background: transparent; color: #1F5FB8; border: 2px solid #2B72D7 }
+.button-info-outline:hover { background: #2B72D7; color: #fff; border-color: #2B72D7 }
+.rail-acts .button:disabled { opacity: .5; cursor: not-allowed; background: transparent }
+.rail-acts .button-secondary-outline:disabled { color: #000e54 }
+.rail-acts .button-warn-outline:disabled { color: var(--orange-link) }
 .rail-rel.all { color: var(--orange-link); font-weight: 700 }
 .operson-n.linkish { background: none; border: 0; padding: 0; font: inherit; font-size: 13px; font-weight: 700; color: #000E54; text-align: left; cursor: pointer }
 .operson-n.linkish:hover { color: var(--orange-link); text-decoration: underline }
@@ -180,9 +187,9 @@ code { font-size: .88em; overflow-wrap: anywhere }
 
 /* ---------- Accountability Structure as tiers ----------
    One band per role, top to bottom in the chain's order, each with its own
-   colour, a numbered marker, and a connector down to the next tier. */
+   colour and a connector down to the next tier. */
 .ochain.tiers { display: flex; flex-direction: column; gap: 0 }
-.orole.tier { --tier: #000E54; display: grid; grid-template-columns: 210px minmax(0, 1fr); border: 1px solid #E2E5EA; border-left: 5px solid var(--tier); background: #fff; padding: 0; position: relative }
+.orole.tier { --tier: #000E54; display: grid; grid-template-columns: 232px minmax(0, 1fr); border: 1px solid #E2E5EA; border-left: 5px solid var(--tier); background: #fff; padding: 0; position: relative }
 .orole.tier.unit { --tier: #2B72D7 }
 .orole.tier.compliance { --tier: #F76900 }
 .orole.tier.support { --tier: #0F766E; background: #FAFBFD }
@@ -190,14 +197,24 @@ code { font-size: .88em; overflow-wrap: anywhere }
 .orole.tier + .orole.tier::before { content: ""; position: absolute; left: 24px; top: -23px; width: 2px; height: 22px; background: #C4C7CE }
 .orole.tier + .orole.tier::after { content: ""; position: absolute; left: 20px; top: -8px; border: 5px solid transparent; border-top-color: #C4C7CE; border-bottom: 0 }
 .tier-h { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 12px; background: #F7F8FA; border-right: 1px solid #EEF0F4 }
-.tier-n { flex: none; width: 28px; height: 28px; display: grid; place-items: center; background: var(--tier); color: #fff; font-size: 14px; font-weight: 700; line-height: 1 }
-.tier .orole-t { display: block; font-size: 12px; color: var(--tier); white-space: normal }
+.tier-h { flex-direction: column; gap: 0 }
+.tier-ttl { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px }
+.tier .orole-t { font-size: 12px; color: var(--tier); white-space: normal }
 .orole.tier.compliance .orole-t { color: #D74100 }
 .orole.tier.support .orole-t { color: #0F766E }
-.tier .orole-n { display: block; margin-top: 3px }
+.tier .orole-n, .rail-card.support .orole-n { font-weight: 400; letter-spacing: 0; text-transform: none; color: #707780 }
 .tier .orole-note { padding: 6px 0 0; border: 0 }
 .tier-people { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); align-content: start; padding: 10px; gap: 10px }
-.tier-people .operson { border: 1px solid #EEF0F4; background: #fff }
+/* a person card: initials, bold name, role and sub-role, then title, unit and email */
+.tier-people .operson { border: 1px solid #E2E5EA; border-left: 3px solid var(--tier); background: #fff; padding: 12px 14px; gap: 10px 12px; flex-wrap: wrap }
+.tier-people .operson-b, .sup-people .operson-b { flex: 1 1 0; min-width: 0 }
+.operson .operson-n.linkish, .operson .operson-n { display: block; font-size: 13.5px; line-height: 1.3; overflow-wrap: anywhere }
+.operson-r { margin-top: 3px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tier, #000E54) }
+.orole.tier.compliance .operson-r { color: #D74100 }
+.operson-u { font-size: 11.5px; color: #707780; margin-top: 1px; line-height: 1.35 }
+.operson-b a.operson-e { display: block; margin-top: 4px; width: fit-content; max-width: 100% }
+/* managing: the sub-role picker and remove button sit on a row under the card */
+.operson-m { flex: 1 0 100%; display: flex; justify-content: flex-end; align-items: center; gap: 6px; padding-top: 8px; border-top: 1px solid #EEF0F4 }
 .tier-people .oempty { border: 0; padding: 8px 4px }
 .tier-people .oadd, .tier-people .opick { grid-column: 1 / -1; margin: 0 }
 @media (max-width: 700px) {
@@ -205,8 +222,21 @@ code { font-size: .88em; overflow-wrap: anywhere }
   .tier-h { border-right: 0; border-bottom: 1px solid #EEF0F4 }
 }
 
+/* ---------- Support, in the rail under General Counsel ---------- */
+.rail-card.support { --tier: #0F766E; border-top-color: #0F766E; background: #FAFBFD; padding: 13px 13px 14px }
+.rail-card.support .rail-t { color: #0F766E; margin-bottom: 6px }
+.rail-card.support .rail-t .orole-n { font-size: 11px; margin-right: auto }
+.sup-people { display: flex; flex-direction: column; gap: 8px; margin-top: 10px }
+.sup-people .operson { border: 1px solid #E2E5EA; border-left: 3px solid var(--tier); background: #fff; padding: 9px 10px; gap: 8px 9px; flex-wrap: wrap }
+.sup-people .operson-n.linkish, .sup-people .operson-n { font-size: 12.5px }
+.sup-people .operson-t, .sup-people .operson-u, .sup-people .operson-b a.operson-e { font-size: 11px }
+.sup-people .oempty { padding: 4px 0; border: 0 }
+.rail-card.support .oadd { width: 100%; margin: 0 }
+.sup-save { display: flex; gap: 6px; margin-top: 10px }
+.sup-save .button { flex: 1 }
+
 /* ---------- General Counsel card editor ---------- */
-.rail-card.gc .rail-t { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.rail-card.gc .rail-t, .rail-card.support .rail-t { display: flex; align-items: center; justify-content: space-between; gap: 8px }
 .gc-edit { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid #C4C7CE; color: #000E54; font: inherit; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: none; padding: 3px 8px; cursor: pointer }
 .gc-edit:hover { border-color: #000E54 }
 .gc-pick { margin-top: 12px }

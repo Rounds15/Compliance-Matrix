@@ -208,10 +208,18 @@ await session("SharePoint · administrator · header, view modes, every write", 
   await page.locator(".orole.unit .oadd").click();
   await page.locator(".orole.unit .opick-r select").selectOption("Advisory");
   await pick(page.locator(".orole.unit"), "Andrea", "Andrea Whitaker");
-  await page.locator(".orole.support .oadd").click();
-  await pick(page.locator(".orole.support"), "Marcus", "Marcus Delgado");
+  assert.equal(await page.locator(".orole.support").count(), 0, "Support is not a tier; it has its own rail card");
   await btn("Save chain").click();
   await toast(/Ownership chain saved/);
+  // Support, from its rail card under General Counsel; the chain is carried through
+  const sup = page.locator(".rail-card.support");
+  assert.equal(await sup.locator(".oempty").count(), 1, "no Support yet");
+  await sup.locator(".gc-edit").click();
+  await sup.locator(".oadd").click();
+  await pick(sup, "Marcus", "Marcus Delgado");
+  await btn("Save Support", sup).click();
+  await toast(/Support saved/);
+  assert.equal(await text(sup.locator(".operson-r")), "Support \u00b7 Primary");
   const chain = sp["Accountability Structure"].filter(r => r.FunctionId === 201);
   assert.equal(chain.length, 6);
   const unit = chain.find(r => r.field_3 === "Unit Owner");
@@ -223,17 +231,23 @@ await session("SharePoint · administrator · header, view modes, every write", 
   assert.ok(!chain.some(r => [301, 302, 303, 304].includes(r.Id)), "old rows replaced");
   await page.locator(".orole.unit .operson", { hasText: "Andrea Whitaker" }).waitFor();
   assert.equal(await page.locator(".orole.counsel").count(), 0, "General Counsel is not a tier; it has the rail card");
-  assert.deepEqual(await page.locator(".orole.tier .tier-n").allTextContents(), ["1", "2", "3", "+"], "Executive, Unit, Compliance, then Support");
+  assert.equal(await page.locator(".tier-n").count(), 0, "the tiers carry no numbers");
+  assert.deepEqual(await page.locator(".orole.tier .tier-ttl").allTextContents(), ["Executive Owner 1 person", "Unit Owner 1 person", "Compliance Owner 2 people"], "Executive, Unit, then Compliance; a space before the count");
+  // a person card: the name, then the role and sub-role, then the email, each on its own line
+  const pcard = page.locator(".orole.unit .operson", { hasText: "Andrea Whitaker" });
+  assert.equal(await text(pcard.locator(".operson-r")), "Unit Owner \u00b7 Advisory");
+  const [nameBox, emailBox] = [await pcard.locator(".operson-n").boundingBox(), await pcard.locator(".operson-e").boundingBox()];
+  assert.ok(emailBox.y >= nameBox.y + nameBox.height, "the email sits below the name, not beside it");
 
   // General Counsel, changed and removed from its rail card; the chain is carried through
-  await page.locator(".gc-edit").click();
+  await page.locator(".rail-card.gc .gc-edit").click();
   await pick(page.locator(".rail-card.gc"), "Andrea", "Andrea Whitaker");
   await toast(/General Counsel saved/);
   const gcRows = () => sp["Accountability Structure"].filter(r => r.FunctionId === 201 && r.field_3 === "General Counsel");
   assert.deepEqual(gcRows().map(r => r.PersonId), [102]);
   assert.equal(sp["Accountability Structure"].filter(r => r.FunctionId === 201).length, 6, "the other five rows are kept");
   assert.match(await page.locator(".rail-card.gc").innerText(), /Andrea Whitaker/);
-  await page.locator(".gc-edit").click();
+  await page.locator(".rail-card.gc .gc-edit").click();
   await btn("Remove General Counsel").click();
   await toast(/General Counsel saved/);
   assert.equal(gcRows().length, 0);
@@ -344,7 +358,8 @@ await session("SharePoint · owner · own scope, member flow only, admin UI abse
   assert.equal(await btn("Edit this record").count(), 0);
   assert.equal(await btn("Delete this function").count(), 0);
   assert.equal(await btn("Manage people").count(), 0);
-  assert.equal(await page.locator(".gc-edit").count(), 0, "owners cannot change counsel");
+  assert.equal(await page.locator(".rail-card.gc .gc-edit").count(), 0, "owners cannot change counsel");
+  assert.equal(await page.locator(".rail-card.support .gc-edit").count(), 0, "owners cannot manage Support");
   assert.equal(await text(page.locator(".fd-tags .risk")), "High", "owners see the rating");
   await go("#/functions");
   assert.equal(await btn("Add new function").count(), 0);
@@ -522,8 +537,9 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
 
   await btn("Manage people").click();
   assert.equal(await page.locator(".orole.counsel").count(), 0, "General Counsel has the rail card, not a tier");
-  assert.equal(await page.locator(".gc-edit").count(), 1, "General Counsel is per function on Dataverse too");
-  assert.deepEqual(await page.locator(".orole .orole-t").allTextContents(), ["Executive Owner", "Unit Owner", "Compliance Owner", "Support"]);
+  assert.equal(await page.locator(".rail-card.gc .gc-edit").count(), 1, "General Counsel is per function on Dataverse too");
+  assert.deepEqual(await page.locator(".orole .orole-t").allTextContents(), ["Executive Owner", "Unit Owner", "Compliance Owner"]);
+  assert.equal(await page.locator(".rail-card.support .gc-edit").count(), 1, "Support is managed from its rail card");
   await page.locator(".orole.unit .oadd").click();
   await page.locator(".orole.unit .opick-r select").selectOption("Advisory");
   await pick(page.locator(".orole.unit"), "Andrea", "Andrea Whitaker");

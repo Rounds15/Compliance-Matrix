@@ -10,7 +10,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Icon, Avatar, Risk, Field, Empty, Modal, ModalHead, Busy, DuePill, dueState, bare, useApp } from "./parts.jsx";
 import { CompletionDialog, CompleteButton, useVisibleDeadlines } from "./Completion.jsx";
-import { OwnershipChain, CounselCard } from "./Ownership.jsx";
+import { OwnershipChain, CounselCard, SupportCard } from "./Ownership.jsx";
 import { functionsFor, allRows } from "../data/model.js";
 import { fmtDate, fiscalQ } from "../lib/dates.js";
 import { RISK_COLOR, RISK_CHOICES, riskRank } from "../lib/risk.js";
@@ -247,14 +247,15 @@ export function FunctionDetail({ f, isNew }) {
           <div className="rail-acts">
             {realAdmin && <button className="button button-secondary-outline button-sm" onClick={() => { setD(draftOf(f)); setPanel(null); setMode("edit"); }}><Icon n="edit" s={14} />Edit this record</button>}
             <button className={"button button-secondary-outline button-sm" + (panel === "flag" ? " on" : "")} aria-pressed={panel === "flag"} onClick={() => setPanel(p => p === "flag" ? null : "flag")}><Icon n="flag" s={14} />Flag for review</button>
-            <button className="button button-danger-outline button-sm" aria-pressed={panel === "gap"} onClick={() => setPanel(p => p === "gap" ? null : "gap")}><Icon n="alert" s={14} />Log a gap</button>
-            <button className="button button-ghost button-sm" onClick={() => go("Deadlines")}><Icon n="calendar" s={14} />See all deadlines</button>
-            <button className="button button-ghost button-sm" disabled={!dls.length} onClick={addToCalendar} title={dls.length ? "Download the deadlines as a calendar file" : "No deadlines to add"}><Icon n="plus" s={14} />Add to my calendar</button>
-            <button className="button button-ghost button-sm" disabled={!dls.length} onClick={() => setCompleting(nextDue || dls[0])}><Icon n="check" s={14} />Mark complete for this cycle</button>
-            {realAdmin && <button className="button button-ghost button-sm fd-del" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
+            <button className={"button button-warn-outline button-sm" + (panel === "gap" ? " on" : "")} aria-pressed={panel === "gap"} onClick={() => setPanel(p => p === "gap" ? null : "gap")}><Icon n="alert" s={14} />Log a gap</button>
+            <button className="button button-info-outline button-sm" onClick={() => go("Deadlines")}><Icon n="calendar" s={14} />See all deadlines</button>
+            <button className="button button-secondary-outline button-sm" disabled={!dls.length} onClick={addToCalendar} title={dls.length ? "Download the deadlines as a calendar file" : "No deadlines to add"}><Icon n="plus" s={14} />Add to my calendar</button>
+            <button className="button button-warn-outline button-sm" disabled={!dls.length} onClick={() => setCompleting(nextDue || dls[0])}><Icon n="check" s={14} />Mark complete for this cycle</button>
+            {realAdmin && <button className="button button-danger-outline button-sm" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
           </div>
         </div>}
         <CounselCard f={f} />
+        <SupportCard f={f} />
         {!!related.length && !editing && <div className="rail-card quiet">
           <div className="rail-t">Related in {f.topic}</div>
           {related.map(x => <button key={x.id} className="rail-rel" onClick={() => openFn(x)}>
