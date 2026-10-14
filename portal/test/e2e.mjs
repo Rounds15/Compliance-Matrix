@@ -446,7 +446,10 @@ await session("SharePoint · directory edit, reassign, remove; view as a user", 
   assert.ok(railBox.max <= railBox.vh - railBox.hdr - 31, `panel ${railBox.max}px fits a ${railBox.vh}px window below the header`);
   assert.equal(await text(page.locator(".dir-toolbar .count")), "5 people");
   await page.locator(".dir-table tr", { hasText: "Dwight Ferrell" }).click();
-  assert.equal(await text(page.locator(".dir-rail .dir-role")), "Compliance Owner");
+  assert.equal(await page.locator(".dir-rail .dir-role").count(), 0, "not on the Executive Team: no tag under the title");
+  await page.locator(".dir-table tr", { hasText: "Marcus Delgado" }).click();
+  assert.equal(await text(page.locator(".dir-rail .dir-role")), "Executive Team", "an executive owner is on the Executive Team");
+  await page.locator(".dir-table tr", { hasText: "Dwight Ferrell" }).click();
   await page.locator(".dir-rail button", { hasText: "Edit" }).click();
   await modal().locator("#pe-name").fill("Dwight A. Ferrell");
   assert.match(await modal().innerText(), /This person owns 2 function\(s\)\. Renaming is safe now, because ownership is by reference\./);

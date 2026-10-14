@@ -124,14 +124,18 @@ function AddPerson({ onClose }) {
 }
 
 /* the profile: contact, work, and the ownership portfolio */
-function Profile({ p, role, onDialog }) {
+function Profile({ p, onDialog }) {
   const { ds, realAdmin, openFn } = useApp();
   const owned = useMemo(() => functionsFor(p, ds.fns).sort((a, b) => a.name.localeCompare(b.name)), [p, ds]);
   const areas = new Set(owned.map(f => String(f.topicId))).size;
+  /* only Executive Team members (the Executive Team page's people) carry a
+     tag under their title; everyone else shows name and title alone */
+  const onExecTeam = ds.executives.some(x => samePerson(x, p));
   return <>
     <div className="dir-rail-hd">
       <Avatar person={p} size={92} />
-      <div><h2>{p.n}</h2>{p.t && <div className="ti">{p.t}</div>}<RoleTag role={role} /></div>
+      <div><h2>{p.n}</h2>{p.t && <div className="ti">{p.t}</div>}
+        {onExecTeam && <span className="dir-role t-exec dir-exec"><span className="dot"></span>Executive Team</span>}</div>
     </div>
     <div className="dir-stats">
       <div className="stat"><div className="n">{chainFns(p, ds.fns).length}</div><div className="l">Assigned functions</div></div>
@@ -252,7 +256,7 @@ export function Directory({ personId }) {
       </div>
 
       {!narrow && <aside className="dir-rail">{active
-        ? <Profile p={active} role={dirRole(active)} onDialog={setDialog} />
+        ? <Profile p={active} onDialog={setDialog} />
         : <div className="dir-rail-empty"><p>Select a person to see contact details, unit, and their ownership portfolio.</p></div>}
       </aside>}
     </div>
@@ -260,7 +264,7 @@ export function Directory({ personId }) {
     {narrow && active && !dialog && <Modal onClose={() => setSelId(null)} label={active.n}>
       <div className="mhd"><div><div className="eyebrow" style={{ color: "#FF8E00" }}>Compliance Directory</div></div>
         <button className="cl" onClick={() => setSelId(null)} aria-label="Close">{"✕"}</button></div>
-      <div className="mbd dir-rail dir-rail-m"><Profile p={active} role={dirRole(active)} onDialog={setDialog} /></div>
+      <div className="mbd dir-rail dir-rail-m"><Profile p={active} onDialog={setDialog} /></div>
     </Modal>}
     {dialog === "add" && <AddPerson onClose={() => setDialog(null)} />}
     {dialog === "edit" && active && <EditPerson person={active} onClose={() => setDialog(null)} />}
