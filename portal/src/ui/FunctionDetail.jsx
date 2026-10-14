@@ -10,7 +10,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Icon, Avatar, Risk, Field, Empty, Modal, ModalHead, Busy, DuePill, dueState, bare, useApp } from "./parts.jsx";
 import { CompletionDialog, CompleteButton, useVisibleDeadlines } from "./Completion.jsx";
-import { OwnershipChain, CounselCard, SupportCard } from "./Ownership.jsx";
+import { OwnershipChain, CounselCard, SupportCard, OwnersEditor, ownersOf, ownerRows, ownerKey } from "./Ownership.jsx";
 import { functionsFor, allRows } from "../data/model.js";
 import { fmtDate, fiscalQ } from "../lib/dates.js";
 import { RISK_COLOR, RISK_CHOICES, riskRank } from "../lib/risk.js";
@@ -21,7 +21,9 @@ const draftOf = f => f ? { ...f } : {
   statuteUrl: "", description: "", reporting: "", deadline: "", resourceLabel: "", resourceUrl: "", risk: "Unrated"
 };
 
-function EditForm({ d, set }) {
+/* the canvas app's edit mode: every field of the record, the ownership chain
+   and General Counsel, saved together with "Save changes" */
+function EditForm({ f, d, set, own, setOwn }) {
   const { ds } = useApp();
   const areas = [...ds.topics].sort((a, b) => a.name.localeCompare(b.name));
   const domains = ds.domains.filter(x => String(x.topicId) === String(d.topicId));
@@ -48,13 +50,14 @@ function EditForm({ d, set }) {
             {domains.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
       </div>
     </Field>
+    <OwnersEditor value={own} onChange={setOwn} fallback={f && !f.chain.counsel.length ? f.counsel : null} />
     <Field label="Governing statute">
       <div className="frow">{text("statute", "Statute", "Statute")}{text("citation", "Statute citation", "Citation")}</div>
       {text("statuteUrl", "Statute URL", "https://")}
     </Field>
-    <Field label="What the obligation is"><textarea className="ti" aria-label="Description" value={d.description} onChange={e => set({ description: e.target.value })} placeholder="Description" /></Field>
-    <Field label="Reporting requirement"><textarea className="ti" aria-label="Reporting requirement" value={d.reporting} onChange={e => set({ reporting: e.target.value })} placeholder="Reporting requirement" /></Field>
-    <Field label="Deadline and cadence"><input className="ti" aria-label="Deadline" value={d.deadline} onChange={e => set({ deadline: e.target.value })} placeholder="Deadline" /></Field>
+    <Field label="What the obligation is"><textarea id="fd-description" className="ti" aria-label="Description" value={d.description || ""} onChange={e => set({ description: e.target.value })} placeholder="Description" /></Field>
+    <Field label="Reporting requirement"><textarea id="fd-reporting" className="ti" aria-label="Reporting requirement" value={d.reporting || ""} onChange={e => set({ reporting: e.target.value })} placeholder="Reporting requirement" /></Field>
+    <Field label="Deadline and cadence"><textarea id="fd-deadline" className="ti" aria-label="Deadline" value={d.deadline || ""} onChange={e => set({ deadline: e.target.value })} placeholder="Deadline" /></Field>
     <Field label="Syracuse University resource">
       <div className="frow">{text("resourceLabel", "SU resource label", "Resource label")}{text("resourceUrl", "SU resource URL", "https://")}</div>
     </Field>
@@ -66,6 +69,7 @@ export function FunctionDetail({ f, isNew }) {
   const visible = useVisibleDeadlines();
   const [mode, setMode] = useState(isNew ? "edit" : "read");
   const [d, setD] = useState(() => draftOf(f));
+  const [own, setOwn] = useState(() => ownersOf(f));
   const [panel, setPanel] = useState(null); // "flag" | "gap" | null
   const [flagText, setFlagText] = useState("");
   const [gapForm, setGapForm] = useState({ title: "", note: "" });
@@ -92,19 +96,21 @@ export function FunctionDetail({ f, isNew }) {
   const save = async () => {
     if (!d.name.trim() || d.topicId == null || d.areaId == null) { flash("Function name, risk area, and domain are all required.", "error"); return; }
     try {
-      const r = await actions.saveFunction({ ...d, name: d.name.trim() }, !!isNew);
+      const changed = isNew ? own.owners.length > 0 || !!own.gc : ownerKey(own) !== ownerKey(ownersOf(f));
+      const r = await actions.saveFunction({ ...d, name: d.name.trim() }, !!isNew, changed ? ownerRows(own) : null);
       if (isNew) window.location.replace("#/functions/" + encodeURIComponent(r.id));
       else setMode("read");
     } catch (e) { /* the toast says what failed */ }
   };
-  const cancel = () => { if (isNew) go("Functions"); else { setD(draftOf(f)); setMode("read"); } };
+  const startEdit = () => { setD(draftOf(f)); setOwn(ownersOf(f)); setPanel(null); setMode("edit"); };
+  const cancel = () => { if (isNew) go("Functions"); else { setD(draftOf(f)); setOwn(ownersOf(f)); setMode("read"); } };
   const submitFlag = async () => {
     try { await actions.addFlag(f, flagText.trim()); setPanel(null); setFlagText(""); } catch (e) { /* toast */ }
   };
   const submitGap = async () => {
     try { await actions.logGap(f, { title: gapForm.title.trim(), note: gapForm.note.trim() }); setPanel(null); setGapForm({ title: "", note: "" }); } catch (e) { /* toast */ }
   };
-  const addToCalendar = () => download("compliance-deadlines-" + String(f.code).replace(/[^A-Za-z0-9-]/g, "") + ".ics",
+  const addToCalendar = () => download("compliance-deadlines-" + (String(f.name).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "function") + ".ics",
     deadlinesIcs(dls, window.location.hostname || "syr.edu"), "text/calendar");
   const del = async () => {
     try { await actions.deleteFunction(f); setConfirmDel(false); go("Functions"); } catch (e) { /* toast */ }
@@ -134,12 +140,11 @@ export function FunctionDetail({ f, isNew }) {
         <h1>{title}</h1>
         <div className="fd-tags">
           {showRisk && <Risk r={shownRisk} />}
-          {f && <span className="fd-chip">ID {f.code}</span>}
           {(editing ? d.statute : f.statute) && <span className="fd-chip">{editing ? d.statute : f.statute}</span>}
           {openGaps.length > 0 && <span className="gapbadge">{openGaps.length} open {openGaps.length === 1 ? "gap" : "gaps"}</span>}
           {flag && <span className="flagb"><Icon n="flag" s={11} sw={2.2} />Flagged for review</span>}
         </div>
-        {editing && <div className="fd-actions">
+        {isNew && <div className="fd-actions">
           <Busy busyKey="fn" className="button button-primary" onClick={save}><Icon n="check" s={15} />{isNew ? "Create function" : "Save changes"}</Busy>
           <button className="button button-secondary-outline fd-onnavy" onClick={cancel}>Cancel</button>
         </div>}
@@ -184,9 +189,9 @@ export function FunctionDetail({ f, isNew }) {
 
         {editing ? <>
           {isNew
-            ? <div className="note" style={{ marginBottom: 18 }}><b>New function.</b> Create the record first; then add its people with <b>Manage people</b> in the Accountability Structure.</div>
+            ? <div className="note" style={{ marginBottom: 18 }}><b>New function.</b> Fill in the record and its ownership chain, then create it.</div>
             : <div className="note" style={{ marginBottom: 18 }}><b>Editing.</b> Deadlines read their owner and risk from this function, so they follow any change you save here.</div>}
-          <EditForm d={d} set={set} />
+          <EditForm f={f} d={d} set={set} own={own} setOwn={setOwn} />
         </> : <>
           <Field label="Governing statute">
             <dl className="kv">
@@ -216,7 +221,7 @@ export function FunctionDetail({ f, isNew }) {
             {gs.length ? gs.map(g => <div key={g.id} className="gaprow" style={{ borderLeftColor: g.open ? (RISK_COLOR[g.severity] || "#DC2626") : "#16A34A" }}>
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                 <span className={"pill " + (g.open ? "late" : "ok")}>{g.status}</span>
-                <span className="sub">{g.code}{g.opened ? " · opened " + fmtDate(g.opened) : ""}{g.closed ? " · closed " + fmtDate(g.closed) : ""}</span></div>
+                {(g.opened || g.closed) && <span className="sub">{[g.opened && "Opened " + fmtDate(g.opened), g.closed && "closed " + fmtDate(g.closed)].filter(Boolean).join(" · ")}</span>}</div>
               <div style={{ fontSize: 13.5, fontWeight: 600, color: "#000E54", marginTop: 6 }}>{g.title}</div>
               {(g.open ? g.note : (g.closeNote || g.note)) && <p style={{ fontSize: 13, color: "#5b6373", marginTop: 4 }}>{g.open ? g.note : (g.closeNote || g.note)}</p>}
             </div>) : <Empty title="No gaps recorded" sub={'Nothing has been logged against this function. Use "Log a gap" if you find something out of compliance.'} />}
@@ -237,25 +242,30 @@ export function FunctionDetail({ f, isNew }) {
           <dl className="rail-kv">
             {showRisk && <><dt>Risk rating</dt><dd><Risk r={f.risk} /></dd></>}
             <dt>Open gaps</dt><dd>{openGaps.length ? <span className="gapbadge">{openGaps.length}</span> : <span className="sub">None</span>}</dd>
-            <dt>Next deadline</dt><dd>{nextDue ? <><div style={{ fontWeight: 600, color: "#000E54", fontSize: 13 }}>{fmtDate(nextDue.due)}</div><DuePill dl={nextDue} today={today} /></> : <span className="sub">None scheduled</span>}</dd>
+            <dt>Next deadline</dt><dd>{nextDue ? <span style={{ fontWeight: 600, color: "#000E54", fontSize: 13 }}>{fmtDate(nextDue.due)}</span> : <span className="sub">None scheduled</span>}</dd>
             <dt>Under review</dt><dd>{flag ? <span className="flagb"><Icon n="flag" s={11} sw={2.2} />Yes</span> : <span className="sub">No</span>}</dd>
             <dt>Last reviewed</dt><dd className="sub">{f.lastReviewed ? fmtDate(f.lastReviewed) : "Not recorded"}</dd>
           </dl>
         </div>
-        {!editing && <div className="rail-card">
+        <div className="rail-card">
           <div className="rail-t">Take action</div>
           <div className="rail-acts">
-            {realAdmin && <button className="button button-secondary-outline button-sm" onClick={() => { setD(draftOf(f)); setPanel(null); setMode("edit"); }}><Icon n="edit" s={14} />Edit this record</button>}
+            {editing && <>
+              <Busy busyKey="fn" className="button button-primary button-sm" onClick={save}><Icon n="check" s={14} />Save changes</Busy>
+              <button className="button button-secondary-outline button-sm" onClick={cancel}>Cancel</button>
+              <div className="rail-sep" role="presentation"></div>
+            </>}
+            {realAdmin && !editing && <button className="button button-secondary-outline button-sm" onClick={startEdit}><Icon n="edit" s={14} />Edit this record</button>}
             <button className={"button button-secondary-outline button-sm" + (panel === "flag" ? " on" : "")} aria-pressed={panel === "flag"} onClick={() => setPanel(p => p === "flag" ? null : "flag")}><Icon n="flag" s={14} />Flag for review</button>
             <button className={"button button-warn-outline button-sm" + (panel === "gap" ? " on" : "")} aria-pressed={panel === "gap"} onClick={() => setPanel(p => p === "gap" ? null : "gap")}><Icon n="alert" s={14} />Log a gap</button>
             <button className="button button-info-outline button-sm" onClick={() => go("Deadlines")}><Icon n="calendar" s={14} />See all deadlines</button>
             <button className="button button-secondary-outline button-sm" disabled={!dls.length} onClick={addToCalendar} title={dls.length ? "Download the deadlines as a calendar file" : "No deadlines to add"}><Icon n="plus" s={14} />Add to my calendar</button>
             <button className="button button-warn-outline button-sm" disabled={!dls.length} onClick={() => setCompleting(nextDue || dls[0])}><Icon n="check" s={14} />Mark complete for this cycle</button>
-            {realAdmin && <button className="button button-danger-outline button-sm" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
+            {realAdmin && !editing && <button className="button button-danger-outline button-sm" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
           </div>
-        </div>}
-        <CounselCard f={f} />
-        <SupportCard f={f} />
+        </div>
+        <CounselCard f={f} locked={editing} />
+        <SupportCard f={f} locked={editing} />
         {!!related.length && !editing && <div className="rail-card quiet">
           <div className="rail-t">Related in {f.topic}</div>
           {related.map(x => <button key={x.id} className="rail-rel" onClick={() => openFn(x)}>
@@ -268,7 +278,7 @@ export function FunctionDetail({ f, isNew }) {
     </div>
 
     {confirmDel && <Modal onClose={() => setConfirmDel(false)} size="sm" label="Delete this function?">
-      <ModalHead onClose={() => setConfirmDel(false)} eyebrow="Administrator" title="Delete this function?" sub={"ID " + f.code + " · " + f.name} />
+      <ModalHead onClose={() => setConfirmDel(false)} eyebrow="Administrator" title="Delete this function?" sub={f.name} />
       <div className="mbd">
         <p>This will permanently remove "{f.name}" and everything attached to it:</p>
         <ul style={{ margin: "10px 0 0 18px", fontSize: 14, lineHeight: 1.7 }}>

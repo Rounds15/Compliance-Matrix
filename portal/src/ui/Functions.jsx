@@ -151,7 +151,7 @@ export function Functions({ filter, setFilter }) {
     const g = gapCount(f), o = ownerOf(f);
     return <tr key={f.id} onClick={() => openFn(f)} tabIndex={0} onKeyDown={e => { if (e.key === "Enter") openFn(f); }}>
       <td><div className="fname">{f.name}</div>
-        <div className="mx-rowmeta"><span className="sub">ID {f.code}</span>
+        <div className="mx-rowmeta">
           {g > 0 && <span className="gapbadge" title={g + (g === 1 ? " open gap" : " open gaps")}>{g}</span>}
           {flagged(f) && <span className="flagb"><Icon n="flag" s={10} sw={2.4} />Flagged</span>}</div></td>
       <td><div className="mx-cell">{f.topic}</div><div className="sub">{f.area}</div></td>

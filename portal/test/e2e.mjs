@@ -257,7 +257,7 @@ await session("SharePoint · administrator · header, view modes, every write", 
   await go("#/gaps");
   assert.equal(await text(page.locator(".stat .s")), "How long it typically takes to close a gap");
   const card = page.locator(".gcard2", { hasText: "I-9 Section 2 completed late" });
-  assert.match(await text(card.locator(".sub").first()), /^GAP-601 · \d+d open$/);
+  assert.match(await text(card.locator(".sub").first()), /^\d+d open$/, "no gap number on the card");
   assert.equal(await text(card.locator(".risk")), "Not rated", "unrated function");
   await card.locator("button", { hasText: "Close" }).click();
   await modal().locator("textarea").fill("Late forms re-verified.");
@@ -482,14 +482,14 @@ await session("SharePoint · directory edit, reassign, remove; view as a user", 
 });
 
 /* ======================= Dataverse, administrator ======================= */
-await session("Dataverse · administrator · every write", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn, modal, view, fig, pick }) => {
+await session("Dataverse · administrator · every write", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn, modal, view, fig, text, pick }) => {
   const dv = portal.dv;
   assert.equal(await fig(0), "1");
   assert.ok(portal.log.some(x => x.api && /skiptoken/.test(x.api)), "follows @odata.nextLink");
 
   await go("#/functions/" + G(201));
   await page.waitForSelector("h1:has-text('Clery Act')");
-  assert.match(await page.locator(".fd-tags").innerText(), /ID 201/, "the SharePoint ID is the function ID");
+  assert.doesNotMatch(await page.locator(".fd").innerText(), /\bID\b|\b201\b|GAP-/, "no SharePoint IDs, function codes or gap numbers on the page");
   assert.match(await page.locator(".rail-card.gc").innerText(), /Grace Whitfield/);
 
   await go("#/functions/" + G(202));
@@ -528,12 +528,36 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   const ar = dv.su_archives.at(-1);
   assert.deepEqual([ar.su_recordtype, ar.su_eventtype, ar.su_resolvedby, ar.su_reason, ar.su_functionnumber], ["Deadline Completion", "Completed", "Camila Ruiz", "Published.", 201]);
 
+  // edit mode: every field, the ownership chain and General Counsel, saved together
   await btn("Edit this record").click();
+  const rail = page.locator(".rail-acts .button");
+  assert.deepEqual((await rail.allTextContents()).slice(0, 2), ["Save changes", "Cancel"], "Save changes and Cancel lead Take action");
+  assert.equal(await btn("Delete this function").count(), 0, "no delete while editing");
+  assert.equal(await page.locator(".fd-head .fd-actions").count(), 0, "the save buttons are in the rail");
+  assert.match(await page.locator("#fd-gc option").first().textContent(), /Risk area default \(Grace Whitfield\)/);
   await page.locator("#fd-risk").selectOption("Moderate");
-  await btn("Save changes").click();
+  await page.locator("#fd-deadline").fill("Annually by October 1.\nPublished on the safety site.");
+  await page.locator("#fd-own-person").selectOption({ label: "Marcus Delgado" });
+  await page.locator("#fd-own-role").selectOption("Support");
+  await btn("Add owner").click();
+  await page.locator(".own-row", { hasText: "Dwight Ferrell" }).locator("button", { hasText: "Remove" }).click();
+  await page.locator("#fd-gc").selectOption({ label: "Grace Whitfield" });
+  const writesBefore = portal.log.length;
+  await btn("Save changes", page.locator(".rail-acts")).click();
   await toast(/Changes saved/);
+  assert.equal(await page.locator(".cm-toast").count(), 1, "one save, one message");
   const fn = dv.su_compliancefunctions.find(r => r.su_compliancefunctionid === G(201));
   assert.equal(fn.su_risk, 100000002);
+  assert.equal(fn.su_deadlinenarrative, "Annually by October 1.\nPublished on the safety site.");
+  assert.deepEqual(dv.su_functionownerships.filter(r => r._su_function_value === G(201)).map(r => [r._su_person_value, r.su_role, r.su_subrole]).sort(), [
+    [G(100), 100000030, 100000040], [G(101), 100000032, 100000040], [G(100), 100000034, 100000040], [G(104), 100000033, 100000041]].sort(),
+    "the chain, Support and General Counsel are written with the record");
+  assert.ok(portal.log.length > writesBefore);
+  await page.locator(".rail-card.support .operson", { hasText: "Marcus Delgado" }).waitFor();
+  // the person cards show the directory's title and unit
+  const mcard = page.locator(".orole.exec .operson", { hasText: "Marcus Delgado" });
+  assert.equal(await text(mcard.locator(".operson-t")), "SVP for Safety");
+  assert.equal(await text(mcard.locator(".operson-u").first()), "Campus Safety");
 
   await btn("Manage people").click();
   assert.equal(await page.locator(".orole.counsel").count(), 0, "General Counsel has the rail card, not a tier");
@@ -543,12 +567,12 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await page.locator(".orole.unit .oadd").click();
   await page.locator(".orole.unit .opick-r select").selectOption("Advisory");
   await pick(page.locator(".orole.unit"), "Andrea", "Andrea Whitaker");
-  await page.locator(".orole.compliance .operson", { hasText: "Dwight Ferrell" }).locator(".orm").click();
   await btn("Save chain").click();
   await toast(/Ownership chain saved/);
   const rows = dv.su_functionownerships.filter(r => r._su_function_value === G(201));
   assert.deepEqual(rows.map(r => [r._su_person_value, r.su_role, r.su_subrole]).sort(), [
-    [G(100), 100000030, 100000040], [G(101), 100000032, 100000040], [G(102), 100000031, 100000041]].sort());
+    [G(100), 100000030, 100000040], [G(101), 100000032, 100000040], [G(102), 100000031, 100000041],
+    [G(100), 100000034, 100000040], [G(104), 100000033, 100000041]].sort(), "Support and General Counsel carried through");
   assert.equal(dv.su_compliancefunctions.find(r => r.su_compliancefunctionid === G(201))._su_unitowner_value, G(102), "fixed lookup follows the role's person");
 
   await view("Admin");
@@ -600,7 +624,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   assert.equal(dv.su_compliancegaps.some(r => r._su_function_value === G(203)), false, "cascade");
   const del = dv.su_archives.filter(a => a.su_recordtype === "Function Deleted" && a.su_functionnumber === 203);
   assert.deepEqual(del.map(a => a.su_reason), ["Gap: Old gap", "Function record deleted"], "children archived first, server-side");
-  assert.equal(portal.log.some(x => x.api && /^DELETE \/_api\/su_compliancefunctions/.test(x.api)), false, "the browser did not delete the function itself");
+  assert.equal(portal.log.some(x => x.api && /^DELETE \/_api\/su_compliancefunctions\([^)]*\)$/.test(x.api)), false, "the browser did not delete the function itself (clearing a lookup is a /$ref)");
 });
 
 /* ======================= Dataverse: who-did-it is server-side ======================= */

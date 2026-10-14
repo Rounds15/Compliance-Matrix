@@ -11,7 +11,6 @@ import { fmtDate, dayDiff } from "../lib/dates.js";
 import { RISK_COLOR } from "../lib/risk.js";
 
 const SEVS = [["All", "All severities"], ["High", "High"], ["Moderate", "Moderate"], ["Low", "Low"], ["Unrated", "Not rated"]];
-const gapNo = g => (/^\d+$/.test(String(g.id)) ? "GAP-" + g.id : /^GAP-/.test(String(g.code)) ? g.code : "GAP-" + g.code);
 
 export function GapTracker() {
   const { ds, today, actions, openFn, adminView, realAdmin, go } = useApp();
@@ -65,7 +64,7 @@ export function GapTracker() {
       {list.map(g => <div key={g.id} className="cm-panel gcard2" style={{ borderLeft: "4px solid " + (g.open ? (RISK_COLOR[g.severity] || "#8A929E") : "#16A34A") }}>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 9 }}>
           <Risk r={g.severity} />
-          <span className="sub">{gapNo(g)} {"·"} {days(g)}d open</span>
+          <span className="sub">{days(g)}d open</span>
           {g.open && g.status !== "Open" && <span className="pill due">{g.status}</span>}
           {!g.open && <span className="pill ok" style={{ marginLeft: "auto" }}>Closed {g.closed ? fmtDate(g.closed) : ""}</span>}
         </div>
@@ -82,7 +81,7 @@ export function GapTracker() {
         </div></div>)}
     </div>
     {sel && <Modal onClose={() => setSel(null)} size="sm" label="Close gap">
-      <ModalHead onClose={() => setSel(null)} eyebrow="Close gap" title={sel.title} sub={gapNo(sel) + " · " + sel.functionName} />
+      <ModalHead onClose={() => setSel(null)} eyebrow="Close gap" title={sel.title} sub={sel.functionName} />
       <div className="mbd">
         <label className="flab" htmlFor="gap-note">Closure notes</label>
         <textarea id="gap-note" className="ti" autoFocus value={note} onChange={e => setNote(e.target.value)} placeholder="What was remediated, and what prevents recurrence?" />

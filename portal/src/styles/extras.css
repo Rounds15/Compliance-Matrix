@@ -242,3 +242,27 @@ code { font-size: .88em; overflow-wrap: anywhere }
 .gc-pick { margin-top: 12px }
 .gc-pick .opick-r { flex-wrap: wrap }
 .gc-rm { margin-top: 8px; width: 100% }
+
+/* ---------- Edit mode: ownership chain and General Counsel ----------
+   A person, role and sub-role dropdown with Add owner, then one row per
+   owner with Remove, as in the canvas app's edit mode. */
+.own-add { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) auto; gap: 10px; align-items: end }
+.own-add .button { min-height: 40px; white-space: nowrap }
+.own-list { margin-top: 12px; border: 1px solid #E2E5EA; background: #fff }
+.own-row { --tier: #000E54; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-left: 3px solid var(--tier) }
+.own-row + .own-row { border-top: 1px solid #EEF0F4 }
+.own-row.unit { --tier: #2B72D7 }
+.own-row.compliance { --tier: #F76900 }
+.own-row.compliance .operson-r { color: #D74100 }
+.own-row.support { --tier: #0F766E }
+.own-row-b { flex: 1; min-width: 0 }
+.own-rm { flex: none; padding: 4px 12px !important; min-height: 30px !important; font-size: 12px }
+.own-list .oempty { border: 0 }
+@media (max-width: 700px) {
+  .own-add { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) }
+  .own-add .own-person, .own-add .own-addbtn { grid-column: 1 / -1 }
+}
+.rail-sep { height: 1px; background: #EEF0F4; margin: 4px 0 }
+.rail-acts .button-primary { border: 2px solid var(--orange); background: var(--orange); color: #fff }
+.rail-acts .button-primary:hover { background: #D74100; border-color: #D74100 }
+.own-add .button:disabled { opacity: .45; cursor: not-allowed; background: #000e54; border-color: #000e54; color: #fff }

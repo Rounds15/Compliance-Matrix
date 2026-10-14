@@ -144,7 +144,16 @@ export function useStore(cfg) {
     closeGap: (gap, note) => act("gap-" + gap.id, (a, c) => a.closeGap({ gap, note }, c), "Gap closed."),
     completeDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.completeDeadline({ dl, fn, reason }, c), "Deadline marked complete"),
     reverseDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.reverseDeadline({ dl, fn, reason }, c), "Completion reversed"),
-    saveFunction: (draft, isNew) => act("fn", (a, c) => a.saveFunction({ draft, isNew }, c), isNew ? "New function created and added to the matrix." : "Changes saved to the matrix."),
+    /* the record and, when rows is given, its ownership rows, under one
+       button: the function first (a new one needs its ID), then the rows */
+    saveFunction: (draft, isNew, rows) => act("fn", async (a, c) => {
+      const r = await a.saveFunction({ draft, isNew }, c);
+      if (!rows || r.id == null) return r;
+      const existingRowIds = isNew ? [] : (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(r.id)).map(o => o.id);
+      const o = await a.setOwnership({ fn: { ...draft, id: r.id }, rows, existingRowIds }, c);
+      const more = Array.isArray(o) ? o : (o && o.reload) || [];
+      return { id: r.id, reload: [...new Set([...(r.reload || []), ...more])] };
+    }, isNew ? "New function created and added to the matrix." : "Changes saved to the matrix."),
     deleteFunction: fn => act("fn-del", (a, c) => {
       const r = rawRef.current;
       const mine = x => String(x.functionId) === String(fn.id);
