@@ -59,7 +59,7 @@ export function sharepointLists() {
     "Deadlines": [
       { Id: 401, Title: "Publish Annual Security Report", FunctionId: 201, field_1: u("2025-10-01"), field_2: "Annual",
         field_3: "", field_4: null, field_5: null, field_6: null, field_7: null },
-      { Id: 402, Title: "I-9 internal audit sample", FunctionId: 202, field_1: u("2026-03-15"), field_2: "Quarterly",
+      { Id: 402, Title: "402 | I-9 internal audit sample | 3/15/2026", FunctionId: 202, field_1: u("2026-03-15"), field_2: "Quarterly",
         field_4: u("2026-09-10"), field_5: "Sample reviewed", field_6: "Camila Ruiz", field_7: "2026-09-10T15:00:00Z" },
       { Id: 403, Title: "Orphan", FunctionId: 999, field_1: u("2026-01-01"), field_2: "Annual" }
     ],
@@ -128,7 +128,7 @@ export function dataverseTables() {
     ],
     su_compliancedeadlines: [
       { su_compliancedeadlineid: G(401), su_name: "Publish Annual Security Report", _su_function_value: G(201), su_duedate: "2025-10-01", su_cadence: 100000010, su_complete: false },
-      { su_compliancedeadlineid: G(402), su_name: "I-9 internal audit sample", _su_function_value: G(202), su_duedate: "2026-03-15", su_cadence: 100000012, su_complete: false, su_completeddate: "2026-09-10", su_notes: "Sample reviewed" }
+      { su_compliancedeadlineid: G(402), su_name: "202 | I-9 internal audit sample | 3/15/2026", _su_function_value: G(202), su_duedate: "2026-03-15", su_cadence: 100000012, su_complete: false, su_completeddate: "2026-09-10", su_notes: "Sample reviewed" }
     ],
     su_compliancegaps: [
       { su_compliancegapid: G(601), su_name: "I-9 Section 2 completed late for 14 hires", su_gapcode: "GAP-1", _su_function_value: G(202), su_severity: 100000001, su_status: 100000020, su_openeddate: "2026-08-01", su_note: "Remediation training scheduled." },

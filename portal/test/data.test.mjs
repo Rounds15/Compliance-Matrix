@@ -9,7 +9,7 @@ import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
 import { mapTables, DEFAULT_SETS, WEBAPI_FIELDS } from "../src/data/adapters/dataverse.js";
 import { readFileSync } from "node:fs";
-import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY } from "../src/data/model.js";
+import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY, deadlineTitle } from "../src/data/model.js";
 import { createSampleAdapter } from "../src/data/adapters/sample.js";
 import { parseFlowResult, flowUrl } from "../src/data/transport.js";
 import { sharepointLists, dataverseTables, DV_IDS as G } from "./fixtures.mjs";
@@ -295,4 +295,17 @@ test("the guide lists each table's Webapi fields value exactly as the adapter us
       if (lk) assert.ok(String(schema[table].columns[lk[1]] || "").startsWith("lookup:"), table + ": " + c + " is a lookup");
     }
   }
+});
+
+test("deadline titles drop the record number the SharePoint Title led with", () => {
+  assert.equal(deadlineTitle("344 | Annual Security Report (ASR) and Crime Statistics | 10/1/2026"), "Annual Security Report (ASR) and Crime Statistics | 10/1/2026");
+  assert.equal(deadlineTitle("CF-3020 | Fire Safety Report", { code: "CF-3020" }), "Fire Safety Report", "the function's own code too");
+  assert.equal(deadlineTitle("Title IX | Annual training"), "Title IX | Annual training", "a name with a bar is left alone");
+  assert.equal(deadlineTitle("Publish Annual Security Report"), "Publish Annual Security Report");
+  assert.equal(deadlineTitle(""), "");
+  const ds = buildDataset({
+    functions: [{ id: 344, code: "344", name: "Clery Act", riskAreaId: 1 }], riskAreas: [{ id: 1, name: "Safety" }],
+    deadlines: [{ id: 1, functionId: 344, title: "344 | Annual Security Report | 10/1/2026", base: new Date(2026, 9, 1), cadence: "Annual" }]
+  }, { today: new Date(2026, 6, 1) });
+  assert.equal(ds.allDeadlines[0].title, "Annual Security Report | 10/1/2026");
 });

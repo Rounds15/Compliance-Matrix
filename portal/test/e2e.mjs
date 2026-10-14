@@ -492,6 +492,19 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   assert.doesNotMatch(await page.locator(".fd").innerText(), /\bID\b|\b201\b|GAP-/, "no SharePoint IDs, function codes or gap numbers on the page");
   assert.match(await page.locator(".rail-card.gc").innerText(), /Grace Whitfield/);
 
+  // a deadline title stored as "202 | name | date" shows without the record number
+  await view("Admin");
+  await go("#/deadlines");
+  assert.doesNotMatch(await page.locator("body").innerText(), /\b202 \|/, "the deadline calendar shows no record numbers");
+  await btn(/^List$/).click();
+  await page.selectOption(".fbar select[aria-label=Scope]", "all");
+  assert.match(await page.locator(".dl-table").innerText(), /I-9 internal audit sample \| 3\/15\/2026/);
+  assert.doesNotMatch(await page.locator("body").innerText(), /\b202 \|/, "the deadline list shows no record numbers");
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.match(await page.locator(".dlrow").first().innerText(), /^I-9 internal audit sample \| 3\/15\/2026/);
+  assert.doesNotMatch(await page.locator(".fd").innerText(), /\b202 \|/, "the function's deadline cards show no record numbers");
+  await view("User");
   await go("#/functions/" + G(202));
   await page.waitForSelector("h1:has-text('Form I-9')");
   await btn("Flag for review").click();

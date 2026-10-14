@@ -46,6 +46,17 @@ export function samePerson(a, b) {
   return !!a.e && lc(a.e) === lc(b.e);
 }
 
+/* A deadline's title as the lists stored it, without the record number the
+   SharePoint Title led with ("344 | Annual Security Report | 10/1/2026"):
+   a leading segment that is a number, or the function's own code, is dropped. */
+export function deadlineTitle(title, f) {
+  const s = String(title || "").trim();
+  const m = s.match(/^([^|]+?)\s*\|\s*(\S[\s\S]*)$/);
+  if (!m) return s;
+  const head = m[1].trim();
+  return /^\d+$/.test(head) || (f && f.code != null && head === String(f.code)) ? m[2].trim() : s;
+}
+
 export function toPerson(p) {
   if (!p) return null;
   return {
@@ -163,7 +174,7 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
       functionId: d.functionId,
       functionName: f ? f.name : "Unknown function",
       topic: f ? f.topic : "",
-      title: d.title || (f ? f.name : "Deadline"),
+      title: deadlineTitle(d.title, f) || (f ? f.name : "Deadline"),
       due: r.next,
       base: d.base,
       cadence: d.cadence || "One-time",
