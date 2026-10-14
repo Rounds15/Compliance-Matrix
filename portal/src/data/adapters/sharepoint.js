@@ -18,7 +18,7 @@
 
 import { callFlow, flowUrl } from "../transport.js";
 import { toDay } from "../../lib/dates.js";
-import { ownershipPlan } from "../model.js";
+import { ownershipPlan, runOwnershipSave } from "../ownership.js";
 
 export const LISTS = {
   riskAreas: "Risk Areas",
@@ -322,20 +322,23 @@ export function createSharePointAdapter(cfg) {
 
     /* rows: [{personId, name, role, sub}] - replaces the function's whole
        chain, which is how the canvas app saves ownership edits. */
-    /* creates, then sub-role changes, then deletes (ownershipPlan): the flow
-       runs the operations in order, so a failure leaves existing rows */
-    async setOwnership({ fn, rows, existing }) {
-      const plan = ownershipPlan(existing, rows);
-      const sub = r => (r.role === "General Counsel" ? null : (r.sub || "Primary"));
-      const ops = [
-        ...plan.create.map(r => ({ op: "create", list: LISTS.ownership, fields: {
-          Title: `${fn.id} | ${r.name} | ${r.role}`, [F.own.fn]: fn.id, [F.own.person]: r.personId,
-          [F.own.role]: r.role, [F.own.sub]: sub(r) } })),
-        ...plan.update.map(r => ({ op: "update", list: LISTS.ownership, id: r.id, fields: { [F.own.sub]: sub(r) } })),
-        ...plan.remove.map(x => ({ op: "delete", list: LISTS.ownership, id: x.id }))
-      ];
-      if (!ops.length) return [];
-      await write(ops, true);
+    /* the difference only, in three steps that are undone if one fails
+       (data/ownership.js); one operation per flow run, so a failure is
+       known exactly */
+    async setOwnership({ fn, rows, existing, shownIds }) {
+      const plan = ownershipPlan(existing, rows, shownIds);
+      if (!plan.create.length && !plan.update.length && !plan.remove.length) return [];
+      const sub = (role, s) => (role === "General Counsel" ? null : (s || "Primary"));
+      await runOwnershipSave(plan, {
+        create: async r => {
+          const res = await write([{ op: "create", list: LISTS.ownership, fields: {
+            Title: `${fn.id} | ${r.name} | ${r.role}`, [F.own.fn]: fn.id, [F.own.person]: r.personId,
+            [F.own.role]: r.role, [F.own.sub]: sub(r.role, r.sub) } }], true);
+          return res[0] && res[0].id;
+        },
+        update: (r, s) => write([{ op: "update", list: LISTS.ownership, id: r.id, fields: { [F.own.sub]: sub(r.role, s) } }], true),
+        remove: x => write([{ op: "delete", list: LISTS.ownership, id: x.id }], true)
+      });
       return ["ownership"];
     },
 

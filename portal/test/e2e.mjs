@@ -797,7 +797,7 @@ await session("Dataverse · an ownership save that fails part way loses no rows"
   await sup.locator(".oadd").click();
   await pick(sup, "Andrea", "Andrea Whitaker");
   await btn("Save Support", sup).click();
-  await toast(/Refused for the test/);
+  await toast(/^The people were not saved\. Step 1 of 3 \(adding [A-Za-z ]+ as [A-Za-z ]+\) failed: .*Refused for the test: POST su_functionownerships/);
   assert.deepEqual(rowsOf(), before, "no row deleted");
   assert.ok(!portal.log.some(x => x.api && x.api.startsWith("DELETE /_api/su_functionownerships")), "the delete step never ran");
   // the same in the edit form: remove one person and add another; the create fails first
@@ -807,8 +807,28 @@ await session("Dataverse · an ownership save that fails part way loses no rows"
   await page.locator("#fd-own-person").selectOption({ label: "Andrea Whitaker" });
   await btn("Add owner").click();
   await btn("Save changes", page.locator(".rail-acts")).click();
-  await toast(/Refused for the test/);
+  await toast(/^The record was saved\. The people were not saved\. Step 1 of 3 \(adding [A-Za-z ]+ as [A-Za-z ]+\) failed/);
   assert.deepEqual(rowsOf(), before, "Dwight's row is still there");
+});
+
+/* a row the page cannot show (its person is inactive in the directory) is
+   never deleted by a save; only the row the person removed is */
+await session("Dataverse · a save deletes only what was removed, never rows the page cannot show", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn }) => {
+  portal.dv.su_functionownerships.push({ su_functionownershipid: G(399), _su_function_value: G(201), _su_person_value: G(105), su_role: 100000031, su_subrole: 100000040 });
+  await page.reload();
+  await page.waitForSelector(".hm-band", { timeout: 20000 });
+  await go("#/functions/" + G(201));
+  await page.waitForSelector("h1:has-text('Clery Act')");
+  assert.equal(await page.locator(".operson", { hasText: "Left Already" }).count(), 0, "the inactive person is not shown");
+  await btn("Manage people").click();
+  await page.locator(".orole.compliance .operson", { hasText: "Dwight Ferrell" }).locator(".orm").click();
+  await btn("Save chain").click();
+  await toast(/Ownership chain saved/);
+  const ids = portal.dv.su_functionownerships.filter(r => r._su_function_value === G(201)).map(r => r.su_functionownershipid);
+  assert.ok(ids.includes(G(302)) && ids.includes(G(399)), "Camila's row and the hidden row are kept");
+  assert.ok(!ids.includes(G(303)), "Dwight's row, which was removed, is gone");
+  assert.deepEqual(portal.log.filter(x => x.api && x.api.startsWith("DELETE /_api/su_functionownerships")).map(x => x.api),
+    ["DELETE /_api/su_functionownerships(" + G(303) + ")"], "the only delete is the removal");
 });
 
 /* the site's basic form is missing a field: the page says which, and saves nothing */

@@ -24,7 +24,7 @@
 import { webApi, webApiAll, webApiImage, callFlow, flowUrl } from "../transport.js";
 import { submitActionForm } from "../actionform.js";
 import { toDay, isoDate } from "../../lib/dates.js";
-import { ownershipPlan } from "../model.js";
+import { ownershipPlan, runOwnershipSave } from "../ownership.js";
 
 export const DEFAULT_SETS = {
   su_riskarea: "su_riskareas",
@@ -291,32 +291,39 @@ export function createDataverseAdapter(cfg) {
       return ["functions", "ownership", "deadlines", "gaps", "flags"];
     },
 
-    /* creates first, then sub-role changes, then deletes (ownershipPlan), so
-       a failure part way never leaves the function with fewer people */
-    async setOwnership({ fn, rows, existing }) {
-      const chainRows = rows.filter(r => ROLE_CODE[r.role]);
-      const plan = ownershipPlan(existing, chainRows);
-      for (const r of plan.create) {
-        await post("su_functionownership", {
+    /* the difference only, in three steps that are undone if one fails
+       (data/ownership.js); then the function's own owner columns, for the
+       roles whose people changed */
+    async setOwnership({ fn, rows, existing, shownIds }) {
+      const known = x => ROLE_CODE[x.role];
+      const chainRows = rows.filter(known);
+      const plan = ownershipPlan(existing.filter(known), chainRows, shownIds);
+      await runOwnershipSave(plan, {
+        create: async r => (await post("su_functionownership", {
           su_name: `${fn.name} | ${r.name} | ${r.role}`.slice(0, 400),
           su_role: ROLE_CODE[r.role], su_subrole: SUB_CODE[r.sub] || SUB_CODE.Primary,
           ...bind("su_function", "su_compliancefunction", fn.id),
           ...bind("su_person", "su_compliancedirectory", r.personId)
-        });
-      }
-      for (const r of plan.update) await patch("su_functionownership", r.id, { su_subrole: SUB_CODE[r.sub] || SUB_CODE.Primary });
-      for (const x of plan.remove) await del("su_functionownership", x.id);
-      /* keep the three fixed lookups pointing at each role's Primary, which is
-         what the list views and the reminder flow read */
+        })).id,
+        update: (r, sub) => patch("su_functionownership", r.id, { su_subrole: SUB_CODE[sub] || SUB_CODE.Primary }),
+        remove: x => del("su_functionownership", x.id)
+      });
+      /* keep the three fixed lookups pointing at each changed role's Primary,
+         which is what the list views and the reminder flow read */
       const primary = role => {
         const list = chainRows.filter(r => r.role === role);
         return (list.find(r => r.sub === "Primary") || list[0] || {}).personId;
       };
-      const fixed = [["su_executiveowner", "Executive Owner"], ["su_unitowner", "Unit Owner"], ["su_complianceowner", "Compliance Owner"]];
-      const body = {};
-      for (const [nav, role] of fixed) Object.assign(body, bind(nav, "su_compliancedirectory", primary(role)));
-      if (Object.keys(body).length) await patch("su_compliancefunction", fn.id, body);
-      for (const [nav, role] of fixed) if (!primary(role)) await unbind("su_compliancefunction", fn.id, nav);
+      const fixed = [["su_executiveowner", "Executive Owner"], ["su_unitowner", "Unit Owner"], ["su_complianceowner", "Compliance Owner"]]
+        .filter(([, role]) => plan.roles.includes(role));
+      try {
+        const body = {};
+        for (const [nav, role] of fixed) Object.assign(body, bind(nav, "su_compliancedirectory", primary(role)));
+        if (Object.keys(body).length) await patch("su_compliancefunction", fn.id, body);
+        for (const [nav, role] of fixed) if (!primary(role)) await unbind("su_compliancefunction", fn.id, nav);
+      } catch (e) {
+        return { reload: ["ownership", "functions"], warning: "The people were saved, but the function's owner columns could not be updated: " + (e.message || String(e)) };
+      }
       return ["ownership", "functions"];
     },
 

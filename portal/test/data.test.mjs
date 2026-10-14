@@ -9,7 +9,7 @@ import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
 import { mapTables, DEFAULT_SETS, WEBAPI_FIELDS } from "../src/data/adapters/dataverse.js";
 import { readFileSync } from "node:fs";
-import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY, deadlineTitle, ownershipPlan } from "../src/data/model.js";
+import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY, deadlineTitle } from "../src/data/model.js";
 import { createSampleAdapter } from "../src/data/adapters/sample.js";
 import { parseFlowResult, flowUrl } from "../src/data/transport.js";
 import { sharepointLists, dataverseTables, DV_IDS as G } from "./fixtures.mjs";
@@ -326,15 +326,19 @@ test("the administrator web role is the site's Administrators role, the same in 
   assert.equal((flows.match(/^adminWebRole: (.*)$/m) || [])[1], "Administrators");
 });
 
-test("ownership saves create first, change sub-roles next, delete last, and keep what did not change", () => {
+import { ownershipPlan, runOwnershipSave } from "../src/data/ownership.js";
+
+test("ownership plan: only what changed, and only rows the editor showed are ever removed", () => {
   const existing = [
     { id: 1, personId: "A", role: "Executive Owner", sub: "Primary" },
     { id: 2, personId: "B", role: "Compliance Owner", sub: "Primary" },
     { id: 3, personId: "C", role: "Compliance Owner", sub: "Support" },   // a legacy sub-role, untouched
-    { id: 4, personId: "D", role: "Unit Owner", sub: "Primary" },
-    { id: 5, personId: "A", role: "Executive Owner", sub: "Primary" },    // a duplicate row
-    { id: 6, personId: "G", role: "General Counsel", sub: null }
+    { id: 4, personId: "D", role: "Unit Owner", sub: "Primary" },         // removed in the editor
+    { id: 5, personId: "A", role: "Executive Owner", sub: "Primary" },    // a second row for A: kept
+    { id: 6, personId: "G", role: "General Counsel", sub: null },
+    { id: 7, personId: "X", role: "Unit Owner", sub: "Primary" }          // an inactive person: the page never showed it
   ];
+  const shownIds = [1, 2, 3, 4, 5, 6];
   const rows = [
     { personId: "a", name: "A", role: "Executive Owner", sub: "Primary" },   // IDs match ignoring case
     { personId: "B", name: "B", role: "Compliance Owner", sub: "Advisory" }, // sub-role changed
@@ -343,11 +347,55 @@ test("ownership saves create first, change sub-roles next, delete last, and keep
     { personId: "E", name: "E", role: "Support", sub: "Primary" },           // asked twice: made once
     { personId: "G", name: "G", role: "General Counsel", sub: "Advisory" }   // counsel has no sub-role to compare
   ];
-  const plan = ownershipPlan(existing, rows);
+  const plan = ownershipPlan(existing, rows, shownIds);
   assert.deepEqual(plan.create.map(r => r.personId + " " + r.role), ["E Support"]);
-  assert.deepEqual(plan.update.map(r => [r.id, r.sub]), [[2, "Advisory"]]);
-  assert.deepEqual(plan.remove.map(x => x.id).sort(), [4, 5], "D left the chain; the duplicate of A goes");
-  assert.deepEqual(ownershipPlan(existing.slice(0, 1), rows.slice(0, 1)), { create: [], update: [], remove: [] }, "nothing changed: nothing written");
+  assert.deepEqual(plan.update.map(r => [r.id, r.oldSub, r.sub]), [[2, "Primary", "Advisory"]]);
+  assert.deepEqual(plan.remove.map(x => x.id), [4], "only D, whom the person removed; not the duplicate, not the hidden row");
+  assert.deepEqual(plan.roles.sort(), ["Compliance Owner", "Support", "Unit Owner"]);
+  assert.deepEqual(ownershipPlan(existing, rows, []).remove, [], "nothing shown: nothing removed");
+  const same = ownershipPlan(existing.slice(0, 1), rows.slice(0, 1), [1]);
+  assert.deepEqual([same.create, same.update, same.remove], [[], [], []], "nothing changed: nothing written");
+});
+
+/* io over an array, failing where told, recording the order of writes */
+function fakeIo(rows, failOn = () => false) {
+  const log = [];
+  let n = 100;
+  const io = {
+    create: async r => { log.push("create " + r.personId); if (failOn("create", r)) throw new Error("Refused"); const id = ++n; rows.push({ ...r, id }); return id; },
+    update: async (r, sub) => { log.push("update " + r.id + " " + sub); if (failOn("update", r)) throw new Error("Refused"); rows.find(x => x.id === r.id).sub = sub; },
+    remove: async x => { log.push("delete " + x.id); if (failOn("remove", x)) throw new Error("Refused"); rows.splice(rows.findIndex(y => y.id === x.id), 1); }
+  };
+  return { io, log };
+}
+const keys = rows => rows.map(r => r.personId + "|" + r.role + "|" + r.sub).sort();
+
+test("ownership save: creates, then updates, then deletes; a failure undoes what was done and names the step", async () => {
+  const start = () => [{ id: 1, personId: "A", role: "Unit Owner", sub: "Primary", name: "Ann" }, { id: 2, personId: "B", role: "Support", sub: "Primary", name: "Bo" }];
+  const want = [{ personId: "A", name: "Ann", role: "Unit Owner", sub: "Advisory" }, { personId: "C", name: "Cy", role: "Support", sub: "Primary" }];
+  // all three steps, in order
+  let rows = start(), f = fakeIo(rows);
+  await runOwnershipSave(ownershipPlan(start(), want, [1, 2]), f.io);
+  assert.deepEqual(f.log, ["create C", "update 1 Advisory", "delete 2"]);
+  // the create fails: nothing else is tried, nothing changed
+  rows = start(); f = fakeIo(rows, op => op === "create");
+  await assert.rejects(runOwnershipSave(ownershipPlan(start(), want, [1, 2]), f.io),
+    /^Error: The people were not saved\. Step 1 of 3 \(adding Cy as Support\) failed: Refused\.$/);
+  assert.deepEqual(f.log, ["create C"]);
+  assert.deepEqual(keys(rows), keys(start()));
+  // the update fails: the created row is taken out again
+  rows = start(); f = fakeIo(rows, op => op === "update");
+  await assert.rejects(runOwnershipSave(ownershipPlan(start(), want, [1, 2]), f.io), /Step 2 of 3 \(changing the sub-role of Ann as Unit Owner\) failed: Refused\. The changes made before it were undone\./);
+  assert.deepEqual(f.log, ["create C", "update 1 Advisory", "delete 101"]);
+  assert.deepEqual(keys(rows), keys(start()));
+  // the delete fails: the sub-role is put back and the created row taken out
+  rows = start(); f = fakeIo(rows, op => op === "remove" && rows.length && f.log.at(-1) === "delete 2");
+  await assert.rejects(runOwnershipSave(ownershipPlan(start(), want, [1, 2]), f.io), /Step 3 of 3 \(removing Bo as Support\) failed/);
+  assert.deepEqual(keys(rows), keys(start()));
+  // the undo itself fails: say which change is left
+  rows = start(); f = fakeIo(rows, (op, r) => op === "update" || (op === "remove" && r.id === 101));
+  await assert.rejects(runOwnershipSave(ownershipPlan(start(), want, [1, 2]), f.io),
+    /These earlier changes could not be undone: take out Cy as Support\. Reload the page to see what is saved\./);
 });
 
 test("Dataverse ownership save: a failed create deletes nothing", async () => {
@@ -363,7 +411,7 @@ test("Dataverse ownership save: a failed create deletes nothing", async () => {
   try {
     const a = createDataverseAdapter({ backend: "dataverse", user: { contactId: G(901) }, flows: {} });
     const existing = [{ id: G(301), personId: G(100), role: "Executive Owner", sub: "Primary" }, { id: G(302), personId: G(101), role: "Compliance Owner", sub: "Primary" }];
-    await assert.rejects(a.setOwnership({ fn: { id: G(201), name: "Clery" }, existing,
+    await assert.rejects(a.setOwnership({ fn: { id: G(201), name: "Clery" }, existing, shownIds: [G(301), G(302)],
       rows: [{ personId: G(102), name: "Andrea", role: "Support", sub: "Primary" }, { personId: G(101), name: "Camila", role: "Compliance Owner", sub: "Primary" }] }));
     assert.ok(calls.some(c => c.startsWith("POST /_api/su_functionownerships")), "it tried the create");
     assert.ok(!calls.some(c => c.startsWith("DELETE")), "and deleted nothing: " + calls.join(", "));

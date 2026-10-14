@@ -6,7 +6,7 @@
    run per list touched (a second or two); the button shows it is working. */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { buildDataset, samePerson, NOBODY } from "./model.js";
+import { buildDataset, samePerson, NOBODY, allRows } from "./model.js";
 import { createSampleAdapter } from "./adapters/sample.js";
 import { createSharePointAdapter } from "./adapters/sharepoint.js";
 import { createDataverseAdapter } from "./adapters/dataverse.js";
@@ -123,7 +123,7 @@ export function useStore(cfg) {
       const r = await fn(adapter, ctx);
       const tables = Array.isArray(r) ? r : (r && r.reload) || [];
       if (tables.length) await reload(tables);
-      if (okMsg) flash(typeof okMsg === "function" ? okMsg() : okMsg);
+      if (okMsg) flash(typeof okMsg === "function" ? okMsg(r) : okMsg, r && r.warning ? "error" : "ok");
       return r;
     } catch (e) {
       flash(e.message || String(e), "error");
@@ -137,6 +137,17 @@ export function useStore(cfg) {
     .filter(o => ds && samePerson(ds.people.find(p => String(p.id) === String(o.personId)), person))
     .map(o => o.id), [ds]);
 
+  /* what an ownership save starts from: the function's rows as loaded (with
+     each person's name, to put a row back if a save has to be undone) and
+     the row IDs the editors showed, the only rows a save may delete */
+  const ownershipNow = useCallback(fnId => {
+    if (fnId == null) return { existing: [], shownIds: [] };
+    const name = id => { const p = ds && ds.people.find(x => String(x.id) === String(id)); return p ? p.n : ""; };
+    const existing = (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(fnId)).map(o => ({ ...o, name: name(o.personId) }));
+    const f = ds && ds.fns.find(x => String(x.id) === String(fnId));
+    return { existing, shownIds: f ? allRows(f).map(r => r.rowId).filter(id => id != null) : [] };
+  }, [ds]);
+
   const actions = useMemo(() => ({
     addFlag: (fn, reason) => act("flag", (a, c) => a.addFlag({ fn, reason }, c), "Flag submitted to the compliance office."),
     resolveFlag: (flag, fn) => act("flag-" + flag.id, (a, c) => a.resolveFlag({ flag, fn }, c), "Flag resolved."),
@@ -149,11 +160,16 @@ export function useStore(cfg) {
     saveFunction: (draft, isNew, rows) => act("fn", async (a, c) => {
       const r = await a.saveFunction({ draft, isNew }, c);
       if (!rows || r.id == null) return r;
-      const existing = isNew ? [] : (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(r.id));
-      const o = await a.setOwnership({ fn: { ...draft, id: r.id }, rows, existing }, c);
+      let o;
+      try { o = await a.setOwnership({ fn: { ...draft, id: r.id }, rows, ...ownershipNow(isNew ? null : r.id) }, c); }
+      catch (e) {
+        /* the record itself was saved: show it, and say the people were not */
+        await reload(r.reload || ["functions"]).catch(() => null);
+        throw new Error("The record was saved. " + (e.message || String(e)));
+      }
       const more = Array.isArray(o) ? o : (o && o.reload) || [];
-      return { id: r.id, reload: [...new Set([...(r.reload || []), ...more])] };
-    }, isNew ? "New function created and added to the matrix." : "Changes saved to the matrix."),
+      return { id: r.id, warning: o && o.warning, reload: [...new Set([...(r.reload || []), ...more])] };
+    }, r => (r && r.warning) || (isNew ? "New function created and added to the matrix." : "Changes saved to the matrix.")),
     deleteFunction: fn => act("fn-del", (a, c) => {
       const r = rawRef.current;
       const mine = x => String(x.functionId) === String(fn.id);
@@ -172,10 +188,8 @@ export function useStore(cfg) {
       };
       return a.deleteFunction({ fn, related }, c);
     }, "Function deleted and archived."),
-    setOwnership: (fn, rows, msg) => act("own", (a, c) => {
-      const existing = (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(fn.id));
-      return a.setOwnership({ fn, rows, existing }, c);
-    }, msg || "Ownership chain saved."),
+    setOwnership: (fn, rows, msg) => act("own", (a, c) => a.setOwnership({ fn, rows, ...ownershipNow(fn.id) }, c),
+      r => (r && r.warning) || msg || "Ownership chain saved."),
     /* "Added 2 events to your Outlook calendar", with what was moved or already there */
     addToCalendar: async list => {
       const r = await act("cal", (a, c) => a.addToCalendar({ deadlines: list }, c));
@@ -209,7 +223,7 @@ export function useStore(cfg) {
     deleteDomain: domain => act("tax", (a, c) => a.deleteDomain({ domain }, c), "Domain deleted."),
     searchPeople: q => adapter.searchPeople ? adapter.searchPeople(q) : Promise.resolve(null),
     refresh: () => loadAll(true).then(() => flash("Refreshed from " + adapter.label + "."))
-  }), [act, adapter, ownershipRowsFor, loadAll, flash]);
+  }), [act, adapter, ownershipRowsFor, ownershipNow, reload, loadAll, flash]);
 
   return {
     cfg, adapter, today, status, error, ds, loadedAt, busy, toast, flash,

@@ -293,29 +293,3 @@ export function visibleDeadlines(ds, person, adminView) {
   const mine = new Set(functionsFor(person, ds.fns).map(f => String(f.id)));
   return ds.allDeadlines.filter(d => mine.has(String(d.functionId)));
 }
-
-/* How to save a function's ownership without losing rows: match the rows
-   to keep against the rows there now by person and role (the table's
-   alternate key), then create the new ones, update the ones whose sub-role
-   changed, and only then delete the ones no longer wanted. A failure part
-   way leaves every existing row in place. A second row for the same person
-   and role is removed. General Counsel has no sub-role to compare. */
-export function ownershipPlan(existing, rows) {
-  const key = (personId, role) => String(personId).toLowerCase() + "|" + role;
-  const norm = (role, sub) => (role === ROLE_COUNSEL ? "" : sub || "Primary");
-  const there = new Map();
-  for (const e of existing) if (!there.has(key(e.personId, e.role))) there.set(key(e.personId, e.role), e);
-  const create = [], update = [], kept = new Set(), wanted = new Set();
-  for (const r of rows) {
-    const k = key(r.personId, r.role);
-    if (wanted.has(k)) continue;
-    wanted.add(k);
-    const e = there.get(k);
-    if (!e) create.push(r);
-    else {
-      kept.add(String(e.id));
-      if (norm(e.role, e.sub) !== norm(r.role, r.sub)) update.push({ ...r, id: e.id });
-    }
-  }
-  return { create, update, remove: existing.filter(e => !kept.has(String(e.id))) };
-}
