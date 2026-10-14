@@ -231,14 +231,13 @@ export function Directory({ personId }) {
         </div>
 
         {view === "list" && !narrow ? <table className="dir-table"><thead><tr>
-          <th>Name</th><th>{hasUnits ? "Unit" : "Email"}</th><th>Phone</th><th>Role in chain</th><th title="Functions">Fns</th></tr></thead>
+          <th>Name</th><th>{hasUnits ? "Unit" : "Email"}</th><th>Phone</th><th className="dir-cnt">Functions</th></tr></thead>
           <tbody>{rows.map(p =>
             <tr key={p.id} className={isOn(p) ? "on" : ""} onClick={() => pick(p)} tabIndex={0} onKeyDown={e => { if (e.key === "Enter") pick(p); }}>
               <td><div className="dir-who"><Avatar person={p} size={40} />
                 <div><div className="nm">{p.n}</div><div className="ti">{p.t || (hasUnits ? p.e : "")}</div></div></div></td>
               <td className="dir-cell">{hasUnits ? p.u : p.e}</td>
               <td className="dir-cell dir-num">{p.ph}</td>
-              <td><RoleTag role={dirRole(p)} /></td>
               <td className="dir-cnt">{count(p)}</td></tr>)}
           </tbody></table>
           : <div className="dir-cards">{rows.map(p =>
