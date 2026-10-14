@@ -287,6 +287,12 @@ test("the guide lists each table's Webapi fields value exactly as the adapter us
   for (const [table, fields] of Object.entries(WEBAPI_FIELDS)) {
     assert.ok(guide.includes(`| ${table} | ${DEFAULT_SETS[table]} | \`${fields}\` |`), table + " row in section 5");
     assert.ok(!fields.includes("*") && !fields.includes(" "), table + ": explicit, no spaces");
-    for (const c of fields.split(",")) assert.ok(!/^_.*_value$/.test(c), table + ": lookups by logical name, not " + c);
+    const schema = JSON.parse(readFileSync(new URL("./dv-schema.json", import.meta.url), "utf8"));
+    for (const c of fields.split(",")) {
+      const kind = String(schema[table].columns[c] || "");
+      assert.ok(!kind.startsWith("lookup:"), table + ": lookup " + c + " must be listed as _" + c + "_value");
+      const lk = /^_(.+)_value$/.exec(c);
+      if (lk) assert.ok(String(schema[table].columns[lk[1]] || "").startsWith("lookup:"), table + ": " + c + " is a lookup");
+    }
   }
 });

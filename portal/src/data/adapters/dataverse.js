@@ -72,12 +72,12 @@ const SELECT = {
 const WRITE_ONLY = { su_functionownership: ["su_name"] };
 
 /* The value of each table's Webapi/<table>/fields site setting: every column
-   the page reads or writes, with a lookup under its own logical name
-   (su_riskarea, not _su_riskarea_value). Power Pages refuses a request that
-   reads or writes any other column, and no longer accepts "*".
+   the page reads or writes, with a lookup as _<lookup>_value (the form Power
+   Pages accepts there; su_riskarea alone is refused). Power Pages refuses a
+   request that reads or writes any other column, and no longer accepts "*".
    docs/DATAVERSE-MIGRATION.md, section 5, lists these values. */
 export const WEBAPI_FIELDS = Object.fromEntries(Object.entries(SELECT).map(([table, select]) => [table,
-  [...new Set([...select.split(",").map(c => (/^_(.+)_value$/.exec(c) || [])[1] || c), ...(WRITE_ONLY[table] || [])])].join(",")]));
+  [...new Set([...select.split(","), ...(WRITE_ONLY[table] || [])])].join(",")]));
 
 export function mapTables(t) {
   const out = {};

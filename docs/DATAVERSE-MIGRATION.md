@@ -762,21 +762,22 @@ Power Pages maps for you.
 - `Webapi/<table>/enabled` = `true` for each of the nine tables below.
 - `Webapi/<table>/fields` = the value in the table below, exactly: the
   columns the page reads or writes, comma-separated with no spaces. A lookup
-  is listed under its own logical name (su_riskarea), not as
-  `_su_riskarea_value`. Do not use `*`: Power Pages no longer accepts it, and
-  a table set to `*` answers every request with 403.
+  is listed as **`_<lookup>_value`** (`_su_riskarea_value`), not under its
+  logical name (`su_riskarea`), which Power Pages refuses. Do not use `*`:
+  Power Pages no longer accepts it, and a table set to `*` answers every
+  request with 403.
 
 | Table (logical name) | Entity set the page requests | `Webapi/<table>/fields` |
 |---|---|---|
 | su_riskarea | su_riskareas | `su_riskareaid,su_name,su_colorhex,su_sortorder` |
-| su_domain | su_domains | `su_domainid,su_name,su_riskarea` |
-| su_compliancedirectory | su_compliancedirectorys | `su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,su_contact` |
-| su_compliancefunction | su_compliancefunctions | `su_compliancefunctionid,su_name,su_functioncode,su_riskarea,su_domain,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_lastreviewed,su_executiveowner,su_unitowner,su_complianceowner` |
-| su_functionownership | su_functionownerships | `su_functionownershipid,su_function,su_person,su_role,su_subrole,su_name` |
-| su_compliancedeadline | su_compliancedeadlines | `su_compliancedeadlineid,su_name,su_function,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes` |
-| su_compliancegap | su_compliancegaps | `su_compliancegapid,su_name,su_gapcode,su_function,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,su_owner,su_responsibleunit,su_gapsource` |
-| su_functionflag | su_functionflags | `su_functionflagid,su_function,su_reason,su_status,su_flaggedby,su_flaggedon,su_respondentemail` |
-| su_counselassignment | su_counselassignments | `su_counselassignmentid,su_riskarea,su_attorney,su_isdefault` |
+| su_domain | su_domains | `su_domainid,su_name,_su_riskarea_value` |
+| su_compliancedirectory | su_compliancedirectorys | `su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value` |
+| su_compliancefunction | su_compliancefunctions | `su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value` |
+| su_functionownership | su_functionownerships | `su_functionownershipid,_su_function_value,_su_person_value,su_role,su_subrole,su_name` |
+| su_compliancedeadline | su_compliancedeadlines | `su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes` |
+| su_compliancegap | su_compliancegaps | `su_compliancegapid,su_name,su_gapcode,_su_function_value,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,_su_owner_value,su_responsibleunit,su_gapsource` |
+| su_functionflag | su_functionflags | `su_functionflagid,_su_function_value,su_reason,su_status,_su_flaggedby_value,su_flaggedon,su_respondentemail` |
+| su_counselassignment | su_counselassignments | `su_counselassignmentid,_su_riskarea_value,_su_attorney_value,su_isdefault` |
 
 Power Pages refuses a request that reads or writes a column not on its
 table's list, so the list is also a guard: Completed By, Closed By, Flagged

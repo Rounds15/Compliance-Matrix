@@ -242,12 +242,15 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     if (webApiOff.includes(tableName)) return fail(res, 404, `Resource not found for the segment '${set}'.`);
     /* Webapi/<table>/fields: only the listed columns may be read or written */
     const allowed = new Set(String(WEBAPI_FIELDS[tableName] || "").split(","));
-    const notListed = cols => cols.map(c => (/^_(.+)_value$/.exec(c) || [])[1] || c.replace("@odata.bind", "")).find(c => !allowed.has(c));
+    /* lookups are listed as _<lookup>_value, which covers reading the lookup
+       and setting or clearing it (su_<lookup>@odata.bind, .../su_<lookup>/$ref) */
+    const asListed = c => (c.endsWith("@odata.bind") ? "_" + c.slice(0, -11) + "_value" : c);
+    const notListed = cols => cols.map(asListed).find(c => !allowed.has(c));
     if (req.method === "GET") {
       const bad = notListed((url.searchParams.get("$select") || "").split(",").filter(Boolean));
       if (bad) return fail(res, 403, `Attribute ${bad} in table ${tableName} is not enabled for Web Api.`);
     }
-    if (nav && !allowed.has(nav)) return fail(res, 403, `Attribute ${nav} in table ${tableName} is not enabled for Web Api.`);
+    if (nav && !allowed.has("_" + nav + "_value")) return fail(res, 403, `Attribute ${nav} in table ${tableName} is not enabled for Web Api.`);
     const rows = dv[set];
     if (req.method !== "GET" && req.headers["__requestverificationtoken"] !== TOKEN) return fail(res, 403, "Missing or invalid anti-forgery token");
     log.push({ api: req.method + " " + url.pathname + url.search });
