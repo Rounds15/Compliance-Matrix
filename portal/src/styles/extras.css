@@ -276,3 +276,18 @@ code { font-size: .88em; overflow-wrap: anywhere }
    it on the right), and card lists wrap into as many columns as fit. */
 .fd-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr)); gap: 8px; align-items: start }
 .fd-cards .dlrow, .fd-cards .gaprow { margin-bottom: 0 }
+
+/* ---------- Directory: the person panel scrolls on its own ----------
+   It stays in view while the list scrolls, below the sticky header, and is
+   never taller than the window; a long profile scrolls inside it. The
+   scrollbar is thin and shows only while the pointer or focus is in it. */
+@media (min-width: 1081px) {
+  .dir-rail { top: calc(var(--hdr) + 1rem); max-height: calc(100vh - var(--hdr) - 2rem); overflow-y: auto; overscroll-behavior: contain;
+    scrollbar-width: thin; scrollbar-color: transparent transparent; scrollbar-gutter: stable }
+  .dir-rail > * { flex-shrink: 0 }
+  .dir-rail:hover, .dir-rail:focus-within { scrollbar-color: #C4C7CE transparent }
+  .dir-rail::-webkit-scrollbar { width: 8px }
+  .dir-rail::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px }
+  .dir-rail:hover::-webkit-scrollbar-thumb, .dir-rail:focus-within::-webkit-scrollbar-thumb { background: #C4C7CE }
+}
+.dir-rail.dir-rail-m { max-height: none; overflow: visible }

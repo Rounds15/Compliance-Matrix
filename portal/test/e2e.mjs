@@ -439,6 +439,11 @@ await session("SharePoint · directory edit, reassign, remove; view as a user", 
   await view("User");
 
   await go("#/directory");
+  // the person panel stays below the sticky header, fits the window, and scrolls on its own
+  const railBox = await page.evaluate(() => { const r = document.querySelector(".dir-rail"), s = getComputedStyle(r);
+    return { overflow: s.overflowY, position: s.position, max: r.getBoundingClientRect().height, vh: innerHeight, hdr: document.querySelector(".hdr").getBoundingClientRect().height }; });
+  assert.equal(railBox.position, "sticky"); assert.equal(railBox.overflow, "auto");
+  assert.ok(railBox.max <= railBox.vh - railBox.hdr - 31, `panel ${railBox.max}px fits a ${railBox.vh}px window below the header`);
   assert.equal(await text(page.locator(".dir-toolbar .count")), "5 people");
   await page.locator(".dir-table tr", { hasText: "Dwight Ferrell" }).click();
   assert.equal(await text(page.locator(".dir-rail .dir-role")), "Compliance Owner");
