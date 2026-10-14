@@ -29,6 +29,17 @@ directorySync:
   minute: 0
   timeZone: Eastern Standard Time
 
+# CM - Add to calendar. Events are made on the CM - Office 365 Outlook
+# connection account's calendar (calendarId; "Calendar" is its default
+# calendar) with the person invited, all day in timeZone, with a reminder
+# reminderMinutes before (on the organizer's copy). At most maxDeadlines per
+# request.
+calendar:
+  calendarId: Calendar
+  timeZone: Eastern Standard Time
+  reminderMinutes: 10080
+  maxDeadlines: 50
+
 # Connection references the flows use. Logical names carry the publisher
 # prefix; the post-import steps set each to a connection.
 connectionReferences:

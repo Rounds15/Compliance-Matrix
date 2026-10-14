@@ -41,5 +41,10 @@
         <label description="Delete function" languagecode="1033"/>
       </labels>
     </option>
+    <option value="100000126" IsHidden="0">
+      <labels>
+        <label description="Add to calendar" languagecode="1033"/>
+      </labels>
+    </option>
   </options>
 </optionset>

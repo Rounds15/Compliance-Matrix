@@ -131,6 +131,7 @@ choices:
       - { value: 100000123, label: Resolve flag }
       - { value: 100000124, label: Raise flag }
       - { value: 100000125, label: Delete function }
+      - { value: 100000126, label: Add to calendar }
   su_portalactionstatus:
     displayName: Portal Action Status
     options:

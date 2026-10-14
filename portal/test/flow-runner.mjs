@@ -7,7 +7,8 @@
    something this does not model. Connectors are emulated over the mock's
    tables: Dataverse (ListRecords, GetItem, CreateRecord, UpdateRecord,
    DeleteRecord, with formatted values and cascades), Office 365 Users
-   (UserProfile_V2, UserPhoto_V2) and Office 365 Outlook (SendEmailV2).
+   (UserProfile_V2, UserPhoto_V2) and Office 365 Outlook (SendEmailV2, and
+   the calendar's V4CalendarGetItems, V4CalendarPostItem, V4CalendarPatchItem).
 
    Not modelled: retries, parallel branches, and platform validation of the
    definition itself. Those are proved only by importing the solution. */
@@ -35,6 +36,8 @@ export function loadFlows() {
 
 class FlowError extends Error {}
 class ConnectorError extends Error { constructor(status, message) { super(message); this.status = status; } }
+/* a value an expression cannot use (bad JSON, a bad date): the action fails, as in Power Automate */
+class ExprFail extends Error {}
 class Terminate { constructor(status, message) { this.status = status; this.message = message; } }
 
 /* ---------------- expressions ---------------- */
@@ -163,7 +166,26 @@ const FUNCS = {
   min: (...a) => Math.min(...a.map(numArg)),
   int: v => { const n = parseInt(String(v), 10); if (Number.isNaN(n) || !/^-?\d+$/.test(String(v).trim())) throw new FlowError("int() of " + JSON.stringify(v)); return n; },
   string: v => asText(v),
-  json: v => { try { return JSON.parse(str(v)); } catch (e) { throw new FlowError("json() of " + JSON.stringify(v)); } },
+  json: v => { try { return JSON.parse(str(v)); } catch (e) { throw new ExprFail("json() of " + JSON.stringify(v)); } },
+  take: (c, n) => { numArg(n); if (typeof c === "string" || Array.isArray(c)) return c.slice(0, n); throw new FlowError("take() of " + JSON.stringify(c)); },
+  /* case-insensitive, as the Workflow Definition Language's startsWith */
+  startsWith: (a, b) => str(a).toLowerCase().startsWith(str(b).toLowerCase()),
+  contains: (c, v) => {
+    if (typeof c === "string") return c.includes(str(v));
+    if (Array.isArray(c)) return c.some(x => FUNCS.equals(x, v));
+    if (c && typeof c === "object") return str(v) in c;
+    throw new FlowError("contains() of " + JSON.stringify(c));
+  },
+  split: (a, b) => str(a).split(str(b)),
+  decodeUriComponent: v => decodeURIComponent(str(v)),
+  addDays: (ts, n, fmt) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})(T|$)/.exec(str(ts));
+    const d = m && new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (!d || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) throw new ExprFail("addDays() of " + JSON.stringify(ts));
+    d.setUTCDate(d.getUTCDate() + numArg(n));
+    const iso = d.toISOString();
+    return fmt ? fmtDate({ y: iso.slice(0, 4), m: iso.slice(5, 7), d: iso.slice(8, 10) }, fmt) : iso;
+  },
   addProperty: (o, k, v) => { if (!o || typeof o !== "object" || k in o) throw new FlowError("addProperty() on " + JSON.stringify(o)); return { ...o, [k]: v }; },
   substring: (s, start, len) => { str(s); if (start < 0 || start + len > s.length) throw new FlowError(`substring(${JSON.stringify(s)}, ${start}, ${len}) is out of range`); return s.substr(start, len); },
   utcNow: () => new Date().toISOString(),
@@ -347,6 +369,7 @@ export function runFlow(def, { trigger = {}, dataverse, users, outlook, workflow
       }
     } catch (e) {
       if (e instanceof Terminate) throw e;
+      if (e instanceof ExprFail) return set("Failed", { error: e.message });
       if (e instanceof ConnectorError) return set("Failed", { body: { error: { message: e.message } }, outputs: { statusCode: e.status, body: { error: { message: e.message } } }, error: e.message });
       throw e; // a FlowError is a bug in the flow or in this model: fail the test
     }
@@ -561,14 +584,58 @@ export function usersConnector(people) {
   };
 }
 
-export function outlookConnector() {
-  const sent = [];
+/* Mail, and the connection account's calendar ("Calendar" or one named in
+   calendars): events with subject, start, end, timeZone, isAllDay,
+   requiredAttendees ("a@x;b@y;" as the connector returns them) and body. */
+export function outlookConnector({ calendars = ["Calendar"] } = {}) {
+  const sent = [], events = [];
+  let next = 1;
+  const EVENT = ["subject", "start", "end", "timeZone", "isAllDay", "requiredAttendees", "body", "isReminderOn",
+    "reminderMinutesBeforeStart", "showAs", "importance"];
+  const calendar = p => { if (!calendars.includes(p.table)) throw new ConnectorError(404, `The calendar '${p.table}' was not found.`); };
+  const fields = p => {
+    const out = {};
+    for (const [k, v] of Object.entries(p)) {
+      if (!k.startsWith("item/")) continue;
+      const f = k.slice(5);
+      if (!EVENT.includes(f)) throw new ConnectorError(400, "Create event has no field " + f);
+      out[f] = v;
+    }
+    for (const f of ["start", "end"]) if (f in out && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(out[f])) throw new ConnectorError(400, `${f} must be yyyy-MM-ddTHH:mm:ss, got ${out[f]}`);
+    if ("requiredAttendees" in out) out.requiredAttendees = String(out.requiredAttendees).split(";").map(x => x.trim()).filter(Boolean).map(x => x + ";").join("");
+    return out;
+  };
   const fn = (operation, p) => {
-    if (operation !== "SendEmailV2") throw new FlowError("Outlook operation not modelled: " + operation);
-    for (const k of ["emailMessage/To", "emailMessage/Subject", "emailMessage/Body"]) if (!p[k]) throw new ConnectorError(400, k + " is required");
-    sent.push({ to: p["emailMessage/To"], subject: p["emailMessage/Subject"], body: p["emailMessage/Body"] });
-    return {};
+    switch (operation) {
+      case "SendEmailV2":
+        for (const k of ["emailMessage/To", "emailMessage/Subject", "emailMessage/Body"]) if (!p[k]) throw new ConnectorError(400, k + " is required");
+        sent.push({ to: p["emailMessage/To"], subject: p["emailMessage/Subject"], body: p["emailMessage/Body"] });
+        return {};
+      case "V4CalendarGetItems": {
+        calendar(p);
+        const m = /^subject eq '((?:[^']|'')*)'$/.exec(String(p.$filter || ""));
+        if (!m) throw new ConnectorError(400, "only $filter=subject eq '...' is modelled, got " + p.$filter);
+        const subject = m[1].replace(/''/g, "'");
+        return { value: events.filter(e => e.subject === subject).slice(0, Number(p.$top) || 10).map(e => ({ ...e })) };
+      }
+      case "V4CalendarPostItem": {
+        calendar(p);
+        const e = fields(p);
+        for (const k of ["subject", "start", "end", "timeZone"]) if (!e[k]) throw new ConnectorError(400, "item/" + k + " is required");
+        events.push({ id: "event-" + next++, ...e });
+        return { ...events.at(-1) };
+      }
+      case "V4CalendarPatchItem": {
+        calendar(p);
+        const e = events.find(x => x.id === p.id);
+        if (!e) throw new ConnectorError(404, "The event was not found.");
+        Object.assign(e, fields(p));
+        return { ...e };
+      }
+      default: throw new FlowError("Outlook operation not modelled: " + operation);
+    }
   };
   fn.sent = sent;
+  fn.events = events;
   return fn;
 }

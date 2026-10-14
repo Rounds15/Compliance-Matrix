@@ -176,6 +176,15 @@ export function useStore(cfg) {
       const existingRowIds = (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(fn.id)).map(o => o.id);
       return a.setOwnership({ fn, rows, existingRowIds }, c);
     }, msg || "Ownership chain saved."),
+    /* "Added 2 events to your Outlook calendar", with what was moved or already there */
+    addToCalendar: async list => {
+      const r = await act("cal", (a, c) => a.addToCalendar({ deadlines: list }, c));
+      const n = r.added || 0, extra = [];
+      if (r.moved) extra.push(r.moved + " moved to " + (r.moved === 1 ? "its" : "their") + " new date");
+      if (r.already) extra.push(r.already + " already there");
+      flash("Added " + n + " event" + (n === 1 ? "" : "s") + " to your Outlook calendar" + (extra.length ? " (" + extra.join(", ") + ")" : "") + ".");
+      return r;
+    },
     addPerson: person => act("person", (a, c) => a.addPerson({ person }, c), person.name + " added to the Compliance Directory."),
     updatePerson: person => act("person", (a, c) => a.updatePerson({ person }, c), "Saved."),
     deletePerson: person => act("person-del", (a, c) => a.deletePerson({ person, ownershipRowIds: ownershipRowsFor(person) }, c), person.n + " removed from the directory."),

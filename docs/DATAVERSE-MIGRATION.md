@@ -182,7 +182,7 @@ table, so the first import creates them:
   option value prefix 10000, so choice values start at 100000000;
 - the solution **Compliance Matrix** (`ComplianceMatrix`);
 - 16 tables and 14 global choices, all empty;
-- five cloud flows, imported turned off, and the three connection
+- six cloud flows, imported turned off, and the three connection
   references they use (After the import, below).
 
 1. Extract `ComplianceMatrix-solution-src.zip`. You get a `src` folder holding
@@ -210,14 +210,14 @@ table, so the first import creates them:
 
 ### After the import: connections and flows
 
-The solution carries three **connection references** and five **cloud flows**.
+The solution carries three **connection references** and six **cloud flows**.
 The flows import turned off; they need connections first.
 
 | Connection reference | Connector | Used by |
 |---|---|---|
-| CM - Microsoft Dataverse (su_CMDataverse) | Microsoft Dataverse | all five flows |
+| CM - Microsoft Dataverse (su_CMDataverse) | Microsoft Dataverse | all six flows |
 | CM - Office 365 Users (su_CMOffice365Users) | Office 365 Users | the three link flows and CM - Sync directory from M365 |
-| CM - Office 365 Outlook (su_CMOffice365Outlook) | Office 365 Outlook | all five flows (notices and failure alerts) |
+| CM - Office 365 Outlook (su_CMOffice365Outlook) | Office 365 Outlook | all six flows (notices and failure alerts); CM - Add to calendar also sends its calendar invitations from this account |
 
 1. **Pick the account.** One licensed member account makes all three
    connections and owns the flows: a service account if you have one,
@@ -235,8 +235,9 @@ The flows import turned off; they need connections first.
    on.
 4. **Turn the flows on.** Solutions > Compliance Matrix > Cloud flows > each
    flow > **Turn on**: CM - Process portal action, CM - Link directory to
-   contact, CM - Link contact to directory, CM - Link existing sign-ins, and
-   CM - Sync directory from M365 (a manual flow still has to be on to run). Turning one on fails if its
+   contact, CM - Link contact to directory, CM - Link existing sign-ins,
+   CM - Sync directory from M365 and CM - Add to calendar (a manual flow
+   still has to be on to run). Turning one on fails if its
    connection references are empty or the data loss prevention policy splits
    its connectors.
 5. **Add the action flow to the site.** Design Studio > Set up > **Cloud
@@ -250,7 +251,13 @@ The flows import turned off; they need connections first.
    sign-ins > **Run**. With an empty directory it links nobody and sends a
    "not linked" notice for each sign-in; that is expected until the people
    are in the directory (section 6 has a one-row test).
-8. **Fill in the directory from Microsoft 365:** Cloud flows > CM - Sync
+8. **Add the calendar flow to the site.** Set up > Cloud flows > + Add cloud
+   flow > **CM - Add to calendar**; roles Compliance Matrix Testers and
+   Administrators. Copy its URL into the site setting
+   **`ComplianceMatrix/Flow/Calendar`** (create it). Until it is set, the
+   calendar buttons download a calendar file instead (section 8, Add to
+   calendar).
+9. **Fill in the directory from Microsoft 365:** Cloud flows > CM - Sync
    directory from M365 > **Run**. It then runs again every Sunday at 10 PM
    Eastern (section 6, "Directory details and photos").
 
@@ -1192,8 +1199,8 @@ you than assume it. Delete the test rows afterwards.
    Flag) and take **its own** Compliance Function; if the action also names a
    function and it differs, Fail. For Raise flag and Delete function, use the
    action's Compliance Function. Get that function row; missing: Fail.
-5. **Administrator?** The contact's web roles include "Compliance Matrix
-   Administrators". The flow reads them through the Contact to web role
+5. **Administrator?** The contact's web roles include "Administrators" (the
+   site's own role, `adminWebRole` in `solution/schema/flows.yaml`). The flow reads them through the Contact to web role
    relationship named in `solution/schema/flows.yaml`
    (`powerpagecomponent_mspp_webrole_contact`; check it under Tables >
    Contact > Relationships, section 2).
@@ -1235,6 +1242,62 @@ The portal's tests run this flow's generated definition (the same file the
 solution imports) through `portal/test/flow-runner.mjs`, so the end-to-end
 tests drive the real steps. What they cannot check is how Power Automate
 reads the definition; the import and the first runs do that.
+
+### Add to calendar (CM - Add to calendar)
+
+**Add to my calendar** on a function adds its next open deadline; **Add this
+month to my calendar** on the Deadlines calendar adds the open deadlines the
+month shows (with the page's search and filter). Each becomes an Outlook
+**invitation** to the person signed in: an all-day event on the due date,
+shown as free, with the function's deadline narrative and a link back to the
+function.
+
+**Why an invitation.** A flow that Power Pages calls runs on its own
+connections, not the visitor's, so it cannot write to the visitor's
+calendar. CM - Add to calendar makes each event on the calendar of the **CM -
+Office 365 Outlook** connection's account (the same account that sends the
+notices; a shared or service mailbox is the better choice than a person's)
+and invites the person. Outlook adds the invitation to their calendar
+(tentatively, until they accept, unless they have changed that setting).
+The 7-day reminder is set on the organizer's copy; an invitee's reminder is
+their own Outlook default.
+
+**How it runs.** The page records an **Add to calendar** Portal Action through
+the same CM Portal Action form (so Requested By is set by the server, as
+above), with the deadlines in Reason as JSON: the page's address and, for
+each deadline, its ID, the due date the page shows and its title. The page
+sends the date because it is the page that rolls a recurring deadline
+forward. Then it calls the flow with the row's ID. The flow:
+
+1. Reads the row; refuses one that is missing, already processed, not an Add
+   to calendar row, or has no requester.
+2. Finds the requester's Compliance Directory row (Portal Contact) and takes
+   its email; refuses when there is none, with a message saying so.
+3. For each deadline (at most 50): reads the deadline and its function from
+   Dataverse, and skips one that is missing, complete, or has a malformed ID
+   or date. The subject is the function name, a colon, and the deadline's
+   title.
+4. Looks for an event with that subject on the connection account's calendar
+   that already invites this person. None: creates it. One whose "Due date"
+   line matches: leaves it (already there). One with a different date:
+   moves it to the new date.
+5. Records the counts on the row (Result) and replies, and the page says
+   "Added 2 events to your Outlook calendar", noting any moved or already
+   there.
+
+Anything else going wrong (the calendar not found, Outlook refusing an event)
+marks the row Failed, tells the person "The deadlines could not be added to
+your calendar. The compliance office has been told.", emails the office and
+fails the run.
+
+**Settings** (`solution/schema/flows.yaml`, `calendar`): the calendar
+(`Calendar`, the account's default calendar), the time zone, the reminder
+(10080 minutes, 7 days) and the most deadlines per request (50). If a run
+fails on "calendar not found", open the flow, pick the calendar in the Find
+event, Create event and Move event steps, and tell me so the file matches.
+
+**Without the flow** (its site setting empty, or the SharePoint backend) the
+buttons download a calendar file (.ics) as before.
 
 
 ---
@@ -1312,8 +1375,9 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
 5. Build the five dataflows (section 3), run them in order, and reconcile
    against the baseline counts.
 6. Check what External Identity Username holds (section 6). Set the
-   connection references, turn the five flows on, add the action flow to the
-   site and set `ComplianceMatrix/Flow/Action` (section 2, After the import).
+   connection references, turn the six flows on, add the action and calendar
+   flows to the site and set `ComplianceMatrix/Flow/Action` and
+   `ComplianceMatrix/Flow/Calendar` (section 2, After the import).
    Set up the CM Portal Action form and its two pages, and run the spoof test
    (section 8).
 7. Create the Testers web role; set the page's permissions to Testers and

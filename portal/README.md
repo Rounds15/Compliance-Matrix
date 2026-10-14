@@ -215,6 +215,7 @@ for SharePoint, the flow URLs.
 | `ComplianceMatrix/Flow/AdminWrite` | … for **CM - Write (administrators)** | |
 | `ComplianceMatrix/Flow/FindPerson` | … for **CM - Find person** | Entra lookup hidden |
 | `ComplianceMatrix/Flow/Action` | Dataverse: URL Power Pages shows for **CM - Process portal action** | completions, closures, flags and deletes cannot be saved |
+| `ComplianceMatrix/Flow/Calendar` | Dataverse: URL Power Pages shows for **CM - Add to calendar** | the calendar buttons download a calendar file instead of sending Outlook invitations |
 | `ComplianceMatrix/AdminWebRole` | web role name, matched exactly | `Administrators` |
 | `ComplianceMatrix/CacheMinutes` | how long a browser reuses what it read | `5` |
 | `ComplianceMatrix/TimeZone` | zone SharePoint date-only columns are stored in | `America/New_York` |

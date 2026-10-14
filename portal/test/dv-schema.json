@@ -417,7 +417,8 @@
     "100000122": "Close gap",
     "100000123": "Resolve flag",
     "100000124": "Raise flag",
-    "100000125": "Delete function"
+    "100000125": "Delete function",
+    "100000126": "Add to calendar"
    },
    "su_status": {
     "100000130": "Pending",

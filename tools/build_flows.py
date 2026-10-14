@@ -10,6 +10,9 @@ The Compliance Matrix solution's cloud flows, as Power Automate definitions.
     CM - Sync directory from M365      weekly (and by hand): title, unit, office,
                                        phone and photo from each person's
                                        Microsoft 365 profile
+    CM - Add to calendar               called by the matrix page: invites the
+                                       person to an all-day Outlook event for
+                                       each deadline they add
 
 build_solution.py writes them to solution/src/Workflows/ in the layout
 `pac solution unpack` produces, with the connection references they use. The
@@ -36,6 +39,7 @@ FORMATTED = "@OData.Community.Display.V1.FormattedValue"
 # choice codes from dataverse-schema.yaml
 PENDING, DONE, FAILED = 100000130, 100000131, 100000132
 COMPLETE, REVERSE, CLOSE, RESOLVE, RAISE, DELETE = range(100000120, 100000126)
+ADD_TO_CALENDAR = 100000126
 ONE_TIME = 100000016
 GAP_CLOSED = 100000021
 FLAG_ACTIVE, FLAG_CLEARED = 100000050, 100000051
@@ -667,6 +671,166 @@ def sync_directory(s: dict) -> dict:
     return definition(name, trig, acts, f.used, s)
 
 
+# ---------------------------------------------------------------------------
+# CM - Add to calendar
+# ---------------------------------------------------------------------------
+def power_pages_trigger() -> dict:
+    return {"type": "Request", "kind": "PowerPages", "inputs": {"schema": {
+        "type": "object", "required": ["text"],
+        "properties": {"text": {"title": "request", "type": "string", "x-ms-dynamically-added": True,
+                                "description": "The request, as JSON: {\"actionId\": \"<Portal Action ID>\"}",
+                                "x-ms-content-hint": "TEXT"}}}}}
+
+
+def reply(name: str, result_expr: str, after: dict) -> tuple[str, dict]:
+    return name, {"type": "Response", "kind": "PowerPages", "runAfter": after, "inputs": {
+        "statusCode": 200, "body": {"result": "@{string(" + result_expr + ")}"},
+        "schema": {"type": "object", "properties": {"result": {"title": "result", "type": "string", "x-ms-dynamically-added": True}}}}}
+
+
+def add_to_calendar(s: dict) -> dict:
+    """docs/DATAVERSE-MIGRATION.md, section 8, Add to calendar. The page records
+    an Add to calendar Portal Action through the CM Portal Action form (so
+    Requested By is the signed-in contact, set by the server) with the
+    deadlines in Reason as JSON: {"page": "<matrix page URL>", "deadlines":
+    [{"id", "due" (yyyy-MM-dd, the date the page shows), "title"}]}. A flow
+    called by Power Pages runs on its own connections, not the visitor's, so
+    each event is made on the CM - Office 365 Outlook account's calendar with
+    the person invited: all day, shown as free, with a reminder. An event of
+    the same subject that already invites them is left alone when its date
+    matches and moved when it does not."""
+    f = Flow(s)
+    c = s["calendar"]
+    A = "body('Get_action')"
+    P = first("Find_person")
+    err = "variables('Error')"
+    email = f"trim(coalesce({P}?['su_email'], ''))"
+    R = "outputs('Read_deadlines')"
+    item = "items('For_each_deadline')"
+    did = f"trim(string(coalesce({item}?['id'], '')))"
+    due = f"trim(string(coalesce({item}?['due'], '')))"
+    title = f"trim(string(coalesce({item}?['title'], '')))"
+    D, F = first("Find_deadline"), first("Find_function")
+    fn_name = f"coalesce({F}?['su_name'], '')"
+    page = f"trim(string(coalesce({R}?['page'], '')))"
+    link = (f"if(startsWith(toLower({page}), 'https://'), concat(first(split({page}, '#')), '#/functions/', "
+            f"{F}?['su_compliancefunctionid']), '')")
+    subject_full = f"concat({fn_name}, if(or(empty({title}), equals({title}, {fn_name})), '', concat(': ', {title})))"
+    subject = "outputs('Subject')"
+    marker = f"concat('Due date: ', {due})"
+    body = html("<p><b>", f"={fn_name}", "</b></p><p>", f"={marker}", "</p><p>",
+                f"=replace(coalesce({F}?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>')", "</p>",
+                f"=if(empty({link}), '', concat('<p><a href=\"', {link}, '\">Open this function in the Compliance Matrix</a></p>'))")
+    event = {"subject": f"@{{{subject}}}", "start": f"@{{concat({due}, 'T00:00:00')}}",
+             "end": f"@{{concat(addDays({due}, 1, 'yyyy-MM-dd'), 'T00:00:00')}}", "timeZone": c["timeZone"],
+             "isAllDay": True, "requiredAttendees": f"@{{{email}}}", "body": f"@{{{body}}}",
+             "isReminderOn": True, "reminderMinutesBeforeStart": int(c["reminderMinutes"]),
+             "showAs": "free", "importance": "normal"}
+    cal = c["calendarId"]
+
+    def outlook(op, params):
+        return f.op("outlook", op, {"table": cal, **params})
+
+    def check(name, cond, message):
+        return name, when(f"and(empty({err}), {cond})", seq(("Set_" + name, set_var("Error", message))))
+
+    mine = "body('Invites_this_person')"
+    usable = (f"and(equals(length({did}), 36), equals(length({due}), 10), "
+              f"equals({count('Find_deadline')}, 1), equals({count('Find_function')}, 1), "
+              f"not(equals({D}?['su_complete'], true)))")
+    per = seq(
+        ("Find_deadline", f.list("su_compliancedeadlines",
+                                 f"concat('su_compliancedeadlineid eq ', if(equals(length({did}), 36), {did}, {q(ZERO)}))",
+                                 "su_compliancedeadlineid,su_name,_su_function_value,su_complete", 1)),
+        ("Find_function", f.list("su_compliancefunctions",
+                                 f"concat('su_compliancefunctionid eq ', coalesce({D}?['_su_function_value'], {q(ZERO)}))",
+                                 "su_compliancefunctionid,su_name,su_deadlinenarrative", 1)),
+        ("Usable", when(usable, seq(
+            ("Subject", compose(f"@substring({subject_full}, 0, min(255, length({subject_full})))")),
+            ("Find_event", outlook("V4CalendarGetItems", {"$filter": f"@{{concat('subject eq ', {odata(subject)})}}", "$top": 50})),
+            ("Invites_this_person", {"type": "Query", "inputs": {
+                "from": "@coalesce(body('Find_event')?['value'], json('[]'))",
+                "where": f"@contains(toLower(coalesce(item()?['requiredAttendees'], '')), toLower({email}))"}}),
+            ("New_or_existing", when(f"empty({mine})", seq(
+                ("Create_event", outlook("V4CalendarPostItem", {"item/" + k: v for k, v in event.items()})),
+                ("Count_added", add_one("Added"))),
+                seq(("Same_date", when(f"contains(coalesce(first({mine})?['body'], ''), {marker})",
+                                       seq(("Count_already", add_one("Already"))),
+                                       seq(("Move_event", outlook("V4CalendarPatchItem", {
+                                           "id": f"@{{first({mine})?['id']}}", **{"item/" + k: v for k, v in event.items()}})),
+                                           ("Count_moved", add_one("Moved")))))))),
+        ), seq(("Count_skipped", add_one("Skipped"))))))
+
+    steps = seq(
+        ("Read_request", set_var("ActionId", "@{coalesce(json(triggerBody()?['text'])?['actionId'], '')}")),
+        ("Get_action", f.get("su_portalactions", "variables('ActionId')",
+                             "su_portalactionid,su_action,su_status,su_reason,_su_requestedby_value")),
+        ("Action_missing", {**check("Action_missing", "not(equals(actions('Get_action')?['status'], 'Succeeded'))",
+                                    "That action does not exist.")[1], "runAfter": {"Get_action": ["Succeeded", "Failed"]}}),
+        check("Already_processed", f"or(equals({A}?['su_status'], {DONE}), equals({A}?['su_status'], {FAILED}))",
+              "That action has already been processed."),
+        check("Not_a_calendar_request", f"not(equals({A}?['su_action'], {ADD_TO_CALENDAR}))",
+              "That action is not a calendar request."),
+        check("No_requester", f"empty(coalesce({A}?['_su_requestedby_value'], ''))", "This action has no requester."),
+        ("Find_person", f.list("su_compliancedirectorys",
+                               f"concat('_su_contact_value eq ', coalesce({A}?['_su_requestedby_value'], {q(ZERO)}), ' and su_active eq true')",
+                               "su_compliancedirectoryid,su_name,su_email", 1)),
+        check("Not_linked", f"equals({count('Find_person')}, 0)",
+              "Your sign-in is not linked to a Compliance Directory record yet. Ask the compliance office to check "
+              "your directory email."),
+        check("No_email", f"and(greater({count('Find_person')}, 0), empty({email}))",
+              "Your Compliance Directory record has no email, so there is no calendar to invite. Ask the compliance "
+              "office to add it."),
+        # the deadlines, as the page wrote them into Reason; bad JSON fails this step only
+        ("Read_deadlines", compose(f"@json(if(empty(trim(coalesce({A}?['su_reason'], ''))), '{{}}', {A}?['su_reason']))")),
+        ("Unreadable", {**check("Unreadable", "not(equals(actions('Read_deadlines')?['status'], 'Succeeded'))",
+                                "That calendar request could not be read.")[1], "runAfter": {"Read_deadlines": ["Succeeded", "Failed"]}}),
+        check("Nothing_to_add", f"and(equals(actions('Read_deadlines')?['status'], 'Succeeded'), "
+                                f"empty(coalesce({R}?['deadlines'], json('[]'))))", "There are no deadlines to add."),
+        ("Do_the_work", when(f"empty({err})", seq(
+            ("For_each_deadline", {"type": "Foreach",
+                                   "foreach": f"@take(coalesce({R}?['deadlines'], json('[]')), {int(c['maxDeadlines'])})",
+                                   "actions": per, "runtimeConfiguration": {"concurrency": {"repetitions": 1}}})))),
+    )
+    counts = "concat('Added ', variables('Added'), ', moved ', variables('Moved'), ', already there ', variables('Already'), ', skipped ', variables('Skipped'))"
+    ok = ("addProperty(addProperty(addProperty(addProperty(json('{\"ok\":true}'), 'added', variables('Added')), "
+          "'moved', variables('Moved')), 'already', variables('Already')), 'skipped', variables('Skipped'))")
+    refused = "addProperty(json('{\"ok\":false}'), 'error', " + err + ")"
+    sorry = "The deadlines could not be added to your calendar. The compliance office has been told."
+    acts = {
+        "Initialize_ActionId": init_var("ActionId", "string", ""),
+        **{n: {**init_var(v, t, val), "runAfter": {prev: ["Succeeded"]}} for n, v, t, val, prev in [
+            ("Initialize_Error", "Error", "string", "", "Initialize_ActionId"),
+            ("Initialize_Added", "Added", "integer", 0, "Initialize_Error"),
+            ("Initialize_Moved", "Moved", "integer", 0, "Initialize_Added"),
+            ("Initialize_Already", "Already", "integer", 0, "Initialize_Moved"),
+            ("Initialize_Skipped", "Skipped", "integer", 0, "Initialize_Already")]},
+        "Try": scope(steps, run_after={"Initialize_Skipped": ["Succeeded"]}),
+        "Finish": when(f"empty({err})", seq(
+            ("Record_done", f.update("su_portalactions", "variables('ActionId')", {
+                "su_status": DONE, "su_result": "@{" + counts + "}", "su_processedon": "@{utcNow()}"})),
+            reply("Reply_done", ok, {"Record_done": ["Succeeded", "Failed"]})),
+            seq(("Has_an_action_row", when(f"and(equals(actions('Get_action')?['status'], 'Succeeded'), "
+                                           f"not(or(equals({A}?['su_status'], {DONE}), equals({A}?['su_status'], {FAILED}))))",
+                                           seq(("Record_refused", f.update("su_portalactions", "variables('ActionId')", {
+                                               "su_status": FAILED, "su_result": "@{" + err + "}", "su_processedon": "@{utcNow()}"}))))),
+                reply("Reply_refused", refused, {"Has_an_action_row": ["Succeeded", "Failed"]})),
+            run_after={"Try": ["Succeeded"]}),
+        "Catch": scope(seq(
+            ("Record_error", f.update("su_portalactions", "variables('ActionId')", {
+                "su_status": FAILED, "su_result": sorry, "su_processedon": "@{utcNow()}"})),
+            reply("Reply_error", "addProperty(json('{\"ok\":false}'), 'error', " + q(sorry) + ")", {"Record_error": ["Succeeded", "Failed"]}),
+            ("Alert_the_office", {**f.email("Compliance Matrix: CM - Add to calendar failed", html(
+                "<p>A request to add deadlines to someone's calendar failed. They were told.</p>"
+                "<ul><li>Portal Action ID: ", "=variables('ActionId')", "</li></ul><p>Run: ", "=" + RUN_LINK, "</p>")),
+                "runAfter": {"Reply_error": ["Succeeded", "Failed"]}}),
+            ("Fail_the_run", {**terminate("Failed", "CM - Add to calendar failed; the office was emailed."),
+                              "runAfter": {"Alert_the_office": ["Succeeded", "Failed"]}})),
+            run_after={"Try": ["Failed", "TimedOut"]}),
+    }
+    return definition("manual", power_pages_trigger(), acts, f.used, s)
+
+
 FLOWS = [
     ("CM - Link directory to contact", "Links a new Entra sign-in to its Compliance Directory row (section 6).", link_directory_to_contact),
     ("CM - Link contact to directory", "Links a directory row to the person's existing sign-in when its email is set (section 6).", link_contact_to_directory),
@@ -674,6 +838,8 @@ FLOWS = [
     ("CM - Process portal action", "Carries out a Portal Action for the matrix page (section 8).", process_portal_action),
     ("CM - Sync directory from M365", "Weekly, and by hand: copies title, unit, office, phone and photo from Microsoft 365 "
      "to the Compliance Directory (section 6).", sync_directory),
+    ("CM - Add to calendar", "Invites the signed-in person to an all-day Outlook event for each deadline they add (section 8).",
+     add_to_calendar),
 ]
 
 

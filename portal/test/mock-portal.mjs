@@ -14,6 +14,7 @@
                                    not on the form, then redirects to
      GET  /cm-action-done/?id=     with the new row's ID
      POST /_api/cloudflow/v1.0/trigger/action
+     POST /_api/cloudflow/v1.0/trigger/calendar  CM - Add to calendar, run as generated
                                    CM - Process portal action, the Dataverse
                                    flow that writes who-did-it and the archive
                                    (docs/DATAVERSE-MIGRATION.md, section 8)
@@ -65,6 +66,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     "ComplianceMatrix/Flow/AdminWrite": "/_api/cloudflow/v1.0/trigger/admin",
     "ComplianceMatrix/Flow/FindPerson": "/_api/cloudflow/v1.0/trigger/find",
     "ComplianceMatrix/Flow/Action": "/_api/cloudflow/v1.0/trigger/action",
+    "ComplianceMatrix/Flow/Calendar": "/_api/cloudflow/v1.0/trigger/calendar",
     "ComplianceMatrix/CacheMinutes": "0",
     "ComplianceMatrix/PageUrl": "/matrix/",
     ...extra
@@ -155,9 +157,9 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     [ROLE_REL]: ["Authenticated Users", ...(id === contactId && admin ? [ADMIN_ROLE] : [])] }));
   const outlook = outlookConnector();
   const dataverse = dataverseConnector({ dv, schema: DV_SCHEMA, contacts: contactRows, roleRelationship: ROLE_REL });
-  function processAction(requestText) {
-    const r = runFlow(FLOWS["CM - Process portal action"], { trigger: { body: { text: requestText } }, dataverse, users: usersConnector([]), outlook });
-    if (!r.response) throw new Error("CM - Process portal action ended without replying: " + r.status);
+  function processAction(requestText, flowName = "CM - Process portal action") {
+    const r = runFlow(FLOWS[flowName], { trigger: { body: { text: requestText } }, dataverse, users: usersConnector([]), outlook });
+    if (!r.response) throw new Error(flowName + " ended without replying: " + r.status);
     return r.response.body;
   }
 
@@ -184,7 +186,10 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         const users = [{ displayName: "Priya Raghavan", mail: "praghavan@syr.edu", jobTitle: "Director of Export Control", department: "Office of Research" }];
         return reply({ ok: true, users: users.filter(u => (u.displayName + u.mail).toLowerCase().includes(q)) });
       }
-      if (name === "action") { const out = processAction(requestText); res.writeHead(200, { "Content-Type": "application/json" }); return res.end(JSON.stringify(out)); }
+      if (name === "action" || name === "calendar") {
+        const out = processAction(requestText, name === "calendar" ? "CM - Add to calendar" : undefined);
+        res.writeHead(200, { "Content-Type": "application/json" }); return res.end(JSON.stringify(out));
+      }
       return reply({ ok: true, results: runOps(request.ops || [], name === "write") });
     } catch (e) {
       return reply({ ok: false, error: e.message });
@@ -331,7 +336,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
      #InsertButton. Only the form's own columns are read from a postback. */
   const FORM_PREFIX = "ctl00$ContentContainer$EntityFormControl$EntityFormView$";
   const FORM_LOOKUPS = { su_function: "su_compliancefunction", su_deadline: "su_compliancedeadline", su_gap: "su_compliancegap", su_flag: "su_functionflag" };
-  const ACTION_TYPES = { 100000120: "Complete deadline", 100000121: "Reverse completion", 100000122: "Close gap", 100000123: "Resolve flag", 100000124: "Raise flag", 100000125: "Delete function" };
+  const ACTION_TYPES = { 100000120: "Complete deadline", 100000121: "Reverse completion", 100000122: "Close gap", 100000123: "Resolve flag", 100000124: "Raise flag", 100000125: "Delete function", 100000126: "Add to calendar" };
   const esc = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const formPage = (errors = []) => "<!DOCTYPE html><html><head><meta charset=utf-8><title>CM Action</title></head><body>" +
     `<form method="post" action="/cm-action/" id="content_form">` +
@@ -429,5 +434,5 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   });
   await new Promise(r => server.listen(0, "127.0.0.1", r));
   const { port } = server.address();
-  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, emails: outlook.sent, close: () => new Promise(r => server.close(r)) };
+  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, emails: outlook.sent, events: outlook.events, close: () => new Promise(r => server.close(r)) };
 }

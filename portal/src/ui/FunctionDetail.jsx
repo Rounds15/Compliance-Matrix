@@ -14,7 +14,7 @@ import { OwnershipChain, CounselCard, SupportCard, OwnersEditor, ownersOf, owner
 import { functionsFor, allRows } from "../data/model.js";
 import { fmtDate, fiscalQ } from "../lib/dates.js";
 import { RISK_COLOR, RISK_CHOICES, riskRank } from "../lib/risk.js";
-import { deadlinesIcs, download } from "./exports.js";
+import { useAddToCalendar } from "./calendar.js";
 
 const draftOf = f => f ? { ...f } : {
   id: null, code: "", name: "", topicId: null, topic: "", areaId: null, area: "", statute: "", citation: "",
@@ -110,8 +110,9 @@ export function FunctionDetail({ f, isNew }) {
   const submitGap = async () => {
     try { await actions.logGap(f, { title: gapForm.title.trim(), note: gapForm.note.trim() }); setPanel(null); setGapForm({ title: "", note: "" }); } catch (e) { /* toast */ }
   };
-  const addToCalendar = () => download("compliance-deadlines-" + (String(f.name).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "function") + ".ics",
-    deadlinesIcs(dls, window.location.hostname || "syr.edu"), "text/calendar");
+  /* the function's next open deadline */
+  const calendar = useAddToCalendar();
+  const addToCalendar = () => calendar.add([nextDue], "compliance-deadlines-" + (String(f.name).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "function") + ".ics");
   const del = async () => {
     try { await actions.deleteFunction(f); setConfirmDel(false); go("Functions"); } catch (e) { /* toast */ }
   };
@@ -259,7 +260,7 @@ export function FunctionDetail({ f, isNew }) {
             <button className={"button button-secondary-outline button-sm" + (panel === "flag" ? " on" : "")} aria-pressed={panel === "flag"} onClick={() => setPanel(p => p === "flag" ? null : "flag")}><Icon n="flag" s={14} />Flag for review</button>
             <button className={"button button-warn-outline button-sm" + (panel === "gap" ? " on" : "")} aria-pressed={panel === "gap"} onClick={() => setPanel(p => p === "gap" ? null : "gap")}><Icon n="alert" s={14} />Log a gap</button>
             <button className="button button-info-outline button-sm" onClick={() => go("Deadlines")}><Icon n="calendar" s={14} />See all deadlines</button>
-            <button className="button button-secondary-outline button-sm" disabled={!dls.length} onClick={addToCalendar} title={dls.length ? "Download the deadlines as a calendar file" : "No deadlines to add"}><Icon n="plus" s={14} />Add to my calendar</button>
+            <Busy busyKey="cal" className="button button-secondary-outline button-sm" disabled={!nextDue} onClick={addToCalendar} title={!nextDue ? "No deadlines to add" : calendar.viaFlow ? undefined : "Download the deadlines as a calendar file"}><Icon n="plus" s={14} />Add to my calendar</Busy>
             <button className="button button-warn-outline button-sm" disabled={!dls.length} onClick={() => setCompleting(nextDue || dls[0])}><Icon n="check" s={14} />Mark complete for this cycle</button>
             {realAdmin && !editing && <button className="button button-danger-outline button-sm" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
           </div>

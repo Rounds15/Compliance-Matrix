@@ -102,6 +102,7 @@
       <RootComponent type="29" id="{a2bb433a-2fd4-56ae-bcca-ec3598eaa2cb}" behavior="0"/>
       <RootComponent type="29" id="{b4419898-6f02-5fe0-88f2-3b4123cc0daf}" behavior="0"/>
       <RootComponent type="29" id="{c5a6a09b-c4cb-5fe9-aaed-77ea5c9cee34}" behavior="0"/>
+      <RootComponent type="29" id="{cd6e1979-dbfc-5085-8adf-b31d5a69e059}" behavior="0"/>
       <RootComponent type="29" id="{f26fab86-8ccf-5d75-afee-09c1ef199510}" behavior="0"/>
       <RootComponent type="9" schemaName="su_approle" behavior="0"/>
       <RootComponent type="9" schemaName="su_assessmentownerrole" behavior="0"/>

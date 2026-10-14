@@ -6,10 +6,11 @@
    reversed with a reason; and what is shown can be added to a calendar. */
 
 import React, { useMemo, useState } from "react";
-import { Icon, Avatar, Risk, PageHead, Empty, DuePill, useMedia, useApp } from "./parts.jsx";
+import { Icon, Avatar, Risk, PageHead, Empty, DuePill, Busy, useMedia, useApp } from "./parts.jsx";
 import { CompleteButton, useVisibleDeadlines } from "./Completion.jsx";
 import { fmtDate, dayDiff, fiscalQ, MONTHS } from "../lib/dates.js";
 import { deadlinesIcs, download } from "./exports.js";
+import { useAddToCalendar } from "./calendar.js";
 
 const SCOPES = [["open", "Open"], ["late", "Overdue only"], ["done", "Completed"], ["all", "All"]];
 const byDue = (a, b) => a.due - b.due;
@@ -53,7 +54,7 @@ export function Deadlines() {
         <button role="tab" aria-selected={view === "list"} className={"button button-sm " + (view === "list" ? "button-secondary" : "button-ghost")} onClick={() => setView("list")}><Icon n="list" s={14} />List</button>
       </div>
     </div>
-    {view === "calendar" ? <DeadlineCalendar rows={rows} open={open} toCal={toCal} /> : <>
+    {view === "calendar" ? <DeadlineCalendar rows={rows} open={open} /> : <>
       {!rows.length && <Empty title="Nothing here" sub="No deadlines match this filter." />}
       {!!rows.length && <>
         <div className="dl-acts"><button className="button button-ghost button-sm" onClick={() => toCal(rows)} disabled={!rows.some(d => d.status !== "Completed")}>
@@ -85,8 +86,9 @@ export function Deadlines() {
 /* month calendar: day cells list function names; click a day to open its list */
 const DAYK = d => d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 
-export function DeadlineCalendar({ rows, open, toCal }) {
+export function DeadlineCalendar({ rows, open }) {
   const { today } = useApp();
+  const calendar = useAddToCalendar();
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [sel, setSel] = useState(() => DAYK(today));
   const byDay = useMemo(() => { const m = {}; rows.forEach(d => { const k = DAYK(d.due); (m[k] = m[k] || []).push(d); }); return m; }, [rows]);
@@ -109,7 +111,7 @@ export function DeadlineCalendar({ rows, open, toCal }) {
       <div className="calmo">{MONTHS[mo]} {y}<span className="sub">{monthRows.length} deadline{monthRows.length === 1 ? "" : "s"} this month</span></div>
       <button className="button button-ghost button-sm" onClick={() => { setCursor(new Date(today.getFullYear(), today.getMonth(), 1)); setSel(todayK); }}>Today</button>
       <button className="button button-secondary-outline button-sm" onClick={() => step(1)} aria-label="Next month">Next</button>
-      {monthRows.some(d => d.status !== "Completed") && <button className="button button-ghost button-sm" onClick={() => toCal(monthRows)}><Icon n="plus" s={14} />Add this month to my calendar</button>}
+      {monthRows.some(d => d.status !== "Completed") && <Busy busyKey="cal" className="button button-ghost button-sm" onClick={() => calendar.add(monthRows)}><Icon n="plus" s={14} />Add this month to my calendar</Busy>}
     </div>
     <div className="calgrid" style={{ "--rows": cells.length / 7 }}>
       {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => <div key={d} className="caldow">{d}</div>)}

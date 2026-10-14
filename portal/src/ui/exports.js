@@ -51,7 +51,8 @@ export function ownershipCsv(ds) {
 
 /* RFC 5545 all-day events, one per open deadline, titled as the canvas app
    titles the Outlook events it creates ("Compliance deadline: ..."). The
-   portal cannot write to the viewer's Outlook, so it hands them a file. */
+   calendar buttons use it when the CM - Add to calendar flow is not set up
+   (calendar.js); the Reporting page offers it as an export. */
 export function deadlinesIcs(deadlines, host) {
   const esc = s => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
   const day = d => isoDate(d).replace(/-/g, "");

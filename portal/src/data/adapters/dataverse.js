@@ -47,7 +47,7 @@ const FLAG_CLEARED = 100000051;
 const invert = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [v, Number(k)]));
 const RISK_CODE = invert(RISK), ROLE_CODE = invert(ROLE), SUB_CODE = invert(SUB);
 const GAP_OPEN = 100000020;
-export const ACTION = { completeDeadline: 100000120, reverseDeadline: 100000121, closeGap: 100000122, resolveFlag: 100000123, raiseFlag: 100000124, deleteFunction: 100000125 };
+export const ACTION = { completeDeadline: 100000120, reverseDeadline: 100000121, closeGap: 100000122, resolveFlag: 100000123, raiseFlag: 100000124, deleteFunction: 100000125, addToCalendar: 100000126 };
 
 const TABLE_OF = {
   riskAreas: "su_riskarea", domains: "su_domain", people: "su_compliancedirectory",
@@ -143,6 +143,24 @@ export function createDataverseAdapter(cfg) {
   /* the Web API clears a lookup by deleting its reference, not by PATCHing null */
   const unbind = (table, id, nav) => webApi("DELETE", `/_api/${set(table)}(${id})/${nav}/$ref`).catch(() => null);
   const actionUrl = flowUrl(cfg.flows && cfg.flows.action);
+  const calendarUrl = flowUrl(cfg.flows && cfg.flows.calendar);
+
+  /* CM - Add to calendar: the request goes through the CM Portal Action form
+     like any other action (Requested By set by the server), with the
+     deadlines in Reason; the flow invites the person it reads from the row.
+     The date sent is the one the page shows (the roll-forward is the
+     page's), and the page link lets the event point back here. */
+  async function addToCalendar({ deadlines }) {
+    if (!cfg.user || !cfg.user.contactId) throw new Error("Sign in to add deadlines to your calendar.");
+    const list = deadlines.slice(0, 50).map(d => ({ id: d.id, due: isoDate(d.due), title: d.title }));
+    const actionId = await submitActionForm({
+      name: "Add to calendar: " + list.length + " deadline" + (list.length === 1 ? "" : "s"), action: ACTION.addToCalendar,
+      reason: JSON.stringify({ page: window.location.href.split("#")[0], deadlines: list })
+    });
+    const res = await callFlow(calendarUrl, { actionId });
+    if (!res || res.ok === false) throw new Error((res && res.error) || "The deadlines could not be added to your calendar.");
+    return { ...res, reload: [] };
+  }
 
   /* Photos (su_photo, set by the CM - Sync directory from M365 flow): one
      request per person, at most four at a time, each made once per page. */
@@ -186,6 +204,8 @@ export function createDataverseAdapter(cfg) {
     canSearchPeople: false,
     counselPerFunction: true,
     photo,
+    /* without the flow's site setting, the page offers the calendar file instead */
+    addToCalendar: calendarUrl ? addToCalendar : null,
     configured: true,
 
     async load(tables) {

@@ -1,0 +1,984 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMDataverse"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Outlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerPages",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "text"
+              ],
+              "properties": {
+                "text": {
+                  "title": "request",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "The request, as JSON: {\"actionId\": \"<Portal Action ID>\"}",
+                  "x-ms-content-hint": "TEXT"
+                }
+              }
+            }
+          }
+        }
+      },
+      "actions": {
+        "Initialize_ActionId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ActionId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          }
+        },
+        "Initialize_Error": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Error",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ActionId": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Initialize_Added": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Added",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Error": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Initialize_Moved": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Moved",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Added": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Initialize_Already": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Already",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Moved": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Initialize_Skipped": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Skipped",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Already": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "Read_request": {
+              "type": "SetVariable",
+              "inputs": {
+                "name": "ActionId",
+                "value": "@{coalesce(json(triggerBody()?['text'])?['actionId'], '')}"
+              },
+              "runAfter": {}
+            },
+            "Get_action": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_portalactions",
+                  "recordId": "@{variables('ActionId')}",
+                  "$select": "su_portalactionid,su_action,su_status,su_reason,_su_requestedby_value"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Read_request": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Action_missing": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), not(equals(actions('Get_action')?['status'], 'Succeeded')))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Action_missing": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That action does not exist."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Get_action": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            },
+            "Already_processed": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), or(equals(body('Get_action')?['su_status'], 100000131), equals(body('Get_action')?['su_status'], 100000132)))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Already_processed": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That action has already been processed."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Action_missing": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Not_a_calendar_request": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), not(equals(body('Get_action')?['su_action'], 100000126)))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Not_a_calendar_request": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That action is not a calendar request."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Already_processed": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "No_requester": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), empty(coalesce(body('Get_action')?['_su_requestedby_value'], '')))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_No_requester": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "This action has no requester."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Not_a_calendar_request": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Find_person": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_compliancedirectorys",
+                  "$filter": "@{concat('_su_contact_value eq ', coalesce(body('Get_action')?['_su_requestedby_value'], '00000000-0000-0000-0000-000000000000'), ' and su_active eq true')}",
+                  "$select": "su_compliancedirectoryid,su_name,su_email",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "No_requester": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Not_linked": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), equals(length(body('Find_person')?['value']), 0))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Not_linked": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "Your sign-in is not linked to a Compliance Directory record yet. Ask the compliance office to check your directory email."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Find_person": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "No_email": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(greater(length(body('Find_person')?['value']), 0), empty(trim(coalesce(first(body('Find_person')?['value'])?['su_email'], '')))))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_No_email": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "Your Compliance Directory record has no email, so there is no calendar to invite. Ask the compliance office to add it."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Not_linked": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Read_deadlines": {
+              "type": "Compose",
+              "inputs": "@json(if(empty(trim(coalesce(body('Get_action')?['su_reason'], ''))), '{}', body('Get_action')?['su_reason']))",
+              "runAfter": {
+                "No_email": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Unreadable": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), not(equals(actions('Read_deadlines')?['status'], 'Succeeded')))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Unreadable": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That calendar request could not be read."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Read_deadlines": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            },
+            "Nothing_to_add": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(equals(actions('Read_deadlines')?['status'], 'Succeeded'), empty(coalesce(outputs('Read_deadlines')?['deadlines'], json('[]')))))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Nothing_to_add": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "There are no deadlines to add."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Unreadable": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Do_the_work": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@empty(variables('Error'))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "For_each_deadline": {
+                  "type": "Foreach",
+                  "foreach": "@take(coalesce(outputs('Read_deadlines')?['deadlines'], json('[]')), 50)",
+                  "actions": {
+                    "Find_deadline": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_compliancedeadlines",
+                          "$filter": "@{concat('su_compliancedeadlineid eq ', if(equals(length(trim(string(coalesce(items('For_each_deadline')?['id'], '')))), 36), trim(string(coalesce(items('For_each_deadline')?['id'], ''))), '00000000-0000-0000-0000-000000000000'))}",
+                          "$select": "su_compliancedeadlineid,su_name,_su_function_value,su_complete",
+                          "$top": 1
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {}
+                    },
+                    "Find_function": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_compliancefunctions",
+                          "$filter": "@{concat('su_compliancefunctionid eq ', coalesce(first(body('Find_deadline')?['value'])?['_su_function_value'], '00000000-0000-0000-0000-000000000000'))}",
+                          "$select": "su_compliancefunctionid,su_name,su_deadlinenarrative",
+                          "$top": 1
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Find_deadline": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Usable": {
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@and(equals(length(trim(string(coalesce(items('For_each_deadline')?['id'], '')))), 36), equals(length(trim(string(coalesce(items('For_each_deadline')?['due'], '')))), 10), equals(length(body('Find_deadline')?['value']), 1), equals(length(body('Find_function')?['value']), 1), not(equals(first(body('Find_deadline')?['value'])?['su_complete'], true)))",
+                              true
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "Subject": {
+                          "type": "Compose",
+                          "inputs": "@substring(concat(coalesce(first(body('Find_function')?['value'])?['su_name'], ''), if(or(empty(trim(string(coalesce(items('For_each_deadline')?['title'], '')))), equals(trim(string(coalesce(items('For_each_deadline')?['title'], ''))), coalesce(first(body('Find_function')?['value'])?['su_name'], ''))), '', concat(': ', trim(string(coalesce(items('For_each_deadline')?['title'], '')))))), 0, min(255, length(concat(coalesce(first(body('Find_function')?['value'])?['su_name'], ''), if(or(empty(trim(string(coalesce(items('For_each_deadline')?['title'], '')))), equals(trim(string(coalesce(items('For_each_deadline')?['title'], ''))), coalesce(first(body('Find_function')?['value'])?['su_name'], ''))), '', concat(': ', trim(string(coalesce(items('For_each_deadline')?['title'], '')))))))))",
+                          "runAfter": {}
+                        },
+                        "Find_event": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_office365",
+                              "operationId": "V4CalendarGetItems",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                            },
+                            "parameters": {
+                              "table": "Calendar",
+                              "$filter": "@{concat('subject eq ', concat('''', replace(outputs('Subject'), '''', ''''''), ''''))}",
+                              "$top": 50
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Subject": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "Invites_this_person": {
+                          "type": "Query",
+                          "inputs": {
+                            "from": "@coalesce(body('Find_event')?['value'], json('[]'))",
+                            "where": "@contains(toLower(coalesce(item()?['requiredAttendees'], '')), toLower(trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))))"
+                          },
+                          "runAfter": {
+                            "Find_event": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "New_or_existing": {
+                          "type": "If",
+                          "expression": {
+                            "and": [
+                              {
+                                "equals": [
+                                  "@empty(body('Invites_this_person'))",
+                                  true
+                                ]
+                              }
+                            ]
+                          },
+                          "actions": {
+                            "Create_event": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_office365",
+                                  "operationId": "V4CalendarPostItem",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                                },
+                                "parameters": {
+                                  "table": "Calendar",
+                                  "item/subject": "@{outputs('Subject')}",
+                                  "item/start": "@{concat(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 'T00:00:00')}",
+                                  "item/end": "@{concat(addDays(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 1, 'yyyy-MM-dd'), 'T00:00:00')}",
+                                  "item/timeZone": "Eastern Standard Time",
+                                  "item/isAllDay": true,
+                                  "item/requiredAttendees": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
+                                  "item/body": "@{concat('<p><b>', coalesce(first(body('Find_function')?['value'])?['su_name'], ''), '</b></p><p>', concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), '</p><p>', replace(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>'), '</p>', if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat('<p><a href=\"', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), ''), '\">Open this function in the Compliance Matrix</a></p>')))}",
+                                  "item/isReminderOn": true,
+                                  "item/reminderMinutesBeforeStart": 10080,
+                                  "item/showAs": "free",
+                                  "item/importance": "normal"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              },
+                              "runAfter": {}
+                            },
+                            "Count_added": {
+                              "type": "IncrementVariable",
+                              "inputs": {
+                                "name": "Added",
+                                "value": 1
+                              },
+                              "runAfter": {
+                                "Create_event": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          },
+                          "else": {
+                            "actions": {
+                              "Same_date": {
+                                "type": "If",
+                                "expression": {
+                                  "and": [
+                                    {
+                                      "equals": [
+                                        "@contains(coalesce(first(body('Invites_this_person'))?['body'], ''), concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))))",
+                                        true
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "actions": {
+                                  "Count_already": {
+                                    "type": "IncrementVariable",
+                                    "inputs": {
+                                      "name": "Already",
+                                      "value": 1
+                                    },
+                                    "runAfter": {}
+                                  }
+                                },
+                                "else": {
+                                  "actions": {
+                                    "Move_event": {
+                                      "type": "OpenApiConnection",
+                                      "inputs": {
+                                        "host": {
+                                          "connectionName": "shared_office365",
+                                          "operationId": "V4CalendarPatchItem",
+                                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                                        },
+                                        "parameters": {
+                                          "table": "Calendar",
+                                          "id": "@{first(body('Invites_this_person'))?['id']}",
+                                          "item/subject": "@{outputs('Subject')}",
+                                          "item/start": "@{concat(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 'T00:00:00')}",
+                                          "item/end": "@{concat(addDays(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 1, 'yyyy-MM-dd'), 'T00:00:00')}",
+                                          "item/timeZone": "Eastern Standard Time",
+                                          "item/isAllDay": true,
+                                          "item/requiredAttendees": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
+                                          "item/body": "@{concat('<p><b>', coalesce(first(body('Find_function')?['value'])?['su_name'], ''), '</b></p><p>', concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), '</p><p>', replace(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>'), '</p>', if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat('<p><a href=\"', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), ''), '\">Open this function in the Compliance Matrix</a></p>')))}",
+                                          "item/isReminderOn": true,
+                                          "item/reminderMinutesBeforeStart": 10080,
+                                          "item/showAs": "free",
+                                          "item/importance": "normal"
+                                        },
+                                        "authentication": "@parameters('$authentication')"
+                                      },
+                                      "runAfter": {}
+                                    },
+                                    "Count_moved": {
+                                      "type": "IncrementVariable",
+                                      "inputs": {
+                                        "name": "Moved",
+                                        "value": 1
+                                      },
+                                      "runAfter": {
+                                        "Move_event": [
+                                          "Succeeded"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "runAfter": {}
+                              }
+                            }
+                          },
+                          "runAfter": {
+                            "Invites_this_person": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {
+                          "Count_skipped": {
+                            "type": "IncrementVariable",
+                            "inputs": {
+                              "name": "Skipped",
+                              "value": 1
+                            },
+                            "runAfter": {}
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Find_function": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "runtimeConfiguration": {
+                    "concurrency": {
+                      "repetitions": 1
+                    }
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Nothing_to_add": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_Skipped": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Finish": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@empty(variables('Error'))",
+                  true
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Record_done": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "UpdateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_portalactions",
+                  "recordId": "@{variables('ActionId')}",
+                  "item/su_status": 100000131,
+                  "item/su_result": "@{concat('Added ', variables('Added'), ', moved ', variables('Moved'), ', already there ', variables('Already'), ', skipped ', variables('Skipped'))}",
+                  "item/su_processedon": "@{utcNow()}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Reply_done": {
+              "type": "Response",
+              "kind": "PowerPages",
+              "runAfter": {
+                "Record_done": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              },
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "result": "@{string(addProperty(addProperty(addProperty(addProperty(json('{\"ok\":true}'), 'added', variables('Added')), 'moved', variables('Moved')), 'already', variables('Already')), 'skipped', variables('Skipped')))}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "title": "result",
+                      "type": "string",
+                      "x-ms-dynamically-added": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Has_an_action_row": {
+                "type": "If",
+                "expression": {
+                  "and": [
+                    {
+                      "equals": [
+                        "@and(equals(actions('Get_action')?['status'], 'Succeeded'), not(or(equals(body('Get_action')?['su_status'], 100000131), equals(body('Get_action')?['su_status'], 100000132))))",
+                        true
+                      ]
+                    }
+                  ]
+                },
+                "actions": {
+                  "Record_refused": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_commondataserviceforapps",
+                        "operationId": "UpdateRecord",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                      },
+                      "parameters": {
+                        "entityName": "su_portalactions",
+                        "recordId": "@{variables('ActionId')}",
+                        "item/su_status": 100000132,
+                        "item/su_result": "@{variables('Error')}",
+                        "item/su_processedon": "@{utcNow()}"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    },
+                    "runAfter": {}
+                  }
+                },
+                "else": {
+                  "actions": {}
+                },
+                "runAfter": {}
+              },
+              "Reply_refused": {
+                "type": "Response",
+                "kind": "PowerPages",
+                "runAfter": {
+                  "Has_an_action_row": [
+                    "Succeeded",
+                    "Failed"
+                  ]
+                },
+                "inputs": {
+                  "statusCode": 200,
+                  "body": {
+                    "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', variables('Error')))}"
+                  },
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "result": {
+                        "title": "result",
+                        "type": "string",
+                        "x-ms-dynamically-added": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {
+            "Record_error": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "UpdateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_portalactions",
+                  "recordId": "@{variables('ActionId')}",
+                  "item/su_status": 100000132,
+                  "item/su_result": "The deadlines could not be added to your calendar. The compliance office has been told.",
+                  "item/su_processedon": "@{utcNow()}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Reply_error": {
+              "type": "Response",
+              "kind": "PowerPages",
+              "runAfter": {
+                "Record_error": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              },
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', 'The deadlines could not be added to your calendar. The compliance office has been told.'))}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "title": "result",
+                      "type": "string",
+                      "x-ms-dynamically-added": true
+                    }
+                  }
+                }
+              }
+            },
+            "Alert_the_office": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                  "emailMessage/Subject": "Compliance Matrix: CM - Add to calendar failed",
+                  "emailMessage/Body": "@{concat('<p>A request to add deadlines to someone''s calendar failed. They were told.</p><ul><li>Portal Action ID: ', variables('ActionId'), '</li></ul><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Reply_error": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            },
+            "Fail_the_run": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Failed",
+                "runError": {
+                  "code": "CMFlowFailed",
+                  "message": "CM - Add to calendar failed; the office was emailed."
+                }
+              },
+              "runAfter": {
+                "Alert_the_office": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -52,7 +52,7 @@ const added = (env, row) => runFlow(FLOWS["CM - Link directory to contact"], { t
 test("every expression in every generated flow parses, with only modelled functions", () => {
   let n = 0;
   for (const def of Object.values(FLOWS)) for (const e of expressionsIn(def.properties.definition)) { parseExpression(e); n++; }
-  assert.equal(Object.keys(FLOWS).length, 5);
+  assert.equal(Object.keys(FLOWS).length, 6);
   assert.ok(n > 150, "found " + n);
 });
 
@@ -343,4 +343,110 @@ test("directory sync: a write Dataverse refuses alerts the office and fails the 
   assert.equal(env.outlook.sent.length, 1);
   assert.match(env.outlook.sent[0].subject, /CM - Sync directory from M365 failed/);
   assert.equal(env.person(G(102)).su_unit, "Human Resources", "the people after the failure were still synced");
+});
+
+/* ---------------- CM - Add to calendar ---------------- */
+const PAGE = "https://compliance.syr.edu/compliance-matrix/#/deadlines";
+function calWorld({ calendars } = {}) {
+  const dv = dataverseTables();
+  dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === G(201)).su_deadlinenarrative = "Annually by October 1.\nPublished on the safety site.";
+  const outlook = outlookConnector(calendars ? { calendars } : undefined);
+  let n = 0;
+  const env = { dv, outlook, dataverse: dataverseConnector({ dv, schema: SCHEMA, contacts: [], roleRelationship: REL }), users: usersConnector([]) };
+  /* what the page records through the CM Portal Action form: Requested By set by the server */
+  env.ask = (contact, request, extra = {}) => {
+    const id = "cccccccc-0000-4000-8000-" + String(++n).padStart(12, "0");
+    dv.su_portalactions.push({ su_portalactionid: id, su_name: "Add to calendar", su_action: 100000126, _su_requestedby_value: contact,
+      su_reason: typeof request === "string" ? request : JSON.stringify(request), su_status: null, ...extra });
+    const r = runFlow(FLOWS["CM - Add to calendar"], { trigger: { body: { text: JSON.stringify({ actionId: id }) } }, ...env });
+    return { ...r, reply: r.response && JSON.parse(r.response.body.result), row: dv.su_portalactions.find(x => x.su_portalactionid === id) };
+  };
+  return env;
+}
+const ASR = (due = "2026-10-01") => ({ id: G(401), due, title: "Publish Annual Security Report" });
+
+test("add to calendar: invites the signed-in person to an all-day event with the details and a link", () => {
+  const env = calWorld();
+  const r = env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
+  assert.equal(r.status, "Succeeded");
+  assert.deepEqual(r.reply, { ok: true, added: 1, moved: 0, already: 0, skipped: 0 });
+  const [e] = env.outlook.events;
+  assert.equal(e.subject, "Clery Act Annual Security Report: Publish Annual Security Report");
+  assert.deepEqual([e.start, e.end, e.timeZone, e.isAllDay], ["2026-10-01T00:00:00", "2026-10-02T00:00:00", "Eastern Standard Time", true]);
+  assert.equal(e.requiredAttendees, "cruiz@syr.edu;", "the person the server says asked, from their directory row");
+  assert.deepEqual([e.isReminderOn, e.reminderMinutesBeforeStart, e.showAs], [true, 10080, "free"], "a reminder 7 days before; shown as free");
+  assert.match(e.body, /Due date: 2026-10-01/);
+  assert.match(e.body, /Annually by October 1\.<br>Published on the safety site\./);
+  assert.match(e.body, new RegExp('<a href="https://compliance\\.syr\\.edu/compliance-matrix/#/functions/' + G(201) + '">'));
+  assert.equal(r.row.su_status, 100000131);
+  assert.equal(r.row.su_result, "Added 1, moved 0, already there 0, skipped 0");
+});
+
+test("add to calendar: the same deadline again is skipped; a new date moves the event", () => {
+  const env = calWorld();
+  env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
+  const again = env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
+  assert.deepEqual(again.reply, { ok: true, added: 0, moved: 0, already: 1, skipped: 0 });
+  assert.equal(env.outlook.events.length, 1, "no duplicate");
+  const moved = env.ask(G(901), { page: PAGE, deadlines: [ASR("2027-10-01")] });
+  assert.deepEqual(moved.reply, { ok: true, added: 0, moved: 1, already: 0, skipped: 0 });
+  assert.equal(env.outlook.events.length, 1);
+  assert.deepEqual([env.outlook.events[0].start, env.outlook.events[0].end], ["2027-10-01T00:00:00", "2027-10-02T00:00:00"]);
+  assert.match(env.outlook.events[0].body, /Due date: 2027-10-01/);
+});
+
+test("add to calendar: another person gets their own invitation for the same deadline", () => {
+  const env = calWorld();
+  env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
+  const r = env.ask(G(903), { page: PAGE, deadlines: [ASR()] });
+  assert.deepEqual(r.reply, { ok: true, added: 1, moved: 0, already: 0, skipped: 0 });
+  assert.deepEqual(env.outlook.events.map(e => e.requiredAttendees), ["cruiz@syr.edu;", "dferrell@syr.edu;"]);
+});
+
+test("add to calendar: a month at once; unknown, completed and malformed deadlines are skipped", () => {
+  const env = calWorld();
+  env.dv.su_compliancedeadlines.push({ su_compliancedeadlineid: G(403), su_name: "Done already", _su_function_value: G(201), su_duedate: "2026-10-20", su_complete: true });
+  const r = env.ask(G(901), { page: PAGE, deadlines: [ASR(), { id: G(402), due: "2026-10-15", title: "I-9 internal audit sample | 3/15/2026" },
+    { id: G(403), due: "2026-10-20", title: "Done already" }, { id: G(499), due: "2026-10-21", title: "Gone" },
+    { id: "not-a-guid", due: "2026-10-22" }, { id: G(401), due: "next week" }] });
+  assert.deepEqual(r.reply, { ok: true, added: 2, moved: 0, already: 0, skipped: 4 });
+  assert.deepEqual(env.outlook.events.map(e => e.subject), ["Clery Act Annual Security Report: Publish Annual Security Report",
+    "Form I-9 Employment Verification: I-9 internal audit sample | 3/15/2026"]);
+});
+
+test("add to calendar: a link that is not https is left out of the event", () => {
+  const env = calWorld();
+  env.ask(G(901), { page: "javascript:alert(1)//", deadlines: [ASR()] });
+  assert.doesNotMatch(env.outlook.events[0].body, /href/);
+});
+
+test("add to calendar: refuses what it should not do, and says why", () => {
+  const env = calWorld();
+  const cases = [
+    [env.ask(G(901), { page: PAGE, deadlines: [ASR()] }, { su_action: 100000124 }), "That action is not a calendar request."],
+    [env.ask(G(950), { page: PAGE, deadlines: [ASR()] }), /not linked to a Compliance Directory record/],
+    [env.ask(G(901), "{not json"), "That calendar request could not be read."],
+    [env.ask(G(901), { page: PAGE, deadlines: [] }), "There are no deadlines to add."],
+    [env.ask(G(901), { page: PAGE, deadlines: [ASR()] }, { su_status: 100000131 }), "That action has already been processed."]
+  ];
+  for (const [r, msg] of cases) {
+    assert.equal(r.status, "Succeeded");
+    assert.equal(r.reply.ok, false);
+    if (msg instanceof RegExp) assert.match(r.reply.error, msg); else assert.equal(r.reply.error, msg);
+  }
+  assert.equal(env.outlook.events.length, 0);
+  assert.equal(cases[0][0].row.su_status, 100000132, "a refused request is recorded as Failed");
+  assert.equal(cases[4][0].row.su_status, 100000131, "a processed one is left as it was");
+  const noEmail = calWorld();
+  noEmail.dv.su_compliancedirectorys.find(p => p.su_compliancedirectoryid === G(101)).su_email = null;
+  assert.match(noEmail.ask(G(901), { page: PAGE, deadlines: [ASR()] }).reply.error, /has no email/);
+});
+
+test("add to calendar: an Outlook failure tells the person and the office, and fails the run", () => {
+  const env = calWorld({ calendars: ["Some other calendar"] });
+  const r = env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
+  assert.equal(r.status, "Failed");
+  assert.deepEqual(r.reply, { ok: false, error: "The deadlines could not be added to your calendar. The compliance office has been told." });
+  assert.equal(r.row.su_status, 100000132);
+  assert.match(env.outlook.sent[0].subject, /CM - Add to calendar failed/);
 });
