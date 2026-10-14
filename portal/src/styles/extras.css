@@ -272,8 +272,7 @@ code { font-size: .88em; overflow-wrap: anywhere }
 
 /* ---------- Fluid layout ----------
    The page fills the window with a gutter of 1rem to 3rem a side (--gutter);
-   the record's long text keeps a readable line length while its section
-   still runs the full width, and card lists wrap into as many columns as fit. */
-.fldg > p, .fldg > .kv dd, .fd-main .gaprow p { max-width: 80ch }
+   the record's text runs the full width of the main column (the rail bounds
+   it on the right), and card lists wrap into as many columns as fit. */
 .fd-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr)); gap: 8px; align-items: start }
 .fd-cards .dlrow, .fd-cards .gaprow { margin-bottom: 0 }
