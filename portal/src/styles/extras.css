@@ -315,11 +315,15 @@ code { font-size: .88em; overflow-wrap: anywhere }
 }
 @media (max-width: 1080px) { .cal-split { grid-template-columns: minmax(0, 1fr) } .cal-side .caldetail { margin-top: 0 } }
 
-/* Day cells as near-square as the window allows: as tall as they are wide,
-   but no taller than lets the month's rows (--rows, 4 to 6) fit the window
-   under the sticky header, filter bar, month bar and day names (about
-   270px), and never under 100px. Phones keep their own smaller cells. */
+/* Day cells in wall-calendar proportions. The tallest of: 120px; 70% of
+   the cell's width (aspect-ratio 1 / 0.7); and, where the window has room,
+   the height that fits the month's rows (--rows, 4 to 6) under the sticky
+   header, filter bar, month bar and day names (about 270px), up to square.
+   A busy day grows taller still. Phones keep their own smaller cells.
+   The grid lines (the 1px gaps and the outer border) are one shade darker,
+   so the outer edge reads clearly against the page, bottom row included. */
+.calgrid { background: #D5D9E0; border-color: #D5D9E0 }
 @media (min-width: 901px) {
-  .calgrid { container-type: inline-size }
-  .calcell { min-height: max(100px, min(calc(100cqw / 7), calc((100vh - 270px) / var(--rows, 5)))) }
+  .calgrid { container-type: inline-size; margin-bottom: 4px }
+  .calcell { min-height: max(120px, calc(100cqw / 7 * 0.7), min(calc(100cqw / 7), calc((100vh - 270px) / var(--rows, 5)))) }
 }

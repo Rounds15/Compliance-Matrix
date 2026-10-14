@@ -508,7 +508,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   assert.ok(calSide.x >= calMain.x + calMain.width, "the rail is beside the calendar");
   assert.ok(Math.abs(calMain.width / (calMain.width + calSide.width) - 0.75) < 0.03, "a 75/25 split, got " + calMain.width + " / " + calSide.width);
   const cell = await page.locator(".calcell:not(.out)").first().boundingBox();
-  assert.ok(cell.height >= 100, "day cells at least 100px tall, got " + cell.height);
+  assert.ok(cell.height >= 120 && cell.height >= cell.width * 0.7 - 1, "day cells at least 120px and 70% of their width, got " + cell.width + " x " + cell.height);
   assert.equal(await page.locator(".cal-side").evaluate(e => getComputedStyle(e).position), "sticky");
   assert.doesNotMatch(await page.locator("body").innerText(), /\b202 \|/, "the deadline calendar shows no record numbers");
   await btn(/^List$/).click();
