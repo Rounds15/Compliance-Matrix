@@ -291,3 +291,26 @@ code { font-size: .88em; overflow-wrap: anywhere }
   .dir-rail:hover::-webkit-scrollbar-thumb, .dir-rail:focus-within::-webkit-scrollbar-thumb { background: #C4C7CE }
 }
 .dir-rail.dir-rail-m { max-height: none; overflow: visible }
+
+/* ---------- Deadlines calendar: Coming up in a rail ----------
+   The month takes about 70% and the rail (the selected day, or Coming up)
+   about 30%. The rail stays in view below the sticky header and filter bar
+   (about 84px) and scrolls on its own when it is taller than the window.
+   Below 1080px it drops under the calendar. */
+.cal-split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); gap: 24px; align-items: start; margin-top: 14px }
+.cal-main, .cal-side { min-width: 0 }
+.cal-split.solo { grid-template-columns: minmax(0, 1fr) }
+.cal-side .caldetail { margin-top: 0 }
+.cal-side .caldetail-h { flex-wrap: wrap; row-gap: 4px }
+.cal-side .caldetail-h .sub { white-space: normal; flex: 1 1 100% }
+.cal-side .caldrow { flex-wrap: wrap }
+.cal-side .caldrow .owner { width: 100% !important }
+@media (min-width: 1081px) {
+  .cal-side { position: sticky; top: calc(var(--hdr) + 84px + 1rem); max-height: calc(100vh - var(--hdr) - 84px - 2rem);
+    overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: transparent transparent }
+  .cal-side:hover, .cal-side:focus-within { scrollbar-color: #C4C7CE transparent }
+  .cal-side::-webkit-scrollbar { width: 8px }
+  .cal-side::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px }
+  .cal-side:hover::-webkit-scrollbar-thumb, .cal-side:focus-within::-webkit-scrollbar-thumb { background: #C4C7CE }
+}
+@media (max-width: 1080px) { .cal-split { grid-template-columns: minmax(0, 1fr) } .cal-side .caldetail { margin-top: 0 } }

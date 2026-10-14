@@ -102,7 +102,8 @@ export function DeadlineCalendar({ rows, open, toCal }) {
   const step = n => { setCursor(new Date(y, mo + n, 1)); setSel(null); };
   const todayK = DAYK(today);
   const isLate = x => x.status === "Overdue";
-  return <div style={{ marginTop: 14 }}>
+  return <div className={"cal-split" + (rows.length ? "" : " solo")}>
+    <div className="cal-main">
     <div className="calbar">
       <button className="button button-secondary-outline button-sm" onClick={() => step(-1)} aria-label="Previous month">Previous</button>
       <div className="calmo">{MONTHS[mo]} {y}<span className="sub">{monthRows.length} deadline{monthRows.length === 1 ? "" : "s"} this month</span></div>
@@ -126,6 +127,10 @@ export function DeadlineCalendar({ rows, open, toCal }) {
         </button>;
       })}
     </div>
+    {!rows.length && <Empty title="Nothing scheduled" sub="No deadlines match this filter." />}
+    </div>
+    {/* the rail: the selected day's deadlines, or what is coming up */}
+    {rows.length > 0 && <aside className="cal-side">
     {sel && !!selList.length && <div className="caldetail">
       <div className="caldetail-h">{fmtDate(selList[0].due)}<span className="sub">{fiscalQ(selList[0].due)} {"·"} {selList.length} due</span></div>
       {selList.map(d => <div key={d.id} className="caldrow" role="button" tabIndex={0} onClick={() => open(d)} onKeyDown={e => { if (e.key === "Enter") open(d); }}>
@@ -141,7 +146,7 @@ export function DeadlineCalendar({ rows, open, toCal }) {
         <CompleteButton dl={d} />
       </div>)}
     </div>}
-    {!selList.length && rows.length > 0 && (() => {
+    {!selList.length && (() => {
       const next = rows.filter(d => d.due >= today).slice(0, 5);
       return <div className="caldetail">
         <div className="caldetail-h">{next.length ? "Coming up" : "Nothing ahead"}<span className="sub">{sel ? "No deadlines on the selected day. " : ""}{next.length ? "The next " + next.length + " in this view" : "No upcoming deadlines in this view"}</span></div>
@@ -156,6 +161,6 @@ export function DeadlineCalendar({ rows, open, toCal }) {
         </div>)}
       </div>;
     })()}
-    {!rows.length && <Empty title="Nothing scheduled" sub="No deadlines match this filter." />}
+    </aside>}
   </div>;
 }
