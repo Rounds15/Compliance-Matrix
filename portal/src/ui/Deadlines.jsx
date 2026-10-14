@@ -111,7 +111,7 @@ export function DeadlineCalendar({ rows, open, toCal }) {
       <button className="button button-secondary-outline button-sm" onClick={() => step(1)} aria-label="Next month">Next</button>
       {monthRows.some(d => d.status !== "Completed") && <button className="button button-ghost button-sm" onClick={() => toCal(monthRows)}><Icon n="plus" s={14} />Add this month to my calendar</button>}
     </div>
-    <div className="calgrid">
+    <div className="calgrid" style={{ "--rows": cells.length / 7 }}>
       {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => <div key={d} className="caldow">{d}</div>)}
       {cells.map((d, i) => {
         if (!d) return <div key={"e" + i} className="calcell out"></div>;
