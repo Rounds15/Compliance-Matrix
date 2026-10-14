@@ -228,7 +228,9 @@ await session("SharePoint · administrator · header, view modes, every write", 
   assert.equal(chain.find(r => r.PersonId === 103).field_4, "Support", "a legacy sub-role is kept as it was");
   assert.equal(chain.find(r => r.field_3 === "General Counsel").PersonId, 104, "General Counsel kept");
   assert.equal(chain.find(r => r.field_3 === "General Counsel").field_4, null, "counsel has no sub-role");
-  assert.ok(!chain.some(r => [301, 302, 303, 304].includes(r.Id)), "old rows replaced");
+  assert.deepEqual([301, 302, 303, 304].filter(id => chain.some(r => r.Id === id)), [301, 302, 303, 304], "unchanged rows are kept, not deleted and recreated");
+  const writes = portal.log.filter(x => x.flow === "admin").slice(-2).map(x => x.request.ops.map(o => o.op + " " + o.list));
+  assert.deepEqual(writes, [["create Accountability Structure"], ["create Accountability Structure"]], "each save only adds its new row");
   await page.locator(".orole.unit .operson", { hasText: "Andrea Whitaker" }).waitFor();
   assert.equal(await page.locator(".orole.counsel").count(), 0, "General Counsel is not a tier; it has the rail card");
   assert.equal(await page.locator(".tier-n").count(), 0, "the tiers carry no numbers");
@@ -780,6 +782,33 @@ await session("A write the backend rejects is reported, and nothing changes", { 
   assert.ok(t);
   assert.equal(portal.sp["Compliance Functions"].find(r => r.Id === 201).Title, before);
   assert.equal(await page.locator(".cm-toast.err").count(), 1);
+});
+
+/* a Support save whose create Dataverse refuses: the error is shown and
+   every existing ownership row is still there (creates run before deletes) */
+await session("Dataverse · an ownership save that fails part way loses no rows", { backend: "dataverse", admin: true, refuse: ["POST su_functionownerships"] }, async ({ page, portal, go, toast, btn, pick }) => {
+  const rowsOf = () => portal.dv.su_functionownerships.filter(r => r._su_function_value === G(201)).map(r => r.su_functionownershipid).sort();
+  const before = rowsOf();
+  assert.equal(before.length, 2, "Camila and Dwight");
+  await go("#/functions/" + G(201));
+  await page.waitForSelector("h1:has-text('Clery Act')");
+  const sup = page.locator(".rail-card.support");
+  await sup.locator(".gc-edit").click();
+  await sup.locator(".oadd").click();
+  await pick(sup, "Andrea", "Andrea Whitaker");
+  await btn("Save Support", sup).click();
+  await toast(/Refused for the test/);
+  assert.deepEqual(rowsOf(), before, "no row deleted");
+  assert.ok(!portal.log.some(x => x.api && x.api.startsWith("DELETE /_api/su_functionownerships")), "the delete step never ran");
+  // the same in the edit form: remove one person and add another; the create fails first
+  await sup.locator("button", { hasText: "Cancel" }).click();
+  await btn("Edit this record").click();
+  await page.locator(".own-row", { hasText: "Dwight Ferrell" }).locator("button", { hasText: "Remove" }).click();
+  await page.locator("#fd-own-person").selectOption({ label: "Andrea Whitaker" });
+  await btn("Add owner").click();
+  await btn("Save changes", page.locator(".rail-acts")).click();
+  await toast(/Refused for the test/);
+  assert.deepEqual(rowsOf(), before, "Dwight's row is still there");
 });
 
 /* the site's basic form is missing a field: the page says which, and saves nothing */

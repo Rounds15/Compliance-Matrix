@@ -6,6 +6,7 @@
 
 import * as S from "./sample-data.js";
 import { addDays, today as todayFn } from "../../lib/dates.js";
+import { ownershipPlan } from "../model.js";
 
 const clone = x => JSON.parse(JSON.stringify(x), (k, v) =>
   (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v) ? new Date(v) : v));
@@ -148,10 +149,12 @@ export function createSampleAdapter() {
       raw.flags = raw.flags.filter(keep);
       return ["functions", "ownership", "deadlines", "gaps", "flags"];
     },
-    async setOwnership({ fn, rows, existingRowIds }) {
-      const drop = new Set(existingRowIds.map(String));
+    async setOwnership({ fn, rows, existing }) {
+      const plan = ownershipPlan(existing, rows);
+      plan.create.forEach(r => raw.ownership.push({ id: newId("OWN"), functionId: fn.id, personId: r.personId, role: r.role, sub: r.sub || "Primary" }));
+      plan.update.forEach(r => { const row = raw.ownership.find(x => String(x.id) === String(r.id)); if (row) row.sub = r.sub || "Primary"; });
+      const drop = new Set(plan.remove.map(x => String(x.id)));
       raw.ownership = raw.ownership.filter(x => !drop.has(String(x.id)));
-      rows.forEach(r => raw.ownership.push({ id: newId("OWN"), functionId: fn.id, personId: r.personId, role: r.role, sub: r.sub || "Primary" }));
       return ["ownership"];
     },
     async addPerson({ person }) {

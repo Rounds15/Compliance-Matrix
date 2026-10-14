@@ -18,6 +18,7 @@
 
 import { callFlow, flowUrl } from "../transport.js";
 import { toDay } from "../../lib/dates.js";
+import { ownershipPlan } from "../model.js";
 
 export const LISTS = {
   riskAreas: "Risk Areas",
@@ -321,13 +322,19 @@ export function createSharePointAdapter(cfg) {
 
     /* rows: [{personId, name, role, sub}] - replaces the function's whole
        chain, which is how the canvas app saves ownership edits. */
-    async setOwnership({ fn, rows, existingRowIds }) {
+    /* creates, then sub-role changes, then deletes (ownershipPlan): the flow
+       runs the operations in order, so a failure leaves existing rows */
+    async setOwnership({ fn, rows, existing }) {
+      const plan = ownershipPlan(existing, rows);
+      const sub = r => (r.role === "General Counsel" ? null : (r.sub || "Primary"));
       const ops = [
-        ...existingRowIds.map(x => ({ op: "delete", list: LISTS.ownership, id: x })),
-        ...rows.map(r => ({ op: "create", list: LISTS.ownership, fields: {
+        ...plan.create.map(r => ({ op: "create", list: LISTS.ownership, fields: {
           Title: `${fn.id} | ${r.name} | ${r.role}`, [F.own.fn]: fn.id, [F.own.person]: r.personId,
-          [F.own.role]: r.role, [F.own.sub]: r.role === "General Counsel" ? null : (r.sub || "Primary") } }))
+          [F.own.role]: r.role, [F.own.sub]: sub(r) } })),
+        ...plan.update.map(r => ({ op: "update", list: LISTS.ownership, id: r.id, fields: { [F.own.sub]: sub(r) } })),
+        ...plan.remove.map(x => ({ op: "delete", list: LISTS.ownership, id: x.id }))
       ];
+      if (!ops.length) return [];
       await write(ops, true);
       return ["ownership"];
     },

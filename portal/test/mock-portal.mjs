@@ -52,7 +52,7 @@ const MEMBER_GAP_FIELDS = ["field_13", "field_14", "ClosedById"];
 const liquid = new Liquid();
 liquid.registerFilter("url_escape", v => encodeURIComponent(String(v ?? "")));
 
-export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [] } = {}) {
+export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [] } = {}) {
   const sp = sharepointLists();
   const dv = dataverseTables();
   const log = [];
@@ -318,8 +318,14 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     if (err) return fail(res, 400, err);
     const serverOnly = ["su_completedby", "su_closedby", "su_clearedby", "su_flaggedby"].find(c => (c + "@odata.bind") in b || c in b);
     if (serverOnly) return fail(res, 403, `${serverOnly} is written by the portal action flow, not the browser.`);
+    /* a request the test asks the site to refuse, e.g. "POST su_functionownerships" */
+    if (refuse.includes(req.method + " " + set)) return fail(res, 403, "Refused for the test: " + req.method + " " + set);
     if (req.method === "POST") {
-      const row = { [t.id]: randomUUID() }; applyDv(tableName, row, b); rows.push(row);
+      const row = { [t.id]: randomUUID() }; applyDv(tableName, row, b);
+      /* su_functionownership's alternate key: one row per function, person and role */
+      if (tableName === "su_functionownership" && rows.some(r => r._su_function_value === row._su_function_value && r._su_person_value === row._su_person_value && r.su_role === row.su_role))
+        return fail(res, 412, "A record with matching key values already exists.");
+      rows.push(row);
       res.writeHead(204, { entityid: row[t.id], "OData-EntityId": `/_api/${set}(${row[t.id]})` }); return res.end();
     }
     if (req.method === "PATCH") {

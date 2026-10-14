@@ -3,9 +3,10 @@
    Each tier holds many people, each with a sub-role (Primary or Advisory).
    General Counsel and Support are not tiers here: each has its own card in
    the rail (CounselCard and SupportCard, below). Administrators add, remove
-   and re-weight people, then save; saving replaces the function's ownership
-   rows, which is how the canvas app writes it, so each editor carries the
-   others' rows through unchanged. Someone not yet in the
+   and re-weight people, then save. A save sends the function's whole
+   chain, so each editor carries the others' rows through unchanged; the
+   adapter writes only the difference, creating before it deletes
+   (ownershipPlan in data/model.js). Someone not yet in the
    Compliance Directory can be looked up through the find-person flow, or
    entered by hand, and is added to the directory first. */
 

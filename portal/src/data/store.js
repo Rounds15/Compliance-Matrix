@@ -149,8 +149,8 @@ export function useStore(cfg) {
     saveFunction: (draft, isNew, rows) => act("fn", async (a, c) => {
       const r = await a.saveFunction({ draft, isNew }, c);
       if (!rows || r.id == null) return r;
-      const existingRowIds = isNew ? [] : (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(r.id)).map(o => o.id);
-      const o = await a.setOwnership({ fn: { ...draft, id: r.id }, rows, existingRowIds }, c);
+      const existing = isNew ? [] : (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(r.id));
+      const o = await a.setOwnership({ fn: { ...draft, id: r.id }, rows, existing }, c);
       const more = Array.isArray(o) ? o : (o && o.reload) || [];
       return { id: r.id, reload: [...new Set([...(r.reload || []), ...more])] };
     }, isNew ? "New function created and added to the matrix." : "Changes saved to the matrix."),
@@ -173,8 +173,8 @@ export function useStore(cfg) {
       return a.deleteFunction({ fn, related }, c);
     }, "Function deleted and archived."),
     setOwnership: (fn, rows, msg) => act("own", (a, c) => {
-      const existingRowIds = (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(fn.id)).map(o => o.id);
-      return a.setOwnership({ fn, rows, existingRowIds }, c);
+      const existing = (rawRef.current.ownership || []).filter(o => String(o.functionId) === String(fn.id));
+      return a.setOwnership({ fn, rows, existing }, c);
     }, msg || "Ownership chain saved."),
     /* "Added 2 events to your Outlook calendar", with what was moved or already there */
     addToCalendar: async list => {

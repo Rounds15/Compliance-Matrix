@@ -24,6 +24,7 @@
 import { webApi, webApiAll, webApiImage, callFlow, flowUrl } from "../transport.js";
 import { submitActionForm } from "../actionform.js";
 import { toDay, isoDate } from "../../lib/dates.js";
+import { ownershipPlan } from "../model.js";
 
 export const DEFAULT_SETS = {
   su_riskarea: "su_riskareas",
@@ -290,10 +291,12 @@ export function createDataverseAdapter(cfg) {
       return ["functions", "ownership", "deadlines", "gaps", "flags"];
     },
 
-    async setOwnership({ fn, rows, existingRowIds }) {
-      for (const x of existingRowIds) await del("su_functionownership", x);
+    /* creates first, then sub-role changes, then deletes (ownershipPlan), so
+       a failure part way never leaves the function with fewer people */
+    async setOwnership({ fn, rows, existing }) {
       const chainRows = rows.filter(r => ROLE_CODE[r.role]);
-      for (const r of chainRows) {
+      const plan = ownershipPlan(existing, chainRows);
+      for (const r of plan.create) {
         await post("su_functionownership", {
           su_name: `${fn.name} | ${r.name} | ${r.role}`.slice(0, 400),
           su_role: ROLE_CODE[r.role], su_subrole: SUB_CODE[r.sub] || SUB_CODE.Primary,
@@ -301,6 +304,8 @@ export function createDataverseAdapter(cfg) {
           ...bind("su_person", "su_compliancedirectory", r.personId)
         });
       }
+      for (const r of plan.update) await patch("su_functionownership", r.id, { su_subrole: SUB_CODE[r.sub] || SUB_CODE.Primary });
+      for (const x of plan.remove) await del("su_functionownership", x.id);
       /* keep the three fixed lookups pointing at each role's Primary, which is
          what the list views and the reminder flow read */
       const primary = role => {

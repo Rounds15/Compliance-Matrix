@@ -9,7 +9,7 @@ import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
 import { mapTables, DEFAULT_SETS, WEBAPI_FIELDS } from "../src/data/adapters/dataverse.js";
 import { readFileSync } from "node:fs";
-import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY, deadlineTitle } from "../src/data/model.js";
+import { buildDataset, functionsFor, visibleDeadlines, roleOn, NOBODY, deadlineTitle, ownershipPlan } from "../src/data/model.js";
 import { createSampleAdapter } from "../src/data/adapters/sample.js";
 import { parseFlowResult, flowUrl } from "../src/data/transport.js";
 import { sharepointLists, dataverseTables, DV_IDS as G } from "./fixtures.mjs";
@@ -324,4 +324,48 @@ test("the administrator web role is the site's Administrators role, the same in 
   assert.equal(role(page), "Administrators");
   assert.equal(role(header), "Administrators");
   assert.equal((flows.match(/^adminWebRole: (.*)$/m) || [])[1], "Administrators");
+});
+
+test("ownership saves create first, change sub-roles next, delete last, and keep what did not change", () => {
+  const existing = [
+    { id: 1, personId: "A", role: "Executive Owner", sub: "Primary" },
+    { id: 2, personId: "B", role: "Compliance Owner", sub: "Primary" },
+    { id: 3, personId: "C", role: "Compliance Owner", sub: "Support" },   // a legacy sub-role, untouched
+    { id: 4, personId: "D", role: "Unit Owner", sub: "Primary" },
+    { id: 5, personId: "A", role: "Executive Owner", sub: "Primary" },    // a duplicate row
+    { id: 6, personId: "G", role: "General Counsel", sub: null }
+  ];
+  const rows = [
+    { personId: "a", name: "A", role: "Executive Owner", sub: "Primary" },   // IDs match ignoring case
+    { personId: "B", name: "B", role: "Compliance Owner", sub: "Advisory" }, // sub-role changed
+    { personId: "C", name: "C", role: "Compliance Owner", sub: "Support" },
+    { personId: "E", name: "E", role: "Support", sub: "Primary" },           // new
+    { personId: "E", name: "E", role: "Support", sub: "Primary" },           // asked twice: made once
+    { personId: "G", name: "G", role: "General Counsel", sub: "Advisory" }   // counsel has no sub-role to compare
+  ];
+  const plan = ownershipPlan(existing, rows);
+  assert.deepEqual(plan.create.map(r => r.personId + " " + r.role), ["E Support"]);
+  assert.deepEqual(plan.update.map(r => [r.id, r.sub]), [[2, "Advisory"]]);
+  assert.deepEqual(plan.remove.map(x => x.id).sort(), [4, 5], "D left the chain; the duplicate of A goes");
+  assert.deepEqual(ownershipPlan(existing.slice(0, 1), rows.slice(0, 1)), { create: [], update: [], remove: [] }, "nothing changed: nothing written");
+});
+
+test("Dataverse ownership save: a failed create deletes nothing", async () => {
+  const { createDataverseAdapter } = await import("../src/data/adapters/dataverse.js");
+  const calls = [];
+  globalThis.window = {};
+  globalThis.fetch = async (url, init = {}) => {
+    calls.push((init.method || "GET") + " " + String(url).replace(/\?.*/, ""));
+    if (/tokenhtml/.test(url)) return new Response('<input name="__RequestVerificationToken" value="t" />', { status: 200 });
+    if (init.method === "POST") return new Response(JSON.stringify({ error: { message: "Refused" } }), { status: 500, headers: { "Content-Type": "application/json" } });
+    return new Response(null, { status: 204 });
+  };
+  try {
+    const a = createDataverseAdapter({ backend: "dataverse", user: { contactId: G(901) }, flows: {} });
+    const existing = [{ id: G(301), personId: G(100), role: "Executive Owner", sub: "Primary" }, { id: G(302), personId: G(101), role: "Compliance Owner", sub: "Primary" }];
+    await assert.rejects(a.setOwnership({ fn: { id: G(201), name: "Clery" }, existing,
+      rows: [{ personId: G(102), name: "Andrea", role: "Support", sub: "Primary" }, { personId: G(101), name: "Camila", role: "Compliance Owner", sub: "Primary" }] }));
+    assert.ok(calls.some(c => c.startsWith("POST /_api/su_functionownerships")), "it tried the create");
+    assert.ok(!calls.some(c => c.startsWith("DELETE")), "and deleted nothing: " + calls.join(", "));
+  } finally { delete globalThis.fetch; delete globalThis.window; }
 });
