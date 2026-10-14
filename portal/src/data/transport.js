@@ -78,6 +78,18 @@ export async function webApi(method, path, body, extraHeaders = {}) {
 }
 
 /* Follow @odata.nextLink until every row is in. Power Pages pages at 5000. */
+/* An image column's thumbnail, GET /_api/<set>(<id>)/<column>/$value
+   (Power Pages: 204 when the row has no image). Resolves to an object URL,
+   or null when there is no image or it cannot be read. */
+export async function webApiImage(path) {
+  try {
+    const res = await fetch(path, { credentials: "same-origin", headers: { Accept: "*/*", "Content-Type": "application/octet-stream" } });
+    if (res.status !== 200) return null;
+    const blob = await res.blob();
+    return blob.size ? URL.createObjectURL(blob) : null;
+  } catch (e) { return null; }
+}
+
 export async function webApiAll(path) {
   const rows = [];
   let next = path;

@@ -182,7 +182,7 @@ table, so the first import creates them:
   option value prefix 10000, so choice values start at 100000000;
 - the solution **Compliance Matrix** (`ComplianceMatrix`);
 - 16 tables and 14 global choices, all empty;
-- four cloud flows, imported turned off, and the three connection
+- five cloud flows, imported turned off, and the three connection
   references they use (After the import, below).
 
 1. Extract `ComplianceMatrix-solution-src.zip`. You get a `src` folder holding
@@ -210,14 +210,14 @@ table, so the first import creates them:
 
 ### After the import: connections and flows
 
-The solution carries three **connection references** and four **cloud flows**.
+The solution carries three **connection references** and five **cloud flows**.
 The flows import turned off; they need connections first.
 
 | Connection reference | Connector | Used by |
 |---|---|---|
-| CM - Microsoft Dataverse (su_CMDataverse) | Microsoft Dataverse | all four flows |
-| CM - Office 365 Users (su_CMOffice365Users) | Office 365 Users | the three link flows |
-| CM - Office 365 Outlook (su_CMOffice365Outlook) | Office 365 Outlook | all four flows (notices and failure alerts) |
+| CM - Microsoft Dataverse (su_CMDataverse) | Microsoft Dataverse | all five flows |
+| CM - Office 365 Users (su_CMOffice365Users) | Office 365 Users | the three link flows and CM - Sync directory from M365 |
+| CM - Office 365 Outlook (su_CMOffice365Outlook) | Office 365 Outlook | all five flows (notices and failure alerts) |
 
 1. **Pick the account.** One licensed member account makes all three
    connections and owns the flows: a service account if you have one,
@@ -235,8 +235,8 @@ The flows import turned off; they need connections first.
    on.
 4. **Turn the flows on.** Solutions > Compliance Matrix > Cloud flows > each
    flow > **Turn on**: CM - Process portal action, CM - Link directory to
-   contact, CM - Link contact to directory, and CM - Link existing sign-ins
-   (a manual flow still has to be on to run). Turning one on fails if its
+   contact, CM - Link contact to directory, CM - Link existing sign-ins, and
+   CM - Sync directory from M365 (a manual flow still has to be on to run). Turning one on fails if its
    connection references are empty or the data loss prevention policy splits
    its connectors.
 5. **Add the action flow to the site.** Design Studio > Set up > **Cloud
@@ -250,6 +250,9 @@ The flows import turned off; they need connections first.
    sign-ins > **Run**. With an empty directory it links nobody and sends a
    "not linked" notice for each sign-in; that is expected until the people
    are in the directory (section 6 has a one-row test).
+8. **Fill in the directory from Microsoft 365:** Cloud flows > CM - Sync
+   directory from M365 > **Run**. It then runs again every Sunday at 10 PM
+   Eastern (section 6, "Directory details and photos").
 
 If CM - Process portal action does not appear under Set up > Cloud flows,
 open it in Power Automate: its trigger should read "When Power Pages calls a
@@ -771,7 +774,7 @@ Power Pages maps for you.
 |---|---|---|
 | su_riskarea | su_riskareas | `su_riskareaid,su_name,su_colorhex,su_sortorder` |
 | su_domain | su_domains | `su_domainid,su_name,_su_riskarea_value` |
-| su_compliancedirectory | su_compliancedirectorys | `su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value` |
+| su_compliancedirectory | su_compliancedirectorys | `su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value,su_photo` |
 | su_compliancefunction | su_compliancefunctions | `su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value` |
 | su_functionownership | su_functionownerships | `su_functionownershipid,_su_function_value,_su_person_value,su_role,su_subrole,su_name` |
 | su_compliancedeadline | su_compliancedeadlines | `su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes` |
@@ -782,6 +785,9 @@ Power Pages maps for you.
 Power Pages refuses a request that reads or writes a column not on its
 table's list, so the list is also a guard: Completed By, Closed By, Flagged
 By and Cleared By are on no list, and only the action flow writes them.
+`su_photo` (the person's photo) is read one person at a time, from
+`/_api/su_compliancedirectorys(<id>)/su_photo/$value`, so it is on the list
+but not in the page's main read.
 These values come from `WEBAPI_FIELDS` in
 `portal/src/data/adapters/dataverse.js`; when a page change needs a new
 column, the reply that ships it names the setting to update.
@@ -972,6 +978,54 @@ finds the signed-in person by the contact's email, so a contact with no
 email sees "Nothing assigned" there.
 
 ---
+
+### Directory details and photos from Microsoft 365
+
+**CM - Sync directory from M365** fills in the directory from each person's
+Microsoft 365 profile. It runs every Sunday at 10 PM Eastern, and by hand
+with **Run** (Power Automate > the flow > Run) whenever you want it sooner.
+For each Compliance Directory row that has an email, it looks the person up
+with the Office 365 Users connector (CM - Office 365 Users) and:
+
+| Directory column | From the profile | When the profile value is blank |
+|---|---|---|
+| Title (su_jobtitle) | Job title | the row keeps its value |
+| Unit (su_unit) | Department | the row keeps its value |
+| Location (su_location) | Office location | the row keeps its value |
+| Phone (su_phone) | First business phone | the row keeps its value |
+| Photo (su_photo) | Profile photo | the row keeps its value (blank if it never had one) |
+
+So a title or phone typed into the directory by hand stays until Microsoft
+365 has a value of its own, and then the profile's value replaces it. A row
+is only written when something changed, apart from the photo, which is
+written each run. Values longer than the column are cut to fit.
+
+**Who is skipped.** Someone Microsoft 365 does not know (an outside counsel,
+a contractor, a former employee whose account is gone), or whose account is
+disabled, is skipped and the run carries on. The run's last step,
+**Summary**, lists them with the reason (`not found in Microsoft 365 (404)`
+or `account disabled`), with counts of people read, rows updated and photos
+stored. Skipping people is not a failure, so it sends no email. Anything
+else that stops a row being written (Dataverse refusing a value, for
+example) fails the run once the other people are done, and the office gets
+the usual failure email.
+
+**Photos.** su_photo is an Image column; Dataverse keeps a 144 x 144
+thumbnail and no full-size copy, which keeps the storage small. The
+matrix page shows the thumbnail on person cards, asking for each one as the
+card comes into view (`/_api/su_compliancedirectorys(<id>)/su_photo/$value`),
+and shows the initials circle when there is no photo. The Web API needs
+`su_photo` on `Webapi/su_compliancedirectory/fields` (section 5).
+
+**The schedule** is set in `solution/schema/flows.yaml` (`directorySync`):
+the day, hour and time zone, or `schedule: false` for a run-by-hand flow.
+You can also change it in Power Automate (the flow > Edit > the Weekly
+trigger); a later solution import puts the file's schedule back.
+
+**What it needs.** The flow reads other people's profiles and photos as the
+CM - Office 365 Users connection's account, the same connection the link
+flows use; a licensed member account can usually do this. It does not change
+emails, so it does not start CM - Link contact to directory.
 
 ## 7. Evidence files
 
@@ -1258,7 +1312,7 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
 5. Build the five dataflows (section 3), run them in order, and reconcile
    against the baseline counts.
 6. Check what External Identity Username holds (section 6). Set the
-   connection references, turn the four flows on, add the action flow to the
+   connection references, turn the five flows on, add the action flow to the
    site and set `ComplianceMatrix/Flow/Action` (section 2, After the import).
    Set up the CM Portal Action form and its two pages, and run the spoof test
    (section 8).

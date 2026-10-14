@@ -52,7 +52,7 @@ const added = (env, row) => runFlow(FLOWS["CM - Link directory to contact"], { t
 test("every expression in every generated flow parses, with only modelled functions", () => {
   let n = 0;
   for (const def of Object.values(FLOWS)) for (const e of expressionsIn(def.properties.definition)) { parseExpression(e); n++; }
-  assert.equal(Object.keys(FLOWS).length, 4);
+  assert.equal(Object.keys(FLOWS).length, 5);
   assert.ok(n > 150, "found " + n);
 });
 
@@ -259,4 +259,88 @@ test("Process portal action: a gap with no function can be closed by an administ
   assert.deepEqual([g.su_status, g.su_closenote, g._su_closedby_value], [100000021, "Adopted.", G(103)]);
   /* an administrator still cannot raise a flag without a function */
   assert.equal(admin.act({ su_action: 100000124, su_reason: "x" }).reply.error, "You are not allowed to do that on this function.");
+});
+
+/* ---------------- CM - Sync directory from M365 ---------------- */
+const JPEG = "/9j/4AAQSkZJRgABAQAAAQABAAD";
+const M365 = [
+  // a profile with some fields blank: those leave the row's value alone
+  { id: OID(11), userPrincipalName: "mdelgado@syr.edu", mail: "marcus.delgado@syr.edu", accountEnabled: true,
+    jobTitle: "Senior Vice President for Safety", department: "  ", officeLocation: "Steele Hall",
+    businessPhones: ["+1 315 443 1000"], photo: { type: "image/jpeg", base64: JPEG } },
+  // every field blank and no photo: nothing is written
+  { id: OID(12), userPrincipalName: "cruiz@syr.edu", mail: "cruiz@syr.edu", accountEnabled: true,
+    jobTitle: null, department: null, officeLocation: null, businessPhones: [] },
+  // found by mail; a title longer than the column is cut to fit
+  { id: OID(13), userPrincipalName: "andrea.w@syr.onmicrosoft.com", mail: "awhitaker@syr.edu", accountEnabled: true,
+    jobTitle: "T".repeat(300), department: "Human Resources", officeLocation: null, businessPhones: null },
+  // a former employee whose account is disabled
+  { id: OID(14), userPrincipalName: "dferrell@syr.edu", mail: null, accountEnabled: false,
+    jobTitle: "Should not be copied", department: "Gone", officeLocation: null, businessPhones: [] }
+  // Grace Whitfield (an outside counsel) and gone@syr.edu are not in Microsoft 365
+];
+function syncWorld(people = M365) {
+  const dv = dataverseTables();
+  dv.su_compliancedirectorys.push({ su_compliancedirectoryid: "dddddddd-0000-4000-8000-000000000001", su_name: "No Email", su_email: null, su_active: true });
+  const outlook = outlookConnector();
+  return { dv, outlook, dataverse: dataverseConnector({ dv, schema: SCHEMA, contacts: [], roleRelationship: REL }), users: usersConnector(people),
+    person: id => dv.su_compliancedirectorys.find(p => p.su_compliancedirectoryid === id) };
+}
+const sync = env => runFlow(FLOWS["CM - Sync directory from M365"], { trigger: {}, ...env });
+
+test("directory sync: runs weekly on Sunday night, Eastern time, and can be run by hand", () => {
+  const trig = Object.values(FLOWS["CM - Sync directory from M365"].properties.definition.triggers)[0];
+  assert.equal(trig.type, "Recurrence");
+  assert.deepEqual(trig.recurrence, { frequency: "Week", interval: 1, timeZone: "Eastern Standard Time",
+    schedule: { weekDays: ["Sunday"], hours: ["22"], minutes: [0] } });
+  assert.deepEqual(Object.keys(FLOWS["CM - Sync directory from M365"].properties.connectionReferences).sort(),
+    ["shared_commondataserviceforapps", "shared_office365", "shared_office365users"]);
+});
+
+test("directory sync: copies non-blank profile values and the photo, keeps the rest", () => {
+  const env = syncWorld();
+  const before = structuredClone(env.dv.su_compliancedirectorys);
+  const r = sync(env);
+  assert.equal(r.status, "Succeeded");
+  const m = env.person(G(100));
+  assert.equal(m.su_jobtitle, "Senior Vice President for Safety");
+  assert.equal(m.su_unit, "Campus Safety", "a blank department keeps the unit that was there");
+  assert.equal(m.su_location, "Steele Hall");
+  assert.equal(m.su_phone, "+1 315 443 1000");
+  assert.equal(m.su_photo, JPEG);
+  const c = env.person(G(101)), c0 = before.find(p => p.su_compliancedirectoryid === G(101));
+  assert.deepEqual(c, c0, "an all-blank profile with no photo changes nothing");
+  assert.equal(c.su_photo, undefined, "no photo leaves the column empty");
+  assert.ok(!r.log.some(x => x.op === "UpdateRecord" && x.params.recordId === G(101)), "and nothing is written");
+  const a = env.person(G(102));
+  assert.equal(a.su_jobtitle, "T".repeat(250), "cut to the column's 250 characters");
+  assert.equal(a.su_unit, "Human Resources");
+  assert.equal(env.person(G(103)).su_jobtitle ?? null, before.find(p => p.su_compliancedirectoryid === G(103)).su_jobtitle ?? null, "a disabled account is not copied");
+  assert.ok(!r.log.some(x => x.op === "UserProfile_V2" && x.params.id === ""), "a row with no email is not looked up");
+  assert.deepEqual(r.vars.Skipped, [
+    "Dwight Ferrell <dferrell@syr.edu>: account disabled",
+    "Grace Whitfield <gwhitfield@syr.edu>: not found in Microsoft 365 (404)",
+    "Left Already <gone@syr.edu>: not found in Microsoft 365 (404)"]);
+  assert.equal(r.vars.Updated, 2);
+  assert.equal(r.vars.Photos, 1);
+  assert.equal(env.outlook.sent.length, 0, "skipping people is not a failure");
+});
+
+test("directory sync: a second run writes nothing new but the photo", () => {
+  const env = syncWorld();
+  sync(env);
+  const r = sync(env);
+  assert.equal(r.status, "Succeeded");
+  assert.equal(r.vars.Updated, 0);
+  assert.deepEqual(r.log.filter(x => x.op === "UpdateRecord").map(x => Object.keys(x.params).filter(k => k.startsWith("item/"))), [["item/su_photo"]]);
+});
+
+test("directory sync: a write Dataverse refuses alerts the office and fails the run, after the others are done", () => {
+  const bad = M365.map(p => p.id === OID(11) ? { ...p, photo: { type: "image/jpeg", base64: "not base64!" } } : p);
+  const env = syncWorld(bad);
+  const r = sync(env);
+  assert.equal(r.status, "Failed");
+  assert.equal(env.outlook.sent.length, 1);
+  assert.match(env.outlook.sent[0].subject, /CM - Sync directory from M365 failed/);
+  assert.equal(env.person(G(102)).su_unit, "Human Resources", "the people after the failure were still synced");
 });

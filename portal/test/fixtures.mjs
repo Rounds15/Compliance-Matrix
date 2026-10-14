@@ -83,6 +83,9 @@ export function sharepointLists() {
 }
 
 const G = n => "00000000-0000-4000-8000-" + String(n).padStart(12, "0");
+/* a 2 x 2 PNG, as a synced su_photo holds it (base64) */
+export const PHOTO_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGP4nskARAwQCgAqagWBeewdbAAAAABJRU5ErkJggg==";
+
 export const DV_IDS = G;
 
 /* Power Pages contacts for the people who sign in during the tests. The
@@ -103,7 +106,7 @@ export function dataverseTables() {
       { su_domainid: G(12), su_name: "Health Information", _su_riskarea_value: G(3) }
     ],
     su_compliancedirectorys: [
-      { su_compliancedirectoryid: G(100), su_name: "Marcus Delgado", su_email: "mdelgado@syr.edu", su_jobtitle: "SVP for Safety", su_unit: "Campus Safety", su_active: true },
+      { su_compliancedirectoryid: G(100), su_name: "Marcus Delgado", su_email: "mdelgado@syr.edu", su_jobtitle: "SVP for Safety", su_unit: "Campus Safety", su_active: true, su_photo: PHOTO_PNG },
       { su_compliancedirectoryid: G(101), su_name: "Camila Ruiz", su_email: "cruiz@syr.edu", su_jobtitle: "Clery Coordinator", su_unit: "Campus Safety", su_active: true, _su_contact_value: G(901) },
       { su_compliancedirectoryid: G(102), su_name: "Andrea Whitaker", su_email: "awhitaker@syr.edu", su_active: true },
       { su_compliancedirectoryid: G(103), su_name: "Dwight Ferrell", su_email: "dferrell@syr.edu", su_active: true, _su_contact_value: G(903) },

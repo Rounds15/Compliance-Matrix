@@ -221,6 +221,13 @@ tables:
         type: Lookup
         target: systemuser
       - { name: su_isexecutive, displayName: Executive Team Member, type: Boolean, default: false }
+      - name: su_photo
+        displayName: Photo
+        description: >-
+          The person's Microsoft 365 profile photo, set by the CM - Sync
+          directory from M365 flow. Blank when they have none; the matrix page
+          then shows their initials.
+        type: Image
       - name: su_contact
         displayName: Portal Contact
         description: >-

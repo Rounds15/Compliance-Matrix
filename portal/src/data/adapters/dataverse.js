@@ -21,7 +21,7 @@
    By / Flagged By / Cleared By and the Archive entry server-side
    (docs/DATAVERSE-MIGRATION.md, section 8). */
 
-import { webApi, webApiAll, callFlow, flowUrl } from "../transport.js";
+import { webApi, webApiAll, webApiImage, callFlow, flowUrl } from "../transport.js";
 import { submitActionForm } from "../actionform.js";
 import { toDay, isoDate } from "../../lib/dates.js";
 
@@ -70,6 +70,9 @@ const SELECT = {
 
 /* Columns the page writes but does not read back. */
 const WRITE_ONLY = { su_functionownership: ["su_name"] };
+/* Image columns, read one row at a time through .../<column>/$value rather
+   than in the table's $select, so the page loads without every photo. */
+export const IMAGES = { su_compliancedirectory: ["su_photo"] };
 
 /* The value of each table's Webapi/<table>/fields site setting: every column
    the page reads or writes, with a lookup as _<lookup>_value (the form Power
@@ -77,7 +80,7 @@ const WRITE_ONLY = { su_functionownership: ["su_name"] };
    request that reads or writes any other column, and no longer accepts "*".
    docs/DATAVERSE-MIGRATION.md, section 5, lists these values. */
 export const WEBAPI_FIELDS = Object.fromEntries(Object.entries(SELECT).map(([table, select]) => [table,
-  [...new Set([...select.split(","), ...(WRITE_ONLY[table] || [])])].join(",")]));
+  [...new Set([...select.split(","), ...(WRITE_ONLY[table] || []), ...(IMAGES[table] || [])])].join(",")]));
 
 export function mapTables(t) {
   const out = {};
@@ -141,6 +144,20 @@ export function createDataverseAdapter(cfg) {
   const unbind = (table, id, nav) => webApi("DELETE", `/_api/${set(table)}(${id})/${nav}/$ref`).catch(() => null);
   const actionUrl = flowUrl(cfg.flows && cfg.flows.action);
 
+  /* Photos (su_photo, set by the CM - Sync directory from M365 flow): one
+     request per person, at most four at a time, each made once per page. */
+  const photos = new Map();
+  let running = 0;
+  const waiting = [];
+  const turn = () => new Promise(go => { if (running < 4) { running++; go(); } else waiting.push(go); });
+  const done = () => { const next = waiting.shift(); if (next) next(); else running--; };
+  const photo = person => {
+    if (!person || person.none || person.counselOnly || !person.id) return null;
+    const key = String(person.id);
+    if (!photos.has(key)) photos.set(key, turn().then(() => webApiImage(`/_api/${set("su_compliancedirectory")}(${key})/su_photo/$value`)).finally(done));
+    return photos.get(key);
+  };
+
   /* Record the request through the basic form, which names the signed-in
      contact on the server, then have the flow carry it out. The flow's
      answer is the outcome: {ok, error}. */
@@ -168,6 +185,7 @@ export function createDataverseAdapter(cfg) {
     roles: ["Executive Owner", "Unit Owner", "Compliance Owner", "Support"],
     canSearchPeople: false,
     counselPerFunction: true,
+    photo,
     configured: true,
 
     async load(tables) {

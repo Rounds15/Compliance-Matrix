@@ -571,6 +571,14 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   const mcard = page.locator(".orole.exec .operson", { hasText: "Marcus Delgado" });
   assert.equal(await text(mcard.locator(".operson-t")), "SVP for Safety");
   assert.equal(await text(mcard.locator(".operson-u").first()), "Campus Safety");
+  // the photo from su_photo when there is one, the initials when there is not
+  await mcard.locator(".av.photo img").waitFor();
+  assert.equal(await mcard.locator(".av.photo img").evaluate(img => img.complete && img.naturalWidth), 2, "the su_photo thumbnail is shown");
+  const ccard = page.locator(".orole.compliance .operson", { hasText: "Camila Ruiz" });
+  await page.waitForFunction(id => performance.getEntriesByType("resource").some(e => e.name.includes(id + ")/su_photo/$value")), G(101));
+  assert.equal(await ccard.locator(".av.photo").count(), 0);
+  assert.equal(await text(ccard.locator(".av")), "CR", "no photo: the initials circle");
+  assert.ok(portal.log.some(x => x.api === "GET /_api/su_compliancedirectorys(" + G(101) + ")/su_photo/$value"), "asked once, answered 204");
 
   await btn("Manage people").click();
   assert.equal(await page.locator(".orole.counsel").count(), 0, "General Counsel has the rail card, not a tier");

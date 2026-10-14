@@ -231,9 +231,9 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   };
 
   async function webApi(req, res, url) {
-    const m = /^\/_api\/([a-z_]+)(?:\(([0-9a-f-]{36})\))?(?:\/([a-z_]+)\/\$ref)?$/i.exec(url.pathname);
+    const m = /^\/_api\/([a-z_]+)(?:\(([0-9a-f-]{36})\))?(?:\/([a-z_]+)\/\$ref)?(?:\/([a-z_]+)\/\$value)?$/i.exec(url.pathname);
     if (!m) return fail(res, 404, "Unknown Web API path " + url.pathname);
-    const [, set, id, nav] = m;
+    const [, set, id, nav, image] = m;
     const entry = tableOfSet(set);
     if (!entry) return fail(res, 404, `Resource not found for the segment '${set}'.`);
     const [tableName, t] = entry;
@@ -251,6 +251,19 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
       if (bad) return fail(res, 403, `Attribute ${bad} in table ${tableName} is not enabled for Web Api.`);
     }
     if (nav && !allowed.has("_" + nav + "_value")) return fail(res, 403, `Attribute ${nav} in table ${tableName} is not enabled for Web Api.`);
+    /* an image column's thumbnail: the bytes, or 204 when the row has none */
+    if (image) {
+      if (req.method !== "GET" || !id) return fail(res, 405, "Only GET of one row's image is modelled");
+      if (!allowed.has(image)) return fail(res, 403, `Attribute ${image} in table ${tableName} is not enabled for Web Api.`);
+      if (t.columns[image] !== "Image") return fail(res, 400, `${image} is not an image column`);
+      const row = dv[set].find(r => r[t.id] === id.toLowerCase());
+      if (!row) return fail(res, 404, `${tableName} With Id = ${id} Does Not Exist`);
+      log.push({ api: "GET " + url.pathname });
+      if (!row[image]) { res.writeHead(204); return res.end(); }
+      const bytes = Buffer.from(row[image], "base64");
+      res.writeHead(200, { "Content-Type": "application/octet-stream", "Content-Length": bytes.length });
+      return res.end(bytes);
+    }
     const rows = dv[set];
     if (req.method !== "GET" && req.headers["__requestverificationtoken"] !== TOKEN) return fail(res, 403, "Missing or invalid anti-forgery token");
     log.push({ api: req.method + " " + url.pathname + url.search });

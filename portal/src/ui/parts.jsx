@@ -54,12 +54,30 @@ export const initials = n => {
   return (w[0][0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
 };
 
+/* The person's photo when the backend has one (Dataverse su_photo), asked
+   for once the avatar scrolls into view; their initials until then, and
+   whenever there is none. */
 export function Avatar({ person, size = 32 }) {
+  const app = useApp();
+  const photoOf = app && app.adapter && app.adapter.photo;
   const none = !person || person.none;
   const n = none ? "" : person.n;
+  const id = none ? null : person.id;
   const hue = none ? "#C4C7CE" : AV_BG[(n.charCodeAt(0) + n.length) % AV_BG.length];
-  return <div className="av" style={{ width: size, height: size, fontSize: Math.round(size * .38), background: hue }} title={none ? "Not assigned" : n}>
-    {none ? "" : initials(n)}
+  const el = useRef(null);
+  const [src, setSrc] = useState(null);
+  useEffect(() => {
+    setSrc(null);
+    if (!photoOf || none || id == null || !el.current) return undefined;
+    let live = true;
+    const load = () => { const p = photoOf(person); if (p) p.then(u => { if (live) setSrc(u); }); };
+    if (typeof IntersectionObserver === "undefined") { load(); return () => { live = false; }; }
+    const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); load(); } }, { rootMargin: "200px" });
+    io.observe(el.current);
+    return () => { live = false; io.disconnect(); };
+  }, [photoOf, id, none]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <div ref={el} className={"av" + (src ? " photo" : "")} style={{ width: size, height: size, fontSize: Math.round(size * .38), background: src ? "#E2E5EA" : hue }} title={none ? "Not assigned" : n}>
+    {src ? <img src={src} alt="" onError={() => setSrc(null)} /> : none ? "" : initials(n)}
   </div>;
 }
 

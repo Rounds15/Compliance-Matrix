@@ -1,0 +1,405 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMDataverse"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_office365users": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Users"
+        },
+        "api": {
+          "name": "shared_office365users"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Outlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Weekly": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Week",
+            "interval": 1,
+            "timeZone": "Eastern Standard Time",
+            "schedule": {
+              "weekDays": [
+                "Sunday"
+              ],
+              "hours": [
+                "22"
+              ],
+              "minutes": [
+                0
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Initialize_Updated": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Updated",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "Initialize_Photos": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Photos",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Updated": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Initialize_Skipped": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Skipped",
+                "type": "array",
+                "value": []
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Photos": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "List_people": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_compliancedirectorys",
+                  "$filter": "@{'su_email ne null'}",
+                  "$select": "su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_location,su_phone"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runtimeConfiguration": {
+                "paginationPolicy": {
+                  "minimumItemCount": 100000
+                }
+              },
+              "runAfter": {}
+            },
+            "For_each_person": {
+              "type": "Foreach",
+              "foreach": "@body('List_people')?['value']",
+              "actions": {
+                "Get_profile": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_office365users",
+                      "operationId": "UserProfile_V2",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365users"
+                    },
+                    "parameters": {
+                      "id": "@{trim(coalesce(items('For_each_person')?['su_email'], ''))}",
+                      "$select": "id,mail,userPrincipalName,accountEnabled,jobTitle,department,officeLocation,businessPhones"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                },
+                "In_Microsoft_365": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@and(equals(actions('Get_profile')?['status'], 'Succeeded'), not(equals(body('Get_profile')?['accountEnabled'], false)))",
+                          true
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "New_values": {
+                      "type": "Compose",
+                      "inputs": {
+                        "su_jobtitle": "@if(empty(trim(coalesce(body('Get_profile')?['jobTitle'], ''))), items('For_each_person')?['su_jobtitle'], substring(trim(coalesce(body('Get_profile')?['jobTitle'], '')), 0, min(250, length(trim(coalesce(body('Get_profile')?['jobTitle'], ''))))))",
+                        "su_unit": "@if(empty(trim(coalesce(body('Get_profile')?['department'], ''))), items('For_each_person')?['su_unit'], substring(trim(coalesce(body('Get_profile')?['department'], '')), 0, min(255, length(trim(coalesce(body('Get_profile')?['department'], ''))))))",
+                        "su_location": "@if(empty(trim(coalesce(body('Get_profile')?['officeLocation'], ''))), items('For_each_person')?['su_location'], substring(trim(coalesce(body('Get_profile')?['officeLocation'], '')), 0, min(200, length(trim(coalesce(body('Get_profile')?['officeLocation'], ''))))))",
+                        "su_phone": "@if(empty(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), ''))), items('For_each_person')?['su_phone'], substring(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), '')), 0, min(40, length(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), ''))))))"
+                      },
+                      "runAfter": {}
+                    },
+                    "Anything_changed": {
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@or(not(equals(coalesce(outputs('New_values')?['su_jobtitle'], ''), coalesce(items('For_each_person')?['su_jobtitle'], ''))), not(equals(coalesce(outputs('New_values')?['su_unit'], ''), coalesce(items('For_each_person')?['su_unit'], ''))), not(equals(coalesce(outputs('New_values')?['su_location'], ''), coalesce(items('For_each_person')?['su_location'], ''))), not(equals(coalesce(outputs('New_values')?['su_phone'], ''), coalesce(items('For_each_person')?['su_phone'], ''))))",
+                              true
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "Update_details": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancedirectorys",
+                              "recordId": "@{items('For_each_person')?['su_compliancedirectoryid']}",
+                              "item/su_jobtitle": "@outputs('New_values')?['su_jobtitle']",
+                              "item/su_unit": "@outputs('New_values')?['su_unit']",
+                              "item/su_location": "@outputs('New_values')?['su_location']",
+                              "item/su_phone": "@outputs('New_values')?['su_phone']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "Count_updated": {
+                          "type": "IncrementVariable",
+                          "inputs": {
+                            "name": "Updated",
+                            "value": 1
+                          },
+                          "runAfter": {
+                            "Update_details": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {}
+                      },
+                      "runAfter": {
+                        "New_values": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Get_photo": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_office365users",
+                          "operationId": "UserPhoto_V2",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365users"
+                        },
+                        "parameters": {
+                          "id": "@{trim(coalesce(items('For_each_person')?['su_email'], ''))}"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Anything_changed": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Has_photo": {
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@and(equals(actions('Get_photo')?['status'], 'Succeeded'), not(empty(coalesce(body('Get_photo')?['$content'], ''))))",
+                              true
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "Store_photo": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancedirectorys",
+                              "recordId": "@{items('For_each_person')?['su_compliancedirectoryid']}",
+                              "item/su_photo": "@body('Get_photo')?['$content']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "Count_photos": {
+                          "type": "IncrementVariable",
+                          "inputs": {
+                            "name": "Photos",
+                            "value": 1
+                          },
+                          "runAfter": {
+                            "Store_photo": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {}
+                      },
+                      "runAfter": {
+                        "Get_photo": [
+                          "Succeeded",
+                          "Failed"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Note_skipped": {
+                        "type": "AppendToArrayVariable",
+                        "inputs": {
+                          "name": "Skipped",
+                          "value": "@concat(concat(coalesce(items('For_each_person')?['su_name'], ''), ' <', trim(coalesce(items('For_each_person')?['su_email'], '')), '>'), if(equals(actions('Get_profile')?['status'], 'Succeeded'), ': account disabled', concat(': not found in Microsoft 365 (', string(coalesce(outputs('Get_profile')?['statusCode'], '')), ')')))"
+                        },
+                        "runAfter": {}
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Get_profile": [
+                      "Succeeded",
+                      "Failed"
+                    ]
+                  }
+                }
+              },
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "repetitions": 1
+                }
+              },
+              "runAfter": {
+                "List_people": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Summary": {
+              "type": "Compose",
+              "inputs": {
+                "people": "@length(body('List_people')?['value'])",
+                "updated": "@variables('Updated')",
+                "photos": "@variables('Photos')",
+                "skipped": "@variables('Skipped')"
+              },
+              "runAfter": {
+                "For_each_person": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_Skipped": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Alert_the_office": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "SendEmailV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+              "emailMessage/Subject": "Compliance Matrix: CM - Sync directory from M365 failed",
+              "emailMessage/Body": "@{concat('<p>The flow CM - Sync directory from M365 failed. Open the run to see the step that failed.</p><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+              "emailMessage/Importance": "Normal"
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        },
+        "Fail_the_run": {
+          "type": "Terminate",
+          "inputs": {
+            "runStatus": "Failed",
+            "runError": {
+              "code": "CMFlowFailed",
+              "message": "CM - Sync directory from M365 failed; the office was emailed."
+            }
+          },
+          "runAfter": {
+            "Alert_the_office": [
+              "Succeeded",
+              "Failed"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -220,6 +220,7 @@
    "su_name": "String",
    "su_netid": "String",
    "su_phone": "String",
+   "su_photo": "Image",
    "su_systemuser": "lookup:systemuser",
    "su_unit": "String"
   },

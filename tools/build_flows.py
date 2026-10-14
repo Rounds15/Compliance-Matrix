@@ -7,6 +7,9 @@ The Compliance Matrix solution's cloud flows, as Power Automate definitions.
     CM - Link existing sign-ins        manual; the same as the first, for every
                                        sign-in already on the site
     CM - Process portal action         called by the matrix page for each action
+    CM - Sync directory from M365      weekly (and by hand): title, unit, office,
+                                       phone and photo from each person's
+                                       Microsoft 365 profile
 
 build_solution.py writes them to solution/src/Workflows/ in the layout
 `pac solution unpack` produces, with the connection references they use. The
@@ -112,8 +115,11 @@ class Flow:
     def delete(self, entity_set, id_expr):
         return self.op("dataverse", "DeleteRecord", {"entityName": entity_set, "recordId": "@{" + id_expr + "}"})
 
-    def user(self, id_expr):
-        return self.op("users", "UserProfile_V2", {"id": "@{" + id_expr + "}", "$select": USER_FIELDS})
+    def user(self, id_expr, select=USER_FIELDS):
+        return self.op("users", "UserProfile_V2", {"id": "@{" + id_expr + "}", "$select": select})
+
+    def photo(self, id_expr):
+        return self.op("users", "UserPhoto_V2", {"id": "@{" + id_expr + "}"})
 
     def email(self, subject: str, body_expr: str):
         return self.op("outlook", "SendEmailV2", {
@@ -152,6 +158,14 @@ def set_var(name: str, value) -> dict:
 
 def init_var(name: str, vtype: str, value) -> dict:
     return {"type": "InitializeVariable", "inputs": {"variables": [{"name": name, "type": vtype, "value": value}]}}
+
+
+def append_var(name: str, value) -> dict:
+    return {"type": "AppendToArrayVariable", "inputs": {"name": name, "value": value}}
+
+
+def add_one(name: str) -> dict:
+    return {"type": "IncrementVariable", "inputs": {"name": name, "value": 1}}
 
 
 def scope(actions: dict, run_after: dict | None = None) -> dict:
@@ -300,7 +314,7 @@ def try_catch(f: Flow, actions: dict, what: str, after: dict | None = None) -> d
 
 
 # ---------------------------------------------------------------------------
-# the four flows
+# the link flows and the action flow
 # ---------------------------------------------------------------------------
 def link_directory_to_contact(s: dict) -> dict:
     f = Flow(s)
@@ -554,11 +568,112 @@ def process_portal_action(s: dict) -> dict:
     return definition("manual", trig, acts, f.used, s)
 
 
+# ---------------------------------------------------------------------------
+# CM - Sync directory from M365
+# ---------------------------------------------------------------------------
+SCHEMA = pathlib.Path(__file__).resolve().parent.parent / "solution" / "schema" / "dataverse-schema.yaml"
+
+# directory column <- Microsoft 365 profile property (Graph user)
+SYNC_FIELDS = [("su_jobtitle", "jobTitle"), ("su_unit", "department"),
+               ("su_location", "officeLocation"), ("su_phone", "businessPhones")]
+PROFILE_FIELDS = "id,mail,userPrincipalName,accountEnabled,jobTitle,department,officeLocation,businessPhones"
+
+
+def max_lengths(table: str) -> dict[str, int]:
+    cols = yaml.safe_load(SCHEMA.read_text(encoding="utf-8"))["tables"][table]["columns"]
+    return {c["name"]: int(c["maxLength"]) for c in cols if c.get("maxLength")}
+
+
+def sync_trigger(s: dict) -> tuple[str, dict]:
+    """Weekly on the configured day and hour, or by hand only. A scheduled
+    flow can also be started with Run, so the weekly one covers both."""
+    c = s["directorySync"]
+    if not c.get("schedule", True):
+        return "manual", {"type": "Request", "kind": "Button",
+                          "inputs": {"schema": {"type": "object", "properties": {}, "required": []}}}
+    return "Weekly", {"type": "Recurrence", "recurrence": {
+        "frequency": "Week", "interval": 1, "timeZone": c["timeZone"],
+        "schedule": {"weekDays": [c["weekDay"]], "hours": [str(c["hour"])], "minutes": [int(c.get("minute", 0))]}}}
+
+
+def sync_directory(s: dict) -> dict:
+    """For each directory row with an email: look the person up in Microsoft
+    365, copy the profile's non-blank values over (a blank profile field
+    leaves the row's value alone, so a hand edit is kept), and store their
+    photo. Someone not in Microsoft 365, or whose account is disabled, is
+    skipped and listed in the run's summary; the rest carry on."""
+    f = Flow(s)
+    longest = max_lengths("su_compliancedirectory")
+    item = "items('For_each_person')"
+    email = f"trim(coalesce({item}?['su_email'], ''))"
+    P = "body('Get_profile')"
+
+    def profile(prop):
+        if prop == "businessPhones":
+            return f"trim(coalesce(first(coalesce({P}?['businessPhones'], json('[]'))), ''))"
+        return f"trim(coalesce({P}?[{q(prop)}], ''))"
+
+    def keep(col, prop):
+        new, n = profile(prop), longest[col]
+        return f"@if(empty({new}), {item}?[{q(col)}], substring({new}, 0, min({n}, length({new}))))"
+
+    new = "outputs('New_values')"
+    changed = "or(" + ", ".join(f"not(equals(coalesce({new}?[{q(c)}], ''), coalesce({item}?[{q(c)}], '')))"
+                                for c, _ in SYNC_FIELDS) + ")"
+    who = f"concat(coalesce({item}?['su_name'], ''), ' <', {email}, '>')"
+    found = (f"and(equals(actions('Get_profile')?['status'], 'Succeeded'), "
+             f"not(equals({P}?['accountEnabled'], false)))")
+    has_photo = ("and(equals(actions('Get_photo')?['status'], 'Succeeded'), "
+                 "not(empty(coalesce(body('Get_photo')?['$content'], ''))))")
+    why_skipped = (f"concat({who}, if(equals(actions('Get_profile')?['status'], 'Succeeded'), "
+                   f"': account disabled', concat(': not found in Microsoft 365 (', "
+                   f"string(coalesce(outputs('Get_profile')?['statusCode'], '')), ')')))")
+
+    person = seq(
+        ("Get_profile", f.user(email, PROFILE_FIELDS)),
+        ("In_Microsoft_365", when(found, seq(
+            ("New_values", compose({c: keep(c, p) for c, p in SYNC_FIELDS})),
+            ("Anything_changed", when(changed, seq(
+                ("Update_details", f.update("su_compliancedirectorys", f"{item}?['su_compliancedirectoryid']",
+                                            {c: f"@{new}?[{q(c)}]" for c, _ in SYNC_FIELDS})),
+                ("Count_updated", add_one("Updated"))))),
+            ("Get_photo", f.photo(email)),
+            # no photo (404) leaves su_photo as it is
+            ("Has_photo", when(has_photo, seq(
+                ("Store_photo", f.update("su_compliancedirectorys", f"{item}?['su_compliancedirectoryid']",
+                                         {"su_photo": "@body('Get_photo')?['$content']"})),
+                ("Count_photos", add_one("Photos"))),
+                run_after={"Get_photo": ["Succeeded", "Failed"]})),
+        ), seq(("Note_skipped", append_var("Skipped", "@" + why_skipped))),
+            run_after={"Get_profile": ["Succeeded", "Failed"]})))
+
+    loop = {"type": "Foreach", "foreach": "@body('List_people')?['value']", "actions": person,
+            "runtimeConfiguration": {"concurrency": {"repetitions": 1}}}
+    listing = f.list("su_compliancedirectorys", q("su_email ne null"),
+                     "su_compliancedirectoryid,su_name,su_email," + ",".join(c for c, _ in SYNC_FIELDS))
+    listing["runtimeConfiguration"] = {"paginationPolicy": {"minimumItemCount": 100000}}
+    body = seq(
+        ("List_people", listing),
+        ("For_each_person", loop),
+        ("Summary", compose({"people": f"@{count('List_people')}", "updated": "@variables('Updated')",
+                             "photos": "@variables('Photos')", "skipped": "@variables('Skipped')"})))
+    acts = {
+        "Initialize_Updated": init_var("Updated", "integer", 0),
+        "Initialize_Photos": {**init_var("Photos", "integer", 0), "runAfter": {"Initialize_Updated": ["Succeeded"]}},
+        "Initialize_Skipped": {**init_var("Skipped", "array", []), "runAfter": {"Initialize_Photos": ["Succeeded"]}},
+        **try_catch(f, body, "CM - Sync directory from M365", after={"Initialize_Skipped": ["Succeeded"]}),
+    }
+    name, trig = sync_trigger(s)
+    return definition(name, trig, acts, f.used, s)
+
+
 FLOWS = [
     ("CM - Link directory to contact", "Links a new Entra sign-in to its Compliance Directory row (section 6).", link_directory_to_contact),
     ("CM - Link contact to directory", "Links a directory row to the person's existing sign-in when its email is set (section 6).", link_contact_to_directory),
     ("CM - Link existing sign-ins", "Run by hand: links every Entra sign-in already on the site (section 6).", link_existing_sign_ins),
     ("CM - Process portal action", "Carries out a Portal Action for the matrix page (section 8).", process_portal_action),
+    ("CM - Sync directory from M365", "Weekly, and by hand: copies title, unit, office, phone and photo from Microsoft 365 "
+     "to the Compliance Directory (section 6).", sync_directory),
 ]
 
 

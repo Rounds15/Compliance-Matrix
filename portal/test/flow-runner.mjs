@@ -7,7 +7,7 @@
    something this does not model. Connectors are emulated over the mock's
    tables: Dataverse (ListRecords, GetItem, CreateRecord, UpdateRecord,
    DeleteRecord, with formatted values and cascades), Office 365 Users
-   (UserProfile_V2) and Office 365 Outlook (SendEmailV2).
+   (UserProfile_V2, UserPhoto_V2) and Office 365 Outlook (SendEmailV2).
 
    Not modelled: retries, parallel branches, and platform validation of the
    definition itself. Those are proved only by importing the solution. */
@@ -294,6 +294,14 @@ export function runFlow(def, { trigger = {}, dataverse, users, outlook, workflow
           if (!(a.inputs.name in run.vars)) throw new FlowError(`variable '${a.inputs.name}' is not initialized`);
           run.vars[a.inputs.name] = value(a.inputs.value); return set("Succeeded");
         }
+        case "AppendToArrayVariable": {
+          if (!Array.isArray(run.vars[a.inputs.name])) throw new FlowError(`variable '${a.inputs.name}' is not an initialized array`);
+          run.vars[a.inputs.name].push(value(a.inputs.value)); return set("Succeeded");
+        }
+        case "IncrementVariable": {
+          if (typeof run.vars[a.inputs.name] !== "number") throw new FlowError(`variable '${a.inputs.name}' is not an initialized number`);
+          run.vars[a.inputs.name] += numArg(value(a.inputs.value)); return set("Succeeded");
+        }
         case "If": {
           const branch = condition(a.expression) ? a.actions : (a.else && a.else.actions) || {};
           return set(runScope(branch));
@@ -386,8 +394,8 @@ function parseFilter(src) {
   function term() {
     if (toks[p] === "(") { p++; const e = or(); if (toks[p++] !== ")") throw new ConnectorError(400, "unbalanced $filter: " + src); return e; }
     const field = toks[p++], op = toks[p++], v = lit(toks[p++]);
-    if (op !== "eq") throw new ConnectorError(400, `operator ${op} not modelled in $filter`);
-    return { field, v };
+    if (op !== "eq" && op !== "ne") throw new ConnectorError(400, `operator ${op} not modelled in $filter`);
+    return op === "ne" ? { not: { field, v } } : { field, v };
   }
   function and() { let e = term(); while (toks[p] === "and") { p++; e = { and: [e, term()] }; } return e; }
   function or() { let e = and(); while (toks[p] === "or") { p++; e = { or: [e, and()] }; } return e; }
@@ -396,6 +404,7 @@ function parseFilter(src) {
   return tree;
 }
 function matches(row, f) {
+  if (f.not) return !matches(row, f.not);
   if (f.and) return f.and.every(x => matches(row, x));
   if (f.or) return f.or.some(x => matches(row, x));
   const v = row[f.field] ?? null;
@@ -468,6 +477,7 @@ export function dataverseConnector({ dv, schema, contacts = [], roleRelationship
       if (v !== null && (kind === "Integer" || kind === "Decimal") && typeof v !== "number") throw new ConnectorError(400, `${col} is a number; got ${JSON.stringify(v)}`);
       if (v !== null && kind === "DateTime" && !/^\d{4}-\d{2}-\d{2}/.test(v)) throw new ConnectorError(400, `${col} needs a date; got ${JSON.stringify(v)}`);
       if (v !== null && (kind === "String" || kind === "Memo") && typeof v !== "string") throw new ConnectorError(400, `${col} is text; got ${JSON.stringify(v)}`);
+      if (v !== null && kind === "Image" && (typeof v !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(v))) throw new ConnectorError(400, `${col} is an image; it takes base64, got ${JSON.stringify(v).slice(0, 60)}`);
       row[col] = v;
     }
   }
@@ -496,7 +506,7 @@ export function dataverseConnector({ dv, schema, contacts = [], roleRelationship
       case "ListRecords": {
         for (const c of String(p.$select || "").split(",").filter(Boolean)) if (!knows(t, c)) throw new ConnectorError(400, `Could not find a property named '${c}' on ${t.set}`);
         const f = p.$filter ? parseFilter(p.$filter) : null;
-        const check = n => { if (n.and || n.or) (n.and || n.or).forEach(check); else if (!knows(t, n.field)) throw new ConnectorError(400, `Could not find a property named '${n.field}' on ${t.set}`); };
+        const check = n => { if (n.not) check(n.not); else if (n.and || n.or) (n.and || n.or).forEach(check); else if (!knows(t, n.field)) throw new ConnectorError(400, `Could not find a property named '${n.field}' on ${t.set}`); };
         if (f) check(f);
         let out = rows.filter(r => !f || matches(r, f)).map(r => shape(t, r));
         if (p.$expand) {
@@ -532,14 +542,22 @@ export function dataverseConnector({ dv, schema, contacts = [], roleRelationship
   };
 }
 
+/* People by object ID, UPN or mail, as the connector's id parameter takes.
+   A person's photo is { type, base64 }; without one, UserPhoto_V2 is a 404. */
 export function usersConnector(people) {
   return (operation, p) => {
-    if (operation !== "UserProfile_V2") throw new FlowError("Office 365 Users operation not modelled: " + operation);
-    const id = String(p.id || "").toLowerCase();
-    const u = people.find(x => x.id.toLowerCase() === id || x.userPrincipalName.toLowerCase() === id);
+    if (operation !== "UserProfile_V2" && operation !== "UserPhoto_V2") throw new FlowError("Office 365 Users operation not modelled: " + operation);
+    const id = String(p.id || "").trim().toLowerCase();
+    if (!id) throw new ConnectorError(400, "The id parameter is required");
+    const u = people.find(x => [x.id, x.userPrincipalName, x.mail].some(v => v && v.toLowerCase() === id));
     if (!u) throw new ConnectorError(404, "User not found");
+    if (operation === "UserPhoto_V2") {
+      if (!u.photo) throw new ConnectorError(404, "The photo wasn't found.");
+      return { "$content-type": u.photo.type, "$content": u.photo.base64 };
+    }
     const fields = String(p.$select || "").split(",").filter(Boolean);
-    return fields.length ? Object.fromEntries(fields.map(f => [f, u[f] ?? null])) : { ...u };
+    const { photo, ...profile } = u;
+    return fields.length ? Object.fromEntries(fields.map(f => [f, profile[f] ?? null])) : profile;
   };
 }
 

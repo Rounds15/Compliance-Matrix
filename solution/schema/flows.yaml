@@ -19,6 +19,16 @@ adminWebRole: Administrators
 # enhanced data model (make.powerapps.com > Tables > Contact > Relationships).
 webRoleRelationship: powerpagecomponent_mspp_webrole_contact
 
+# CM - Sync directory from M365. schedule: true runs it weekly on weekDay at
+# hour:minute in timeZone (a Windows time zone name); it can also be started
+# by hand with Run either way. schedule: false makes it a by-hand flow only.
+directorySync:
+  schedule: true
+  weekDay: Sunday
+  hour: 22
+  minute: 0
+  timeZone: Eastern Standard Time
+
 # Connection references the flows use. Logical names carry the publisher
 # prefix; the post-import steps set each to a connection.
 connectionReferences:

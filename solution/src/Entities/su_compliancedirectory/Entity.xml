@@ -454,6 +454,48 @@
             <Description description="" languagecode="1033"/>
           </Descriptions>
         </attribute>
+        <attribute PhysicalName="su_photo">
+          <Type>image</Type>
+          <Name>su_photo</Name>
+          <LogicalName>su_photo</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>0</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat/>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <IsPrimaryImage>1</IsPrimaryImage>
+          <MaxHeight>144</MaxHeight>
+          <MaxWidth>144</MaxWidth>
+          <MaxSizeInKB>10240</MaxSizeInKB>
+          <CanStoreFullImage>0</CanStoreFullImage>
+          <displaynames>
+            <displayname description="Photo" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="The person's Microsoft 365 profile photo, set by the CM - Sync directory from M365 flow. Blank when they have none; the matrix page then shows their initials." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
         <attribute PhysicalName="su_contact">
           <Type>lookup</Type>
           <Name>su_contact</Name>

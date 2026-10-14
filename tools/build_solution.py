@@ -60,6 +60,7 @@ TYPE_MAP = {
     "DateTime": "datetime",
     "Lookup": "lookup",
     "Choice": "picklist",
+    "Image": "image",
 }
 
 STRING_FORMATS = {"Text": "text", "Email": "email", "Url": "url", "Phone": "phone"}
@@ -190,7 +191,8 @@ def build_attribute(attrs_el: ET.Element, col: dict, table: dict, logical: str) 
     _sub(a, "ValidForReadApi", "1")
     _sub(a, "ValidForCreateApi", "1")
     _sub(a, "IsCustomField", "1")
-    _sub(a, "IsAuditEnabled", "1")
+    # image data is not audited
+    _sub(a, "IsAuditEnabled", "0" if ctype == "Image" else "1")
     _sub(a, "IsSecured", "0")
     _sub(a, "IntroducedVersion", VERSION)
     _sub(a, "IsCustomizable", "1")
@@ -256,6 +258,15 @@ def build_attribute(attrs_el: ET.Element, col: dict, table: dict, logical: str) 
     elif ctype == "Choice":
         _sub(a, "AppDefaultValue", "-1")
         _sub(a, "OptionSetName", col["choice"])
+    elif ctype == "Image":
+        # Thumbnails are always 144 x 144; a full-size copy is kept only when
+        # asked (it counts against file capacity). The table's one image
+        # column is its primary image.
+        _sub(a, "IsPrimaryImage", "1" if col.get("primaryImage", True) else "0")
+        _sub(a, "MaxHeight", "144")
+        _sub(a, "MaxWidth", "144")
+        _sub(a, "MaxSizeInKB", col.get("maxSizeInKB", 10240))
+        _sub(a, "CanStoreFullImage", "1" if col.get("fullImage") else "0")
 
     _localized(a, "displaynames", "displayname", col["displayName"])
     _localized(a, "Descriptions", "Description", _flat(col.get("description")))
@@ -546,6 +557,8 @@ VIRTUAL_SUFFIXES = {
     "state": ("name",),
     "status": ("name",),
     "bit": ("name",),
+    # an image column brings <column>id, <column>_timestamp and <column>_url
+    "image": ("id", "_timestamp", "_url"),
 }
 
 

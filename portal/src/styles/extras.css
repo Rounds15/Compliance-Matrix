@@ -266,3 +266,6 @@ code { font-size: .88em; overflow-wrap: anywhere }
 .rail-acts .button-primary { border: 2px solid var(--orange); background: var(--orange); color: #fff }
 .rail-acts .button-primary:hover { background: #D74100; border-color: #D74100 }
 .own-add .button:disabled { opacity: .45; cursor: not-allowed; background: #000e54; border-color: #000e54; color: #fff }
+
+/* a person's photo in place of their initials */
+.av.photo img { width: 100%; height: 100%; object-fit: cover; display: block }
