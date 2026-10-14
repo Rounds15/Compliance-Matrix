@@ -204,7 +204,7 @@ export function FunctionDetail({ f, isNew }) {
           <Field label="Reporting requirement"><p>{f.reporting || <span className="sub">No reporting requirement recorded.</span>}</p></Field>
           <Field label="Deadline and cadence">
             <p style={{ marginBottom: dls.length ? 12 : 0 }}>{f.deadline || <span className="sub">No deadline narrative recorded.</span>}</p>
-            {dls.map(x => {
+            {!!dls.length && <div className="fd-cards">{dls.map(x => {
               const st = dueState(x, today);
               return <div key={x.id} className="dlrow" style={{ background: st.cls === "late" ? "#FFF7F7" : "#fff" }}>
                 <Icon n="clock" s={15} style={{ color: "#707780" }} />
@@ -214,17 +214,17 @@ export function FunctionDetail({ f, isNew }) {
                 <DuePill dl={x} today={today} />
                 <CompleteButton dl={x} />
               </div>;
-            })}
+            })}</div>}
           </Field>
           <OwnershipChain f={f} admin={realAdmin} />
           <Field label={"Gap history (" + gs.length + ")"}>
-            {gs.length ? gs.map(g => <div key={g.id} className="gaprow" style={{ borderLeftColor: g.open ? (RISK_COLOR[g.severity] || "#DC2626") : "#16A34A" }}>
+            {gs.length ? <div className="fd-cards">{gs.map(g => <div key={g.id} className="gaprow" style={{ borderLeftColor: g.open ? (RISK_COLOR[g.severity] || "#DC2626") : "#16A34A" }}>
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                 <span className={"pill " + (g.open ? "late" : "ok")}>{g.status}</span>
                 {(g.opened || g.closed) && <span className="sub">{[g.opened && "Opened " + fmtDate(g.opened), g.closed && "closed " + fmtDate(g.closed)].filter(Boolean).join(" · ")}</span>}</div>
               <div style={{ fontSize: 13.5, fontWeight: 600, color: "#000E54", marginTop: 6 }}>{g.title}</div>
               {(g.open ? g.note : (g.closeNote || g.note)) && <p style={{ fontSize: 13, color: "#5b6373", marginTop: 4 }}>{g.open ? g.note : (g.closeNote || g.note)}</p>}
-            </div>) : <Empty title="No gaps recorded" sub={'Nothing has been logged against this function. Use "Log a gap" if you find something out of compliance.'} />}
+            </div>)}</div> : <Empty title="No gaps recorded" sub={'Nothing has been logged against this function. Use "Log a gap" if you find something out of compliance.'} />}
           </Field>
           <Field label="Syracuse University resource">
             {f.resourceUrl ? <>
