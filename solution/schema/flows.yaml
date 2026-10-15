@@ -19,6 +19,16 @@ adminWebRole: Administrators
 # enhanced data model (make.powerapps.com > Tables > Contact > Relationships).
 webRoleRelationship: powerpagecomponent_mspp_webrole_contact
 
+# How the matrix page calls each of its flows.
+#   powerpages  "When Power Pages calls a flow": added to the site under Set up >
+#               Cloud flows; the page calls /_api/cloudflow/v1.0/trigger/<id>.
+#   http        "When an HTTP request is received": the page calls the trigger's
+#               own URL (premium; anyone with the URL can start a run, and the
+#               flow's checks on the Portal Action row decide what it does).
+pageTriggers:
+  processPortalAction: http
+  addToCalendar: powerpages
+
 # CM - Sync directory from M365. schedule: true runs it weekly on weekDay at
 # hour:minute in timeZone (a Windows time zone name); it can also be started
 # by hand with Run either way. schedule: false makes it a by-hand flow only.

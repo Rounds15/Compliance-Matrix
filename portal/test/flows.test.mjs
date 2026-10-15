@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadFlows, runFlow, parseExpression, expressionsIn, dataverseConnector, usersConnector, outlookConnector } from "./flow-runner.mjs";
+import { loadFlows, runFlow, parseExpression, expressionsIn, dataverseConnector, usersConnector, outlookConnector, pageRequest } from "./flow-runner.mjs";
 import { dataverseTables, DV_IDS as G } from "./fixtures.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -200,7 +200,7 @@ function actionWorld(roles = []) {
   env.act = (row) => {
     env.dv.su_portalactions.push({ su_portalactionid: G(800 + env.dv.su_portalactions.length), _su_requestedby_value: G(903), su_reason: "", ...row });
     const id = env.dv.su_portalactions.at(-1).su_portalactionid;
-    const r = runFlow(FLOWS["CM - Process portal action"], { trigger: { body: { text: JSON.stringify({ actionId: id }) } }, ...env });
+    const r = runFlow(FLOWS["CM - Process portal action"], { trigger: pageRequest(FLOWS["CM - Process portal action"], { actionId: id }), ...env });
     return { ...r, reply: JSON.parse(r.response.body.result), row: env.dv.su_portalactions.find(a => a.su_portalactionid === id) };
   };
   return env;
@@ -216,7 +216,7 @@ test("Process portal action: a processed row is refused and stays as it was", ()
 
 test("Process portal action: an unknown ID is refused", () => {
   const env = actionWorld();
-  const r = runFlow(FLOWS["CM - Process portal action"], { trigger: { body: { text: JSON.stringify({ actionId: G(899) }) } }, ...env });
+  const r = runFlow(FLOWS["CM - Process portal action"], { trigger: pageRequest(FLOWS["CM - Process portal action"], { actionId: G(899) }), ...env });
   assert.deepEqual(JSON.parse(r.response.body.result), { ok: false, error: "That action does not exist." });
 });
 
@@ -358,7 +358,7 @@ function calWorld({ calendars } = {}) {
     const id = "cccccccc-0000-4000-8000-" + String(++n).padStart(12, "0");
     dv.su_portalactions.push({ su_portalactionid: id, su_name: "Add to calendar", su_action: 100000126, _su_requestedby_value: contact,
       su_reason: typeof request === "string" ? request : JSON.stringify(request), su_status: null, ...extra });
-    const r = runFlow(FLOWS["CM - Add to calendar"], { trigger: { body: { text: JSON.stringify({ actionId: id }) } }, ...env });
+    const r = runFlow(FLOWS["CM - Add to calendar"], { trigger: pageRequest(FLOWS["CM - Add to calendar"], { actionId: id }), ...env });
     return { ...r, reply: r.response && JSON.parse(r.response.body.result), row: dv.su_portalactions.find(x => x.su_portalactionid === id) };
   };
   return env;
@@ -449,4 +449,32 @@ test("add to calendar: an Outlook failure tells the person and the office, and f
   assert.deepEqual(r.reply, { ok: false, error: "The deadlines could not be added to your calendar. The compliance office has been told." });
   assert.equal(r.row.su_status, 100000132);
   assert.match(env.outlook.sent[0].subject, /CM - Add to calendar failed/);
+});
+
+test("CM - Process portal action is called at its own HTTP URL and answers any origin", () => {
+  const def = FLOWS["CM - Process portal action"];
+  const trig = Object.values(def.properties.definition.triggers)[0];
+  assert.deepEqual([trig.type, trig.kind, trig.inputs.method], ["Request", "Http", "POST"]);
+  const responses = [];
+  const walk = acts => Object.values(acts).forEach(a => {
+    if (a.type === "Response") responses.push(a);
+    [a.actions, a.else && a.else.actions, ...Object.values(a.cases || {}).map(c => c.actions), a.default && a.default.actions].filter(Boolean).forEach(walk);
+  });
+  walk(def.properties.definition.actions);
+  assert.equal(responses.length, 3, "done, refused and error");
+  for (const r of responses) {
+    assert.equal(r.kind, undefined, "a plain HTTP response, not a Power Pages one");
+    assert.equal(r.inputs.headers["Access-Control-Allow-Origin"], "*");
+  }
+  assert.ok(!JSON.stringify(def).includes("triggerBody()?['text']"), "reads the posted body, not a Power Pages input");
+});
+
+test("CM - Process portal action reads the request as text or as JSON; an empty one is refused", () => {
+  const def = FLOWS["CM - Process portal action"];
+  const env = actionWorld([]);
+  for (const trigger of [pageRequest(def, { actionId: G(899) }), pageRequest(def, { actionId: G(899) }, { asJson: true }), { body: "" }]) {
+    const r = runFlow(def, { trigger, ...env });
+    assert.equal(r.status, "Succeeded");
+    assert.deepEqual(JSON.parse(r.response.body.result), { ok: false, error: "That action does not exist." });
+  }
 });

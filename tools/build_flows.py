@@ -569,7 +569,7 @@ def process_portal_action(s: dict) -> dict:
                               "runAfter": {"Alert_the_office": ["Succeeded", "Failed"]}})),
             run_after={"Try": ["Failed", "TimedOut"]}),
     }
-    return definition("manual", trig, acts, f.used, s)
+    return page_trigger(s, "processPortalAction", definition("manual", trig, acts, f.used, s))
 
 
 # ---------------------------------------------------------------------------
@@ -669,6 +669,58 @@ def sync_directory(s: dict) -> dict:
     }
     name, trig = sync_trigger(s)
     return definition(name, trig, acts, f.used, s)
+
+
+# ---------------------------------------------------------------------------
+# how the page calls a flow (flows.yaml, pageTriggers)
+# ---------------------------------------------------------------------------
+PP_REQUEST = "json(triggerBody()?['text'])"
+# the body as the page sends it (text/plain, so the browser sends it without a
+# CORS preflight) or as JSON; either way read as JSON
+HTTP_REQUEST = "json(if(empty(string(triggerBody())), '{}', string(triggerBody())))"
+
+
+def http_trigger() -> dict:
+    return {"type": "Request", "kind": "Http", "inputs": {"method": "POST", "schema": {
+        "type": "object", "properties": {"actionId": {"type": "string"}}}}}
+
+
+def as_http(defn: dict) -> dict:
+    """The same flow behind "When an HTTP request is received": the trigger,
+    the request read from the body, and plain HTTP responses the page can
+    read from another origin."""
+    d = defn["properties"]["definition"]
+    d["triggers"] = {"manual": http_trigger()}
+
+    def walk(actions: dict):
+        for a in actions.values():
+            if a.get("type") == "Response":
+                a.pop("kind", None)
+                a["inputs"] = {"statusCode": a["inputs"]["statusCode"], "body": a["inputs"]["body"],
+                               "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}}
+            inputs = a.get("inputs")
+            if a.get("type") == "SetVariable" and isinstance(inputs, dict) and PP_REQUEST in str(inputs.get("value")):
+                inputs["value"] = inputs["value"].replace(PP_REQUEST, HTTP_REQUEST)
+            for key in ("actions",):
+                if key in a:
+                    walk(a[key])
+            if "else" in a:
+                walk(a["else"].get("actions", {}))
+            for c in (a.get("cases") or {}).values():
+                walk(c.get("actions", {}))
+            if "default" in a:
+                walk(a["default"].get("actions", {}))
+    walk(d["actions"])
+    if PP_REQUEST in str(d):
+        raise SystemExit("as_http: the flow still reads the Power Pages request")
+    return defn
+
+
+def page_trigger(s: dict, key: str, defn: dict) -> dict:
+    kind = (s.get("pageTriggers") or {}).get(key, "powerpages")
+    if kind not in ("powerpages", "http"):
+        raise SystemExit(f"flows.yaml: pageTriggers.{key} must be powerpages or http, not {kind}")
+    return as_http(defn) if kind == "http" else defn
 
 
 # ---------------------------------------------------------------------------
@@ -828,7 +880,7 @@ def add_to_calendar(s: dict) -> dict:
                               "runAfter": {"Alert_the_office": ["Succeeded", "Failed"]}})),
             run_after={"Try": ["Failed", "TimedOut"]}),
     }
-    return definition("manual", power_pages_trigger(), acts, f.used, s)
+    return page_trigger(s, "addToCalendar", definition("manual", power_pages_trigger(), acts, f.used, s))
 
 
 FLOWS = [

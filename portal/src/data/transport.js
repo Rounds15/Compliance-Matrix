@@ -111,11 +111,29 @@ export function flowUrl(v) {
   return s;
 }
 
-/* Call a flow that starts with "When Power Pages calls a flow" and has one
-   text input named `request`. The flow answers through "Return value(s) to
-   Power Pages" with one text output named `result`, holding JSON. */
+/* A flow's own HTTP URL ("When an HTTP request is received", in Power
+   Automate) rather than the site's /_api/cloudflow/ path. */
+export const isHttpFlow = url => /^https?:\/\//i.test(String(url || "")) && !/\/_api\/cloudflow\//i.test(String(url));
+
+/* Call a flow. Either it starts with "When Power Pages calls a flow" and has
+   one text input named `request`, and answers through "Return value(s) to
+   Power Pages" with one text output named `result` holding JSON; or it starts
+   with "When an HTTP request is received" at its own URL and answers with the
+   same {"result": "<json>"} body. The HTTP call goes to another origin, so it
+   carries no cookies and no site token, and is sent as text/plain so the
+   browser makes it without a CORS preflight. */
 export async function callFlow(url, request) {
   if (!url) throw new ApiError("This action needs a cloud flow that has not been configured on the site.", 0);
+  if (isHttpFlow(url)) {
+    let res;
+    try {
+      res = await fetch(url, { method: "POST", mode: "cors", credentials: "omit", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(request) });
+    } catch (e) {
+      throw new ApiError("The flow could not be reached at its HTTP URL. Check that the flow is on and that the site setting holds its HTTP POST URL.", 0);
+    }
+    if (!res.ok) throw await readError(res);
+    return parseFlowResult(await res.text());
+  }
   const payload = { eventData: JSON.stringify({ request: JSON.stringify(request) }) };
   const send = async token => fetch(url, {
     method: "POST",

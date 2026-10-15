@@ -36,20 +36,14 @@
       "triggers": {
         "manual": {
           "type": "Request",
-          "kind": "PowerPages",
+          "kind": "Http",
           "inputs": {
+            "method": "POST",
             "schema": {
               "type": "object",
-              "required": [
-                "text"
-              ],
               "properties": {
-                "text": {
-                  "title": "request",
-                  "type": "string",
-                  "x-ms-dynamically-added": true,
-                  "description": "The request, as JSON: {\"actionId\": \"<Portal Action ID>\"}",
-                  "x-ms-content-hint": "TEXT"
+                "actionId": {
+                  "type": "string"
                 }
               }
             }
@@ -93,7 +87,7 @@
               "type": "SetVariable",
               "inputs": {
                 "name": "ActionId",
-                "value": "@{coalesce(json(triggerBody()?['text'])?['actionId'], '')}"
+                "value": "@{coalesce(json(if(empty(string(triggerBody())), '{}', string(triggerBody())))?['actionId'], '')}"
               },
               "runAfter": {}
             },
@@ -1102,21 +1096,14 @@
             },
             "Reply_done": {
               "type": "Response",
-              "kind": "PowerPages",
               "inputs": {
                 "statusCode": 200,
                 "body": {
                   "result": "@{string(json('{\"ok\":true}'))}"
                 },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "result": {
-                      "title": "result",
-                      "type": "string",
-                      "x-ms-dynamically-added": true
-                    }
-                  }
+                "headers": {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*"
                 }
               },
               "runAfter": {
@@ -1170,21 +1157,14 @@
               },
               "Reply_refused": {
                 "type": "Response",
-                "kind": "PowerPages",
                 "inputs": {
                   "statusCode": 200,
                   "body": {
                     "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', variables('Error')))}"
                   },
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "result": {
-                        "title": "result",
-                        "type": "string",
-                        "x-ms-dynamically-added": true
-                      }
-                    }
+                  "headers": {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
                   }
                 },
                 "runAfter": {
@@ -1226,21 +1206,14 @@
             },
             "Reply_error": {
               "type": "Response",
-              "kind": "PowerPages",
               "inputs": {
                 "statusCode": 200,
                 "body": {
                   "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', 'The change could not be saved. The compliance office has been told.'))}"
                 },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "result": {
-                      "title": "result",
-                      "type": "string",
-                      "x-ms-dynamically-added": true
-                    }
-                  }
+                "headers": {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*"
                 }
               },
               "runAfter": {

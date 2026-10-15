@@ -34,6 +34,17 @@ export function loadFlows() {
   return out;
 }
 
+/* The trigger outputs a page request arrives as: "When Power Pages calls a
+   flow" gets {text: "<json>"}; "When an HTTP request is received" gets the
+   body the page posts, a JSON string sent as text/plain (asJson: the parsed
+   object, as an application/json caller sends it). */
+export function pageRequest(def, request, { asJson = false } = {}) {
+  const trig = Object.values(def.properties.definition.triggers)[0];
+  if (trig.kind === "PowerPages") return { body: { text: JSON.stringify(request) } };
+  if (trig.kind === "Http") return { body: asJson ? request : JSON.stringify(request) };
+  throw new Error("not a page-called flow: " + trig.kind);
+}
+
 class FlowError extends Error {}
 class ConnectorError extends Error { constructor(status, message) { super(message); this.status = status; } }
 /* a value an expression cannot use (bad JSON, a bad date): the action fails, as in Power Automate */
@@ -352,7 +363,7 @@ export function runFlow(def, { trigger = {}, dataverse, users, outlook, workflow
         }
         case "Terminate": throw new Terminate(a.inputs.runStatus, a.inputs.runError && a.inputs.runError.message);
         case "Response": {
-          const r = { statusCode: value(a.inputs.statusCode), body: value(a.inputs.body) };
+          const r = { statusCode: value(a.inputs.statusCode), body: value(a.inputs.body), headers: value(a.inputs.headers || {}) };
           if (!run.response) run.response = r;
           return set("Succeeded");
         }

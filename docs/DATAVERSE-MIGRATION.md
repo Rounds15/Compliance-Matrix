@@ -240,12 +240,15 @@ The flows import turned off; they need connections first.
    still has to be on to run). Turning one on fails if its
    connection references are empty or the data loss prevention policy splits
    its connectors.
-5. **Add the action flow to the site.** Design Studio > Set up > **Cloud
-   flows** > + Add cloud flow > **CM - Process portal action**; roles
-   Compliance Matrix Testers and Administrators. Copy the
-   URL it shows (`/_api/cloudflow/v1.0/trigger/<id>`) into the site setting
-   **`ComplianceMatrix/Flow/Action`** (create the setting if it is not
-   there).
+5. **Give the page the action flow's URL.** CM - Process portal action
+   starts with **When an HTTP request is received** (`pageTriggers` in
+   `solution/schema/flows.yaml`; section 8, "Its trigger"). Open it in Power
+   Automate > Edit > the trigger: **Who can trigger the flow** = Anyone, then
+   Save; copy the **HTTP URL** it now shows (it ends in `&sig=...`) into the
+   site setting **`ComplianceMatrix/Flow/Action`** (create the setting if it
+   is not there). It is not added under Set up > Cloud flows. If the site has
+   an `HTTP/Content-Security-Policy` setting with `connect-src`, add the
+   URL's host to it.
 6. **Clear config** on `/_services/about`.
 7. **Link the sign-ins made so far:** Cloud flows > CM - Link existing
    sign-ins > **Run**. With an empty directory it links nobody and sends a
@@ -1179,8 +1182,12 @@ you than assume it. Delete the test rows afterwards.
 **What the flow does.** CM - Process portal action is in the solution (section
 2, After the import); these steps describe it, so you can follow a run.
 
-1. Trigger: **Power Pages > When Power Pages calls a flow**, one Text input
-   `request`. The page sends `{"actionId":"<the row's ID>"}` in it.
+1. Trigger: **When an HTTP request is received** (POST). The page sends
+   `{"actionId":"<the row's ID>"}` as the body, as text/plain, to the URL in
+   `ComplianceMatrix/Flow/Action`, without cookies or the site's token; the
+   flow reads the body as JSON either way. Its replies are plain HTTP
+   responses, `{"result":"<json>"}`, with `Access-Control-Allow-Origin: *`
+   so the page can read them from the site's own address.
 2. **Get a row by ID**, Portal Actions, that ID. None: Fail with "That action
    does not exist." The form leaves Status empty: if Status is Done or
    Failed, Fail with "That action has already been processed." (the row is
@@ -1242,6 +1249,35 @@ The portal's tests run this flow's generated definition (the same file the
 solution imports) through `portal/test/flow-runner.mjs`, so the end-to-end
 tests drive the real steps. What they cannot check is how Power Automate
 reads the definition; the import and the first runs do that.
+
+### Its trigger
+
+CM - Process portal action starts with **When an HTTP request is received**
+rather than **When Power Pages calls a flow**: after a solution re-import
+the site's Power Pages trigger for it kept answering 500, and a site
+restart did not fix it. What that changes:
+
+- **Licence.** The HTTP trigger is premium: the flow's owner needs a Power
+  Automate Premium (or per-flow) licence, or the flow is turned off.
+- **Who can call it.** Its URL carries its own key (`sig=`), and the page
+  must know it, so anyone who can open the matrix page can read it and start
+  a run. The flow does not trust the caller for anything: it acts only on a
+  Portal Action row made through the CM Portal Action form (Requested By set
+  by the server), only once per row, and only as that row's requester is
+  allowed. A crafted call can start runs but cannot act for anyone. To
+  change the key, regenerate the trigger's URL in Power Automate and update
+  the site setting.
+- **The URL.** It is the flow's, not the site's, so it is the same on every
+  page and does not change with a site reset. A re-import can give the flow
+  a new URL; check the setting after one.
+
+**Going back** to the Power Pages trigger: set
+`pageTriggers: processPortalAction: powerpages` in
+`solution/schema/flows.yaml`, rebuild and re-import, add the flow under Set
+up > Cloud flows (Testers and Administrators) and put its
+`/_api/cloudflow/v1.0/trigger/<id>` URL in the setting. The page uses
+whichever kind of URL the setting holds. CM - Add to calendar can be
+switched to the HTTP trigger the same way (`addToCalendar: http`).
 
 ### Add to calendar (CM - Add to calendar)
 
@@ -1375,9 +1411,10 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
 5. Build the five dataflows (section 3), run them in order, and reconcile
    against the baseline counts.
 6. Check what External Identity Username holds (section 6). Set the
-   connection references, turn the six flows on, add the action and calendar
-   flows to the site and set `ComplianceMatrix/Flow/Action` and
-   `ComplianceMatrix/Flow/Calendar` (section 2, After the import).
+   connection references, turn the six flows on, set
+   `ComplianceMatrix/Flow/Action` to the action flow's HTTP URL, add the
+   calendar flow to the site and set `ComplianceMatrix/Flow/Calendar`
+   (section 2, After the import).
    Set up the CM Portal Action form and its two pages, and run the spoof test
    (section 8).
 7. Create the Testers web role; set the page's permissions to Testers and

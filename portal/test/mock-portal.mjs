@@ -15,6 +15,9 @@
      GET  /cm-action-done/?id=     with the new row's ID
      POST /_api/cloudflow/v1.0/trigger/action
      POST /_api/cloudflow/v1.0/trigger/calendar  CM - Add to calendar, run as generated
+     POST /flow-http/<action|calendar>?sig=...   the same flows behind an HTTP
+                                   trigger (pageTriggers: http), called at
+                                   their own URL with no cookies or token
                                    CM - Process portal action, the Dataverse
                                    flow that writes who-did-it and the archive
                                    (docs/DATAVERSE-MIGRATION.md, section 8)
@@ -161,6 +164,21 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     const r = runFlow(FLOWS[flowName], { trigger: { body: { text: requestText } }, dataverse, users: usersConnector([]), outlook });
     if (!r.response) throw new Error(flowName + " ended without replying: " + r.status);
     return r.response.body;
+  }
+  const FLOW_OF = { action: "CM - Process portal action", calendar: "CM - Add to calendar" };
+  const httpFlow = name => FLOWS[FLOW_OF[name]] && Object.values(FLOWS[FLOW_OF[name]].properties.definition.triggers)[0].kind === "Http";
+  /* a flow behind "When an HTTP request is received": the body as posted
+     (text/plain), the reply and headers its Response action gives */
+  async function httpTriggered(name, req, res, url) {
+    if (url.searchParams.get("sig") !== "test-signature") return fail(res, 401, "The request must be authenticated.");
+    if (!httpFlow(name)) return fail(res, 404, "This flow does not have an HTTP trigger.");
+    const raw = await body(req);
+    log.push({ flow: name, http: true, contentType: req.headers["content-type"], cookie: !!req.headers.cookie,
+      token: !!req.headers["__requestverificationtoken"], request: (() => { try { return JSON.parse(raw); } catch (e) { return raw; } })() });
+    const r = runFlow(FLOWS[FLOW_OF[name]], { trigger: { body: raw }, dataverse, users: usersConnector([]), outlook });
+    if (!r.response) return fail(res, 502, FLOW_OF[name] + " ended without replying: " + r.status);
+    res.writeHead(r.response.statusCode || 200, { ...(r.response.headers || {}), "Content-Type": "application/json" });
+    return res.end(JSON.stringify(r.response.body));
   }
 
   async function flow(name, req, res) {
@@ -432,6 +450,8 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         if (req.headers["__requestverificationtoken"] !== TOKEN) return fail(res, 403, "Missing or invalid anti-forgery token");
         return flow(fm[1], req, res);
       }
+      const hm = /^\/flow-http\/([a-z]+)$/.exec(url.pathname);
+      if (hm && req.method === "POST") return httpTriggered(hm[1], req, res, url);
       if (url.pathname.startsWith("/_api/")) return webApi(req, res, url);
       fail(res, 404, "Not found: " + url.pathname);
     } catch (e) {
@@ -439,6 +459,9 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     }
   });
   await new Promise(r => server.listen(0, "127.0.0.1", r));
+  /* a flow behind an HTTP trigger is called at its own absolute URL */
+  for (const [name, key] of [["action", "ComplianceMatrix/Flow/Action"], ["calendar", "ComplianceMatrix/Flow/Calendar"]])
+    if (httpFlow(name) && !(key in extra)) settings[key] = `http://127.0.0.1:${server.address().port}/flow-http/${name}?api-version=2016-06-01&sig=test-signature`;
   const { port } = server.address();
   return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, emails: outlook.sent, events: outlook.events, close: () => new Promise(r => server.close(r)) };
 }

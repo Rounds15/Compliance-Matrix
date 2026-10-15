@@ -687,8 +687,13 @@ await session("Dataverse · the browser cannot write the archive or who did some
     const tok = (await (await fetch("/_layout/tokenhtml")).text()).match(/value="([^"]+)"/)[1];
     const api = (m, path, body) => fetch("/_api/" + path, { method: m, headers: { "Content-Type": "application/json", __RequestVerificationToken: tok }, body: body && JSON.stringify(body) })
       .then(async x => ({ status: x.status, id: (x.headers.get("OData-EntityId") || "").match(/\(([0-9a-f-]{36})\)/)?.[1] }));
-    const flow = id => fetch("/_api/cloudflow/v1.0/trigger/action", { method: "POST", headers: { "Content-Type": "application/json", __RequestVerificationToken: tok },
-      body: JSON.stringify({ eventData: JSON.stringify({ request: JSON.stringify({ actionId: id }) }) }) }).then(x => x.json()).then(j => JSON.parse(j.result));
+    /* the action flow at the URL the page is given: anyone who can read the page can
+       call it directly, with no cookies, so its checks must hold on their own */
+    const flowAt = document.getElementById("cm-root").dataset.flowAction;
+    const flow = id => (/^https?:/.test(flowAt)
+      ? fetch(flowAt, { method: "POST", credentials: "omit", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ actionId: id }) })
+      : fetch(flowAt, { method: "POST", headers: { "Content-Type": "application/json", __RequestVerificationToken: tok },
+        body: JSON.stringify({ eventData: JSON.stringify({ request: JSON.stringify({ actionId: id }) }) }) })).then(x => x.json()).then(j => JSON.parse(j.result));
     /* a hand-made postback to the basic form, as a crafted request would send it:
        control names for the form's fields, plus anything extra the attacker adds */
     const P = "ctl00$ContentContainer$EntityFormControl$EntityFormView$";
@@ -734,6 +739,7 @@ await session("Dataverse · the browser cannot write the archive or who did some
   assert.equal(r.relabelled.ok, false, "naming one of their own functions does not let them act on another's deadline");
   assert.equal(r.unlabelled.ok, false, "the ownership check uses the deadline's own function");
   assert.equal(r.own.ok, true, "their own deadline goes through");
+  assert.ok(portal.log.some(x => x.flow === "action" && x.http), "the action flow is called at its HTTP URL");
   assert.equal(r.replay.ok, false, "an action runs once");
   const dl = portal.dv.su_compliancedeadlines.find(d => d.su_compliancedeadlineid === G(401));
   assert.equal(dl._su_completedby_value, G(103), "Completed By is the person behind the signed-in contact");
@@ -825,6 +831,9 @@ await session("Dataverse · an administrator completes any function's deadline",
   const dl = portal.dv.su_compliancedeadlines.find(r => r.su_compliancedeadlineid === G(402));
   assert.equal(dl.su_completedreason, "Checked by the compliance office.");
   assert.equal(dl._su_completedby_value, G(101), "recorded as Camila, by the flow");
+  const call = portal.log.filter(x => x.flow === "action").at(-1);
+  assert.deepEqual([call.http, call.contentType, call.cookie, call.token], [true, "text/plain", false, false],
+    "the page calls the flow's own HTTP URL, as text/plain, with no cookie and no site token");
 });
 
 /* a Support save whose create Dataverse refuses: the error is shown and

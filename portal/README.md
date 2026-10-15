@@ -214,7 +214,7 @@ for SharePoint, the flow URLs.
 | `ComplianceMatrix/Flow/Write` | … for **CM - Write (members)** | |
 | `ComplianceMatrix/Flow/AdminWrite` | … for **CM - Write (administrators)** | |
 | `ComplianceMatrix/Flow/FindPerson` | … for **CM - Find person** | Entra lookup hidden |
-| `ComplianceMatrix/Flow/Action` | Dataverse: URL Power Pages shows for **CM - Process portal action** | completions, closures, flags and deletes cannot be saved |
+| `ComplianceMatrix/Flow/Action` | Dataverse: the **HTTP URL** of **CM - Process portal action**'s trigger (or its `/_api/cloudflow/...` URL if it uses the Power Pages trigger) | completions, closures, flags and deletes cannot be saved |
 | `ComplianceMatrix/Flow/Calendar` | Dataverse: URL Power Pages shows for **CM - Add to calendar** | the calendar buttons download a calendar file instead of sending Outlook invitations |
 | `ComplianceMatrix/AdminWebRole` | web role name, matched exactly | `Administrators` |
 | `ComplianceMatrix/CacheMinutes` | how long a browser reuses what it read | `5` |
@@ -241,9 +241,8 @@ The full guide, including the SharePoint-to-Dataverse load, is
    dataflows (section 3 of the guide). SharePoint stays the system of record
    until cutover; a refresh makes Dataverse match it again.
 2. Build **CM - Link directory to contact** and **CM - Process portal action**
-   (sections 6 and 8), add the action flow under **Set up › Cloud flows** for
-   the Testers and Administrators roles, and paste its URL into
-   `ComplianceMatrix/Flow/Action`.
+   (sections 6 and 8), and paste the action flow's HTTP trigger URL into
+   `ComplianceMatrix/Flow/Action` (section 8, "Its trigger").
 3. Add the web roles, table permissions, column permissions and
    `Webapi/<table>/enable` and `/fields` site settings in section 5. Do not
    enable the Web API on `su_archive`.
