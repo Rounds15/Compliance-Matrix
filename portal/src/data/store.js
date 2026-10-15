@@ -104,6 +104,10 @@ export function useStore(cfg) {
     return ds.me;
   }, [ds, viewAs, cfg]);
   const adminView = cfg.isAdmin && viewAs.mode === "Admin";
+  /* an administrator (the administrator web role) sees and opens everything
+     in Admin view and User view. View as specific user stays a preview of
+     what that person sees. */
+  const fullAccess = cfg.isAdmin && viewAs.mode !== "AsUser";
 
   const reload = useCallback(async tables => {
     const part = await adapter.load(tables, baseCtx);
@@ -227,6 +231,6 @@ export function useStore(cfg) {
 
   return {
     cfg, adapter, today, status, error, ds, loadedAt, busy, toast, flash,
-    viewAs, setViewAs, actingPerson, adminView, realAdmin: cfg.isAdmin, actions, retry: () => loadAll()
+    viewAs, setViewAs, actingPerson, adminView, fullAccess, realAdmin: cfg.isAdmin, actions, retry: () => loadAll()
   };
 }

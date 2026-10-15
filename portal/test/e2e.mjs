@@ -89,10 +89,13 @@ await session("SharePoint · administrator · header, view modes, every write", 
   // Home figures are the viewer's own (Camila: function 201 only)
   assert.equal(await fig(0), "1"); assert.equal(await fig(1), "1");
   assert.match(await page.locator(".hm-asof").innerText(), /^As of [A-Z][a-z]+ \d{1,2}, \d{4}\nFY\d\d Q[1-4]$/);
-  assert.equal(await text(page.locator(".hm-card .hm-cm").nth(3)), "Restricted");
+  assert.equal(await text(page.locator(".hm-card .hm-cm").nth(3)), "Administrator", "an administrator in User view");
 
-  // Risk Dashboard is restricted outside Admin view; Admin view opens it
+  // Risk Dashboard opens for an administrator in User view and Admin view;
+  // View as specific user previews that person, who cannot open it
   await go("#/risk");
+  await page.locator("h1", { hasText: "Compliance Risk Dashboard" }).waitFor();
+  await view("p:103");
   await page.locator("text=Administrator access required").waitFor();
   await view("Admin");
   await page.locator("h1", { hasText: "Compliance Risk Dashboard" }).waitFor();
@@ -355,8 +358,12 @@ await session("SharePoint · owner · own scope, member flow only, admin UI abse
   await go("#/reporting");
   await page.locator("text=Administrator access required").waitFor();
 
+  await go("#/functions/203");
+  await page.waitForSelector("h1:has-text('HIPAA')");
+  assert.equal(await page.locator(".fd-tags .risk").count(), 0, "not Dwight's function: no rating");
   await go("#/functions/201");
   await page.waitForSelector("h1:has-text('Clery Act')");
+  assert.equal(await page.locator(".fd-tags .risk").count(), 1, "his own function: the rating");
   assert.equal(await btn("Edit this record").count(), 0);
   assert.equal(await btn("Delete this function").count(), 0);
   assert.equal(await btn("Manage people").count(), 0);
@@ -791,28 +798,84 @@ await session("A write the backend rejects is reported, and nothing changes", { 
   assert.equal(await page.locator(".cm-toast.err").count(), 1);
 });
 
-/* the Deadlines page: an administrator in User view sees their own deadlines
-   until they turn on Show all deadlines; Admin view shows them all anyway */
+/* the Deadlines page: an administrator in User view sees My deadlines until
+   they pick All deadlines; Admin view shows them all anyway, and View as
+   specific user shows what that person sees */
 await session("Dataverse · an administrator can switch the Deadlines page to every deadline", { backend: "dataverse", admin: true }, async ({ page, go, btn, view }) => {
   await go("#/deadlines");
   await btn(/^List$/).click();
   await page.selectOption(".fbar select[aria-label=Scope]", "all");
   const names = async () => (await page.locator(".dl-table tbody tr .fname").allTextContents()).sort();
-  const sw = page.locator(".dl-all input");
-  assert.equal(await sw.isChecked(), false, "off by default");
+  const mine = page.locator(".dl-all button", { hasText: "My deadlines" });
+  const all = page.locator(".dl-all button", { hasText: "All deadlines" });
+  assert.equal(await mine.getAttribute("aria-pressed"), "true", "My deadlines by default");
+  assert.equal(await all.getAttribute("aria-pressed"), "false");
   assert.deepEqual(await names(), ["Clery Act Annual Security Report"], "Camila's own function only");
   assert.match(await page.locator(".ph").innerText(), /functions you are in the Accountability Structure for/);
-  await sw.check();
+  await all.click();
+  assert.equal(await all.getAttribute("aria-pressed"), "true");
   assert.deepEqual(await names(), ["Clery Act Annual Security Report", "Form I-9 Employment Verification"], "every deadline in the matrix");
   assert.match(await page.locator(".ph").innerText(), /Every recurring and one-off due date in the matrix/);
   await btn(/^Calendar$/).click();
   assert.ok(await page.locator(".calgrid").isVisible(), "the calendar follows the same switch");
+  await mine.click();
+  await btn(/^List$/).click();
+  assert.deepEqual(await names(), ["Clery Act Annual Security Report"], "back to My deadlines");
   await view("Admin");
   assert.equal(await page.locator(".dl-all").count(), 0, "Admin view already shows every deadline");
+  await view("p:" + G(103));
+  assert.equal(await page.locator(".dl-all").count(), 0, "View as specific user previews that person");
   await view("User");
   await go("#/");
   await go("#/deadlines");
-  assert.equal(await page.locator(".dl-all input").isChecked(), false, "off again on the next visit");
+  assert.equal(await page.locator(".dl-all button", { hasText: "My deadlines" }).getAttribute("aria-pressed"), "true", "My deadlines again on the next visit");
+});
+
+/* the admin audit: an administrator in the default User view, on functions
+   they are not in the Accountability Structure for, sees and does what
+   Admin view allows; View as specific user still previews that person */
+await session("Dataverse · an administrator has full access in User view", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn, modal, view }) => {
+  assert.equal(await page.locator(".util-role select").inputValue(), "User");
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.equal(await page.locator(".fd-tags .risk").count(), 1, "the risk rating on a function Camila does not own");
+  assert.equal(await btn("Edit this record").count(), 1);
+  assert.equal(await btn("Delete this function").count(), 1);
+
+  // every gap, on any function, and close one on a function she does not own
+  await go("#/gaps");
+  await page.locator("h1", { hasText: "Gap Tracker" }).waitFor();
+  assert.match(await page.locator(".ph").innerText(), /Every open compliance gap across the institution/);
+  const total = portal.dv.su_compliancegaps.length;
+  await btn(/^Closed \(/).click();
+  const closedN = await page.locator(".gcard2").count();
+  await btn(/^Open \(/).click();
+  assert.equal(await page.locator(".gcard2").count() + closedN, total, "every gap in the matrix");
+  const card = page.locator(".gcard2", { hasText: "I-9 Section 2" });
+  await card.locator("button", { hasText: "Close" }).click();
+  await modal().locator("textarea").fill("Closed by the compliance office.");
+  await btn("Close gap", modal()).click();
+  await toast(/Gap closed/);
+
+  // Risk Dashboard, Reporting and Flagged Items open
+  await go("#/risk");
+  await page.locator("h1", { hasText: "Compliance Risk Dashboard" }).waitFor();
+  await go("#/reporting");
+  await page.locator("h1", { hasText: "Reporting" }).waitFor();
+  await go("#/flags");
+  await page.locator("h1", { hasText: "Flagged for Review" }).waitFor();
+  assert.equal(await page.locator(".ftr a", { hasText: "Risk Dashboard" }).count(), 1, "the footer links to it");
+
+  // View as specific user previews that person's scope
+  await view("p:" + G(103));
+  await go("#/functions/" + G(203));
+  await page.waitForSelector("h1:has-text('HIPAA')");
+  assert.equal(await page.locator(".fd-tags .risk").count(), 0, "not Dwight's function: no rating in the preview");
+  await go("#/gaps");
+  assert.match(await page.locator(".ph").innerText(), /functions you are in the Accountability Structure for/);
+  await go("#/risk");
+  await page.locator("text=Administrator access required").waitFor();
+  await view("User");
 });
 
 /* an administrator marks complete a deadline on a function they are not an

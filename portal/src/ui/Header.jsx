@@ -22,16 +22,16 @@ export const RISK = [
   { screen: "Flagged Items", title: "Flagged Items", desc: "Functions flagged for compliance review", icon: "flag" }
 ];
 
-/* open gaps, scoped like the Gap Tracker: all of them in Admin view,
-   otherwise those on the viewer's own functions */
+/* open gaps, scoped like the Gap Tracker: all of them for an administrator
+   (Admin view or User view), otherwise those on the viewer's own functions */
 export function useVisibleGaps() {
-  const { ds, adminView, actingPerson } = useApp();
+  const { ds, fullAccess, actingPerson } = useApp();
   return useMemo(() => {
     if (!ds) return [];
-    if (adminView) return ds.gaps;
+    if (fullAccess) return ds.gaps;
     const mine = new Set(functionsFor(actingPerson, ds.fns).map(f => String(f.id)));
     return ds.gaps.filter(g => mine.has(String(g.functionId)));
-  }, [ds, adminView, actingPerson]);
+  }, [ds, fullAccess, actingPerson]);
 }
 
 function Dropdown({ label, icon, items, on, go, badges }) {

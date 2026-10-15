@@ -45,7 +45,7 @@ on presentation. A few things are this build's own, noted below.
 | Compliance Functions | Every risk area listed, even an empty one; the owner shown is the first Compliance Owner (+n); administrators add functions and manage risk areas and domains | Facet rail (risk area and domain, rating, record status), lenses (Functions, Risk Areas, Domains, Statutes), filter chips, accordion groups, cards on a phone |
 | Function Detail | Rating shown only in Admin view or to the function's own people; Edit, Delete and Manage people for administrators; Flag, Log a gap, See all deadlines, Add to my calendar, Mark complete for this cycle; the app's validation and delete wording | Breadcrumb with Previous and Next, navy header, inline flag and gap panels, sections, rail with status, actions, legal questions, related |
 | Accountability Structure | The data source's roles (Support where the lists have it; General Counsel per function on SharePoint, per risk area on Dataverse); Primary and Advisory sub-roles | The ownership chain: one container per role, Manage people, a person picker that also searches the university directory |
-| Deadlines | Admin view sees every deadline, everyone else their own; Open, Overdue only, Completed, All; complete or reverse with a reason | Month calendar with names in the day cells, list view, pills, phone cards |
+| Deadlines | Admin view sees every deadline, everyone else their own, and administrators in User view switch between My deadlines and All deadlines; Open, Overdue only, Completed, All; complete or reverse with a reason | Month calendar with names in the day cells, list view, pills, phone cards |
 | Directory | Role order (Executive, Compliance, Unit, Counsel, Support); a person who owns functions cannot be removed until reassigned; reassign moves chosen functions without duplicating a role | Filters, table or cards, profile rail with the portfolio |
 | Executive Team | Derived from the Executive Owner role, sorted by last name or portfolio size; All functions and Due 90d | Cards and the portfolio dialog |
 | Gap Tracker | Scoped like the app; Open, Closed, Not rated, Avg days open | Stat row, open gaps by risk area, gap cards, close dialog |
@@ -73,10 +73,11 @@ on presentation. A few things are this build's own, noted below.
 | Screen or action | Who |
 |---|---|
 | Home, Definitions, Compliance Functions, Function Detail, Deadlines, Directory, Executive Team | everyone |
-| Gap Tracker | everyone; Admin view sees every gap, everyone else the gaps on their own functions |
-| Deadlines | Admin view sees every deadline; User view and View as, their own functions' only |
-| Risk rating on Function Detail | Admin view, or an owner of the function |
-| Compliance Risk Dashboard, Reporting | administrators in Admin view (see *Open questions*) |
+| Gap Tracker | everyone; administrators see every gap, everyone else the gaps on their own functions |
+| Deadlines | Admin view sees every deadline; administrators in User view, their own functions' with a My deadlines / All deadlines switch (My deadlines by default); everyone else, their own functions' only |
+| Every deadline of a function on Function Detail, to complete or reverse | administrators, and the function's own people |
+| Risk rating on Function Detail | administrators, or an owner of the function |
+| Compliance Risk Dashboard, Reporting | administrators (see *Open questions*) |
 | Flagged for Review | administrators; everyone else gets No Access |
 | Edit, create, delete a function; Manage people; the risk area and domain manager; add, edit, reassign and remove people in the directory | administrators |
 | Flag, log a gap, close a gap, complete or reverse a deadline | everyone, on what they can see |
@@ -84,6 +85,12 @@ on presentation. A few things are this build's own, noted below.
 "Own functions" means every function where the person appears anywhere in the
 Accountability Structure, General Counsel and Support included, as the app's
 `colMyFunctions` does. Home's figures are always the viewer's own.
+
+"Administrators" means holders of the administrator web role, in Admin view
+or User view. **View as specific user** is a preview: it shows what that
+person sees, so the rows above apply as for that person, except that the
+administrator's own buttons (Edit, Delete, Manage people, Clear flag) stay,
+since changes are saved as the administrator.
 
 ### What the page deliberately does differently from the app
 
@@ -109,7 +116,7 @@ These are leftovers or known issues in the canvas app (parity spec section 3):
 Not decided here. Until they are, the page does this:
 
 1. **Access to Risk and Reporting.** Risk Dashboard and Reporting open only
-   for administrators in Admin view, matching the Home card and the No Access
+   for administrators (Admin view or User view), matching the Home card and the No Access
    copy; the Risk and Reporting menu shows all four items to everyone, and
    Gap Tracker stays open to everyone with its scoping.
 2. **Absolute wording** ("every obligation", "Every open compliance gap"):

@@ -1,7 +1,8 @@
 /* Gap Tracker, in the design's layout: stat row, open gaps by risk area,
    tabs, severity filter and gap cards, with a dialog to close a gap. Scope
-   and figures follow the canvas app (scr_GapTracker): Admin view sees every
-   gap, everyone else the gaps on their own functions; the stats are Open,
+   and figures follow the canvas app (scr_GapTracker): an administrator sees
+   every gap (outside View as specific user), everyone else the gaps on their
+   own functions; the stats are Open,
    Closed, Not Rated and Avg days open. */
 
 import React, { useMemo, useState } from "react";
@@ -13,7 +14,7 @@ import { RISK_COLOR } from "../lib/risk.js";
 const SEVS = [["All", "All severities"], ["High", "High"], ["Moderate", "Moderate"], ["Low", "Low"], ["Unrated", "Not rated"]];
 
 export function GapTracker() {
-  const { ds, today, actions, openFn, adminView, realAdmin, go } = useApp();
+  const { ds, today, actions, openFn, fullAccess, realAdmin, go } = useApp();
   const gaps = useVisibleGaps();
   const [tab, setTab] = useState("open");
   const [sev, setSev] = useState("All");
@@ -34,7 +35,7 @@ export function GapTracker() {
 
   return <div className="page wrap">
     <PageHead eyebrow="Risk and Reporting" title="Gap Tracker"
-      sub={(adminView ? "Every open compliance gap across the institution, tied to the function it came from." : "The compliance gaps on the functions you are in the Accountability Structure for.")
+      sub={(fullAccess ? "Every open compliance gap across the institution, tied to the function it came from." : "The compliance gaps on the functions you are in the Accountability Structure for.")
         + " Close a gap with documented notes and the count badge updates everywhere it appears."}
       right={realAdmin && ds.flags.length > 0 && <button className="button button-secondary-outline button-sm" onClick={() => go("Flagged Items")}><Icon n="flag" s={14} />{ds.flags.length} flagged for review</button>} />
     <div className="cm-grid g-stat" style={{ marginBottom: 8 }}>

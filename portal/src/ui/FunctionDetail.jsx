@@ -2,12 +2,12 @@
    header, inline flag and gap panels, the record in sections, and a rail with
    status, actions, counsel and related functions. What it shows and who may
    do what follow the canvas app (scr_FunctionDetail): the risk rating is
-   shown in Admin view or to the function's own people; editing, creating and
-   deleting are administrator actions; the deadlines listed are the ones the
-   viewer's mode shows, except that an administrator (the administrator web
-   role) sees every deadline of the function in any mode, so they can mark
-   any of them complete; "Add to my calendar" and "Mark complete for this
-   cycle" work on those. */
+   shown to the function's own people and to administrators (the
+   administrator web role) outside View as specific user; editing,
+   creating, deleting and clearing a flag are administrator actions; the
+   deadlines listed are the viewer's own, and every deadline of the function
+   for an administrator, so they can mark any of them complete; "Add to my
+   calendar" and "Mark complete for this cycle" work on those. */
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Icon, Avatar, Risk, Field, Empty, Modal, ModalHead, Busy, DuePill, dueState, bare, useApp } from "./parts.jsx";
@@ -67,7 +67,7 @@ function EditForm({ f, d, set, own, setOwn }) {
 }
 
 export function FunctionDetail({ f, isNew }) {
-  const { ds, adapter, actions, flash, realAdmin, adminView, actingPerson, go, openFn, today } = useApp();
+  const { ds, adapter, actions, flash, realAdmin, fullAccess, actingPerson, go, openFn, today } = useApp();
   const visible = useVisibleDeadlines();
   const [mode, setMode] = useState(isNew ? "edit" : "read");
   const [d, setD] = useState(() => draftOf(f));
@@ -82,12 +82,12 @@ export function FunctionDetail({ f, isNew }) {
   const sorted = useMemo(() => [...ds.fns].sort((a, b) => a.name.localeCompare(b.name)), [ds]);
   const idx = f ? sorted.indexOf(f) : -1;
   const owns = !!f && functionsFor(actingPerson, ds.fns).includes(f);
-  const showRisk = adminView || owns || isNew;
+  const showRisk = fullAccess || owns || isNew;
   const same = x => f && String(x.functionId) === String(f.id);
   const flag = f ? ds.flags.find(same) : null;
   const gs = f ? ds.gaps.filter(same).sort((a, b) => (b.opened || 0) - (a.opened || 0)) : [];
   const openGaps = gs.filter(g => g.open);
-  const dls = f ? (realAdmin ? ds.allDeadlines : visible).filter(same).filter(x => x.due).sort((a, b) => a.due - b.due) : [];
+  const dls = f ? (fullAccess ? ds.allDeadlines : visible).filter(same).filter(x => x.due).sort((a, b) => a.due - b.due) : [];
   const nextDue = dls.find(x => x.status !== "Completed");
   const related = f ? ds.fns.filter(x => x !== f && String(x.topicId) === String(f.topicId))
     .sort((a, b) => riskRank(a.risk) - riskRank(b.risk) || a.name.localeCompare(b.name)).slice(0, 4) : [];

@@ -103,7 +103,7 @@ const isThisPage = url => {
 /* The design's navy footer, carrying the matrix's own navigation, the
    site's pages (its web link set) and where the data comes from. */
 function Footer({ go, store, onSearch }) {
-  const { cfg, adapter, loadedAt, actions, realAdmin, adminView } = store;
+  const { cfg, adapter, loadedAt, actions, realAdmin, fullAccess } = store;
   const L = cfg.links;
   const link = (s, label) => <a key={s} href={"#/" + (PATHS[s] ?? "")} onClick={e => { e.preventDefault(); go(s); }}>{label || s}</a>;
   const site = cfg.siteLinks.filter(l => l.url !== "/" && l.url !== L.siteHome && !isThisPage(l.url));
@@ -117,7 +117,7 @@ function Footer({ go, store, onSearch }) {
       <div><div className="fh">Browse</div>
         {link("Functions", "Compliance Functions")}{link("Deadlines")}{link("Directory")}{link("Executive Team")}{link("Definitions")}</div>
       <div><div className="fh">Risk and Reporting</div>
-        {link("Gap Tracker")}{adminView && link("Risk Dashboard")}{adminView && link("Reporting")}{realAdmin && link("Flagged Items")}</div>
+        {link("Gap Tracker")}{fullAccess && link("Risk Dashboard")}{fullAccess && link("Reporting")}{realAdmin && link("Flagged Items")}</div>
       {cfg.siteLinks.length > 0 && <div><div className="fh">This site</div>
         <a href={L.siteHome}>Home</a>
         {site.map(l => <a key={l.url} href={l.url} target={l.ext ? "_blank" : undefined} rel={l.ext ? "noopener" : undefined}>{l.name}</a>)}</div>}
@@ -184,18 +184,19 @@ export function App({ store }) {
     else go("Home");
   };
 
-  const { ds, status, adminView, realAdmin } = store;
+  const { ds, status, fullAccess, realAdmin } = store;
   const ctx = useMemo(() => ({ ...store, go, openFn, newFn, back }), [store, go, openFn, newFn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Access. Flagged Items is for administrators (App.OnStart GoTo). Risk
-     Dashboard and Reporting are shown to administrators in Admin view, as the
-     Home card routes them; whether everyone may open them is an open
-     question (parity spec section 4.1), so they stay restricted until it is
-     answered. Creating a function is an administrator action. */
+     Dashboard and Reporting open for administrators in Admin view and User
+     view (not while previewing View as specific user); whether everyone may
+     open them is an open question (parity spec section 4.1), so they stay
+     restricted for everyone else until it is answered. Creating a function
+     is an administrator action. */
   const screen = route.screen;
   let s = screen;
   if (screen === "Flagged Items" && !realAdmin) s = "NoAccess";
-  if ((screen === "Risk Dashboard" || screen === "Reporting") && !adminView) s = "NoAccess";
+  if ((screen === "Risk Dashboard" || screen === "Reporting") && !fullAccess) s = "NoAccess";
 
   let body;
   if (status === "loading" || !ds) body = status === "error" ? <LoadError store={store} /> : <Loading store={store} />;

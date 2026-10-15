@@ -16,13 +16,14 @@ const SCOPES = [["open", "Open"], ["late", "Overdue only"], ["done", "Completed"
 const byDue = (a, b) => a.due - b.due;
 
 export function Deadlines() {
-  const { ds, adminView, realAdmin, today, openFn } = useApp();
+  const { ds, adminView, fullAccess, today, openFn } = useApp();
   const mine = useVisibleDeadlines();
-  /* administrators (the web role) can switch from their own deadlines to
-     every deadline in the matrix; off on each visit. Admin view already
-     shows every deadline, so the switch is not offered there. */
+  /* administrators (the web role) switch between My deadlines and All
+     deadlines in User view; My deadlines on each visit. Admin view already
+     shows every deadline, and View as specific user shows what that person
+     sees, so the switch is not offered there. */
   const [allOn, setAllOn] = useState(false);
-  const offerAll = realAdmin && !adminView;
+  const offerAll = fullAccess && !adminView;
   const everything = adminView || (offerAll && allOn);
   const visible = everything && ds ? ds.allDeadlines : mine;
   const [sort, setSort] = useState("due");
@@ -55,7 +56,9 @@ export function Deadlines() {
         {SCOPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
       {view === "list" && <select className="fs" value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort">
         <option value="due">Sort by due date</option><option value="owner">Sort by owner</option><option value="cadence">Sort by cadence</option></select>}
-      {offerAll && <label className="dl-all"><input type="checkbox" role="switch" checked={allOn} onChange={e => setAllOn(e.target.checked)} />Show all deadlines</label>}
+      {offerAll && <div className="dl-all" role="group" aria-label="Whose deadlines">
+        <button className={"button button-sm " + (!allOn ? "button-secondary" : "button-ghost")} aria-pressed={!allOn} onClick={() => setAllOn(false)}>My deadlines</button>
+        <button className={"button button-sm " + (allOn ? "button-secondary" : "button-ghost")} aria-pressed={allOn} onClick={() => setAllOn(true)}>All deadlines</button></div>}
       <span className="count">{rows.length} {rows.length === 1 ? "item" : "items"}</span>
       <div className="vt" role="tablist" aria-label="View">
         <button role="tab" aria-selected={view === "calendar"} className={"button button-sm " + (view === "calendar" ? "button-secondary" : "button-ghost")} onClick={() => setView("calendar")}><Icon n="calendar" s={14} />Calendar</button>

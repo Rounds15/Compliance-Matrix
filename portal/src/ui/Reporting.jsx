@@ -9,7 +9,6 @@
 
 import React, { useState } from "react";
 import { Icon, PageHead, useApp } from "./parts.jsx";
-import { useVisibleDeadlines } from "./Completion.jsx";
 import { LISTS } from "../data/adapters/sharepoint.js";
 import { DEFAULT_SETS } from "../data/adapters/dataverse.js";
 import { matrixCsv, gapsCsv, ownershipCsv, deadlinesIcs, download } from "./exports.js";
@@ -22,7 +21,8 @@ const CATALOGUE = [
 
 export function Reporting() {
   const { cfg, ds, adapter, today } = useApp();
-  const deadlines = useVisibleDeadlines();
+  /* Reporting opens only for administrators, who get every deadline */
+  const deadlines = ds.allDeadlines;
   const [tab, setTab] = useState("embed");
   const dv = adapter.name === "dataverse";
   const store = dv ? "Dataverse tables" : "SharePoint lists";

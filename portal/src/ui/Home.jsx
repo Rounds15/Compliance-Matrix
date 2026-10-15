@@ -14,7 +14,7 @@ import { addDays, fiscalQ, fmtDate, MONTHS } from "../lib/dates.js";
 import blockS from "../assets/block-s.png";
 
 export function Home() {
-  const { ds, today, actingPerson: me, adminView, go, openFn } = useApp();
+  const { ds, today, actingPerson: me, fullAccess, go, openFn } = useApp();
   const [q, setQ] = useState("");
   const mine = useMemo(() => functionsFor(me, ds.fns).sort((a, b) => a.name.localeCompare(b.name)), [ds, me]);
   const mineIds = useMemo(() => new Set(mine.map(f => String(f.id))), [mine]);
@@ -32,7 +32,7 @@ export function Home() {
     { t: "Compliance Functions", d: "Every obligation in the matrix with statute, owner, requirement, and risk rating.", s: mine.length + " records", to: () => go("Functions") },
     { t: "Deadlines", d: "Filings, certifications, and reports on the calendar, with automatic reminders.", s: upcoming.length + " in 90 days", to: () => go("Deadlines") },
     { t: "Owner Directory", d: "Every compliance owner, unit owner, and executive sponsor in the matrix.", s: "Contacts", to: () => go("Directory") },
-    { t: "Risk Dashboard", d: "Risk concentration by topic and unit, gap trends, and executive reporting.", s: adminView ? "Administrator" : "Restricted", to: () => go("Risk Dashboard") }
+    { t: "Risk Dashboard", d: "Risk concentration by topic and unit, gap trends, and executive reporting.", s: fullAccess ? "Administrator" : "Restricted", to: () => go("Risk Dashboard") }
   ];
   const SHOW = 6;
 
