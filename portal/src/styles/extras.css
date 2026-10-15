@@ -327,3 +327,9 @@ code { font-size: .88em; overflow-wrap: anywhere }
   .calgrid { container-type: inline-size; margin-bottom: 4px }
   .calcell { min-height: max(120px, calc(100cqw / 7 * 0.7), min(calc(100cqw / 7), calc((100vh - 270px) / var(--rows, 5)))) }
 }
+
+/* Deadlines: the administrators' switch to every deadline in the matrix */
+.dl-all { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; border: 1px solid var(--line-strong); background: var(--surface);
+  color: var(--navy); font-size: 15px; font-weight: 700; cursor: pointer; user-select: none }
+.dl-all input { width: 18px; height: 18px; margin: 0; accent-color: var(--navy); cursor: pointer }
+.dl-all:has(input:checked) { border-color: var(--navy); background: #EEF2FA }

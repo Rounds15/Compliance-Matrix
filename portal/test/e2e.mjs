@@ -398,8 +398,9 @@ await session("SharePoint · owner · own scope, member flow only, admin UI abse
   const flows = portal.log.filter(x => x.flow && x.flow !== "read").map(x => x.flow);
   assert.deepEqual([...new Set(flows)], ["write"], "an owner's writes go through the member flow");
 
-  // deadlines: only Dwight's functions (201 and 202)
+  // deadlines: only Dwight's functions (201 and 202), and no all-deadlines switch for an owner
   await go("#/deadlines");
+  assert.equal(await page.locator(".dl-all").count(), 0, "not an administrator: no switch");
   await btn(/^List$/).click();
   await page.selectOption(".fbar select[aria-label=Scope]", "all");
   assert.equal(await page.locator(".dl-table tbody tr").count(), 2);
@@ -782,6 +783,30 @@ await session("A write the backend rejects is reported, and nothing changes", { 
   assert.ok(t);
   assert.equal(portal.sp["Compliance Functions"].find(r => r.Id === 201).Title, before);
   assert.equal(await page.locator(".cm-toast.err").count(), 1);
+});
+
+/* the Deadlines page: an administrator in User view sees their own deadlines
+   until they turn on Show all deadlines; Admin view shows them all anyway */
+await session("Dataverse · an administrator can switch the Deadlines page to every deadline", { backend: "dataverse", admin: true }, async ({ page, go, btn, view }) => {
+  await go("#/deadlines");
+  await btn(/^List$/).click();
+  await page.selectOption(".fbar select[aria-label=Scope]", "all");
+  const names = async () => (await page.locator(".dl-table tbody tr .fname").allTextContents()).sort();
+  const sw = page.locator(".dl-all input");
+  assert.equal(await sw.isChecked(), false, "off by default");
+  assert.deepEqual(await names(), ["Clery Act Annual Security Report"], "Camila's own function only");
+  assert.match(await page.locator(".ph").innerText(), /functions you are in the Accountability Structure for/);
+  await sw.check();
+  assert.deepEqual(await names(), ["Clery Act Annual Security Report", "Form I-9 Employment Verification"], "every deadline in the matrix");
+  assert.match(await page.locator(".ph").innerText(), /Every recurring and one-off due date in the matrix/);
+  await btn(/^Calendar$/).click();
+  assert.ok(await page.locator(".calgrid").isVisible(), "the calendar follows the same switch");
+  await view("Admin");
+  assert.equal(await page.locator(".dl-all").count(), 0, "Admin view already shows every deadline");
+  await view("User");
+  await go("#/");
+  await go("#/deadlines");
+  assert.equal(await page.locator(".dl-all input").isChecked(), false, "off again on the next visit");
 });
 
 /* an administrator marks complete a deadline on a function they are not an
