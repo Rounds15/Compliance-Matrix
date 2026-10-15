@@ -4,7 +4,9 @@
    do what follow the canvas app (scr_FunctionDetail): the risk rating is
    shown in Admin view or to the function's own people; editing, creating and
    deleting are administrator actions; the deadlines listed are the ones the
-   viewer's mode shows; "Add to my calendar" and "Mark complete for this
+   viewer's mode shows, except that an administrator (the administrator web
+   role) sees every deadline of the function in any mode, so they can mark
+   any of them complete; "Add to my calendar" and "Mark complete for this
    cycle" work on those. */
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -85,7 +87,7 @@ export function FunctionDetail({ f, isNew }) {
   const flag = f ? ds.flags.find(same) : null;
   const gs = f ? ds.gaps.filter(same).sort((a, b) => (b.opened || 0) - (a.opened || 0)) : [];
   const openGaps = gs.filter(g => g.open);
-  const dls = f ? visible.filter(same).filter(x => x.due).sort((a, b) => a.due - b.due) : [];
+  const dls = f ? (realAdmin ? ds.allDeadlines : visible).filter(same).filter(x => x.due).sort((a, b) => a.due - b.due) : [];
   const nextDue = dls.find(x => x.status !== "Completed");
   const related = f ? ds.fns.filter(x => x !== f && String(x.topicId) === String(f.topicId))
     .sort((a, b) => riskRank(a.risk) - riskRank(b.risk) || a.name.localeCompare(b.name)).slice(0, 4) : [];

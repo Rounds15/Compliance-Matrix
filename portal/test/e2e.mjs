@@ -784,6 +784,24 @@ await session("A write the backend rejects is reported, and nothing changes", { 
   assert.equal(await page.locator(".cm-toast.err").count(), 1);
 });
 
+/* an administrator marks complete a deadline on a function they are not an
+   owner of, in the page's default User view */
+await session("Dataverse · an administrator completes any function's deadline", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn, modal }) => {
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.equal(await page.locator(".util-role select").inputValue(), "User", "the default view");
+  const mark = btn("Mark complete for this cycle");
+  assert.equal(await mark.isDisabled(), false, "not greyed out on a function Camila does not own");
+  assert.equal(await page.locator(".dlrow", { hasText: "I-9 internal audit sample" }).locator("button", { hasText: "Complete?" }).count(), 1);
+  await mark.click();
+  await modal().locator("textarea").fill("Checked by the compliance office.");
+  await btn("Confirm", modal()).click();
+  await toast(/Deadline marked complete/);
+  const dl = portal.dv.su_compliancedeadlines.find(r => r.su_compliancedeadlineid === G(402));
+  assert.equal(dl.su_completedreason, "Checked by the compliance office.");
+  assert.equal(dl._su_completedby_value, G(101), "recorded as Camila, by the flow");
+});
+
 /* a Support save whose create Dataverse refuses: the error is shown and
    every existing ownership row is still there (creates run before deletes) */
 await session("Dataverse · an ownership save that fails part way loses no rows", { backend: "dataverse", admin: true, refuse: ["POST su_functionownerships"] }, async ({ page, portal, go, toast, btn, pick }) => {
