@@ -3,6 +3,7 @@
    detail.css) draws them as the design does. */
 
 import React, { useEffect, useRef, useState, createContext, useContext } from "react";
+import { createPortal } from "react-dom";
 import { dayDiff } from "../lib/dates.js";
 
 export const AppCtx = createContext(null);
@@ -110,6 +111,20 @@ export function useMedia(q) {
 /* Dialogs can stack (a confirm over a manager). Escape closes the top one
    only, and the page stays locked until the last one closes. */
 const modalStack = [];
+
+/* Dialogs and the search palette render into one layer at the end of the
+   page body, not where their button sits: inside the calendar grid, a
+   sticky bar or a card they would stack under the page around them. */
+export function layerHost() {
+  let el = document.getElementById("cm-layer");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "cm-layer";
+    el.className = "cm-app cm-layer";
+    document.body.appendChild(el);
+  }
+  return el;
+}
 export function Modal({ children, onClose, size, label }) {
   // callers pass a fresh arrow each render; read the latest without
   // re-registering, which would reorder the stack
@@ -127,9 +142,9 @@ export function Modal({ children, onClose, size, label }) {
       if (!modalStack.length) document.body.style.overflow = "";
     };
   }, []);
-  return <div className="scrim" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+  return createPortal(<div className="scrim" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
     <div className={"cm-modal" + (size === "sm" ? " sm" : "")} role="dialog" aria-modal="true" aria-label={label}>{children}</div>
-  </div>;
+  </div>, layerHost());
 }
 
 /* the navy dialog header, with its close button */

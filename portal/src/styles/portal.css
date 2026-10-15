@@ -21,7 +21,7 @@ div.caldrow:focus-visible,div.fcard[role=button]:focus-visible{outline:2px solid
 
 /* the design's toast, as a class, with an error variant */
 .cm-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000E54;color:#fff;padding:12px 18px;border-radius:5px;
-  box-shadow:0 12px 34px rgba(0,14,84,.35);font-size:13.5px;font-weight:600;z-index:300;max-width:min(560px,92vw);border-left:4px solid #F76900;line-height:1.4}
+  box-shadow:0 12px 34px rgba(0,14,84,.35);font-size:13.5px;font-weight:600;z-index:1200;max-width:min(560px,92vw);border-left:4px solid #F76900;line-height:1.4}
 .cm-toast.err{border-left-color:#DC2626;background:#3B0A0A}
 
 /* util strip: "Viewing as" / signed-in name sit with the links */

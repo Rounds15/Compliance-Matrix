@@ -159,7 +159,10 @@ table.table-simple tbody tr:hover td,table.table-striped tbody tr:hover td{backg
 .dl-row.late td{background:#FDF4F4}
 
 /* ---------- overlay ---------- */
-.scrim{position:fixed;inset:0;background:rgba(0,14,84,.55);z-index:80;display:flex;align-items:center;justify-content:center;padding:var(--sp-4)}
+/* layers: the page, then the site header and its menus (1030 to 1050),
+   then dialogs and the search palette (1100), then the toast (1200). They
+   render into #cm-layer at the end of the body (parts.jsx layerHost). */
+.scrim{position:fixed;inset:0;background:rgba(0,14,84,.55);z-index:1100;display:flex;align-items:center;justify-content:center;padding:var(--sp-4)}
 .cm-modal{position:relative;top:auto;left:auto;background:var(--surface);width:min(1040px,100%);height:auto;max-height:92vh;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow:hidden;z-index:1}
 .cm-modal.sm{width:min(600px,100%)}
 .mhd{background:var(--navy);color:#fff;padding:var(--sp-4);display:flex;gap:var(--sp-3);align-items:flex-start;border-bottom:6px solid var(--orange)}

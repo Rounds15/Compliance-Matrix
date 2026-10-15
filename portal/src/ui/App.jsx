@@ -5,7 +5,8 @@
    Power Pages URL rewriting. */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AppCtx, Icon } from "./parts.jsx";
+import { createPortal } from "react-dom";
+import { AppCtx, Icon, layerHost } from "./parts.jsx";
 import { Header, BROWSE, RISK } from "./Header.jsx";
 import { Palette } from "./Palette.jsx";
 import wordmark from "../assets/wordmark-knockout.svg";
@@ -238,6 +239,6 @@ export function App({ store }) {
     {ds && <Footer go={go} store={store} onSearch={openPalette} />}
     {palette && ds && <Palette onClose={() => setPalette(false)} />}
     {topBtn && <button className="totop" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Back to top"><Icon n="up" s={18} sw={2.2} /></button>}
-    {toast && <div className={"cm-toast" + (toast.tone === "error" ? " err" : "")} role="status" aria-live="polite">{toast.msg}</div>}
+    {toast && createPortal(<div className={"cm-toast" + (toast.tone === "error" ? " err" : "")} role="status" aria-live="polite">{toast.msg}</div>, layerHost())}
   </AppCtx.Provider>;
 }

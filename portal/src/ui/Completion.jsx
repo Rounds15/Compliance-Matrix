@@ -50,12 +50,13 @@ export function CompletionDialog({ dl, onClose }) {
 }
 
 /* "Complete?" / "Reverse" on a deadline row; the row itself is often
-   clickable, so the control keeps its clicks to itself */
+   clickable, so the control and its dialog keep their clicks, Enter and
+   Space to themselves (Escape still reaches the dialog) */
 export function CompleteButton({ dl }) {
   const [open, setOpen] = useState(false);
   if (!dl.due) return null;
   const done = dl.status === "Completed";
-  return <span onClick={e => e.stopPropagation()} style={{ display: "contents" }}>
+  return <span onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") e.stopPropagation(); }} style={{ display: "contents" }}>
     <button className={"button button-sm " + (done ? "button-ghost" : "button-secondary-outline")} style={{ minHeight: 30, padding: "2px 10px", fontSize: 13 }}
       onClick={() => setOpen(true)}><Icon n={done ? "undo" : "check"} s={13} />{done ? "Reverse" : "Complete?"}</button>
     {open && <CompletionDialog dl={dl} onClose={() => setOpen(false)} />}

@@ -148,7 +148,7 @@ button.df-stat:hover .n { color: var(--orange-link) }
 .df-nav-i[aria-current] { font-weight: 700 }
 
 /* ---------- quick jump (Ctrl K) ---------- */
-.pal-scrim { position: fixed; inset: 0; z-index: 200; background: rgba(0,14,84,.45); display: flex; justify-content: center; align-items: flex-start; padding: 10vh 16px 16px }
+.pal-scrim { position: fixed; inset: 0; z-index: 1100; background: rgba(0,14,84,.45); display: flex; justify-content: center; align-items: flex-start; padding: 10vh 16px 16px }
 .pal { width: 100%; max-width: 640px; background: var(--surface); border-top: 5px solid var(--orange); box-shadow: 0 24px 60px rgba(0,14,84,.35); display: flex; flex-direction: column; max-height: 76vh }
 .pal.pop { animation: cm-fade .14s ease-out }
 .pal-in { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--navy) }

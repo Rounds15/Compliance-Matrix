@@ -831,6 +831,30 @@ await session("Dataverse · an administrator can switch the Deadlines page to ev
   assert.equal(await page.locator(".dl-all button", { hasText: "My deadlines" }).getAttribute("aria-pressed"), "true", "My deadlines again on the next visit");
 });
 
+/* the Mark deadline complete dialog sits above the page: opened from the
+   calendar rail, nothing on the page (search bar, calendar, header) shows
+   through, and typing in it does not reach the row behind it */
+await session("Dataverse · the completion dialog sits above the calendar and the page", { backend: "dataverse", admin: true }, async ({ page, go, btn, modal }) => {
+  await go("#/deadlines");
+  await btn(/^Calendar$/).click();
+  await page.locator(".calgrid button.calcell").first().click();
+  await page.locator(".cal-side button", { hasText: "Complete?" }).first().click();
+  await modal().waitFor();
+  assert.equal(await page.evaluate(() => !!document.querySelector("#cm-layer > .scrim") && !document.querySelector("#cm-root .scrim")), true, "rendered in the layer at the end of the body");
+  const topAt = async sel => page.evaluate(s => {
+    const r = document.querySelector(s).getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return !!(hit && hit.closest(".scrim"));
+  }, sel);
+  for (const sel of [".fbar .srch input", ".calgrid", ".cal-side", ".hdr"]) assert.equal(await topAt(sel), true, sel + " is under the dialog's backdrop");
+  assert.equal(await topAt(".cm-modal textarea"), true);
+  await modal().locator("textarea").fill("Line one");
+  await modal().locator("textarea").press("Enter");
+  assert.match(await page.locator("h1").first().innerText(), /Deadlines/, "Enter in the reason stays in the dialog");
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator(".cm-modal").count(), 0, "Escape still closes it");
+});
+
 /* the admin audit: an administrator in the default User view, on functions
    they are not in the Accountability Structure for, sees and does what
    Admin view allows; View as specific user still previews that person */

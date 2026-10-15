@@ -3,7 +3,8 @@
    person in the directory, and goes there. Arrow keys move, Enter opens. */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Icon, Avatar, Risk, useApp } from "./parts.jsx";
+import { createPortal } from "react-dom";
+import { Icon, Avatar, Risk, layerHost, useApp } from "./parts.jsx";
 import { BROWSE, RISK } from "./Header.jsx";
 
 const SCREENS = [
@@ -58,7 +59,7 @@ export function Palette({ onClose }) {
   };
 
   let last = "";
-  return <div className="pal-scrim" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+  return createPortal(<div className="pal-scrim" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
     <div className="pal pop" role="dialog" aria-modal="true" aria-label="Search the matrix">
       <div className="pal-in"><Icon n="search" s={20} />
         <input ref={input} value={q} onChange={e => setQ(e.target.value)} onKeyDown={onKey} placeholder="Search a function, statute, citation, or owner..."
@@ -82,5 +83,5 @@ export function Palette({ onClose }) {
       </ul>
       <div className="pal-ft"><span><kbd>{"↑"}</kbd><kbd>{"↓"}</kbd> to move</span><span><kbd>Enter</kbd> to open</span><span><kbd>Esc</kbd> to close</span></div>
     </div>
-  </div>;
+  </div>, layerHost());
 }
