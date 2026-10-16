@@ -120,14 +120,17 @@ export const isHttpFlow = url => /^https?:\/\//i.test(String(url || "")) && !/\/
    Power Pages" with one text output named `result` holding JSON; or it starts
    with "When an HTTP request is received" at its own URL and answers with the
    same {"result": "<json>"} body. The HTTP call goes to another origin, so it
-   carries no cookies and no site token, and is sent as text/plain so the
-   browser makes it without a CORS preflight. */
+   carries no cookies and no site token. It is sent as application/json, as
+   the trigger's schema (an object) requires; text/plain arrives as a string
+   and the trigger refuses it ("Invalid type. Expected Object but got
+   String."). The browser checks with the flow first (a CORS preflight),
+   which Power Automate answers for any origin. */
 export async function callFlow(url, request) {
   if (!url) throw new ApiError("This action needs a cloud flow that has not been configured on the site.", 0);
   if (isHttpFlow(url)) {
     let res;
     try {
-      res = await fetch(url, { method: "POST", mode: "cors", credentials: "omit", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(request) });
+      res = await fetch(url, { method: "POST", mode: "cors", credentials: "omit", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
     } catch (e) {
       throw new ApiError("The flow could not be reached at its HTTP URL. Check that the flow is on and that the site setting holds its HTTP POST URL.", 0);
     }

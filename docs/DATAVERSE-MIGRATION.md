@@ -1183,9 +1183,12 @@ you than assume it. Delete the test rows afterwards.
 2, After the import); these steps describe it, so you can follow a run.
 
 1. Trigger: **When an HTTP request is received** (POST). The page sends
-   `{"actionId":"<the row's ID>"}` as the body, as text/plain, to the URL in
-   `ComplianceMatrix/Flow/Action`, without cookies or the site's token; the
-   flow reads the body as JSON either way. Its replies are plain HTTP
+   `{"actionId":"<the row's ID>"}` as the body, with `Content-Type:
+   application/json`, to the URL in `ComplianceMatrix/Flow/Action`, without
+   cookies or the site's token. The trigger's schema expects an object, so
+   a text/plain body is refused with "Invalid type. Expected Object but got
+   String." The browser sends a CORS preflight (OPTIONS) first, which Power
+   Automate answers itself. Its replies are plain HTTP
    responses, `{"result":"<json>"}`, with `Access-Control-Allow-Origin: *`
    so the page can read them from the site's own address.
 2. **Get a row by ID**, Portal Actions, that ID. None: Fail with "That action

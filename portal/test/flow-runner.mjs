@@ -36,8 +36,8 @@ export function loadFlows() {
 
 /* The trigger outputs a page request arrives as: "When Power Pages calls a
    flow" gets {text: "<json>"}; "When an HTTP request is received" gets the
-   body the page posts, a JSON string sent as text/plain (asJson: the parsed
-   object, as an application/json caller sends it). */
+   body as posted: by default a JSON string, as a text/plain caller sends it
+   (asJson: the parsed object, as the page sends it, as application/json). */
 export function pageRequest(def, request, { asJson = false } = {}) {
   const trig = Object.values(def.properties.definition.triggers)[0];
   if (trig.kind === "PowerPages") return { body: { text: JSON.stringify(request) } };

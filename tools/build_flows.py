@@ -675,8 +675,8 @@ def sync_directory(s: dict) -> dict:
 # how the page calls a flow (flows.yaml, pageTriggers)
 # ---------------------------------------------------------------------------
 PP_REQUEST = "json(triggerBody()?['text'])"
-# the body as the page sends it (text/plain, so the browser sends it without a
-# CORS preflight) or as JSON; either way read as JSON
+# the body as the page sends it (application/json, which the trigger's object
+# schema requires) or as a JSON string; either way read as JSON
 HTTP_REQUEST = "json(if(empty(string(triggerBody())), '{}', string(triggerBody())))"
 
 

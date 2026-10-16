@@ -698,7 +698,7 @@ await session("Dataverse · the browser cannot write the archive or who did some
        call it directly, with no cookies, so its checks must hold on their own */
     const flowAt = document.getElementById("cm-root").dataset.flowAction;
     const flow = id => (/^https?:/.test(flowAt)
-      ? fetch(flowAt, { method: "POST", credentials: "omit", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ actionId: id }) })
+      ? fetch(flowAt, { method: "POST", credentials: "omit", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actionId: id }) })
       : fetch(flowAt, { method: "POST", headers: { "Content-Type": "application/json", __RequestVerificationToken: tok },
         body: JSON.stringify({ eventData: JSON.stringify({ request: JSON.stringify({ actionId: id }) }) }) })).then(x => x.json()).then(j => JSON.parse(j.result));
     /* a hand-made postback to the basic form, as a crafted request would send it:
@@ -918,9 +918,13 @@ await session("Dataverse · an administrator completes any function's deadline",
   const dl = portal.dv.su_compliancedeadlines.find(r => r.su_compliancedeadlineid === G(402));
   assert.equal(dl.su_completedreason, "Checked by the compliance office.");
   assert.equal(dl._su_completedby_value, G(101), "recorded as Camila, by the flow");
-  const call = portal.log.filter(x => x.flow === "action").at(-1);
-  assert.deepEqual([call.http, call.contentType, call.cookie, call.token], [true, "text/plain", false, false],
-    "the page calls the flow's own HTTP URL, as text/plain, with no cookie and no site token");
+  const calls = portal.log.filter(x => x.flow === "action");
+  const call = calls.at(-1);
+  assert.deepEqual([call.http, call.contentType, call.cookie, call.token], [true, "application/json", false, false],
+    "the page calls the flow's own HTTP URL, as application/json, with no cookie and no site token");
+  assert.deepEqual(call.request, { actionId: call.request.actionId }, "the body is {actionId}");
+  assert.match(String(call.request.actionId), /^[0-9a-f-]{36}$/);
+  assert.ok(portal.log.some(x => x.preflight === "action" && /content-type/i.test(x.headers)), "the browser checked with the flow first (CORS preflight)");
 });
 
 /* a Support save whose create Dataverse refuses: the error is shown and
