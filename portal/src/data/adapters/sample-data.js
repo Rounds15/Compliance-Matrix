@@ -179,3 +179,14 @@ export const AD_DIRECTORY = [
   {n:"Aisha Karim",t:"Records and Registration Analyst",u:"Registrar",e:"akarim@syr.edu",ph:"315-443-2438",l:"106 Steele Hall",netid:"akarim2"},
   {n:"Gregory Nolan",t:"IT Risk and Compliance Analyst",u:"Information Technology Services",e:"gnolan@syr.edu",ph:"315-443-2691",l:"206 Machinery Hall",netid:"gnolan"}
 ];
+
+/* additional links: [function, label, type, url] */
+export const LINKS = [
+["CF-2012","8 U.S.C. § 1324a","Statute","https://www.law.cornell.edu/uscode/text/8/1324a"],
+["CF-2012","8 C.F.R. § 274a","Regulation","https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-274a"],
+["CF-2012","Handbook for Employers (M-274)","Guidance","https://www.uscis.gov/i-9-central/form-i-9-resources/handbook-for-employers-m-274"],
+["CF-9080","45 C.F.R. § 164.308","Regulation","https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C/section-164.308"],
+["CF-9080","Guidance on Risk Analysis","Guidance","https://www.hhs.gov/hipaa/for-professionals/security/guidance/guidance-risk-analysis/index.html"],
+["CF-7060","16 C.F.R. § 314","Regulation","https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-314"],
+["CF-7060","University policies","SU Resource","https://policies.syr.edu/"]
+];

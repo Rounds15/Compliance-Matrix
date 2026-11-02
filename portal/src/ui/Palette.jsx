@@ -36,7 +36,7 @@ export function Palette({ onClose }) {
       .filter(l => !t || has(l.name))
       .map(l => ({ kind: "This site", key: "l:" + l.url, l, run: () => { if (l.ext) window.open(l.url, "_blank", "noopener"); else window.location.href = l.url; } }));
     if (!t) return [...screens, ...site];
-    const fns = ds.fns.filter(f => has(f.name) || has(f.statute) || has(f.citation) || has(f.code) || has(f.topic) || has(f.area))
+    const fns = ds.fns.filter(f => has(f.name) || has(f.statute) || has(f.citation) || has(f.code) || has(f.topic) || has(f.area) || (f.links || []).some(l => has(l.label)))
       .sort((a, b) => (has(b.name) - has(a.name)) || a.name.localeCompare(b.name)).slice(0, 7)
       .map(f => ({ kind: "Compliance functions", key: "f:" + f.id, f, run: () => openFn(f) }));
     const people = ds.people.filter(p => has(p.n) || has(p.e) || has(p.t) || has(p.u)).slice(0, 5)

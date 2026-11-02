@@ -25,6 +25,7 @@ import { webApi, webApiAll, webApiImage, callFlow, flowUrl } from "../transport.
 import { submitActionForm } from "../actionform.js";
 import { toDay, isoDate } from "../../lib/dates.js";
 import { ownershipPlan, runOwnershipSave } from "../ownership.js";
+import { linksPlan, runLinksSave } from "../links.js";
 
 export const DEFAULT_SETS = {
   su_riskarea: "su_riskareas",
@@ -35,7 +36,8 @@ export const DEFAULT_SETS = {
   su_compliancedeadline: "su_compliancedeadlines",
   su_compliancegap: "su_compliancegaps",
   su_functionflag: "su_functionflags",
-  su_counselassignment: "su_counselassignments"
+  su_counselassignment: "su_counselassignments",
+  su_functionlink: "su_functionlinks"
 };
 
 /* choice codes from dataverse-schema.yaml */
@@ -44,9 +46,10 @@ export const CADENCE = { 100000010: "Annually", 100000011: "Semiannual", 1000000
 export const GAP_STATUS = { 100000020: "Open", 100000022: "In Progress", 100000021: "Closed" };
 export const ROLE = { 100000030: "Executive Owner", 100000031: "Unit Owner", 100000032: "Compliance Owner", 100000033: "General Counsel", 100000034: "Support" };
 export const SUB = { 100000040: "Primary", 100000041: "Advisory", 100000042: "Support" };
+export const LINK_TYPE = { 100000140: "Statute", 100000141: "Regulation", 100000142: "Guidance", 100000143: "SU Resource" };
 const FLAG_CLEARED = 100000051;
 const invert = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [v, Number(k)]));
-const RISK_CODE = invert(RISK), ROLE_CODE = invert(ROLE), SUB_CODE = invert(SUB);
+const RISK_CODE = invert(RISK), ROLE_CODE = invert(ROLE), SUB_CODE = invert(SUB), LINK_TYPE_CODE = invert(LINK_TYPE);
 const GAP_OPEN = 100000020;
 export const ACTION = { completeDeadline: 100000120, reverseDeadline: 100000121, closeGap: 100000122, resolveFlag: 100000123, raiseFlag: 100000124, deleteFunction: 100000125, addToCalendar: 100000126, reopenGap: 100000127 };
 
@@ -54,7 +57,7 @@ const TABLE_OF = {
   riskAreas: "su_riskarea", domains: "su_domain", people: "su_compliancedirectory",
   functions: "su_compliancefunction", ownership: "su_functionownership",
   deadlines: "su_compliancedeadline", gaps: "su_compliancegap", flags: "su_functionflag",
-  counsel: "su_counselassignment"
+  counsel: "su_counselassignment", links: "su_functionlink"
 };
 
 const SELECT = {
@@ -66,7 +69,8 @@ const SELECT = {
   su_compliancedeadline: "su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes",
   su_compliancegap: "su_compliancegapid,su_name,su_gapcode,_su_function_value,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,_su_owner_value,su_responsibleunit,su_gapsource",
   su_functionflag: "su_functionflagid,_su_function_value,su_reason,su_status,_su_flaggedby_value,su_flaggedon,su_respondentemail",
-  su_counselassignment: "su_counselassignmentid,_su_riskarea_value,_su_attorney_value,su_isdefault"
+  su_counselassignment: "su_counselassignmentid,_su_riskarea_value,_su_attorney_value,su_isdefault",
+  su_functionlink: "su_functionlinkid,su_name,_su_function_value,su_url,su_linktype,su_sortorder,su_source"
 };
 
 /* Columns the page writes but does not read back. */
@@ -126,6 +130,10 @@ export function mapTables(t) {
     id: r.su_functionflagid, functionId: r._su_function_value, reason: r.su_reason || "",
     byId: r._su_flaggedby_value || null, byEmail: r.su_respondentemail || "",
     at: toDay(r.su_flaggedon), open: r.su_status !== FLAG_CLEARED
+  }));
+  if (t.links) out.links = t.links.map(r => ({
+    id: r.su_functionlinkid, functionId: r._su_function_value || null, label: r.su_name || "", url: r.su_url || "",
+    type: LINK_TYPE[r.su_linktype] || "", sort: r.su_sortorder ?? 0, source: r.su_source || ""
   }));
   if (t.counsel) out.counsel = t.counsel.map(r => ({
     riskAreaId: r._su_riskarea_value || null, personId: r._su_attorney_value, isDefault: !!r.su_isdefault
@@ -196,7 +204,7 @@ export function createDataverseAdapter(cfg) {
   return {
     name: "dataverse",
     label: "Dataverse",
-    tables: ["riskAreas", "domains", "people", "functions", "ownership", "deadlines", "flags", "gaps", "counsel"],
+    tables: ["riskAreas", "domains", "people", "functions", "ownership", "deadlines", "flags", "gaps", "counsel", "links"],
     canLookupPeople: false,
     /* the roles the ownership editor offers (the Ownership Role choices);
        General Counsel is a row on each function, as on the SharePoint list,
@@ -331,6 +339,19 @@ export function createDataverseAdapter(cfg) {
         return { reload: ["ownership", "functions"], warning: "The people were saved, but the function's owner columns could not be updated: " + (e.message || String(e)) };
       }
       return ["ownership", "functions"];
+    },
+
+    /* the difference only, in three steps that are undone if one fails
+       (data/links.js); the order is saved as 1, 2, 3 */
+    async setLinks({ fn, links, existing }) {
+      const plan = linksPlan(existing, links);
+      const body = l => ({ su_name: l.label.slice(0, 400), su_url: l.url, su_linktype: LINK_TYPE_CODE[l.type] ?? null, su_sortorder: l.sort });
+      await runLinksSave(plan, {
+        create: async l => (await post("su_functionlink", { ...body(l), su_source: l.source || "", ...bind("su_function", "su_compliancefunction", fn.id) })).id,
+        update: l => patch("su_functionlink", l.id, body(l)),
+        remove: l => del("su_functionlink", l.id)
+      });
+      return ["links"];
     },
 
     async addPerson({ person }) {

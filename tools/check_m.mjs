@@ -23,7 +23,8 @@ const require = createRequire(join(ROOT, "portal", "package.json"));
 const pq = require("@microsoft/powerquery-parser");
 
 const LIBRARY = new Set([
-  "SharePoint.Tables",
+  "SharePoint.Tables", "SharePoint.Files", "Csv.Document", "QuoteStyle.Csv", "CommonDataService.Database",
+  "Table.PromoteHeaders", "Table.TransformColumns", "Text.StartsWith",
   "Text.From", "Text.Trim", "Text.Combine", "Text.Start", "Text.Lower", "Text.FromBinary",
   "Record.FieldOrDefault", "Record.HasFields", "Record.FromList", "Record.FieldNames", "Record.Field", "Record.RemoveFields",
   "List.IsEmpty", "List.Transform", "List.Select", "List.RemoveNulls", "List.Buffer", "List.Contains",

@@ -95,6 +95,7 @@
       <RootComponent type="1" schemaName="su_counselassignment" behavior="0"/>
       <RootComponent type="1" schemaName="su_domain" behavior="0"/>
       <RootComponent type="1" schemaName="su_functionflag" behavior="0"/>
+      <RootComponent type="1" schemaName="su_functionlink" behavior="0"/>
       <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
       <RootComponent type="1" schemaName="su_portalaction" behavior="0"/>
       <RootComponent type="1" schemaName="su_riskarea" behavior="0"/>
@@ -112,6 +113,7 @@
       <RootComponent type="9" schemaName="su_flagsource" behavior="0"/>
       <RootComponent type="9" schemaName="su_flagstatus" behavior="0"/>
       <RootComponent type="9" schemaName="su_gapstatus" behavior="0"/>
+      <RootComponent type="9" schemaName="su_linktype" behavior="0"/>
       <RootComponent type="9" schemaName="su_offsetunit" behavior="0"/>
       <RootComponent type="9" schemaName="su_ownershiprole" behavior="0"/>
       <RootComponent type="9" schemaName="su_ownershipsubrole" behavior="0"/>

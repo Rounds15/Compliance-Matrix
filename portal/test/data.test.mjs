@@ -432,3 +432,67 @@ test("Dataverse ownership save: a failed create deletes nothing", async () => {
     assert.ok(!calls.some(c => c.startsWith("DELETE")), "and deleted nothing: " + calls.join(", "));
   } finally { delete globalThis.fetch; delete globalThis.window; }
 });
+
+/* ---------------- additional links (su_functionlink) ---------------- */
+import { validLinkUrl, linksPlan, runLinksSave, linkProblem } from "../src/data/links.js";
+import { matrixCsv } from "../src/ui/exports.js";
+
+test("links: Dataverse rows map to each function's links, in their order", () => {
+  const t = dataverseTables();
+  const raw = mapTables({ riskAreas: t.su_riskareas, domains: t.su_domains, people: t.su_compliancedirectorys, functions: t.su_compliancefunctions,
+    ownership: t.su_functionownerships, deadlines: t.su_compliancedeadlines, gaps: t.su_compliancegaps, flags: t.su_functionflags,
+    counsel: t.su_counselassignments, links: [...t.su_functionlinks].reverse() });
+  const ds = buildDataset(raw, { today: T, meEmail: "cruiz@syr.edu" });
+  const clery = ds.fns.find(f => f.id === G(201));
+  assert.deepEqual(clery.links.map(l => [l.label, l.type, l.sort]), [
+    ["34 C.F.R. § 668.46", "Regulation", 1], ["20 U.S.C. § 1092(f)", "Statute", 2], ["Campus Safety and Security handbook", "Guidance", 3]]);
+  assert.equal(clery.statuteUrl, t.su_compliancefunctions.find(f => f.su_compliancefunctionid === G(201)).su_statuteurl || "", "statuteUrl is unchanged");
+  assert.deepEqual(ds.fns.find(f => f.id === G(202)).links, [], "a function with none has an empty list");
+  assert.match(matrixCsv(ds), /Additional Links\r\n/, "the last column");
+  assert.match(matrixCsv(ds), /"Regulation: 34 C\.F\.R\. § 668\.46 <https:\/\/www\.ecfr\.gov\/[^>]+>\nStatute: 20 U\.S\.C\. § 1092\(f\) <https:\/\/www\.law\.cornell\.edu\/uscode\/text\/20\/1092>\nGuidance: /);
+  assert.ok(WEBAPI_FIELDS.su_functionlink.split(",").includes("_su_function_value"));
+});
+
+test("links: the sample data has a few", async () => {
+  const a = createSampleAdapter();
+  const raw = await a.load(null, { today: T });
+  assert.ok(raw.links.length >= 5);
+  const ds = buildDataset(raw, { today: T, meEmail: "x@syr.edu" });
+  assert.ok(ds.fns.some(f => f.links.length >= 3));
+});
+
+test("links: only https:// addresses with a host are accepted", () => {
+  for (const ok of ["https://www.ecfr.gov/current/title-34/part-668", "https://policies.syr.edu/", "HTTPS://example.org?a=1", "https://a.b#x"]) assert.equal(validLinkUrl(ok), true, ok);
+  for (const bad of ["http://www.ecfr.gov/", "www.ecfr.gov", "https://", "https://localhost", "javascript:alert(1)", "https://a b.org", " ", null]) assert.equal(validLinkUrl(bad), false, String(bad));
+  assert.equal(linkProblem({ label: "", url: "https://a.b", type: "Statute" }), "Give the link a label.");
+  assert.equal(linkProblem({ label: "x", url: "http://a.b", type: "Statute" }), "The address must start with https://.");
+  assert.equal(linkProblem({ label: "x", url: "https://a.b", type: "Statute" }), "");
+});
+
+test("links: the plan writes only what changed, numbered in the order given", () => {
+  const existing = [
+    { id: "a", label: "A", url: "https://a.org", type: "Statute", sort: 1 },
+    { id: "b", label: "B", url: "https://b.org", type: "Regulation", sort: 2 },
+    { id: "c", label: "C", url: "https://c.org", type: "Guidance", sort: 3 }];
+  assert.deepEqual(linksPlan(existing, existing.map(x => ({ ...x }))), { create: [], update: [], remove: [] }, "nothing changed");
+  const p = linksPlan(existing, [
+    { id: "b", label: "B", url: "https://b.org", type: "Regulation" },
+    { id: "a", label: " A2 ", url: "https://a.org", type: "Statute" },
+    { id: null, label: "New", url: " https://n.org ", type: "Statute", source: "" }]);
+  assert.deepEqual(p.create.map(x => [x.label, x.url, x.sort]), [["New", "https://n.org", 3]]);
+  assert.deepEqual(p.update.map(x => [x.id, x.label, x.sort]), [["b", "B", 1], ["a", "A2", 2]]);
+  assert.deepEqual(p.remove.map(x => x.id), ["c"]);
+});
+
+test("links: a failed step undoes the steps before it and names the step", async () => {
+  const rows = [{ id: "a", label: "A", url: "https://a.org", type: "Statute", sort: 1 }];
+  const store = rows.map(x => ({ ...x }));
+  const io = {
+    create: async l => { if (l.label === "Bad") throw new Error("Refused."); const id = "n" + store.length; store.push({ ...l, id }); return id; },
+    update: async l => { Object.assign(store.find(x => x.id === l.id), { label: l.label, sort: l.sort }); },
+    remove: async l => { store.splice(store.findIndex(x => x.id === l.id), 1); }
+  };
+  const plan = linksPlan(rows, [{ id: null, label: "Good", url: "https://g.org", type: "Statute" }, { id: null, label: "Bad", url: "https://b.org", type: "Statute" }]);
+  await assert.rejects(runLinksSave(plan, io), /^Error: The links were not saved\. Step 1 of 3 \(adding "Bad"\) failed: Refused\. The changes made before it were undone\.$/);
+  assert.deepEqual(store.map(x => x.label), ["A"], "the good one was taken out again; A is kept");
+});

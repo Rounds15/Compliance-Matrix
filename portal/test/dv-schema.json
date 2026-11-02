@@ -369,6 +369,30 @@
    "su_function": "Cascade"
   }
  },
+ "su_functionlink": {
+  "columns": {
+   "su_function": "lookup:su_compliancefunction",
+   "su_linktype": "Choice",
+   "su_name": "String",
+   "su_sortorder": "Integer",
+   "su_source": "String",
+   "su_url": "String"
+  },
+  "id": "su_functionlinkid",
+  "set": "su_functionlinks",
+  "primaryName": "su_name",
+  "choiceLabels": {
+   "su_linktype": {
+    "100000140": "Statute",
+    "100000141": "Regulation",
+    "100000142": "Guidance",
+    "100000143": "SU Resource"
+   }
+  },
+  "cascadeDelete": {
+   "su_function": "Cascade"
+  }
+ },
  "su_functionownership": {
   "columns": {
    "su_function": "lookup:su_compliancefunction",

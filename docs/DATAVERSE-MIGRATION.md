@@ -734,7 +734,15 @@ narrow, and who did it is written server-side.
 | CM Action targets | su_compliancefunction, su_compliancedeadline, su_compliancegap, su_functionflag | Global | Append To | Testers, Administrators |
 | CM Self | contact | Self | Read, Append To | Testers, Administrators |
 | CM Administer | su_riskarea, su_domain, su_compliancefunction, su_compliancedirectory, su_functionownership, su_counselassignment, su_compliancedeadline, su_compliancegap, su_functionflag | Global | Create, Read, Write, Delete, Append, Append To | Administrators |
+| CM Read links | su_functionlink | Global | Read | Authenticated Users |
+| CM Administer links | su_functionlink | Global | Create, Read, Write, Delete, Append | Administrators |
 | CM Assessments (read) | su_assessment, su_assessmentresponse, su_assessmentschedule | Global | Read | Administrators |
+
+**Function links** (su_functionlink) are readable by Authenticated Users and
+changed by Administrators only. CM Administer links needs Append, and CM
+Administer's Append To on su_compliancefunction, so a new link can be tied
+to its function. While the page is limited to Testers and Administrators,
+Authenticated Users can read the links through the Web API but not the page.
 
 Gaps are read **through their function** (Parent scope), not Global, so a gap
 with no function is readable only through CM Administer, by administrators.
@@ -772,7 +780,7 @@ request cannot set them directly:
 (singular); the page's requests use the **entity set name** (plural), which
 Power Pages maps for you.
 
-- `Webapi/<table>/enabled` = `true` for each of the nine tables below.
+- `Webapi/<table>/enabled` = `true` for each of the ten tables below.
 - `Webapi/<table>/fields` = the value in the table below, exactly: the
   columns the page reads or writes, comma-separated with no spaces. A lookup
   is listed as **`_<lookup>_value`** (`_su_riskarea_value`), not under its
@@ -791,6 +799,7 @@ Power Pages maps for you.
 | su_compliancegap | su_compliancegaps | `su_compliancegapid,su_name,su_gapcode,_su_function_value,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,_su_owner_value,su_responsibleunit,su_gapsource` |
 | su_functionflag | su_functionflags | `su_functionflagid,_su_function_value,su_reason,su_status,_su_flaggedby_value,su_flaggedon,su_respondentemail` |
 | su_counselassignment | su_counselassignments | `su_counselassignmentid,_su_riskarea_value,_su_attorney_value,su_isdefault` |
+| su_functionlink | su_functionlinks | `su_functionlinkid,su_name,_su_function_value,su_url,su_linktype,su_sortorder,su_source` |
 
 Power Pages refuses a request that reads or writes a column not on its
 table's list, so the list is also a guard: Completed By, Closed By, Flagged

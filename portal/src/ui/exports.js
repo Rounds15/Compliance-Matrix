@@ -26,12 +26,14 @@ export function matrixCsv(ds) {
   return toCsv(
     ["Function ID", "Compliance Function", "Risk Area", "Domain", "Risk Rating", "Statute", "Citation", "Statute URL",
       "Executive Owner", "Unit Owner", "Compliance Owner", "General Counsel", "Description", "Reporting Requirement",
-      "Deadline", "Resource Label", "Resource URL", "Open Gaps", "Flagged"],
+      "Deadline", "Resource Label", "Resource URL", "Open Gaps", "Flagged", "Additional Links"],
     ds.fns.map(f => [f.code, f.name, f.topic, f.area, f.risk, f.statute, f.citation, f.statuteUrl,
       names(f.chain.exec), names(f.chain.unit), names(f.chain.compliance), f.counsel ? f.counsel.n : "",
       f.description, f.reporting, f.deadline, f.resourceLabel, f.resourceUrl,
       ds.gaps.filter(g => g.open && String(g.functionId) === String(f.id)).length,
-      ds.flags.some(x => String(x.functionId) === String(f.id)) ? "Yes" : "No"]));
+      ds.flags.some(x => String(x.functionId) === String(f.id)) ? "Yes" : "No",
+      /* "Type: label <url>", one per line, in their order */
+      (f.links || []).map(l => `${l.type}: ${l.label} <${l.url}>`).join("\n")]));
 }
 
 export function gapsCsv(ds, today) {

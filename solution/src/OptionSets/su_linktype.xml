@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="su_linktype" localizedName="Link Type">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Link Type" languagecode="1033"/>
+  </displaynames>
+  <Descriptions>
+    <Description description="What a function's additional link points at. Statute and Regulation show under Governing statute; Guidance and SU Resource under Syracuse University resource." languagecode="1033"/>
+  </Descriptions>
+  <options>
+    <option value="100000140" IsHidden="0">
+      <labels>
+        <label description="Statute" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000141" IsHidden="0">
+      <labels>
+        <label description="Regulation" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000142" IsHidden="0">
+      <labels>
+        <label description="Guidance" languagecode="1033"/>
+      </labels>
+    </option>
+    <option value="100000143" IsHidden="0">
+      <labels>
+        <label description="SU Resource" languagecode="1033"/>
+      </labels>
+    </option>
+  </options>
+</optionset>

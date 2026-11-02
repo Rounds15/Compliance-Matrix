@@ -354,3 +354,16 @@ code { font-size: .88em; overflow-wrap: anywhere }
 
 /* Deadlines: the administrators' My deadlines / All deadlines switch */
 .dl-all { display: inline-flex; gap: 4px }
+
+/* Function Detail: additional links, and their editor */
+.fd-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px }
+.fd-links li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline }
+.fd-links a { font-size: 15px; line-height: 1.4; font-weight: 600; overflow-wrap: anywhere }
+.fd-links .sub { font-size: 13px }
+.lk-edit { display: grid; gap: 10px; margin-top: 10px; justify-items: start }
+.lk-row { width: 100%; border: 1px solid #E3E6EC; background: #FAFBFC; padding: 10px 12px }
+.lk-row.bad { border-color: #DC2626; background: #FFF7F7 }
+.lk-fields { display: flex; flex-wrap: wrap; gap: 10px }
+.lk-fields > div { flex: 1 1 220px; min-width: 0 }
+.lk-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px }
+.lk-problem { color: #B91C1C; font-size: 13px; font-weight: 700; margin: 6px 0 0 }

@@ -160,20 +160,34 @@ export function useStore(cfg) {
     reopenGap: (gap, reason) => act("gap-" + gap.id, (a, c) => a.reopenGap({ gap, reason }, c), "Gap reopened."),
     completeDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.completeDeadline({ dl, fn, reason }, c), "Deadline marked complete"),
     reverseDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.reverseDeadline({ dl, fn, reason }, c), "Completion reversed"),
-    /* the record and, when rows is given, its ownership rows, under one
-       button: the function first (a new one needs its ID), then the rows */
-    saveFunction: (draft, isNew, rows) => act("fn", async (a, c) => {
+    /* the record and, when rows is given, its ownership rows, and when links
+       is given, its additional links, under one button: the function first
+       (a new one needs its ID), then the rows, then the links */
+    saveFunction: (draft, isNew, rows, links) => act("fn", async (a, c) => {
       const r = await a.saveFunction({ draft, isNew }, c);
-      if (!rows || r.id == null) return r;
-      let o;
-      try { o = await a.setOwnership({ fn: { ...draft, id: r.id }, rows, ...ownershipNow(isNew ? null : r.id) }, c); }
-      catch (e) {
-        /* the record itself was saved: show it, and say the people were not */
-        await reload(r.reload || ["functions"]).catch(() => null);
+      if (r.id == null || (!rows && !(links && a.setLinks))) return r;
+      const fn = { ...draft, id: r.id };
+      const reloads = [...(r.reload || ["functions"])];
+      /* the record itself was saved: show it, and say what was not */
+      const partly = async (e, also) => {
+        await reload([...new Set([...reloads, ...also])]).catch(() => null);
         throw new Error("The record was saved. " + (e.message || String(e)));
+      };
+      let warning;
+      if (rows) {
+        let o;
+        try { o = await a.setOwnership({ fn, rows, ...ownershipNow(isNew ? null : r.id) }, c); }
+        catch (e) { await partly(e, ["ownership"]); }
+        reloads.push(...(Array.isArray(o) ? o : (o && o.reload) || []));
+        warning = o && o.warning;
       }
-      const more = Array.isArray(o) ? o : (o && o.reload) || [];
-      return { id: r.id, warning: o && o.warning, reload: [...new Set([...(r.reload || []), ...more])] };
+      if (links && a.setLinks) {
+        const existing = isNew ? [] : (rawRef.current.links || []).filter(l => String(l.functionId) === String(r.id));
+        try { await a.setLinks({ fn, links, existing }, c); }
+        catch (e) { await partly(e, ["links"]); }
+        reloads.push("links");
+      }
+      return { id: r.id, warning, reload: [...new Set(reloads)] };
     }, r => (r && r.warning) || (isNew ? "New function created and added to the matrix." : "Changes saved to the matrix.")),
     deleteFunction: fn => act("fn-del", (a, c) => {
       const r = rawRef.current;

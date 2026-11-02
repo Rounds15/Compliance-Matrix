@@ -7,6 +7,7 @@
 import * as S from "./sample-data.js";
 import { addDays, today as todayFn } from "../../lib/dates.js";
 import { ownershipPlan, runOwnershipSave } from "../ownership.js";
+import { linksPlan, runLinksSave } from "../links.js";
 
 const clone = x => JSON.parse(JSON.stringify(x), (k, v) =>
   (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v) ? new Date(v) : v));
@@ -68,7 +69,8 @@ export function sampleRaw(today = todayFn()) {
     counsel.push({ riskAreaId: topic, personId: person.id, isDefault: false });
   });
   counsel.push({ riskAreaId: null, personId: "ambrose", isDefault: true });
-  return { riskAreas, domains, people, counselPeople, functions, ownership, deadlines, gaps, flags, counsel };
+  const links = S.LINKS.map((r, i) => ({ id: "LINK-" + (i + 1), functionId: r[0], label: r[1], type: r[2], url: r[3], sort: i + 1, source: "Sample" }));
+  return { riskAreas, domains, people, counselPeople, functions, ownership, deadlines, gaps, flags, counsel, links };
 }
 
 export function createSampleAdapter() {
@@ -85,7 +87,7 @@ export function createSampleAdapter() {
   return {
     name: "sample",
     label: "Sample data",
-    tables: ["riskAreas", "domains", "people", "functions", "ownership", "deadlines", "flags", "gaps", "counsel"],
+    tables: ["riskAreas", "domains", "people", "functions", "ownership", "deadlines", "flags", "gaps", "counsel", "links"],
     canLookupPeople: true,
     /* the roles the ownership editor offers (the Accountability Structure Role choices) */
     roles: ["Executive Owner", "Unit Owner", "Compliance Owner", "Support"],
@@ -162,6 +164,15 @@ export function createSampleAdapter() {
         remove: async x => { raw.ownership = raw.ownership.filter(o => String(o.id) !== String(x.id)); }
       });
       return ["ownership"];
+    },
+    async setLinks({ fn, links, existing }) {
+      const find = id => raw.links.find(x => String(x.id) === String(id));
+      await runLinksSave(linksPlan(existing, links), {
+        create: async l => { const id = newId("LINK"); raw.links.push({ id, functionId: fn.id, label: l.label, url: l.url, type: l.type, sort: l.sort, source: l.source || "" }); return id; },
+        update: async l => { Object.assign(find(l.id) || {}, { label: l.label, url: l.url, type: l.type, sort: l.sort }); },
+        remove: async l => { raw.links = raw.links.filter(x => String(x.id) !== String(l.id)); }
+      });
+      return ["links"];
     },
     async addPerson({ person }) {
       const id = newId("P");

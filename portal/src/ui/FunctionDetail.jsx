@@ -17,6 +17,8 @@ import { functionsFor, allRows } from "../data/model.js";
 import { fmtDate, fiscalQ } from "../lib/dates.js";
 import { RISK_COLOR, RISK_CHOICES, riskRank } from "../lib/risk.js";
 import { useAddToCalendar } from "./calendar.js";
+import { LinkList, LinksEditor, editableLinks } from "./Links.jsx";
+import { STATUTE_TYPES, RESOURCE_TYPES, linkProblem, linksKey } from "../data/links.js";
 
 const draftOf = f => f ? { ...f } : {
   id: null, code: "", name: "", topicId: null, topic: "", areaId: null, area: "", statute: "", citation: "",
@@ -25,7 +27,7 @@ const draftOf = f => f ? { ...f } : {
 
 /* the canvas app's edit mode: every field of the record, the ownership chain
    and General Counsel, saved together with "Save changes" */
-function EditForm({ f, d, set, own, setOwn }) {
+function EditForm({ f, d, set, own, setOwn, links, setLinks, tried }) {
   const { ds } = useApp();
   const areas = [...ds.topics].sort((a, b) => a.name.localeCompare(b.name));
   const domains = ds.domains.filter(x => String(x.topicId) === String(d.topicId));
@@ -57,12 +59,14 @@ function EditForm({ f, d, set, own, setOwn }) {
     <Field label="Governing statute">
       <div className="frow">{text("statute", "Statute", "Statute")}{text("citation", "Statute citation", "Citation")}</div>
       {text("statuteUrl", "Statute URL", "https://")}
+      {links && <LinksEditor all={links} onChange={setLinks} types={STATUTE_TYPES} tried={tried} idPrefix="lk-statute" />}
     </Field>
     <Field label="What the obligation is"><textarea id="fd-description" className="ti" aria-label="Description" value={d.description || ""} onChange={e => set({ description: e.target.value })} placeholder="Description" /></Field>
     <Field label="Reporting requirement"><textarea id="fd-reporting" className="ti" aria-label="Reporting requirement" value={d.reporting || ""} onChange={e => set({ reporting: e.target.value })} placeholder="Reporting requirement" /></Field>
     <Field label="Deadline and cadence"><textarea id="fd-deadline" className="ti" aria-label="Deadline" value={d.deadline || ""} onChange={e => set({ deadline: e.target.value })} placeholder="Deadline" /></Field>
     <Field label="Syracuse University resource">
       <div className="frow">{text("resourceLabel", "SU resource label", "Resource label")}{text("resourceUrl", "SU resource URL", "https://")}</div>
+      {links && <LinksEditor all={links} onChange={setLinks} types={RESOURCE_TYPES} tried={tried} idPrefix="lk-resource" />}
     </Field>
   </>;
 }
@@ -73,6 +77,10 @@ export function FunctionDetail({ f, isNew }) {
   const [mode, setMode] = useState(isNew ? "edit" : "read");
   const [d, setD] = useState(() => draftOf(f));
   const [own, setOwn] = useState(() => ownersOf(f));
+  /* the additional links being edited, where the backend can save them */
+  const canLinks = typeof adapter.setLinks === "function";
+  const [lk, setLk] = useState(() => editableLinks(f ? f.links : []));
+  const [tried, setTried] = useState(false);
   const [panel, setPanel] = useState(null); // "flag" | "gap" | null
   const [flagText, setFlagText] = useState("");
   const [gapForm, setGapForm] = useState({ title: "", note: "" });
@@ -98,15 +106,20 @@ export function FunctionDetail({ f, isNew }) {
 
   const save = async () => {
     if (!d.name.trim() || d.topicId == null || d.areaId == null) { flash("Function name, risk area, and domain are all required.", "error"); return; }
+    if (canLinks && lk.some(l => linkProblem(l))) { setTried(true); flash("Each link needs a label and an address that starts with https://.", "error"); return; }
     try {
       const changed = isNew ? own.owners.length > 0 || !!own.gc : ownerKey(own) !== ownerKey(ownersOf(f));
-      const r = await actions.saveFunction({ ...d, name: d.name.trim() }, !!isNew, changed ? ownerRows(own) : null);
+      /* statute links first, then resource links, numbered in that order */
+      const bySection = list => [...list.filter(l => STATUTE_TYPES.includes(l.type)), ...list.filter(l => !STATUTE_TYPES.includes(l.type))];
+      const ordered = bySection(lk);
+      const linksChanged = canLinks && linksKey(ordered) !== linksKey(bySection(f ? f.links : []));
+      const r = await actions.saveFunction({ ...d, name: d.name.trim() }, !!isNew, changed ? ownerRows(own) : null, linksChanged ? ordered : null);
       if (isNew) window.location.replace("#/functions/" + encodeURIComponent(r.id));
       else setMode("read");
     } catch (e) { /* the toast says what failed */ }
   };
-  const startEdit = () => { setD(draftOf(f)); setOwn(ownersOf(f)); setPanel(null); setMode("edit"); };
-  const cancel = () => { if (isNew) go("Functions"); else { setD(draftOf(f)); setOwn(ownersOf(f)); setMode("read"); } };
+  const startEdit = () => { setD(draftOf(f)); setOwn(ownersOf(f)); setLk(editableLinks(f.links)); setTried(false); setPanel(null); setMode("edit"); };
+  const cancel = () => { if (isNew) go("Functions"); else { setD(draftOf(f)); setOwn(ownersOf(f)); setLk(editableLinks(f.links)); setTried(false); setMode("read"); } };
   const submitFlag = async () => {
     try { await actions.addFlag(f, flagText.trim()); setPanel(null); setFlagText(""); } catch (e) { /* toast */ }
   };
@@ -195,13 +208,15 @@ export function FunctionDetail({ f, isNew }) {
           {isNew
             ? <div className="note" style={{ marginBottom: 18 }}><b>New function.</b> Fill in the record and its ownership chain, then create it.</div>
             : <div className="note" style={{ marginBottom: 18 }}><b>Editing.</b> Deadlines read their owner and risk from this function, so they follow any change you save here.</div>}
-          <EditForm f={f} d={d} set={set} own={own} setOwn={setOwn} />
+          <EditForm f={f} d={d} set={set} own={own} setOwn={setOwn} links={canLinks ? lk : null} setLinks={setLk} tried={tried} />
         </> : <>
           <Field label="Governing statute">
             <dl className="kv">
               <dt>Statute</dt><dd>{f.statute || <span className="sub">Not recorded</span>}</dd>
               <dt>Citation</dt><dd>{f.citation || <span className="sub">Not recorded</span>}</dd>
               <dt>Reference</dt><dd>{f.statuteUrl ? <a href={f.statuteUrl} target="_blank" rel="noopener">{bare(f.statuteUrl)} <Icon n="ext" s={12} style={{ verticalAlign: -1 }} /></a> : <span className="sub">No link recorded</span>}</dd>
+              {f.links.some(l => STATUTE_TYPES.includes(l.type)) && <><dt>Additional links</dt>
+                <dd><LinkList links={f.links.filter(l => STATUTE_TYPES.includes(l.type))} /></dd></>}
             </dl>
           </Field>
           <Field label="What the obligation is"><p>{f.description || <span className="sub">No description recorded.</span>}</p></Field>
@@ -235,7 +250,9 @@ export function FunctionDetail({ f, isNew }) {
               <a href={f.resourceUrl} target="_blank" rel="noopener" style={{ fontSize: 14, fontWeight: 600 }}>{f.resourceLabel || bare(f.resourceUrl)} <Icon n="ext" s={12} style={{ verticalAlign: -1 }} /></a>
               <div className="sub" style={{ marginTop: 3 }}>{bare(f.resourceUrl)}</div>
             </> : f.resourceLabel ? <div style={{ fontSize: 14, fontWeight: 600 }}>{f.resourceLabel}</div>
-              : <span className="sub">No university resource recorded.</span>}
+              : !f.links.some(l => RESOURCE_TYPES.includes(l.type)) && <span className="sub">No university resource recorded.</span>}
+            {f.links.some(l => RESOURCE_TYPES.includes(l.type)) && <div style={{ marginTop: f.resourceUrl || f.resourceLabel ? 12 : 0 }}>
+              <LinkList links={f.links.filter(l => RESOURCE_TYPES.includes(l.type))} /></div>}
           </Field>
         </>}
       </main>

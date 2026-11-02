@@ -942,6 +942,91 @@ await session("Dataverse · a gap closed and reopened recounts its assessment an
   assert.match(await page.locator("#fd-risk").locator("xpath=..").innerText(), /Shown as Moderate, from the latest accepted assessment/);
 });
 
+/* additional links: shown under their section, edited by an administrator
+   (add, change, reorder, remove, https:// only), found by search, exported */
+await session("Dataverse · an administrator edits a function's additional links", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn, view }) => {
+  const dv = portal.dv;
+  const rows = () => dv.su_functionlinks.filter(l => l._su_function_value === G(201)).sort((a, b) => a.su_sortorder - b.su_sortorder);
+  await go("#/functions/" + G(201));
+  await page.waitForSelector("h1:has-text('Clery Act')");
+  const statuteLinks = () => page.locator("dl.kv .fd-links a").allInnerTexts().then(a => a.map(x => x.trim()));
+  assert.deepEqual(await statuteLinks(), ["34 C.F.R. § 668.46", "20 U.S.C. § 1092(f)"], "Statute and Regulation links, by sort order");
+  const a = page.locator("dl.kv .fd-links a").first();
+  assert.equal(await a.getAttribute("target"), "_blank");
+  assert.match(await a.getAttribute("href"), /^https:\/\/www\.ecfr\.gov\//);
+  assert.equal(await page.locator(".fd-links a", { hasText: "Campus Safety and Security handbook" }).count(), 1, "Guidance under the SU resource section");
+  assert.equal(await page.locator("dl.kv .fd-links a", { hasText: "Campus Safety" }).count(), 0, "not under Governing statute");
+
+  await btn("Edit this record").click();
+  const editors = page.locator(".lk-edit");
+  assert.equal(await editors.count(), 2, "one editor per section");
+  // add a statute link with a bad address: refused, and nothing is written
+  await editors.first().locator("button", { hasText: "Add link" }).click();
+  const added = editors.first().locator(".lk-row").last();
+  await added.locator("input").nth(0).fill("Jeanne Clery Act");
+  await added.locator("input").nth(1).fill("http://www.law.cornell.edu/uscode/text/20/1092");
+  const before = dv.su_functionlinks.length;
+  await btn("Save changes").click();
+  await toast(/Each link needs a label and an address that starts with https:\/\//);
+  assert.equal(await added.locator(".lk-problem").innerText(), "The address must start with https://.");
+  assert.equal(dv.su_functionlinks.length, before);
+  await added.locator("input").nth(1).fill("https://www.law.cornell.edu/uscode/text/20/1092#f");
+  // move it to the top of its section, rename the statute, remove the guidance link
+  await added.locator("button[aria-label='Move Jeanne Clery Act up']").click();
+  await editors.first().locator("button[aria-label='Move Jeanne Clery Act up']").click();
+  assert.equal(await editors.first().locator("button[aria-label='Move Jeanne Clery Act up']").isDisabled(), true, "first in its section");
+  assert.equal(await editors.first().locator(".lk-row").first().locator("input").first().inputValue(), "Jeanne Clery Act");
+  await editors.first().locator(".lk-row", { has: page.locator("input[value='20 U.S.C. § 1092(f)']") }).locator("input").first().fill("20 U.S.C. § 1092(f) (Clery Act)");
+  await editors.nth(1).locator("button", { hasText: "Remove" }).click();
+  await btn("Save changes").click();
+  await toast(/Changes saved to the matrix/);
+  assert.deepEqual(rows().map(l => [l.su_name, l.su_linktype, l.su_sortorder]), [
+    ["Jeanne Clery Act", 100000140, 1], ["34 C.F.R. § 668.46", 100000141, 2], ["20 U.S.C. § 1092(f) (Clery Act)", 100000140, 3]]);
+  assert.equal(rows()[0]._su_function_value, G(201));
+  assert.equal(dv.su_functionlinks.some(l => l.su_functionlinkid === G(1203)), false, "the removed link is deleted");
+  assert.equal(rows().find(l => l.su_functionlinkid === G(1201)).su_source, "HECA Regulation 1", "an edit keeps the source");
+  assert.deepEqual(await statuteLinks(), ["Jeanne Clery Act", "34 C.F.R. § 668.46", "20 U.S.C. § 1092(f) (Clery Act)"]);
+  // saving again with no change writes nothing
+  const writes = () => portal.log.filter(x => x.api && /su_functionlinks/.test(x.api) && !/^GET/.test(x.api)).length;
+  const n = writes();
+  await btn("Edit this record").click();
+  await btn("Save changes").click();
+  await toast(/Changes saved to the matrix/);
+  assert.equal(writes(), n, "no link written when nothing changed");
+
+  // search finds a function by a link's label
+  await go("#/functions");
+  await page.locator("input[aria-label='Search compliance functions']").fill("668.46");
+  await page.waitForTimeout(250);
+  assert.ok(await page.locator("text=Clery Act").count() > 0, "found by a link label");
+
+  // the matrix CSV carries them
+  await view("Admin");
+  await go("#/reporting");
+  await btn("Exports").click();
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.locator(".cm-panel", { hasText: "Full matrix (CSV)" }).locator("button").click()]);
+  const chunks = []; for await (const c of await dl.createReadStream()) chunks.push(c);
+  const csv = Buffer.concat(chunks).toString("utf8");
+  assert.match(csv, /Additional Links\r\n/);
+  assert.match(csv, /"Statute: Jeanne Clery Act <https:\/\/www\.law\.cornell\.edu\/uscode\/text\/20\/1092#f>\nRegulation: 34 C\.F\.R\. § 668\.46 </);
+});
+
+/* a link the Web API refuses: the record is saved, the links are not, and nothing is lost */
+await session("Dataverse · a link save that fails is reported and loses nothing", { backend: "dataverse", admin: true, refuse: ["POST su_functionlinks"] }, async ({ page, portal, go, toast, btn }) => {
+  const before = JSON.stringify(portal.dv.su_functionlinks);
+  await go("#/functions/" + G(201));
+  await page.waitForSelector("h1:has-text('Clery Act')");
+  await btn("Edit this record").click();
+  const ed = page.locator(".lk-edit").first();
+  await ed.locator("button", { hasText: "Add link" }).click();
+  await ed.locator(".lk-row").last().locator("input").nth(0).fill("New statute");
+  await ed.locator(".lk-row").last().locator("input").nth(1).fill("https://www.law.cornell.edu/uscode/text/20/1094");
+  await btn("Save changes").click();
+  const t = await toast(/The record was saved\. The links were not saved\. Step 1 of 3 \(adding "New statute"\) failed/);
+  assert.ok(t);
+  assert.equal(JSON.stringify(portal.dv.su_functionlinks), before, "the existing links are untouched");
+});
+
 /* the admin audit: an administrator in the default User view, on functions
    they are not in the Accountability Structure for, sees and does what
    Admin view allows; View as specific user still previews that person */

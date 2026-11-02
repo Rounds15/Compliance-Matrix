@@ -145,6 +145,11 @@ export function dataverseTables() {
     ],
     su_archives: [],
     su_assessments: [],
+    su_functionlinks: [
+      { su_functionlinkid: G(1201), su_name: "34 C.F.R. § 668.46", _su_function_value: G(201), su_url: "https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-668/subpart-D/section-668.46", su_linktype: 100000141, su_sortorder: 1, su_source: "HECA Regulation 1" },
+      { su_functionlinkid: G(1202), su_name: "20 U.S.C. § 1092(f)", _su_function_value: G(201), su_url: "https://www.law.cornell.edu/uscode/text/20/1092", su_linktype: 100000140, su_sortorder: 2, su_source: "HECA Statute 1" },
+      { su_functionlinkid: G(1203), su_name: "Campus Safety and Security handbook", _su_function_value: G(201), su_url: "https://www2.ed.gov/admins/lead/safety/handbook.pdf", su_linktype: 100000142, su_sortorder: 3, su_source: "" }
+    ],
     su_portalactions: [],
     su_counselassignments: [
       { su_counselassignmentid: G(701), _su_riskarea_value: G(1), _su_attorney_value: G(104), su_isdefault: false },

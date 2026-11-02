@@ -139,6 +139,17 @@ choices:
       - { value: 100000130, label: Pending }
       - { value: 100000131, label: Done }
       - { value: 100000132, label: Failed }
+  su_linktype:
+    displayName: Link Type
+    description: >-
+      What a function's additional link points at. Statute and Regulation
+      show under Governing statute; Guidance and SU Resource under Syracuse
+      University resource.
+    options:
+      - { value: 100000140, label: Statute }
+      - { value: 100000141, label: Regulation }
+      - { value: 100000142, label: Guidance }
+      - { value: 100000143, label: SU Resource }
   su_approle:
     displayName: Application Role
     options:
@@ -597,6 +608,31 @@ tables:
         target: su_compliancedirectory
       - { name: su_clearedon, displayName: Cleared On, type: DateTime, format: DateOnly }
       - { name: su_respondentemail, displayName: Respondent Email, type: String, maxLength: 320 }
+
+  su_functionlink:
+    displayName: Function Link
+    displayCollectionName: Function Links
+    description: >-
+      Additional links for a compliance function, beyond its Statute URL and
+      Resource URL: further statutes and regulations, guidance and Syracuse
+      University resources, each with a label and an order.
+    primaryName: su_name
+    ownership: UserOwned
+    hasActivities: false
+    hasNotes: false
+    columns:
+      - { name: su_name, displayName: Link Label, type: String, maxLength: 400, required: SystemRequired, description: "What the page shows, for example 34 C.F.R. § 668.46." }
+      - name: su_function
+        displayName: Compliance Function
+        type: Lookup
+        target: su_compliancefunction
+        required: ApplicationRequired
+        relationshipName: su_compliancefunction_su_functionlink
+        cascade: { delete: Cascade }
+      - { name: su_url, displayName: URL, type: String, format: Url, maxLength: 2000, description: "An https:// address; the page refuses any other." }
+      - { name: su_linktype, displayName: Link Type, type: Choice, choice: su_linktype }
+      - { name: su_sortorder, displayName: Sort Order, type: Integer, minValue: 0, maxValue: 100000 }
+      - { name: su_source, displayName: Source, type: String, maxLength: 200, description: "Where the link came from, for example HECA Regulation 1." }
 
   su_counselassignment:
     displayName: Counsel Assignment

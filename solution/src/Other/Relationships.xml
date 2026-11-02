@@ -13,6 +13,7 @@
   <EntityRelationship Name="business_unit_su_counselassignment"/>
   <EntityRelationship Name="business_unit_su_domain"/>
   <EntityRelationship Name="business_unit_su_functionflag"/>
+  <EntityRelationship Name="business_unit_su_functionlink"/>
   <EntityRelationship Name="business_unit_su_functionownership"/>
   <EntityRelationship Name="business_unit_su_portalaction"/>
   <EntityRelationship Name="business_unit_su_riskarea"/>
@@ -42,6 +43,8 @@
   <EntityRelationship Name="lk_su_domain_modifiedby"/>
   <EntityRelationship Name="lk_su_functionflag_createdby"/>
   <EntityRelationship Name="lk_su_functionflag_modifiedby"/>
+  <EntityRelationship Name="lk_su_functionlink_createdby"/>
+  <EntityRelationship Name="lk_su_functionlink_modifiedby"/>
   <EntityRelationship Name="lk_su_functionownership_createdby"/>
   <EntityRelationship Name="lk_su_functionownership_modifiedby"/>
   <EntityRelationship Name="lk_su_portalaction_createdby"/>
@@ -61,6 +64,7 @@
   <EntityRelationship Name="owner_su_counselassignment"/>
   <EntityRelationship Name="owner_su_domain"/>
   <EntityRelationship Name="owner_su_functionflag"/>
+  <EntityRelationship Name="owner_su_functionlink"/>
   <EntityRelationship Name="owner_su_functionownership"/>
   <EntityRelationship Name="owner_su_portalaction"/>
   <EntityRelationship Name="owner_su_riskarea"/>
@@ -79,6 +83,7 @@
   <EntityRelationship Name="su_compliancefunction_su_compliancedeadline"/>
   <EntityRelationship Name="su_compliancefunction_su_compliancegap"/>
   <EntityRelationship Name="su_compliancefunction_su_functionflag"/>
+  <EntityRelationship Name="su_compliancefunction_su_functionlink"/>
   <EntityRelationship Name="su_compliancefunction_su_functionownership"/>
   <EntityRelationship Name="su_compliancefunction_su_portalaction"/>
   <EntityRelationship Name="su_compliancefunction_unitowner"/>
@@ -113,6 +118,7 @@
   <EntityRelationship Name="team_su_counselassignment"/>
   <EntityRelationship Name="team_su_domain"/>
   <EntityRelationship Name="team_su_functionflag"/>
+  <EntityRelationship Name="team_su_functionlink"/>
   <EntityRelationship Name="team_su_functionownership"/>
   <EntityRelationship Name="team_su_portalaction"/>
   <EntityRelationship Name="team_su_riskarea"/>
@@ -129,6 +135,7 @@
   <EntityRelationship Name="user_su_counselassignment"/>
   <EntityRelationship Name="user_su_domain"/>
   <EntityRelationship Name="user_su_functionflag"/>
+  <EntityRelationship Name="user_su_functionlink"/>
   <EntityRelationship Name="user_su_functionownership"/>
   <EntityRelationship Name="user_su_portalaction"/>
   <EntityRelationship Name="user_su_riskarea"/>

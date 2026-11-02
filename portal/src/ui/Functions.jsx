@@ -23,7 +23,7 @@ const ownerOf = f => {
   return { p: co[0] ? co[0].person : null, more: Math.max(0, co.length - 1) };
 };
 
-const blob = f => [f.name, f.code, f.statute, f.citation, f.topic, f.area, ...f.chain.compliance.map(r => r.person.n)].join(" ").toLowerCase();
+const blob = f => [f.name, f.code, f.statute, f.citation, f.topic, f.area, ...f.chain.compliance.map(r => r.person.n), ...(f.links || []).map(l => l.label)].join(" ").toLowerCase();
 
 export const FnCard = ({ f, g, fl, onClick }) => {
   const o = ownerOf(f);

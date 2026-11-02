@@ -20,10 +20,13 @@
      gaps       {id, code, functionId, title, status, source, note, closeNote,
                  unit, responsibleId, opened, closed, targetQuarter, targetFY,
                  severity?, gapCode?}
-     flags      {id, functionId, reason, byId, byName, byEmail, at, open}   */
+     flags      {id, functionId, reason, byId, byName, byEmail, at, open}
+     links      {id, functionId, label, url, type, sort, source}   (Dataverse
+                and the sample data; each function's additional links)   */
 
 import { normRisk, riskRank } from "../lib/risk.js";
 import { nextOccurrence } from "../lib/deadlines.js";
+import { byLinkOrder } from "./links.js";
 
 export const ROLE_EXEC = "Executive Owner";
 export const ROLE_UNIT = "Unit Owner";
@@ -101,6 +104,15 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
   }
 
   const counselDefault = (raw.counsel || []).find(c => c.isDefault);
+  /* each function's additional links, in their order */
+  const linksByFn = new Map();
+  for (const l of raw.links || []) {
+    if (l.functionId == null) continue;
+    const k = String(l.functionId);
+    if (!linksByFn.has(k)) linksByFn.set(k, []);
+    linksByFn.get(k).push({ id: l.id, label: l.label || l.url || "", url: l.url || "", type: l.type || "", sort: l.sort ?? 0, source: l.source || "" });
+  }
+  linksByFn.forEach(list => list.sort(byLinkOrder));
   const counselByArea = new Map((raw.counsel || []).filter(c => c.riskAreaId != null).map(c => [String(c.riskAreaId), c]));
 
   const fns = (raw.functions || []).map(f => {
@@ -156,6 +168,8 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
       assessedRisk: f.assessedRisk ? normRisk(f.assessedRisk) : "",
       displayRisk: f.assessedRisk ? normRisk(f.assessedRisk) : normRisk(f.risk),
       lastReviewed: f.lastReviewed || null,
+      /* additional links, alongside statuteUrl and resourceUrl */
+      links: linksByFn.get(String(f.id)) || [],
       chain,
       counsel,
       exec: pe ? pe.person : NOBODY,
