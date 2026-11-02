@@ -8,18 +8,27 @@
    Run: node test/e2e.mjs   (needs dist/ built and Chromium) */
 
 import { chromium } from "playwright-core";
+import { existsSync } from "node:fs";
 import assert from "node:assert/strict";
 import { startPortal } from "./mock-portal.mjs";
+import { setClock } from "./flow-runner.mjs";
 import { DV_IDS as G } from "./fixtures.mjs";
 
-const EXE = process.env.CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+/* the container's Chromium: its stable path, or the versioned one older images had */
+const EXE = process.env.CHROMIUM || ["/opt/pw-browsers/chromium", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"].find(f => existsSync(f));
 const browser = await chromium.launch({ executablePath: EXE });
+/* Every session runs on the same day, so date-based checks (this month's
+   deadlines, overdue, days open, a target's end) read the same whenever the
+   suite runs: noon Eastern on Oct 15, 2026, in the page and in the flows. */
+const NOW = "2026-10-15T16:00:00Z";
+setClock(NOW);
 let passed = 0;
 const results = [];
 
 async function session(name, opts, body) {
   const portal = await startPortal(opts);
   const page = await browser.newPage({ viewport: { width: 1366, height: 900 }, acceptDownloads: true });
+  await page.clock.setFixedTime(new Date(NOW));
   const problems = [];
   page.on("pageerror", e => problems.push("pageerror: " + e.message));
   page.on("console", m => { if (m.type() === "error") problems.push("console: " + m.text()); });
@@ -258,15 +267,32 @@ await session("SharePoint · administrator · header, view modes, every write", 
   assert.equal(gcRows().length, 0);
   assert.equal(sp["Accountability Structure"].filter(r => r.FunctionId === 201).length, 5);
 
-  // close a gap from the tracker (Admin view shows every gap)
+  // close a gap from the tracker (Admin view shows every gap): one card per
+  // function, the function's rating on the card, none on the gap
   await go("#/gaps");
-  assert.equal(await text(page.locator(".stat .s")), "How long it typically takes to close a gap");
-  const card = page.locator(".gcard2", { hasText: "I-9 Section 2 completed late" });
-  assert.match(await text(card.locator(".sub").first()), /^\d+d open$/, "no gap number on the card");
-  assert.equal(await text(card.locator(".risk")), "Not rated", "unrated function");
-  await card.locator("button", { hasText: "Close" }).click();
+  assert.deepEqual(await page.locator(".stat .l").allInnerTexts().then(a => a.map(x => x.toLowerCase())), ["open", "closed", "functions with open gaps", "avg days open"]);
+  assert.equal(await text(page.locator(".stat .s")), "The average age of the gaps open now");
+  assert.deepEqual(await page.locator("select[aria-label='Function risk level'] option").allInnerTexts(), ["All risk levels", "High", "Moderate", "Low", "Not rated"]);
+  assert.equal(await page.locator("select[aria-label=Severity]").count(), 0, "no severity filter");
+  const card = page.locator(".gt-card", { hasText: "Form I-9" });
+  assert.equal(await text(card.locator(".gt-meta .risk")), "Not rated", "the function's rating, unrated");
+  assert.equal(await card.locator(".gt-rows .risk").count(), 0, "no rating on a gap");
+  assert.equal(await text(card.locator(".gt-n")), "1 open gap");
+  const row = card.locator(".gt-row", { hasText: "I-9 Section 2 completed late" });
+  assert.equal(await text(row.locator(".gt-code")), "Late");
+  assert.match(await text(row.locator(".sub")), /^\d+d open$/);
+  assert.equal(await text(row.locator(".gt-target")), "Q2 FY27");
+  const fire = page.locator(".gt-row", { hasText: "Fire log not retained" }).first();
+  assert.equal(await text(fire.locator(".gt-target")), "No target");
+  assert.equal(await fire.locator(".gt-target.warn").count(), 1, "amber when blank");
+  assert.match(await text(card.locator(".gt-foot")), /^Oldest \d+d\s*0 past target\s*View function$/);
+  await row.click();
+  const detail = await modal().locator(".gt-dl").innerText();
+  assert.match(detail, /Responsible unit\s+Human Resources/i); assert.match(detail, /Source\s+Manual/i);
+  assert.match(detail, /Target\s+Q2 FY27 Ends Dec 31, 2026/i);
+  assert.equal(await btn("Mark as closed", modal()).isDisabled(), true, "a closure note is required");
   await modal().locator("textarea").fill("Late forms re-verified.");
-  await btn("Close gap", modal()).click();
+  await btn("Mark as closed", modal()).click();
   await toast(/Gap closed/);
   const closed = sp["Gap List"].find(r => r.Id === 601);
   assert.equal(closed.field_2, "Closed"); assert.ok(closed.field_13); assert.equal(closed.ClosedById, 101);
@@ -394,10 +420,13 @@ await session("SharePoint · owner · own scope, member flow only, admin UI abse
 
   // an owner closes a gap on their own function through the member flow
   await go("#/gaps");
-  assert.equal(await page.locator(".gcard2").count(), 2, "the open gap on 202 and the one in progress on 201");
-  assert.equal(await text(page.locator(".gcard2", { hasText: "Fire log" }).locator(".pill.due")), "In Progress");
-  await page.locator(".gcard2", { hasText: "I-9 Section 2" }).locator("button", { hasText: "Close" }).click();
-  await btn("Close gap", modal()).click();
+  assert.equal(await page.locator(".gt-card").count(), 2, "a card each for 202 (the open gap) and 201 (the one in progress)");
+  await page.locator(".gt-row", { hasText: "Fire log" }).click();
+  assert.match(await modal().locator(".gt-dl").innerText(), /Status\s+In Progress/i);
+  await page.keyboard.press("Escape");
+  await page.locator(".gt-row", { hasText: "I-9 Section 2" }).click();
+  await modal().locator("textarea").fill("Re-verified.");
+  await btn("Mark as closed", modal()).click();
   await toast(/Gap closed/);
   assert.equal(portal.sp["Gap List"].find(r => r.Id === 601).field_2, "Closed");
   assert.equal(portal.sp["Gap List"].find(r => r.Id === 601).ClosedById, 103);
@@ -613,7 +642,8 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await mcard.locator(".av.photo img").waitFor();
   assert.equal(await mcard.locator(".av.photo img").evaluate(img => img.complete && img.naturalWidth), 2, "the su_photo thumbnail is shown");
   const ccard = page.locator(".orole.compliance .operson", { hasText: "Camila Ruiz" });
-  await page.waitForFunction(id => performance.getEntriesByType("resource").some(e => e.name.includes(id + ")/su_photo/$value")), G(101));
+  const asked = () => portal.log.some(x => x.api === "GET /_api/su_compliancedirectorys(" + G(101) + ")/su_photo/$value");
+  for (let i = 0; i < 100 && !asked(); i++) await page.waitForTimeout(100);
   assert.equal(await ccard.locator(".av.photo").count(), 0);
   assert.equal(await text(ccard.locator(".av")), "CR", "no photo: the initials circle");
   assert.ok(portal.log.some(x => x.api === "GET /_api/su_compliancedirectorys(" + G(101) + ")/su_photo/$value"), "asked once, answered 204");
@@ -636,19 +666,27 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
 
   await view("Admin");
   await go("#/gaps");
-  await page.locator(".gcard2", { hasText: "I-9 Section 2 completed late" }).locator("button", { hasText: "Close" }).click();
-  await btn("Close gap", modal()).click();
+  await page.locator(".gt-row", { hasText: "I-9 Section 2 completed late" }).click();
+  await modal().locator("textarea").fill("Re-verified.");
+  await btn("Mark as closed", modal()).click();
   await toast(/Gap closed/);
   const g = dv.su_compliancegaps.find(r => r.su_compliancegapid === G(601));
   assert.equal(g.su_status, 100000021); assert.equal(g._su_closedby_value, G(101));
 
-  /* a gap with no function: listed for the administrator, blank function, no Function link; closing it is allowed */
-  const loose = page.locator(".gcard2", { hasText: "Records retention schedule not adopted" });
+  /* a gap with no function: listed for the administrator in the last card, with no rating and no
+     View function; closing it is allowed */
+  const loose = page.locator(".gt-card", { hasText: "Records retention schedule not adopted" });
   await loose.waitFor();
-  assert.equal(await loose.locator(".nm").innerText(), "", "no function name");
-  assert.equal(await loose.locator("button", { hasText: "Function" }).isDisabled(), true);
-  await loose.locator("button", { hasText: "Close" }).click();
-  await btn("Close gap", modal()).click();
+  assert.equal(await text(loose.locator(".gt-fn")), "Not linked to a function");
+  assert.equal(await text(page.locator(".gt-card").last().locator(".gt-fn")), "Not linked to a function", "the unlinked card is last");
+  assert.equal(await loose.locator("button", { hasText: "View function" }).count(), 0);
+  assert.equal(await loose.locator(".gt-meta .risk").count(), 0);
+  await page.selectOption("select[aria-label='Function risk level']", "Unrated");
+  assert.equal(await page.locator(".gt-card .gt-fn", { hasText: "Not linked to a function" }).count(), 0, "a risk level filters by function, so the unlinked card shows only under All risk levels");
+  await page.selectOption("select[aria-label='Function risk level']", "");
+  await loose.locator(".gt-row").click();
+  await modal().locator("textarea").fill("Schedule adopted.");
+  await btn("Mark as closed", modal()).click();
   await toast(/Gap closed/);
   const lg = dv.su_compliancegaps.find(r => r.su_compliancegapid === G(604));
   assert.equal(lg.su_status, 100000021); assert.equal(lg._su_closedby_value, G(101));
@@ -766,7 +804,7 @@ await session("Dataverse · owner · permitted writes succeed, admin UI absent",
   assert.equal(portal.dv.su_functionflags.at(-1)._su_flaggedby_value, G(103));
   await go("#/gaps");
   await page.locator("h1", { hasText: "Gap Tracker" }).waitFor();
-  assert.equal(await page.locator(".gcard2", { hasText: "Records retention schedule not adopted" }).count(), 0, "an owner does not see a gap with no function");
+  assert.equal(await page.locator(".gt-row", { hasText: "Records retention schedule not adopted" }).count(), 0, "an owner does not see a gap with no function");
 });
 
 /* a contact with no email: the page finds the person through the directory's Portal Contact link */
@@ -872,13 +910,12 @@ await session("Dataverse · an administrator has full access in User view", { ba
   assert.match(await page.locator(".ph").innerText(), /Every open compliance gap across the institution/);
   const total = portal.dv.su_compliancegaps.length;
   await btn(/^Closed \(/).click();
-  const closedN = await page.locator(".gcard2").count();
+  const closedN = await page.locator(".gt-row").count();
   await btn(/^Open \(/).click();
-  assert.equal(await page.locator(".gcard2").count() + closedN, total, "every gap in the matrix");
-  const card = page.locator(".gcard2", { hasText: "I-9 Section 2" });
-  await card.locator("button", { hasText: "Close" }).click();
+  assert.equal(await page.locator(".gt-row").count() + closedN, total, "every gap in the matrix");
+  await page.locator(".gt-row", { hasText: "I-9 Section 2" }).click();
   await modal().locator("textarea").fill("Closed by the compliance office.");
-  await btn("Close gap", modal()).click();
+  await btn("Mark as closed", modal()).click();
   await toast(/Gap closed/);
 
   // Risk Dashboard, Reporting and Flagged Items open
@@ -1023,6 +1060,7 @@ await session("Phone width · every screen fits, the drawer and profile open", {
 async function sitePage(name, opts, body) {
   const portal = await startPortal(opts);
   const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  await page.clock.setFixedTime(new Date(NOW));
   const problems = [];
   page.on("pageerror", e => problems.push("pageerror: " + e.message));
   page.on("console", m => { if (m.type() === "error") problems.push("console: " + m.text()); });

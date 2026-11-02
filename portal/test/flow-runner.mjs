@@ -45,6 +45,12 @@ export function pageRequest(def, request, { asJson = false } = {}) {
   throw new Error("not a page-called flow: " + trig.kind);
 }
 
+/* the clock utcNow() reads: the real one, or a fixed instant a test sets
+   (the browser tests fix the page's clock to the same instant) */
+let fixedNow = null;
+export function setClock(iso) { fixedNow = iso ? new Date(iso) : null; }
+const now = () => (fixedNow ? new Date(fixedNow.getTime()) : new Date());
+
 class FlowError extends Error {}
 class ConnectorError extends Error { constructor(status, message) { super(message); this.status = status; } }
 /* a value an expression cannot use (bad JSON, a bad date): the action fails, as in Power Automate */
@@ -199,7 +205,7 @@ const FUNCS = {
   },
   addProperty: (o, k, v) => { if (!o || typeof o !== "object" || k in o) throw new FlowError("addProperty() on " + JSON.stringify(o)); return { ...o, [k]: v }; },
   substring: (s, start, len) => { str(s); if (start < 0 || start + len > s.length) throw new FlowError(`substring(${JSON.stringify(s)}, ${start}, ${len}) is out of range`); return s.substr(start, len); },
-  utcNow: () => new Date().toISOString(),
+  utcNow: () => now().toISOString(),
   convertFromUtc: (ts, tz, fmt) => { if (tz !== "Eastern Standard Time") throw new FlowError("time zone not modelled: " + tz); return fmtDate(easternParts(new Date(str(ts))), fmt); },
   formatDateTime: (ts, fmt) => {
     const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(str(ts)); if (!m) throw new FlowError("formatDateTime() of " + ts);

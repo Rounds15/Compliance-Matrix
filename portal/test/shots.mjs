@@ -1,13 +1,14 @@
 /* Screenshot every screen of the preview (sample data), in User view and,
    for the administrator screens, Admin view. Usage: node test/shots.mjs <outdir> */
 import { chromium } from "playwright-core";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const out = resolve(process.argv[2] || "shots");
 const width = Number(process.env.WIDTH || 1366);
 mkdirSync(out, { recursive: true });
-const exe = process.env.CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+/* the container's Chromium: its stable path, or the versioned one older images had */
+const exe = process.env.CHROMIUM || ["/opt/pw-browsers/chromium", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"].find(f => existsSync(f));
 const browser = await chromium.launch({ executablePath: exe });
 
 const USER = [["home", ""], ["definitions", "definitions"], ["functions", "functions"], ["detail", "functions/CF-3020"],

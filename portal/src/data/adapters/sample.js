@@ -50,7 +50,8 @@ export function sampleRaw(today = todayFn()) {
   const gaps = S.GP.map((r, i) => ({
     id: "GAP-" + (200 + i), code: "GAP-" + (200 + i), functionId: r[0], title: r[1],
     opened: dt(r[3]), status: r[4], note: r[5], closeNote: r[6],
-    closed: r[4] === "Closed" ? dt(r[3] + 30) : null
+    closed: r[4] === "Closed" ? dt(r[3] + 30) : null,
+    targetQuarter: r[7] || "", targetFY: r[8] || "", unit: r[9] || "", source: r[10] || ""
   }));
   const flags = S.FLAGS.map((f, i) => ({
     id: "FLAG-" + (i + 1), functionId: f.functionId, reason: f.reason, byName: f.by, at: dt(f.at), open: true

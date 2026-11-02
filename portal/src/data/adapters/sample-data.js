@@ -128,12 +128,12 @@ export const DL = [
 ];
 
 export const GP = [
-["CF-2012","I-9 Section 2 completed after the 3-day window for 14 summer hires","High",-52,"Open","Sampling found 14 of 210 records completed late. Remediation training scheduled for hiring managers.",""],
-["CF-7060","Vendor risk assessments missing for 9 systems handling covered data","Critical",-73,"Open","Third-party oversight required by the Safeguards Rule is not evidenced for nine SaaS vendors.",""],
-["CF-9080","HIPAA risk analysis is 14 months old","High",-27,"Open","Prior analysis predates the migration of the student health record system.",""],
+["CF-2012","I-9 Section 2 completed after the 3-day window for 14 summer hires","High",-52,"Open","Sampling found 14 of 210 records completed late. Remediation training scheduled for hiring managers.","","Q1","FY27","Human Resources","Assessment"],
+["CF-7060","Vendor risk assessments missing for 9 systems handling covered data","Critical",-73,"Open","Third-party oversight required by the Safeguards Rule is not evidenced for nine SaaS vendors.","","Q3","FY27","Information Technology Services","Assessment"],
+["CF-9080","HIPAA risk analysis is 14 months old","High",-27,"Open","Prior analysis predates the migration of the student health record system.","","Q4","2027","Health Services","Assessment"],
 ["CF-1045","Two states lack current distance-education authorization","High",-101,"Open","Enrollments recorded in two non-SARA jurisdictions without documented exemption.",""],
-["CF-3022","Satellite accumulation area labeling inconsistent in three labs","Medium",-19,"Open","Identified during EHSS walkthrough; corrective labeling issued.",""],
-["CF-7062","41 legacy PDFs on public sites fail WCAG 2.1 AA","Medium",-140,"Open","Remediation queue established; 118 of 159 documents remediated to date.",""],
+["CF-3022","Satellite accumulation area labeling inconsistent in three labs","Medium",-19,"Open","Identified during EHSS walkthrough; corrective labeling issued.","","Q2","27","Environmental Health and Safety","Manual"],
+["CF-7062","41 legacy PDFs on public sites fail WCAG 2.1 AA","Medium",-140,"Open","Remediation queue established; 118 of 159 documents remediated to date.","","Q4","FY26","Digital Accessibility","Assessment"],
 ["CF-6052","SEVIS address updates exceeded 21 days for 6 students","Medium",-33,"Open","Process gap between housing assignment feed and SEVIS batch job.",""],
 ["CF-2013","Classification review not completed for 3 position families","Medium",-66,"Open","Research staff, athletics operations, and facilities trades pending.",""],
 ["CF-9121","Background checks missing for 4 volunteer coaches","High",-11,"Open","Program paused pending completion.",""],
@@ -142,7 +142,7 @@ export const GP = [
 ["CF-1044","Official transcripts missing for 7 adjunct instructors","Low",-45,"Open","Requests issued to institutions of record.",""],
 ["CF-9082","Two units did not submit records retention attestations","Low",-120,"Open","Reminders escalated to unit leadership.",""],
 ["CF-3021","Fall evacuation drill not publicized in advance","Low",-8,"Open","Documentation of publicity requirement was not retained.",""],
-["CF-2010","1095-C corrections needed for 6 employees","Medium",-190,"Closed","Coverage months misstated for six mid-year hires.","Corrected returns filed; payroll feed logic updated to prevent recurrence."],
+["CF-2010","1095-C corrections needed for 6 employees","Medium",-190,"Closed","Coverage months misstated for six mid-year hires.","Corrected returns filed; payroll feed logic updated to prevent recurrence.","Q3","FY26","Payroll","Assessment"],
 ["CF-8070","APR data mismatch for two rosters","Medium",-215,"Closed","Squad list did not reconcile with aid records.","Reconciliation completed before submission window closed."],
 ["CF-4032","R2T4 calculations exceeded 45 days for 3 withdrawals","High",-240,"Closed","Delayed date-of-determination entry.","Withdrawal workflow automated; returns now average 19 days."]
 ];

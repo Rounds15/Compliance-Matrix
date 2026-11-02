@@ -114,7 +114,7 @@ export function mapLists(t) {
     at: toDay(r[F.flag.created] || r.Created), open: !bool(r[F.flag.done])
   }));
   if (t.gaps) out.gaps = t.gaps.map(r => ({
-    id: r.Id ?? r.ID, code: str(r[F.gap.code]) || ("GAP-" + (r.Id ?? r.ID)),
+    id: r.Id ?? r.ID, code: str(r[F.gap.code]) || ("GAP-" + (r.Id ?? r.ID)), gapCode: str(r[F.gap.code]),
     functionId: id(r[F.gap.fn]), title: str(r.Title), status: str(r[F.gap.status]) || "Open",
     source: str(r[F.gap.source]), note: str(r[F.gap.measure]), closeNote: str(r[F.gap.closeNote]),
     unit: str(r[F.gap.unit]), responsibleId: id(r[F.gap.responsible]),

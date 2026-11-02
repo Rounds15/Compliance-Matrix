@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { nextOccurrence, cadenceMonths } from "../src/lib/deadlines.js";
-import { addMonths, monthDiff, fiscalQ, toDay } from "../src/lib/dates.js";
+import { addMonths, monthDiff, fiscalQ, fiscalTarget, toDay } from "../src/lib/dates.js";
 import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
 import { mapTables, DEFAULT_SETS, WEBAPI_FIELDS } from "../src/data/adapters/dataverse.js";
@@ -33,6 +33,21 @@ test("fiscal quarters start in July", () => {
   assert.equal(fiscalQ(D("2026-09-23")), "FY27 Q1");
   assert.equal(fiscalQ(D("2027-01-02")), "FY27 Q3");
   assert.equal(fiscalQ(D("2027-06-30")), "FY27 Q4");
+});
+
+test("a gap's target quarter ends on the July 1 fiscal year", () => {
+  const end = (q, fy) => { const t = fiscalTarget(q, fy); return t && t.end && t.end.toDateString(); };
+  assert.equal(end("Q1", "FY27"), D("2026-09-30").toDateString());
+  assert.equal(end("Q2", "27"), D("2026-12-31").toDateString());
+  assert.equal(end("Q3", "2027"), D("2027-03-31").toDateString());
+  assert.equal(end("Q4", "FY2027"), D("2027-06-30").toDateString());
+  assert.equal(fiscalTarget("Q4", "FY27").label, "Q4 FY27");
+  assert.equal(fiscalTarget("Q4", "2027").label, "Q4 FY27", "the label is always Qn FYyy");
+  assert.equal(end("Q2, Q3", "FY27"), D("2027-03-31").toDateString(), "several quarters: the latest");
+  assert.equal(end("", "FY27"), D("2027-06-30").toDateString(), "an FY alone: the end of that FY");
+  assert.deepEqual(fiscalTarget("Q2", ""), { label: "Q2", end: null }, "a quarter alone has no end date");
+  assert.equal(fiscalTarget("", ""), null);
+  assert.equal(fiscalTarget(null, undefined), null);
 });
 
 /* ---------------- RefreshDeadlines() parity ---------------- */

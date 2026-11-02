@@ -48,7 +48,7 @@ on presentation. A few things are this build's own, noted below.
 | Deadlines | Admin view sees every deadline, everyone else their own, and administrators in User view switch between My deadlines and All deadlines; Open, Overdue only, Completed, All; complete or reverse with a reason | Month calendar with names in the day cells, list view, pills, phone cards |
 | Directory | Role order (Executive, Compliance, Unit, Counsel, Support); a person who owns functions cannot be removed until reassigned; reassign moves chosen functions without duplicating a role | Filters, table or cards, profile rail with the portfolio |
 | Executive Team | Derived from the Executive Owner role, sorted by last name or portfolio size; All functions and Due 90d | Cards and the portfolio dialog |
-| Gap Tracker | Scoped like the app; Open, Closed, Not rated, Avg days open | Stat row, open gaps by risk area, gap cards, close dialog |
+| Gap Tracker | Scoped like the app; Open, Closed, Functions with open gaps, Avg days open (the average age of the gaps open now); filtered by the function's risk level, since a rating belongs to a function, not a gap | Stat row, open gaps by risk area, one card per function (gaps with no function last) with each gap's age and target quarter, a gap dialog that closes an open gap with a required note |
 | Risk Dashboard, Reporting | Computed from live data (the app hardcodes them); backend-aware wording; the app's model notes | Stats, shaded heat map, bars, signals; tabs for the embedded report, datasets and exports |
 | Flagged for Review | Administrators only; age in business days against a five-day target | Panels, master and detail |
 | Definitions | The app's terms, verbatim | The reading layout with the "On this page" rail |

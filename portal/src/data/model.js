@@ -19,7 +19,7 @@
      deadlines  {id, functionId, title, base, cadence, lastDone, reason}
      gaps       {id, code, functionId, title, status, source, note, closeNote,
                  unit, responsibleId, opened, closed, targetQuarter, targetFY,
-                 severity?}
+                 severity?, gapCode?}
      flags      {id, functionId, reason, byId, byName, byEmail, at, open}   */
 
 import { normRisk, riskRank } from "../lib/risk.js";
@@ -199,6 +199,9 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
     return {
       id: g.id,
       code: g.code || String(g.id),
+      /* the gap's own Gap ID as the backend holds it, blank when it has none
+         (code above falls back to the row's ID) */
+      gapCode: g.gapCode ?? g.code ?? "",
       functionId: g.functionId || null,
       /* a gap with no function: blank, as the canvas app's Gap Tracker shows it */
       functionName: f ? f.name : "",
