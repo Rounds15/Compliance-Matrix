@@ -40,8 +40,11 @@ FORMATTED = "@OData.Community.Display.V1.FormattedValue"
 PENDING, DONE, FAILED = 100000130, 100000131, 100000132
 COMPLETE, REVERSE, CLOSE, RESOLVE, RAISE, DELETE = range(100000120, 100000126)
 ADD_TO_CALENDAR = 100000126
+REOPEN = 100000127
 ONE_TIME = 100000016
-GAP_CLOSED = 100000021
+GAP_OPEN, GAP_CLOSED = 100000020, 100000021
+ACCEPTED = 100000094
+RISK_LEVEL = {"High": 100000001, "Moderate": 100000002, "Low": 100000003}
 FLAG_ACTIVE, FLAG_CLEARED = 100000050, 100000051
 FLAG_MANUAL, FLAG_SURVEY = 100000110, 100000111
 
@@ -92,12 +95,14 @@ class Flow:
                            "parameters": params, "authentication": "@parameters('$authentication')"}}
 
     # Dataverse
-    def list(self, entity_set, filter_expr, select=None, top=None, expand=None):
+    def list(self, entity_set, filter_expr, select=None, top=None, expand=None, orderby=None):
         p = {"entityName": entity_set, "$filter": "@{" + filter_expr + "}"}
         if select:
             p["$select"] = select
         if expand:
             p["$expand"] = expand
+        if orderby:
+            p["$orderby"] = orderby
         if top:
             p["$top"] = top
         return self.op("dataverse", "ListRecords", p)
@@ -374,6 +379,54 @@ def link_contact_to_directory(s: dict) -> dict:
     return definition("When_a_directory_email_is_set", trig, try_catch(f, body, "CM - Link contact to directory"), f.used, s)
 
 
+def recount(f: "Flow", act: str, T: str) -> dict:
+    """After a gap is closed or reopened: when it came from an assessment,
+    recount that assessment and rate its function from its latest accepted
+    assessment. docs/DATAVERSE-MIGRATION.md, section 8.
+
+      openNow = MissingControlCount minus the assessment's closed gaps whose
+                source is Assessment, never below 0
+      InternalRisk(n, freq) = 9 - r - c, where r = 1 if n >= 9, 2 if n >= 6,
+                3 if n >= 3, else 4; c = 1 if freq has "Daily", 2 "Several",
+                3 "4-12", else 4
+      UniversityRisk(i, e) = "" if i or e is 0; High if i >= 5 and i + e >= 9;
+                Moderate if i >= 2 and i + e >= 6; else Low"""
+    asmt = f"{T}?['_su_assessment_value']"
+    a = "body('Get_assessment')"
+    n = "outputs('Open_control_gaps_now')"
+    i = "outputs('Internal_risk_current')"
+    e = f"coalesce({a}?['su_externalrisk'], 0)"
+    u = "outputs('University_risk_current')"
+    freq = f"toLower(coalesce({a}?['su_frequencyband'], ''))"
+    closed_gaps = (f"concat('_su_assessment_value eq ', {asmt}, ' and su_status eq {GAP_CLOSED} and su_gapsource eq ', "
+                   f"{q(chr(39) + 'Assessment' + chr(39))})")
+    level = lambda v: (f"if(equals({v}, 'High'), {RISK_LEVEL['High']}, if(equals({v}, 'Moderate'), {RISK_LEVEL['Moderate']}, "
+                       f"if(equals({v}, 'Low'), {RISK_LEVEL['Low']}, null)))")
+    fn = f"{a}?['_su_function_value']"
+    latest = first("Latest_accepted_assessment")
+    rate = seq(
+        ("Latest_accepted_assessment", f.list(
+            "su_assessments", f"concat('_su_function_value eq ', {fn}, ' and su_status eq {ACCEPTED} and su_assessmentdate ne null')",
+            "su_assessmentid,su_assessmentdate,su_universityriskcurrent", 1, orderby="su_assessmentdate desc")),
+        ("Rate_the_function", f.update("su_compliancefunctions", fn, {
+            "su_assessedrisk": "@" + level(f"coalesce({latest}?['su_universityriskcurrent'], '')")})))
+    return when(f"and(or(equals({act}, {CLOSE}), equals({act}, {REOPEN})), not(empty(coalesce({asmt}, ''))))", seq(
+        ("Get_assessment", f.get("su_assessments", asmt,
+                                 "su_assessmentid,su_keycontrolsmissing,su_frequencyband,su_externalrisk,_su_function_value")),
+        ("Closed_assessment_gaps", f.list("su_compliancegaps", closed_gaps, "su_compliancegapid")),
+        ("Open_control_gaps_now", compose(f"@max(0, sub(coalesce({a}?['su_keycontrolsmissing'], 0), {count('Closed_assessment_gaps')}))")),
+        ("Internal_risk_current", compose(
+            f"@sub(9, add(if(greaterOrEquals({n}, 9), 1, if(greaterOrEquals({n}, 6), 2, if(greaterOrEquals({n}, 3), 3, 4))), "
+            f"if(contains({freq}, 'daily'), 1, if(contains({freq}, 'several'), 2, if(contains({freq}, '4-12'), 3, 4)))))")),
+        ("University_risk_current", compose(
+            f"@if(or(equals({i}, 0), equals({e}, 0)), '', if(and(greaterOrEquals({i}, 5), greaterOrEquals(add({i}, {e}), 9)), 'High', "
+            f"if(and(greaterOrEquals({i}, 2), greaterOrEquals(add({i}, {e}), 6)), 'Moderate', 'Low')))")),
+        ("Update_assessment", f.update("su_assessments", asmt, {
+            "su_opencontrolgaps": f"@{n}", "su_internalriskcurrent": f"@{i}",
+            "su_universityriskcurrent": f"@if(empty({u}), null, {u})", "su_risk": "@" + level(u)})),
+        ("Has_a_function", when(f"not(empty(coalesce({fn}, '')))", rate))))
+
+
 def process_portal_action(s: dict) -> dict:
     """docs/DATAVERSE-MIGRATION.md, section 8. Each check sets Error if no
     earlier one did; the work runs only when Error is still empty."""
@@ -393,9 +446,9 @@ def process_portal_action(s: dict) -> dict:
     fn_name = f"coalesce({F}?['su_name'], '')"
     person = f"concat('su_compliancedirectorys(', {P}?['su_compliancedirectoryid'], ')')"
     target_set = (f"if(or(equals({act}, {COMPLETE}), equals({act}, {REVERSE})), 'su_compliancedeadlines', "
-                  f"if(equals({act}, {CLOSE}), 'su_compliancegaps', if(equals({act}, {RESOLVE}), 'su_functionflags', '')))")
+                  f"if(or(equals({act}, {CLOSE}), equals({act}, {REOPEN})), 'su_compliancegaps', if(equals({act}, {RESOLVE}), 'su_functionflags', '')))")
     target_id = (f"if(or(equals({act}, {COMPLETE}), equals({act}, {REVERSE})), {A}?['_su_deadline_value'], "
-                 f"if(equals({act}, {CLOSE}), {A}?['_su_gap_value'], if(equals({act}, {RESOLVE}), {A}?['_su_flag_value'], null)))")
+                 f"if(or(equals({act}, {CLOSE}), equals({act}, {REOPEN})), {A}?['_su_gap_value'], if(equals({act}, {RESOLVE}), {A}?['_su_flag_value'], null)))")
     tset = "outputs('Target_table')"
     has_target = f"not(empty({tset}))"
     function_id = f"if({has_target}, {T}?['_su_function_value'], {A}?['_su_function_value'])"
@@ -406,14 +459,21 @@ def process_portal_action(s: dict) -> dict:
     def check(name, cond, message):
         return name, when(f"and(empty({err}), {cond})", seq(("Set_" + name, set_var("Error", message))))
 
-    def archive(name, title, record_type, event_type, extra: dict, ):
+    def archive(name, title, record_type, event_type, extra: dict, optional_function=False):
         full = f"concat({q(title + ' - ')}, {fn_name})"
-        number = (f"if(equals({F}?['su_legacyspid'], null), if(empty(coalesce({F}?['su_functioncode'], '')), null, "
-                  f"int({F}?['su_functioncode'])), {F}?['su_legacyspid'])")
+        bind = f"concat('su_compliancefunctions(', {F}?['su_compliancefunctionid'], ')')"
+        if optional_function:  # a gap with no function: the archive row has no function link
+            bind_value = f"@if(empty(coalesce({F}?['su_compliancefunctionid'], '')), null, {bind})"
+        else:
+            bind_value = f"@{{{bind}}}"
+        # if() works out both branches, so int() is given '0' when there is no code
+        code = f"coalesce({F}?['su_functioncode'], '')"
+        number = (f"if(equals({F}?['su_legacyspid'], null), if(empty({code}), null, "
+                  f"int(if(empty({code}), '0', {code}))), {F}?['su_legacyspid'])")
         item = {"su_name": f"@{{substring({full}, 0, min(255, length({full})))}}",
                 "su_recordtype": record_type, "su_eventtype": event_type,
                 "su_archivedfunctionname": f"@{{{fn_name}}}", "su_functionnumber": f"@{number}",
-                "su_function@odata.bind": f"@{{concat('su_compliancefunctions(', {F}?['su_compliancefunctionid'], ')')}}",
+                "su_function@odata.bind": bind_value,
                 "su_resolvedby": f"@{{{P}?['su_name']}}", "su_resolvedat": "@{utcNow()}", **extra}
         return name, f.create("su_archives", item)
 
@@ -450,7 +510,19 @@ def process_portal_action(s: dict) -> dict:
             ("Update_gap", f.update("su_compliancegaps", f"{T}?['su_compliancegapid']", {
                 "su_status": GAP_CLOSED, "su_closeddate": "@{" + TODAY + "}",
                 "su_closenote": f"@if(empty(coalesce({A}?['su_reason'], '')), null, {A}?['su_reason'])",
-                "su_closedby@odata.bind": "@{" + person + "}"})))},
+                "su_closedby@odata.bind": "@{" + person + "}"})),
+            archive("Archive_gap_closed", "Gap Closed", "Gap Closed", "Closed", {
+                "su_reason": f"@{{coalesce({A}?['su_reason'], '')}}", "su_sourceitemid": f"@{T}?['su_legacyspid']"},
+                optional_function=True))},
+        # the archive row keeps the closure note the reopen clears
+        "Reopen_gap": {"case": REOPEN, "actions": seq(
+            archive("Archive_gap_reopened", "Gap Reopened", "Gap Closed", "Reversed", {
+                "su_reason": f"@{{concat(coalesce({A}?['su_reason'], ''), decodeUriComponent('%0A%0A'), 'Prior closure note: ', "
+                             f"coalesce({T}?['su_closenote'], ''))}}",
+                "su_sourceitemid": f"@{T}?['su_legacyspid']"}, optional_function=True),
+            ("Update_gap_reopen", f.update("su_compliancegaps", f"{T}?['su_compliancegapid']", {
+                "su_status": GAP_OPEN, "su_closeddate": "@null", "su_closenote": "@null",
+                "su_closedby@odata.bind": "@null"})))},
         "Resolve_flag": {"case": RESOLVE, "actions": seq(
             ("Update_flag", f.update("su_functionflags", f"{T}?['su_functionflagid']", {
                 "su_status": FLAG_CLEARED, "su_clearedon": "@{" + TODAY + "}",
@@ -519,11 +591,17 @@ def process_portal_action(s: dict) -> dict:
                                   f"' and _su_person_value eq ', coalesce({P}?['su_compliancedirectoryid'], {q(ZERO)}))",
                                   "su_functionownershipid", 1)),
         # a gap with no function has no owner chain: only an administrator may close it
-        check("Not_allowed", f"or(and(equals({count('Find_function')}, 0), not(and({is_admin}, equals({act}, {CLOSE})))), "
+        # (a reopen is for administrators only: owner_may leaves it out)
+        check("Not_allowed", f"or(and(equals({count('Find_function')}, 0), not(and({is_admin}, or(equals({act}, {CLOSE}), equals({act}, {REOPEN}))))), "
                              f"not(or({is_admin}, equals({act}, {RAISE}), {owner_may})))",
               "You are not allowed to do that on this function."),
+        check("Already_closed", f"and(equals({act}, {CLOSE}), equals({T}?['su_status'], {GAP_CLOSED}))", "That gap is already closed."),
+        check("Not_closed", f"and(equals({act}, {REOPEN}), not(equals({T}?['su_status'], {GAP_CLOSED})))", "That gap is not closed."),
+        check("No_reopen_reason", f"and(equals({act}, {REOPEN}), empty(trim(coalesce({A}?['su_reason'], ''))))",
+              "Reopening a gap needs a reason."),
         check("No_reason", f"and(equals({act}, {RAISE}), empty(trim(coalesce({A}?['su_reason'], ''))))", "A flag needs a reason."),
-        ("Do_the_work", when(f"empty({err})", seq(("Switch_on_action_type", work)))),
+        ("Do_the_work", when(f"empty({err})", seq(("Switch_on_action_type", work),
+                                                  ("Recount_the_assessment", recount(f, act, T))))),
     )
 
     def finish(status, result_expr, reply):

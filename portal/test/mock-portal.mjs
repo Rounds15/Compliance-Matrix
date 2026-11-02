@@ -40,7 +40,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { Liquid } from "liquidjs";
-import { sharepointLists, dataverseTables, CONTACTS } from "./fixtures.mjs";
+import { sharepointLists, dataverseTables, CONTACTS, ASSESSMENTS, internalRisk, universityRisk } from "./fixtures.mjs";
 import { loadFlows, runFlow, dataverseConnector, usersConnector, outlookConnector } from "./flow-runner.mjs";
 import { WEBAPI_FIELDS } from "../src/data/adapters/dataverse.js";
 
@@ -59,9 +59,20 @@ const MEMBER_GAP_FIELDS = ["field_13", "field_14", "ClosedById"];
 const liquid = new Liquid();
 liquid.registerFilter("url_escape", v => encodeURIComponent(String(v ?? "")));
 
-export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [] } = {}) {
+export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [], assessments = false } = {}) {
   const sp = sharepointLists();
   const dv = dataverseTables();
+  /* assessments: the 9 assessments with their current figures, and the open
+     I-9 gap (601) as one of Revenue Share's missing controls */
+  if (assessments) {
+    const LEVEL = { High: 100000001, Moderate: 100000002, Low: 100000003 };
+    dv.su_assessments = ASSESSMENTS.map(a => {
+      const i = internalRisk(a.su_keycontrolsmissing, a.su_frequencyband), u = universityRisk(i, a.su_externalrisk);
+      return { ...a, su_opencontrolgaps: a.su_keycontrolsmissing, su_internalriskcurrent: i, su_universityriskcurrent: u || null, su_risk: LEVEL[u] ?? null };
+    });
+    Object.assign(dv.su_compliancegaps.find(g => g.su_compliancegapid === "00000000-0000-4000-8000-000000000601"),
+      { _su_assessment_value: "00000000-0000-4000-8000-000000001109", su_gapsource: "Assessment" });
+  }
   const log = [];
   const fail = (res, status, msg) => { res.writeHead(status, { "Content-Type": "application/json" }); res.end(JSON.stringify({ error: { message: msg } })); };
   const body = req => new Promise(r => { let b = ""; req.on("data", c => b += c); req.on("end", () => r(b)); });
@@ -380,7 +391,7 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
      #InsertButton. Only the form's own columns are read from a postback. */
   const FORM_PREFIX = "ctl00$ContentContainer$EntityFormControl$EntityFormView$";
   const FORM_LOOKUPS = { su_function: "su_compliancefunction", su_deadline: "su_compliancedeadline", su_gap: "su_compliancegap", su_flag: "su_functionflag" };
-  const ACTION_TYPES = { 100000120: "Complete deadline", 100000121: "Reverse completion", 100000122: "Close gap", 100000123: "Resolve flag", 100000124: "Raise flag", 100000125: "Delete function", 100000126: "Add to calendar" };
+  const ACTION_TYPES = { 100000120: "Complete deadline", 100000121: "Reverse completion", 100000122: "Close gap", 100000123: "Resolve flag", 100000124: "Raise flag", 100000125: "Delete function", 100000126: "Add to calendar", 100000127: "Reopen gap" };
   const esc = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const formPage = (errors = []) => "<!DOCTYPE html><html><head><meta charset=utf-8><title>CM Action</title></head><body>" +
     `<form method="post" action="/cm-action/" id="content_form">` +

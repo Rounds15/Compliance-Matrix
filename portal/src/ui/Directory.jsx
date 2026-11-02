@@ -152,7 +152,7 @@ function Profile({ p, onDialog }) {
         <button key={f.id} className="dir-port" onClick={() => openFn(f)}>
           <div><div className="fname">{f.name}</div>
             <div className="sub">{f.topic} {"·"} {roleOn(f, p)}</div></div>
-          <Risk r={f.risk} /></button>)}</div>
+          <Risk r={f.displayRisk} /></button>)}</div>
         : <p className="sub">No functions currently assigned.</p>}
     </div>
     <div className="dir-rail-ft" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

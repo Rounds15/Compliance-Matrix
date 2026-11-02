@@ -46,5 +46,10 @@
         <label description="Add to calendar" languagecode="1033"/>
       </labels>
     </option>
+    <option value="100000127" IsHidden="0">
+      <labels>
+        <label description="Reopen gap" languagecode="1033"/>
+      </labels>
+    </option>
   </options>
 </optionset>

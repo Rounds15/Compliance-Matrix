@@ -232,6 +232,7 @@
  },
  "su_compliancefunction": {
   "columns": {
+   "su_assessedrisk": "Choice",
    "su_citation": "String",
    "su_complianceowner": "lookup:su_compliancedirectory",
    "su_deadlinenarrative": "Memo",
@@ -257,6 +258,11 @@
   "primaryName": "su_name",
   "choiceLabels": {
    "su_risk": {
+    "100000001": "High",
+    "100000002": "Moderate",
+    "100000003": "Low"
+   },
+   "su_assessedrisk": {
     "100000001": "High",
     "100000002": "Moderate",
     "100000003": "Low"
@@ -418,7 +424,8 @@
     "100000123": "Resolve flag",
     "100000124": "Raise flag",
     "100000125": "Delete function",
-    "100000126": "Add to calendar"
+    "100000126": "Add to calendar",
+    "100000127": "Reopen gap"
    },
    "su_status": {
     "100000130": "Pending",

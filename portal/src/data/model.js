@@ -13,7 +13,7 @@
      people     {id, name, email, title, unit, phone, location, netid}
      functions  {id, code, name, riskAreaId, domainId, statute, citation,
                  statuteUrl, description, reporting, deadline, resourceLabel,
-                 resourceUrl, risk, lastReviewed, fixedOwners?}
+                 resourceUrl, risk, lastReviewed, fixedOwners?, assessedRisk?}
      ownership  {id, functionId, personId, role, sub}
      counsel    {riskAreaId, personId, isDefault}          (Dataverse only)
      deadlines  {id, functionId, title, base, cadence, lastDone, reason}
@@ -150,6 +150,11 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
       resourceLabel: f.resourceLabel || "",
       resourceUrl: f.resourceUrl || "",
       risk: normRisk(f.risk),
+      /* the latest accepted assessment's rating (Dataverse, written by the
+         action flow), and what the screens show: that, else the rating set
+         by hand. risk stays the hand-set rating, which the edit form edits. */
+      assessedRisk: f.assessedRisk ? normRisk(f.assessedRisk) : "",
+      displayRisk: f.assessedRisk ? normRisk(f.assessedRisk) : normRisk(f.risk),
       lastReviewed: f.lastReviewed || null,
       chain,
       counsel,
@@ -188,7 +193,7 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
       complete: r.withinHold,
       status: r.status,
       owner: f ? f.owner : NOBODY,
-      risk: f ? f.risk : "Unrated"
+      risk: f ? f.displayRisk : "Unrated"
     };
   }).filter(d => fnById.has(String(d.functionId)));
 

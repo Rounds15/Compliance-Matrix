@@ -157,6 +157,7 @@ export function useStore(cfg) {
     resolveFlag: (flag, fn) => act("flag-" + flag.id, (a, c) => a.resolveFlag({ flag, fn }, c), "Flag resolved."),
     logGap: (fn, form) => act("gap", (a, c) => a.logGap({ fn, ...form }, c), "Gap logged and routed to the gap tracker."),
     closeGap: (gap, note) => act("gap-" + gap.id, (a, c) => a.closeGap({ gap, note }, c), "Gap closed."),
+    reopenGap: (gap, reason) => act("gap-" + gap.id, (a, c) => a.reopenGap({ gap, reason }, c), "Gap reopened."),
     completeDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.completeDeadline({ dl, fn, reason }, c), "Deadline marked complete"),
     reverseDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.reverseDeadline({ dl, fn, reason }, c), "Completion reversed"),
     /* the record and, when rows is given, its ownership rows, under one

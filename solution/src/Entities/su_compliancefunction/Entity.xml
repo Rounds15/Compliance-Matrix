@@ -641,7 +641,46 @@
             <displayname description="Risk Rating" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="Not required: empty on nearly all rows today, populated over time. The only place a function's rating is stored (no copies), so it can move to its own permission-scoped table if ratings are restricted." languagecode="1033"/>
+            <Description description="Not required: empty on nearly all rows today, populated over time. The rating set by hand. The page shows su_assessedrisk when it is set and this one otherwise." languagecode="1033"/>
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="su_assessedrisk">
+          <Type>picklist</Type>
+          <Name>su_assessedrisk</Name>
+          <LogicalName>su_assessedrisk</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat/>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <AppDefaultValue>-1</AppDefaultValue>
+          <OptionSetName>su_risklevel</OptionSetName>
+          <displaynames>
+            <displayname description="Assessed Risk" languagecode="1033"/>
+          </displaynames>
+          <Descriptions>
+            <Description description="The University Risk Current of the function's latest accepted assessment (latest by Assessment Date; assessments with no date are not counted), or blank when there is none. Written by the CM - Process portal action flow when a gap of one of its assessments is closed or reopened, never by the browser." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_lastreviewed">

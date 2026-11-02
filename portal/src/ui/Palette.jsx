@@ -73,7 +73,7 @@ export function Palette({ onClose }) {
             <li id={"pal-" + i} role="option" aria-selected={i === sel} data-sel={i === sel}
               className={"pal-i" + (i === sel ? " on" : "")} onMouseEnter={() => setSel(i)} onMouseDown={e => { e.preventDefault(); run(it); }}>
               {it.s && <><span className="pal-ic"><Icon n={it.s.icon} s={18} /></span><span className="grow"><b>{it.s.title}</b><small>{it.s.desc}</small></span></>}
-              {it.f && <><span className="pal-ic"><Icon n="list" s={18} /></span><span className="grow"><b>{it.f.name}</b><small>{it.f.topic} {"·"} {it.f.statute || it.f.area}</small></span><Risk r={it.f.risk} /></>}
+              {it.f && <><span className="pal-ic"><Icon n="list" s={18} /></span><span className="grow"><b>{it.f.name}</b><small>{it.f.topic} {"·"} {it.f.statute || it.f.area}</small></span><Risk r={it.f.displayRisk} /></>}
               {it.l && <><span className="pal-ic"><Icon n="ext" s={16} /></span><span className="grow"><b>{it.l.name}</b><small>{it.l.url}</small></span></>}
               {it.p && <><Avatar person={it.p} size={30} /><span className="grow"><b>{it.p.n}</b><small>{[it.p.t, it.p.u].filter(Boolean).join(" · ") || it.p.e}</small></span></>}
               <Icon n="enter" s={15} style={{ opacity: i === sel ? .6 : 0 }} />

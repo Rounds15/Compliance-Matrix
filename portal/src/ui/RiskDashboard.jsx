@@ -24,17 +24,17 @@ export function RiskDashboard() {
       .map(t => ({ id: String(t.id), name: t.name, fns: fns.filter(f => String(f.topicId) === String(t.id)) }));
     const orphans = fns.filter(noArea);
     if (orphans.length) rows.push({ id: "none", name: "No risk area", fns: orphans });
-    const max = Math.max(1, ...rows.flatMap(r => LEVELS.map(([k]) => r.fns.filter(f => f.risk === k).length)));
-    const high = rows.map(r => ({ t: r.name, n: r.fns.filter(f => f.risk === "High").length })).filter(x => x.n).sort((a, b) => b.n - a.n);
+    const max = Math.max(1, ...rows.flatMap(r => LEVELS.map(([k]) => r.fns.filter(f => f.displayRisk === k).length)));
+    const high = rows.map(r => ({ t: r.name, n: r.fns.filter(f => f.displayRisk === "High").length })).filter(x => x.n).sort((a, b) => b.n - a.n);
     return {
       total: fns.length, max, rows, high,
-      count: r => fns.filter(f => f.risk === r).length,
+      count: r => fns.filter(f => f.displayRisk === r).length,
       signals: [
         ["Functions with an open gap", fns.filter(f => openGapFns.has(String(f.id))).length, "#000E54"],
-        ["High-risk functions with a gap", fns.filter(f => f.risk === "High" && openGapFns.has(String(f.id))).length, "#B91C1C"],
+        ["High-risk functions with a gap", fns.filter(f => f.displayRisk === "High" && openGapFns.has(String(f.id))).length, "#B91C1C"],
         ["Overdue deadlines", ds.allDeadlines.filter(d => d.status === "Overdue").length, "#DC2626"],
         ["Unassigned unit-owner roles", fns.filter(f => !f.chain.unit.length).length, "#707780"],
-        ["Functions with no risk rating", fns.filter(f => f.risk === "Unrated").length, "#707780"],
+        ["Functions with no risk rating", fns.filter(f => f.displayRisk === "Unrated").length, "#707780"],
         ["Functions with no risk area", orphans.length, "#707780"],
         ["Functions with no domain", fns.filter(f => f.areaId == null || !domainIds.has(String(f.areaId))).length, "#707780"]
       ]
@@ -47,7 +47,7 @@ export function RiskDashboard() {
     return { background: RISK_COLOR[l], boxShadow: "inset 0 0 0 999px rgba(255,255,255," + (1 - a).toFixed(2) + ")", color: a > .55 ? "#fff" : "#3d2b1f" };
   };
   const picked = cell && m.rows.find(r => r.id === cell.id);
-  const pickedFns = picked ? picked.fns.filter(f => !cell.risk || f.risk === cell.risk).sort((a, b) => a.name.localeCompare(b.name)) : [];
+  const pickedFns = picked ? picked.fns.filter(f => !cell.risk || f.displayRisk === cell.risk).sort((a, b) => a.name.localeCompare(b.name)) : [];
   const highMax = Math.max(1, ...m.high.map(x => x.n));
 
   return <div className="page wrap">
@@ -62,7 +62,7 @@ export function RiskDashboard() {
       <table className="heat"><thead><tr><th className="rw"><span className="sr">Risk area</span></th>{LEVELS.map(([l]) => <th key={l}>{l}</th>)}<th>Total</th></tr></thead>
         <tbody>{m.rows.map(r => <tr key={r.id}><th className="rw">{r.name}</th>
           {LEVELS.map(([l]) => {
-            const n = r.fns.filter(f => f.risk === l).length;
+            const n = r.fns.filter(f => f.displayRisk === l).length;
             return <td key={l} className={n ? "" : "z"} style={shade(l, n)}>{n
               ? <button className="heat-b" aria-label={`${r.name}, ${l}: ${n}`} onClick={() => setCell({ id: r.id, risk: l })}>{n}</button> : "·"}</td>;
           })}
@@ -97,7 +97,7 @@ export function RiskDashboard() {
         title={picked.name} sub={pickedFns.length + " function" + (pickedFns.length === 1 ? "" : "s")} />
       <div className="mbd">{pickedFns.map(f => <button key={f.id} className="srow et-row" onClick={() => { setCell(null); openFn(f); }}>
         <div style={{ flex: 1, minWidth: 0 }}><div className="fname" style={{ fontSize: 13.5 }}>{f.name}</div>
-          <div className="sub">{f.area} {"·"} {f.owner.n}</div></div><Risk r={f.risk} /></button>)}</div>
+          <div className="sub">{f.area} {"·"} {f.owner.n}</div></div><Risk r={f.displayRisk} /></button>)}</div>
       <div className="mft"><button className="button button-secondary-outline" style={{ marginLeft: "auto" }} onClick={() => setCell(null)}>Close</button></div>
     </Modal>}
   </div>;

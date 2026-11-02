@@ -144,10 +144,48 @@ export function dataverseTables() {
       { su_functionflagid: G(502), _su_function_value: G(202), su_reason: "Old flag", su_status: 100000051, _su_flaggedby_value: G(101), su_flaggedon: "2026-08-01" }
     ],
     su_archives: [],
+    su_assessments: [],
     su_portalactions: [],
     su_counselassignments: [
       { su_counselassignmentid: G(701), _su_riskarea_value: G(1), _su_attorney_value: G(104), su_isdefault: false },
       { su_counselassignmentid: G(702), _su_riskarea_value: null, _su_attorney_value: G(100), su_isdefault: true }
     ]
   };
+}
+
+/* The 9 assessments on the SharePoint Assessments list, for the recount in
+   CM - Process portal action. Names, missing control counts and the three
+   with no Assessment Date (Employee Health Plan, Pharmacy, Gebbie Clinic)
+   follow the list; the function each one rates is one of the three fixture
+   functions. Frequency band and external risk are stand-ins chosen to cover
+   each branch of the rule until the list's own values replace them. All 9
+   are Accepted, as on the list. */
+export const ASSESSMENTS = [
+  // [n, name, function, date, missing, frequency band, external risk]
+  [1, "Eligibility Athletics Assessment", 202, "2025-10-23", 3, "Daily", 4],
+  [2, "Clery Act Assessment", 201, "2026-02-18", 2, "Several times a week", 3],
+  [3, "Stop Campus Hazing Act Assessment", 201, "2026-01-15", 0, "4-12 times a year", 2],
+  [4, "Employee Health Plan Assessment", 203, null, 3, "Several times a month", 5],
+  [5, "Pharmacy Assessment", 203, null, 3, "Daily", 4],
+  [6, "Gebbie Clinic Assessment", 203, null, 3, "4-12 times a year", 0],
+  [7, "Financial Aid Assessment", 202, "2026-02-13", 0, "1-3 times a year", 3],
+  [8, "Recruiting Assessment", 202, "2026-03-20", 1, "Daily", 5],
+  [9, "Revenue Share Program Assessment", 202, "2026-04-10", 3, "Several times a week", 4]
+].map(([n, name, fn, date, missing, freq, external]) => ({
+  su_assessmentid: G(1100 + n), su_name: name, su_assessmentcode: "ASMT00" + n, _su_function_value: G(fn),
+  su_assessmentdate: date, su_status: 100000094, su_keycontrolsmissing: missing, su_frequencyband: freq, su_externalrisk: external
+}));
+
+/* the rule, written out on its own so the tests can check the flow against it */
+export function internalRisk(n, freq) {
+  const r = n >= 9 ? 1 : n >= 6 ? 2 : n >= 3 ? 3 : 4;
+  const f = String(freq || "").toLowerCase();
+  const c = f.includes("daily") ? 1 : f.includes("several") ? 2 : f.includes("4-12") ? 3 : 4;
+  return 9 - r - c;
+}
+export function universityRisk(i, e) {
+  if (!i || !e) return "";
+  if (i >= 5 && i + e >= 9) return "High";
+  if (i >= 2 && i + e >= 6) return "Moderate";
+  return "Low";
 }

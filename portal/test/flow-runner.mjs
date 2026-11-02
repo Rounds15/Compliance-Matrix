@@ -179,8 +179,11 @@ const FUNCS = {
   trim: s => str(s).trim(),
   coalesce: (...a) => { const v = a.find(x => x !== null && x !== undefined); return v === undefined ? null : v; },
   greater: (a, b) => numArg(a) > numArg(b),
+  greaterOrEquals: (a, b) => numArg(a) >= numArg(b),
+  add: (a, b) => numArg(a) + numArg(b),
   sub: (a, b) => numArg(a) - numArg(b),
   min: (...a) => Math.min(...a.map(numArg)),
+  max: (...a) => Math.max(...a.map(numArg)),
   int: v => { const n = parseInt(String(v), 10); if (Number.isNaN(n) || !/^-?\d+$/.test(String(v).trim())) throw new FlowError("int() of " + JSON.stringify(v)); return n; },
   string: v => asText(v),
   json: v => { try { return JSON.parse(str(v)); } catch (e) { throw new ExprFail("json() of " + JSON.stringify(v)); } },
@@ -553,6 +556,14 @@ export function dataverseConnector({ dv, schema, contacts = [], roleRelationship
           const rel = /^([A-Za-z_]+)/.exec(p.$expand)[1];
           if (rel !== roleRelationship || t.set !== "contacts") throw new ConnectorError(400, `cannot expand ${rel} on ${t.set}`);
           out = out.map(r => ({ ...r, [rel]: (r[rel] || []).map(name => ({ name })) }));
+        }
+        if (p.$orderby) {
+          /* one column, asc or desc; Dataverse sorts an empty value lowest */
+          const m = /^([a-z_]+)(?:\s+(asc|desc))?$/i.exec(String(p.$orderby).trim());
+          if (!m || !knows(t, m[1])) throw new ConnectorError(400, `$orderby not modelled: ${p.$orderby}`);
+          const dir = (m[2] || "asc").toLowerCase() === "desc" ? -1 : 1;
+          const key = r => r[m[1]] ?? null;
+          out.sort((a, b) => { const x = key(a), y = key(b); if (x === y) return 0; if (x === null) return -dir; if (y === null) return dir; return (x < y ? -1 : 1) * dir; });
         }
         if (p.$top) out = out.slice(0, Number(p.$top));
         return { value: out };

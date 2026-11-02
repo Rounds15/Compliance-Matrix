@@ -8,7 +8,8 @@
    a gap is a missing control an assessment found. So a card shows its
    function's rating and the filter narrows by it; gaps carry no rating of
    their own here. Gaps with no function share a last card. A gap row opens
-   a dialog with the gap's detail, where an open gap is closed with a note. */
+   a dialog with the gap's detail, where an open gap is closed with a note,
+   and an administrator can reopen a closed one with a reason (Dataverse). */
 
 import React, { useMemo, useState } from "react";
 import { Icon, Risk, Modal, ModalHead, PageHead, Stat, Empty, Busy, useApp } from "./parts.jsx";
@@ -21,6 +22,9 @@ const RANK = { High: 0, Moderate: 1, Low: 2, Unrated: 3 };
    Medium read as High and Moderate) */
 const levelOf = r => (r === "Critical" || r === "High" ? "High" : r === "Moderate" || r === "Medium" ? "Moderate" : r === "Low" ? "Low" : "Unrated");
 const plural = (n, one, many) => n + " " + (n === 1 ? one : many);
+/* the gap's control code ("6c", "7e"), from GapCode; the load fills a blank
+   GapCode with "GAP-" and the SharePoint ID, which is not a control */
+const controlOf = g => (/^GAP-\d+$/i.test(String(g.gapCode || "").trim()) ? "" : String(g.gapCode || "").trim());
 
 /* the target chip: red once an open gap is past its quarter's end, amber
    when no target is set, neutral otherwise */
@@ -36,7 +40,7 @@ function TargetChip({ t }) {
 }
 
 export function GapTracker() {
-  const { ds, today, actions, openFn, fullAccess, realAdmin, go } = useApp();
+  const { ds, adapter, today, actions, openFn, fullAccess, realAdmin, go } = useApp();
   const gaps = useVisibleGaps();
   const [tab, setTab] = useState("open");
   const [level, setLevel] = useState("");
@@ -65,13 +69,13 @@ export function GapTracker() {
       groups.get(key).gaps.push(g);
     }
     const list = [...groups.values()]
-      .filter(c => !level || (c.f && levelOf(c.f.risk) === level))
+      .filter(c => !level || (c.f && levelOf(c.f.displayRisk) === level))
       .map(c => {
         const rows = c.gaps.map(g => ({ g, age: days(g), t: targetOf(g, today) })).sort((a, b) => b.age - a.age);
         return { ...c, rows, oldest: rows.length ? rows[0].age : 0, late: rows.filter(r => r.t.late).length };
       });
     return list.sort((a, b) => (!a.f) - (!b.f)
-      || (a.f && b.f ? RANK[levelOf(a.f.risk)] - RANK[levelOf(b.f.risk)] : 0)
+      || (a.f && b.f ? RANK[levelOf(a.f.displayRisk)] - RANK[levelOf(b.f.displayRisk)] : 0)
       || b.oldest - a.oldest
       || (a.f && b.f ? a.f.name.localeCompare(b.f.name) : 0));
   }, [gaps, tab, level, ds, today]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -79,6 +83,9 @@ export function GapTracker() {
 
   const pick = g => { setSel(g); setNote(""); };
   const close = async () => { try { await actions.closeGap(sel, note.trim()); setSel(null); } catch (e) { /* the toast says what failed */ } };
+  /* reopening is for administrators, where the backend has it */
+  const canReopen = realAdmin && typeof adapter.reopenGap === "function";
+  const reopen = async () => { try { await actions.reopenGap(sel, note.trim()); setSel(null); } catch (e) { /* the toast says what failed */ } };
   const selFn = sel && sel.functionId ? ds.fnById.get(String(sel.functionId)) : null;
   const selT = sel ? targetOf(sel, today) : null;
 
@@ -118,13 +125,13 @@ export function GapTracker() {
               : <div className="gt-fn">Not linked to a function</div>}
             {c.f && <div className="sub">{c.f.topic} {"·"} {c.f.area}</div>}
           </div>
-          <div className="gt-meta">{c.f && <Risk r={c.f.risk} />}
+          <div className="gt-meta">{c.f && <Risk r={c.f.displayRisk} />}
             <span className="gt-n">{plural(c.rows.length, tab === "open" ? "open gap" : "closed gap", tab === "open" ? "open gaps" : "closed gaps")}</span></div>
         </header>
         <ul className="gt-rows">{c.rows.map(({ g, age, t }) => <li key={g.id}>
           <button className="gt-row" onClick={() => pick(g)} aria-haspopup="dialog">
             <span className="gt-title">{g.title}</span>
-            <span className="gt-facts">{g.gapCode && <span className="gt-code">{g.gapCode}</span>}
+            <span className="gt-facts">{controlOf(g) && <span className="gt-code" title="Control">{controlOf(g)}</span>}
               <span className="sub">{age}d open</span>
               <TargetChip t={t} /></span>
           </button></li>)}</ul>
@@ -141,7 +148,7 @@ export function GapTracker() {
         sub={selFn ? selFn.name + " · " + selFn.topic : "Not linked to a function"} />
       <div className="mbd">
         <dl className="gt-dl">
-          {sel.gapCode && <><dt>Gap ID</dt><dd>{sel.gapCode}</dd></>}
+          {controlOf(sel) && <><dt>Control</dt><dd>{controlOf(sel)}</dd></>}
           <dt>Status</dt><dd>{sel.status}</dd>
           <dt>Days open</dt><dd>{days(sel)}{sel.opened ? " (opened " + fmtDate(sel.opened) + ")" : ""}</dd>
           <dt>Corrective measure</dt><dd>{sel.note || "None recorded"}</dd>
@@ -156,10 +163,16 @@ export function GapTracker() {
           <textarea id="gap-note" className="ti" autoFocus value={note} onChange={e => setNote(e.target.value)} placeholder="What was remediated, and what prevents recurrence?" />
           <p className="sub" style={{ marginTop: 10 }}>Closing records the date and this note on the gap. The open-gap count updates everywhere it appears.</p>
         </>}
+        {!sel.open && canReopen && <>
+          <label className="flab" htmlFor="gap-reopen" style={{ marginTop: 14 }}>Why are you reopening this?</label>
+          <textarea id="gap-reopen" className="ti" value={note} onChange={e => setNote(e.target.value)} placeholder="Enter a brief reason..." />
+          <p className="sub" style={{ marginTop: 10 }}>Reopening clears the closed date and closure note. The archive keeps the closure note with this reason.</p>
+        </>}
       </div>
       <div className="mft">
         {sel.open && <Busy busyKey={"gap-" + sel.id} className="button button-primary" disabled={!note.trim()} onClick={close}><Icon n="check" s={15} />Mark as closed</Busy>}
-        <button className="button button-secondary-outline" onClick={() => setSel(null)}>{sel.open ? "Cancel" : "Close"}</button>
+        {!sel.open && canReopen && <Busy busyKey={"gap-" + sel.id} className="button button-primary" disabled={!note.trim()} onClick={reopen}><Icon n="undo" s={15} />Reopen gap</Busy>}
+        <button className="button button-secondary-outline" onClick={() => setSel(null)}>{sel.open ? "Cancel" : canReopen ? "Cancel" : "Close"}</button>
       </div>
     </Modal>}
   </div>;

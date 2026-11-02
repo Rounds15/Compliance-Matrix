@@ -39,7 +39,8 @@ function EditForm({ f, d, set, own, setOwn }) {
           <select id="fd-risk" className="ti" value={d.risk === "Unrated" ? "" : d.risk} onChange={e => set({ risk: e.target.value || "Unrated" })}>
             {RISK_CHOICES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             {d.risk && d.risk !== "Unrated" && !RISK_CHOICES.some(([v]) => v === d.risk) && <option value={d.risk}>{d.risk} (legacy)</option>}
-          </select></div>
+          </select>
+          {f && f.assessedRisk && <p className="sub" style={{ marginTop: 6 }}>Shown as {f.assessedRisk}, from the latest accepted assessment. This rating applies when there is none.</p>}</div>
       </div>
       <div className="frow">
         <div><label className="flab" htmlFor="fd-topic">Risk area</label>
@@ -90,7 +91,7 @@ export function FunctionDetail({ f, isNew }) {
   const dls = f ? (fullAccess ? ds.allDeadlines : visible).filter(same).filter(x => x.due).sort((a, b) => a.due - b.due) : [];
   const nextDue = dls.find(x => x.status !== "Completed");
   const related = f ? ds.fns.filter(x => x !== f && String(x.topicId) === String(f.topicId))
-    .sort((a, b) => riskRank(a.risk) - riskRank(b.risk) || a.name.localeCompare(b.name)).slice(0, 4) : [];
+    .sort((a, b) => riskRank(a.displayRisk) - riskRank(b.displayRisk) || a.name.localeCompare(b.name)).slice(0, 4) : [];
   const inTopic = f ? ds.fns.filter(x => String(x.topicId) === String(f.topicId)).length : 0;
   const set = patch => setD(x => ({ ...x, ...patch }));
   const editing = mode === "edit";
@@ -120,7 +121,7 @@ export function FunctionDetail({ f, isNew }) {
   };
 
   const title = isNew ? (d.name || "New compliance function") : editing ? "Editing - " + (d.name || f.name) : f.name;
-  const shownRisk = editing ? d.risk : f.risk;
+  const shownRisk = editing ? d.risk : f.displayRisk;
 
   return <div className="fd">
     <div className="fd-crumb">
@@ -243,7 +244,7 @@ export function FunctionDetail({ f, isNew }) {
         <div className="rail-card">
           <div className="rail-t">Record status</div>
           <dl className="rail-kv">
-            {showRisk && <><dt>Risk rating</dt><dd><Risk r={f.risk} /></dd></>}
+            {showRisk && <><dt>Risk rating</dt><dd><Risk r={f.displayRisk} /></dd></>}
             <dt>Open gaps</dt><dd>{openGaps.length ? <span className="gapbadge">{openGaps.length}</span> : <span className="sub">None</span>}</dd>
             <dt>Next deadline</dt><dd>{nextDue ? <span style={{ fontWeight: 600, color: "#000E54", fontSize: 13 }}>{fmtDate(nextDue.due)}</span> : <span className="sub">None scheduled</span>}</dd>
             <dt>Under review</dt><dd>{flag ? <span className="flagb"><Icon n="flag" s={11} sw={2.2} />Yes</span> : <span className="sub">No</span>}</dd>
@@ -272,7 +273,7 @@ export function FunctionDetail({ f, isNew }) {
         {!!related.length && !editing && <div className="rail-card quiet">
           <div className="rail-t">Related in {f.topic}</div>
           {related.map(x => <button key={x.id} className="rail-rel" onClick={() => openFn(x)}>
-            <span>{x.name}</span><Risk r={x.risk} />
+            <span>{x.name}</span><Risk r={x.displayRisk} />
           </button>)}
           {inTopic > related.length + 1 && <button className="rail-rel all" onClick={() => go("Functions", { filter: { area: String(f.topicId) } })}>
             <span>All {inTopic} in {f.topic}</span><Icon n="arrow-right" s={14} /></button>}

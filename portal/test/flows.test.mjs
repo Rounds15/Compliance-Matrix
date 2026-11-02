@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadFlows, runFlow, parseExpression, expressionsIn, dataverseConnector, usersConnector, outlookConnector, pageRequest } from "./flow-runner.mjs";
-import { dataverseTables, DV_IDS as G } from "./fixtures.mjs";
+import { dataverseTables, DV_IDS as G, ASSESSMENTS, internalRisk, universityRisk } from "./fixtures.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, "dv-schema.json"), "utf8"));
@@ -259,6 +259,160 @@ test("Process portal action: a gap with no function can be closed by an administ
   assert.deepEqual([g.su_status, g.su_closenote, g._su_closedby_value], [100000021, "Adopted.", G(103)]);
   /* an administrator still cannot raise a flag without a function */
   assert.equal(admin.act({ su_action: 100000124, su_reason: "x" }).reply.error, "You are not allowed to do that on this function.");
+});
+
+/* ---------------- closing and reopening gaps, and the assessment recount ---------------- */
+const CLOSE = 100000122, REOPEN = 100000127, OPEN = 100000020, CLOSED = 100000021, ACCEPTED = 100000094;
+const LEVEL = { High: 100000001, Moderate: 100000002, Low: 100000003 };
+/* the 9 assessments, each with its missing controls as open gaps of source
+   Assessment (G(2000 + 10n + k)), plus a closed Manual gap on assessment 1,
+   which the recount leaves out */
+function assessmentWorld(roles = ["Administrators"]) {
+  const env = actionWorld(roles);
+  env.dv.su_assessments = ASSESSMENTS.map(a => {
+    const i = internalRisk(a.su_keycontrolsmissing, a.su_frequencyband), u = universityRisk(i, a.su_externalrisk);
+    return { ...a, su_opencontrolgaps: a.su_keycontrolsmissing, su_internalriskcurrent: i, su_universityriskcurrent: u || null, su_risk: LEVEL[u] ?? null };
+  });
+  ASSESSMENTS.forEach((a, n) => {
+    for (let k = 0; k < Math.max(1, a.su_keycontrolsmissing); k++)
+      env.dv.su_compliancegaps.push({ su_compliancegapid: G(2000 + 10 * (n + 1) + k), su_name: a.su_name + " control " + (k + 1),
+        _su_function_value: a._su_function_value, _su_assessment_value: a.su_assessmentid, su_gapsource: "Assessment", su_status: OPEN, su_legacyspid: 900 + 10 * n + k });
+  });
+  env.dv.su_compliancegaps.push({ su_compliancegapid: G(2009), su_name: "A manual gap", _su_function_value: G(202),
+    _su_assessment_value: G(1101), su_gapsource: "Manual", su_status: CLOSED, su_closenote: "Done." });
+  env.asmt = n => env.dv.su_assessments.find(a => a.su_assessmentid === G(1100 + n));
+  env.gap = id => env.dv.su_compliancegaps.find(g => g.su_compliancegapid === id);
+  env.fn = n => env.dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === G(n));
+  env.close = (id, note = "Fixed.") => env.act({ su_action: CLOSE, su_reason: note, _su_gap_value: id });
+  env.reopen = (id, why = "Not fixed after all.") => env.act({ su_action: REOPEN, su_reason: why, _su_gap_value: id });
+  return env;
+}
+const expected = (a, closed) => {
+  const n = Math.max(0, a.su_keycontrolsmissing - closed), i = internalRisk(n, a.su_frequencyband), u = universityRisk(i, a.su_externalrisk);
+  return [n, i, u || null, LEVEL[u] ?? null];
+};
+const current = a => [a.su_opencontrolgaps, a.su_internalriskcurrent, a.su_universityriskcurrent, a.su_risk];
+
+test("recount: closing a gap of each of the 9 assessments recounts that assessment only", () => {
+  ASSESSMENTS.forEach((a, idx) => {
+    const n = idx + 1;
+    const env = assessmentWorld();
+    const others = env.dv.su_assessments.filter(x => x.su_assessmentid !== a.su_assessmentid).map(x => ({ ...x }));
+    const r = env.close(G(2000 + 10 * n));
+    assert.equal(r.reply.ok, true, a.su_name + ": " + JSON.stringify(r.reply));
+    assert.deepEqual(current(env.asmt(n)), expected(a, 1), a.su_name);
+    assert.deepEqual(env.dv.su_assessments.filter(x => x.su_assessmentid !== a.su_assessmentid), others, a.su_name + ": no other assessment changes");
+  });
+});
+
+test("recount: counts closed gaps of source Assessment only, and never goes below 0", () => {
+  const env = assessmentWorld();
+  // Revenue Share (3 missing): close all three, one at a time
+  for (const k of [0, 1, 2]) {
+    env.close(G(2090 + k));
+    assert.deepEqual(current(env.asmt(9)), expected(ASSESSMENTS[8], k + 1), "after closing " + (k + 1));
+  }
+  assert.equal(env.asmt(9).su_opencontrolgaps, 0);
+  assert.equal(env.asmt(9).su_universityriskcurrent, universityRisk(internalRisk(0, "Several times a week"), 4) || null);
+  // Eligibility Athletics: the closed Manual gap on it is not counted
+  env.close(G(2010));
+  assert.deepEqual(current(env.asmt(1)), expected(ASSESSMENTS[0], 1));
+  // Stop Campus Hazing (0 missing): a closed gap leaves 0, not -1
+  env.close(G(2030));
+  assert.equal(env.asmt(3).su_opencontrolgaps, 0);
+});
+
+test("recount: the rule's thresholds, as written", () => {
+  const env = assessmentWorld();
+  const a = env.asmt(2);
+  const cases = [
+    // [missing, frequency band, external risk] -> after closing 1 gap
+    [10, "Daily", 4], [9, "Daily", 4], [7, "Several times a week", 3], [6, "4-12 times a year", 2],
+    [4, "1-3 times a year", 5], [3, "Daily", 0], [1, "", 1], [12, "DAILY checks", 9]
+  ];
+  for (const [missing, freq, ext] of cases) {
+    Object.assign(a, { su_keycontrolsmissing: missing, su_frequencyband: freq, su_externalrisk: ext });
+    const g = G(2020);
+    env.gap(g).su_status = OPEN;
+    env.close(g);
+    assert.deepEqual(current(a), expected(a, 1), JSON.stringify([missing, freq, ext]));
+  }
+});
+
+test("assessed risk: the function takes its latest accepted, dated assessment's university risk", () => {
+  const env = assessmentWorld();
+  // 202 has four dated assessments; Revenue Share (2026-04-10) is the latest
+  env.asmt(9).su_universityriskcurrent = null;
+  env.close(G(2010)); // a gap of Eligibility Athletics, an older assessment of 202
+  const latest = env.asmt(9);
+  assert.equal(env.fn(202).su_assessedrisk, LEVEL[latest.su_universityriskcurrent] ?? null, "rated from the latest, not the one recounted");
+  // the latest is not Accepted: the next latest (Recruiting, 2026-03-20) rates it
+  env.asmt(9).su_status = 100000090;
+  env.asmt(8).su_universityriskcurrent = "High";
+  env.close(G(2011));
+  assert.equal(env.fn(202).su_assessedrisk, LEVEL.High);
+  // 203's three HIPAA assessments have no date: none counts, so the function has no assessed risk
+  env.fn(203).su_assessedrisk = LEVEL.Low;
+  const byHand = env.fn(203).su_risk;
+  env.close(G(2040));
+  assert.equal(env.fn(203).su_assessedrisk, null, "assessments with no date are not counted");
+  assert.equal(env.fn(203).su_risk, byHand, "the rating set by hand is left alone");
+});
+
+test("a gap with no assessment is closed with no recount", () => {
+  const env = assessmentWorld();
+  const before = JSON.stringify(env.dv.su_assessments);
+  assert.equal(env.close(G(601)).reply.ok, true);
+  assert.equal(JSON.stringify(env.dv.su_assessments), before);
+});
+
+test("closing writes an archive row; a gap already closed is refused", () => {
+  const env = assessmentWorld();
+  env.close(G(2010), "Training delivered.");
+  const row = env.dv.su_archives.at(-1);
+  assert.deepEqual([row.su_recordtype, row.su_eventtype, row.su_reason, row._su_function_value, row.su_resolvedby, row.su_sourceitemid],
+    ["Gap Closed", "Closed", "Training delivered.", G(202), "Dwight Ferrell", 900]);
+  const r = env.close(G(2010), "Again.");
+  assert.equal(r.reply.error, "That gap is already closed.");
+  assert.equal(env.gap(G(2010)).su_closenote, "Training delivered.", "the first closure stands");
+  assert.equal(env.dv.su_archives.length, 1);
+  // a gap with no function: the archive row has no function link
+  env.close(G(604), "Adopted.");
+  assert.equal(env.dv.su_archives.at(-1)._su_function_value ?? null, null);
+  assert.equal(env.dv.su_archives.at(-1).su_eventtype, "Closed");
+});
+
+test("reopen: an administrator reopens a closed gap; the archive keeps the closure note; the recount follows", () => {
+  const env = assessmentWorld();
+  env.close(G(2090), "Policy adopted.");
+  const afterClose = current(env.asmt(9));
+  const r = env.reopen(G(2090), "The policy was withdrawn.");
+  assert.equal(r.reply.ok, true, JSON.stringify(r.reply));
+  const g = env.gap(G(2090));
+  assert.deepEqual([g.su_status, g.su_closeddate ?? null, g.su_closenote ?? null, g._su_closedby_value ?? null], [OPEN, null, null, null]);
+  const row = env.dv.su_archives.at(-1);
+  assert.deepEqual([row.su_recordtype, row.su_eventtype], ["Gap Closed", "Reversed"]);
+  assert.equal(row.su_reason, "The policy was withdrawn.\n\nPrior closure note: Policy adopted.");
+  assert.notDeepEqual(current(env.asmt(9)), afterClose);
+  assert.deepEqual(current(env.asmt(9)), expected(ASSESSMENTS[8], 0), "back to every missing control open");
+});
+
+test("reopen: administrators only, closed gaps only, and with a reason", () => {
+  const owner = assessmentWorld([]);
+  owner.dv.su_functionownerships.push({ su_functionownershipid: G(2999), _su_function_value: G(202), _su_person_value: G(103), su_role: 100000032 });
+  owner.close(G(2010));
+  assert.equal(owner.gap(G(2010)).su_status, CLOSED, "an owner may close");
+  assert.equal(owner.reopen(G(2010)).reply.error, "You are not allowed to do that on this function.", "but not reopen");
+  assert.equal(owner.gap(G(2010)).su_status, CLOSED);
+  const admin = assessmentWorld();
+  assert.equal(admin.reopen(G(2011)).reply.error, "That gap is not closed.");
+  admin.close(G(2011));
+  assert.equal(admin.reopen(G(2011), "  ").reply.error, "Reopening a gap needs a reason.");
+  assert.equal(admin.gap(G(2011)).su_status, CLOSED);
+  // a gap with no function: an administrator may reopen it
+  admin.close(G(604), "Adopted.");
+  assert.equal(admin.reopen(G(604)).reply.ok, true);
+  assert.equal(admin.gap(G(604)).su_status, OPEN);
 });
 
 /* ---------------- CM - Sync directory from M365 ---------------- */

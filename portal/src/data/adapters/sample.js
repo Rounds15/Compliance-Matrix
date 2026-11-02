@@ -129,6 +129,10 @@ export function createSampleAdapter() {
       Object.assign(find("gaps", gap.id), { status: "Closed", closeNote: note, closed: nowDay(ctx) });
       return ["gaps"];
     },
+    async reopenGap({ gap }) {
+      Object.assign(find("gaps", gap.id), { status: "Open", closeNote: "", closed: null });
+      return ["gaps"];
+    },
     async saveFunction({ draft, isNew }, ctx) {
       const row = {
         id: isNew ? newId("CF") : draft.id, code: isNew ? "" : draft.code, name: draft.name,

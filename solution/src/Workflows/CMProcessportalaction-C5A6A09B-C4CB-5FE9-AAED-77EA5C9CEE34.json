@@ -261,7 +261,7 @@
             },
             "Target_table": {
               "type": "Compose",
-              "inputs": "@if(or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121)), 'su_compliancedeadlines', if(equals(body('Get_action')?['su_action'], 100000122), 'su_compliancegaps', if(equals(body('Get_action')?['su_action'], 100000123), 'su_functionflags', '')))",
+              "inputs": "@if(or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121)), 'su_compliancedeadlines', if(or(equals(body('Get_action')?['su_action'], 100000122), equals(body('Get_action')?['su_action'], 100000127)), 'su_compliancegaps', if(equals(body('Get_action')?['su_action'], 100000123), 'su_functionflags', '')))",
               "runAfter": {
                 "Not_linked": [
                   "Succeeded"
@@ -278,7 +278,7 @@
                 },
                 "parameters": {
                   "entityName": "@{if(not(empty(outputs('Target_table'))), outputs('Target_table'), 'su_portalactions')}",
-                  "$filter": "@{concat(if(not(empty(outputs('Target_table'))), substring(outputs('Target_table'), 0, sub(length(outputs('Target_table')), 1)), 'su_portalaction'), 'id eq ', coalesce(if(or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121)), body('Get_action')?['_su_deadline_value'], if(equals(body('Get_action')?['su_action'], 100000122), body('Get_action')?['_su_gap_value'], if(equals(body('Get_action')?['su_action'], 100000123), body('Get_action')?['_su_flag_value'], null))), '00000000-0000-0000-0000-000000000000'))}"
+                  "$filter": "@{concat(if(not(empty(outputs('Target_table'))), substring(outputs('Target_table'), 0, sub(length(outputs('Target_table')), 1)), 'su_portalaction'), 'id eq ', coalesce(if(or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121)), body('Get_action')?['_su_deadline_value'], if(or(equals(body('Get_action')?['su_action'], 100000122), equals(body('Get_action')?['su_action'], 100000127)), body('Get_action')?['_su_gap_value'], if(equals(body('Get_action')?['su_action'], 100000123), body('Get_action')?['_su_flag_value'], null))), '00000000-0000-0000-0000-000000000000'))}"
                 },
                 "authentication": "@parameters('$authentication')"
               },
@@ -435,7 +435,7 @@
                 "and": [
                   {
                     "equals": [
-                      "@and(empty(variables('Error')), or(and(equals(length(body('Find_function')?['value']), 0), not(and(greater(length(body('Administrator_roles')), 0), equals(body('Get_action')?['su_action'], 100000122)))), not(or(greater(length(body('Administrator_roles')), 0), equals(body('Get_action')?['su_action'], 100000124), and(greater(length(body('Find_ownership')?['value']), 0), or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121), equals(body('Get_action')?['su_action'], 100000122)))))))",
+                      "@and(empty(variables('Error')), or(and(equals(length(body('Find_function')?['value']), 0), not(and(greater(length(body('Administrator_roles')), 0), or(equals(body('Get_action')?['su_action'], 100000122), equals(body('Get_action')?['su_action'], 100000127))))), not(or(greater(length(body('Administrator_roles')), 0), equals(body('Get_action')?['su_action'], 100000124), and(greater(length(body('Find_ownership')?['value']), 0), or(equals(body('Get_action')?['su_action'], 100000120), equals(body('Get_action')?['su_action'], 100000121), equals(body('Get_action')?['su_action'], 100000122)))))))",
                       true
                     ]
                   }
@@ -456,6 +456,99 @@
               },
               "runAfter": {
                 "Find_ownership": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Already_closed": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(equals(body('Get_action')?['su_action'], 100000122), equals(first(body('Find_target')?['value'])?['su_status'], 100000021)))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Already_closed": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That gap is already closed."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Not_allowed": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Not_closed": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(equals(body('Get_action')?['su_action'], 100000127), not(equals(first(body('Find_target')?['value'])?['su_status'], 100000021))))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_Not_closed": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "That gap is not closed."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Already_closed": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "No_reopen_reason": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(empty(variables('Error')), and(equals(body('Get_action')?['su_action'], 100000127), empty(trim(coalesce(body('Get_action')?['su_reason'], '')))))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_No_reopen_reason": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Error",
+                    "value": "Reopening a gap needs a reason."
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Not_closed": [
                   "Succeeded"
                 ]
               }
@@ -486,7 +579,7 @@
                 "actions": {}
               },
               "runAfter": {
-                "Not_allowed": [
+                "No_reopen_reason": [
                   "Succeeded"
                 ]
               }
@@ -547,7 +640,7 @@
                               "item/su_recordtype": "Deadline Completion",
                               "item/su_eventtype": "Completed",
                               "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                               "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                               "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                               "item/su_resolvedat": "@{utcNow()}",
@@ -605,7 +698,7 @@
                               "item/su_recordtype": "Deadline Completion",
                               "item/su_eventtype": "Reversed",
                               "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                               "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                               "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                               "item/su_resolvedat": "@{utcNow()}",
@@ -646,6 +739,89 @@
                             "authentication": "@parameters('$authentication')"
                           },
                           "runAfter": {}
+                        },
+                        "Archive_gap_closed": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_archives",
+                              "item/su_name": "@{substring(concat('Gap Closed - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Gap Closed - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                              "item/su_recordtype": "Gap Closed",
+                              "item/su_eventtype": "Closed",
+                              "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_function@odata.bind": "@if(empty(coalesce(first(body('Find_function')?['value'])?['su_compliancefunctionid'], '')), null, concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')'))",
+                              "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                              "item/su_resolvedat": "@{utcNow()}",
+                              "item/su_reason": "@{coalesce(body('Get_action')?['su_reason'], '')}",
+                              "item/su_sourceitemid": "@first(body('Find_target')?['value'])?['su_legacyspid']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Update_gap": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "Reopen_gap": {
+                      "case": 100000127,
+                      "actions": {
+                        "Archive_gap_reopened": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_archives",
+                              "item/su_name": "@{substring(concat('Gap Reopened - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')), 0, min(255, length(concat('Gap Reopened - ', coalesce(first(body('Find_function')?['value'])?['su_name'], '')))))}",
+                              "item/su_recordtype": "Gap Closed",
+                              "item/su_eventtype": "Reversed",
+                              "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_function@odata.bind": "@if(empty(coalesce(first(body('Find_function')?['value'])?['su_compliancefunctionid'], '')), null, concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')'))",
+                              "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
+                              "item/su_resolvedat": "@{utcNow()}",
+                              "item/su_reason": "@{concat(coalesce(body('Get_action')?['su_reason'], ''), decodeUriComponent('%0A%0A'), 'Prior closure note: ', coalesce(first(body('Find_target')?['value'])?['su_closenote'], ''))}",
+                              "item/su_sourceitemid": "@first(body('Find_target')?['value'])?['su_legacyspid']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "Update_gap_reopen": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancegaps",
+                              "recordId": "@{first(body('Find_target')?['value'])?['su_compliancegapid']}",
+                              "item/su_status": 100000020,
+                              "item/su_closeddate": "@null",
+                              "item/su_closenote": "@null",
+                              "item/su_closedby@odata.bind": "@null"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Archive_gap_reopened": [
+                              "Succeeded"
+                            ]
+                          }
                         }
                       }
                     },
@@ -685,7 +861,7 @@
                               "item/su_recordtype": "Flag Resolution",
                               "item/su_eventtype": "Resolved",
                               "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                               "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                               "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                               "item/su_resolvedat": "@{utcNow()}",
@@ -770,7 +946,7 @@
                                   "item/su_recordtype": "Function Deleted",
                                   "item/su_eventtype": "Deleted",
                                   "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                                   "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                                   "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                                   "item/su_resolvedat": "@{utcNow()}",
@@ -832,7 +1008,7 @@
                                   "item/su_recordtype": "Function Deleted",
                                   "item/su_eventtype": "Deleted",
                                   "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                                   "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                                   "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                                   "item/su_resolvedat": "@{utcNow()}",
@@ -894,7 +1070,7 @@
                                   "item/su_recordtype": "Function Deleted",
                                   "item/su_eventtype": "Deleted",
                                   "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                                   "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                                   "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                                   "item/su_resolvedat": "@{utcNow()}",
@@ -956,7 +1132,7 @@
                                   "item/su_recordtype": "Function Deleted",
                                   "item/su_eventtype": "Deleted",
                                   "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                                  "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                                   "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                                   "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                                   "item/su_resolvedat": "@{utcNow()}",
@@ -993,7 +1169,7 @@
                               "item/su_recordtype": "Function Deleted",
                               "item/su_eventtype": "Deleted",
                               "item/su_archivedfunctionname": "@{coalesce(first(body('Find_function')?['value'])?['su_name'], '')}",
-                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(first(body('Find_function')?['value'])?['su_functioncode'])), first(body('Find_function')?['value'])?['su_legacyspid'])",
+                              "item/su_functionnumber": "@if(equals(first(body('Find_function')?['value'])?['su_legacyspid'], null), if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), null, int(if(empty(coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')), '0', coalesce(first(body('Find_function')?['value'])?['su_functioncode'], '')))), first(body('Find_function')?['value'])?['su_legacyspid'])",
                               "item/su_function@odata.bind": "@{concat('su_compliancefunctions(', first(body('Find_function')?['value'])?['su_compliancefunctionid'], ')')}",
                               "item/su_resolvedby": "@{first(body('Find_person')?['value'])?['su_name']}",
                               "item/su_resolvedat": "@{utcNow()}",
@@ -1044,6 +1220,181 @@
                     }
                   },
                   "runAfter": {}
+                },
+                "Recount_the_assessment": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@and(or(equals(body('Get_action')?['su_action'], 100000122), equals(body('Get_action')?['su_action'], 100000127)), not(empty(coalesce(first(body('Find_target')?['value'])?['_su_assessment_value'], ''))))",
+                          true
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Get_assessment": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "GetItem",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_assessments",
+                          "recordId": "@{first(body('Find_target')?['value'])?['_su_assessment_value']}",
+                          "$select": "su_assessmentid,su_keycontrolsmissing,su_frequencyband,su_externalrisk,_su_function_value"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {}
+                    },
+                    "Closed_assessment_gaps": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_compliancegaps",
+                          "$filter": "@{concat('_su_assessment_value eq ', first(body('Find_target')?['value'])?['_su_assessment_value'], ' and su_status eq 100000021 and su_gapsource eq ', '''Assessment''')}",
+                          "$select": "su_compliancegapid"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Get_assessment": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Open_control_gaps_now": {
+                      "type": "Compose",
+                      "inputs": "@max(0, sub(coalesce(body('Get_assessment')?['su_keycontrolsmissing'], 0), length(body('Closed_assessment_gaps')?['value'])))",
+                      "runAfter": {
+                        "Closed_assessment_gaps": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Internal_risk_current": {
+                      "type": "Compose",
+                      "inputs": "@sub(9, add(if(greaterOrEquals(outputs('Open_control_gaps_now'), 9), 1, if(greaterOrEquals(outputs('Open_control_gaps_now'), 6), 2, if(greaterOrEquals(outputs('Open_control_gaps_now'), 3), 3, 4))), if(contains(toLower(coalesce(body('Get_assessment')?['su_frequencyband'], '')), 'daily'), 1, if(contains(toLower(coalesce(body('Get_assessment')?['su_frequencyband'], '')), 'several'), 2, if(contains(toLower(coalesce(body('Get_assessment')?['su_frequencyband'], '')), '4-12'), 3, 4)))))",
+                      "runAfter": {
+                        "Open_control_gaps_now": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "University_risk_current": {
+                      "type": "Compose",
+                      "inputs": "@if(or(equals(outputs('Internal_risk_current'), 0), equals(coalesce(body('Get_assessment')?['su_externalrisk'], 0), 0)), '', if(and(greaterOrEquals(outputs('Internal_risk_current'), 5), greaterOrEquals(add(outputs('Internal_risk_current'), coalesce(body('Get_assessment')?['su_externalrisk'], 0)), 9)), 'High', if(and(greaterOrEquals(outputs('Internal_risk_current'), 2), greaterOrEquals(add(outputs('Internal_risk_current'), coalesce(body('Get_assessment')?['su_externalrisk'], 0)), 6)), 'Moderate', 'Low')))",
+                      "runAfter": {
+                        "Internal_risk_current": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Update_assessment": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "UpdateRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_assessments",
+                          "recordId": "@{first(body('Find_target')?['value'])?['_su_assessment_value']}",
+                          "item/su_opencontrolgaps": "@outputs('Open_control_gaps_now')",
+                          "item/su_internalriskcurrent": "@outputs('Internal_risk_current')",
+                          "item/su_universityriskcurrent": "@if(empty(outputs('University_risk_current')), null, outputs('University_risk_current'))",
+                          "item/su_risk": "@if(equals(outputs('University_risk_current'), 'High'), 100000001, if(equals(outputs('University_risk_current'), 'Moderate'), 100000002, if(equals(outputs('University_risk_current'), 'Low'), 100000003, null)))"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "University_risk_current": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Has_a_function": {
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@not(empty(coalesce(body('Get_assessment')?['_su_function_value'], '')))",
+                              true
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "Latest_accepted_assessment": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "ListRecords",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_assessments",
+                              "$filter": "@{concat('_su_function_value eq ', body('Get_assessment')?['_su_function_value'], ' and su_status eq 100000094 and su_assessmentdate ne null')}",
+                              "$select": "su_assessmentid,su_assessmentdate,su_universityriskcurrent",
+                              "$orderby": "su_assessmentdate desc",
+                              "$top": 1
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        },
+                        "Rate_the_function": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "su_compliancefunctions",
+                              "recordId": "@{body('Get_assessment')?['_su_function_value']}",
+                              "item/su_assessedrisk": "@if(equals(coalesce(first(body('Latest_accepted_assessment')?['value'])?['su_universityriskcurrent'], ''), 'High'), 100000001, if(equals(coalesce(first(body('Latest_accepted_assessment')?['value'])?['su_universityriskcurrent'], ''), 'Moderate'), 100000002, if(equals(coalesce(first(body('Latest_accepted_assessment')?['value'])?['su_universityriskcurrent'], ''), 'Low'), 100000003, null)))"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {
+                            "Latest_accepted_assessment": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {}
+                      },
+                      "runAfter": {
+                        "Update_assessment": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "runAfter": {
+                    "Switch_on_action_type": [
+                      "Succeeded"
+                    ]
+                  }
                 }
               },
               "else": {

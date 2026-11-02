@@ -71,7 +71,7 @@ export function ExecutiveTeam() {
         {sel.tab === "all" ? <Field label="Portfolio">
           {cur.fns.map(f => <button key={f.id} className="srow et-row" onClick={() => open(f)}>
             <div style={{ flex: 1, minWidth: 0 }}><div className="fname" style={{ fontSize: 13.5 }}>{f.name}</div>
-              <div className="sub">{f.topic} {"·"} {f.area}</div></div><Risk r={f.risk} /></button>)}
+              <div className="sub">{f.topic} {"·"} {f.area}</div></div><Risk r={f.displayRisk} /></button>)}
         </Field> : <Field label="Due in the next 90 days">
           {cur.due.length ? cur.due.map(d => { const f = ds.fnById.get(String(d.functionId)); return <button key={d.id} className="srow et-row" onClick={() => f && open(f)}>
             <div style={{ flex: 1, minWidth: 0 }}><div className="fname" style={{ fontSize: 13.5 }}>{d.functionName}</div>

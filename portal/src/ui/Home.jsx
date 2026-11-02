@@ -80,7 +80,7 @@ export function Home() {
               </div>
               {g > 0 && <span className="gapbadge" title={g + (g === 1 ? " open gap" : " open gaps")}>{g} {g === 1 ? "Gap" : "Gaps"}</span>}
               {flagOf(f) && <span className="flagb"><Icon n="flag" s={11} sw={2.2} />Flagged</span>}
-              <Risk r={f.risk} />
+              <Risk r={f.displayRisk} />
             </button>;
           }) : <div className="empty" style={{ border: 0 }}><h3>Nothing assigned</h3><p className="sub">No functions list {me.n} in the Accountability Structure.</p></div>}
           {mine.length > SHOW && <button className="srow hm-more" onClick={() => go("Functions", { filter: { mine: true } })}>View all {mine.length} assigned functions <Icon n="arrow-right" s={14} /></button>}

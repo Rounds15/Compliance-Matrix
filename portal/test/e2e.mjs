@@ -793,7 +793,7 @@ await session("Dataverse · the browser cannot write the archive or who did some
 });
 
 /* ======================= Dataverse, owner ======================= */
-await session("Dataverse · owner · permitted writes succeed, admin UI absent", { backend: "dataverse", admin: false, user: { email: "dferrell@syr.edu", name: "Dwight Ferrell" } }, async ({ page, portal, go, toast, btn }) => {
+await session("Dataverse · owner · permitted writes succeed, admin UI absent", { backend: "dataverse", admin: false, user: { email: "dferrell@syr.edu", name: "Dwight Ferrell" } }, async ({ page, portal, go, toast, btn, modal }) => {
   assert.equal(await page.locator(".util-role select").count(), 0);
   await go("#/functions/" + G(202));
   await page.waitForSelector("h1:has-text('Form I-9')");
@@ -805,6 +805,14 @@ await session("Dataverse · owner · permitted writes succeed, admin UI absent",
   await go("#/gaps");
   await page.locator("h1", { hasText: "Gap Tracker" }).waitFor();
   assert.equal(await page.locator(".gt-row", { hasText: "Records retention schedule not adopted" }).count(), 0, "an owner does not see a gap with no function");
+  // a closed gap on his function: read-only, no Reopen (administrators only)
+  portal.dv.su_compliancegaps.push({ su_compliancegapid: G(605), su_name: "Old I-9 finding", _su_function_value: G(202), su_status: 100000021, su_closeddate: "2026-09-01", su_closenote: "Fixed." });
+  await page.reload();
+  await page.locator("h1", { hasText: "Gap Tracker" }).waitFor();
+  await btn(/^Closed \(/).click();
+  await page.locator(".gt-row", { hasText: "Old I-9 finding" }).click();
+  assert.equal(await modal().locator("button", { hasText: "Reopen gap" }).count(), 0);
+  assert.equal(await modal().locator("textarea").count(), 0);
 });
 
 /* a contact with no email: the page finds the person through the directory's Portal Contact link */
@@ -891,6 +899,47 @@ await session("Dataverse · the completion dialog sits above the calendar and th
   assert.match(await page.locator("h1").first().innerText(), /Deadlines/, "Enter in the reason stays in the dialog");
   await page.keyboard.press("Escape");
   assert.equal(await page.locator(".cm-modal").count(), 0, "Escape still closes it");
+});
+
+/* closing a gap of an assessment rates its function from the recount;
+   an administrator reopens it with a reason, and the archive keeps both */
+await session("Dataverse · a gap closed and reopened recounts its assessment and rates the function", { backend: "dataverse", admin: true, assessments: true }, async ({ page, portal, go, toast, btn, modal }) => {
+  const dv = portal.dv;
+  await go("#/gaps");
+  const card = page.locator(".gt-card", { hasText: "Form I-9" });
+  assert.equal(await page.locator(".gt-card .gt-fn").first().count(), 1);
+  assert.equal(await card.locator(".gt-meta .risk").innerText().then(t => t.trim().toLowerCase()), "not rated", "no assessed risk yet, no rating by hand");
+  await card.locator(".gt-row", { hasText: "I-9 Section 2" }).click();
+  assert.match(await modal().locator(".gt-dl").innerText(), /^(?![\s\S]*Gap ID)/, "no Gap ID label");
+  assert.equal(await modal().locator(".gt-dl dt", { hasText: "Control" }).count(), 0, "GAP-1 is the load's stand-in, not a control");
+  await modal().locator("textarea").fill("Late forms re-verified.");
+  await btn("Mark as closed", modal()).click();
+  await toast(/Gap closed/);
+  const a9 = dv.su_assessments.find(a => a.su_name === "Revenue Share Program Assessment");
+  assert.deepEqual([a9.su_opencontrolgaps, a9.su_internalriskcurrent, a9.su_universityriskcurrent], [2, 3, "Moderate"]);
+  assert.equal(dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === G(202)).su_assessedrisk, 100000002);
+  assert.equal(dv.su_archives.at(-1).su_eventtype, "Closed");
+  // the page shows the function's assessed risk now
+  await btn(/^Closed \(/).click();
+  const closedCard = page.locator(".gt-card", { hasText: "Form I-9" });
+  assert.equal(await closedCard.locator(".gt-meta .risk").innerText().then(t => t.trim().toLowerCase()), "moderate");
+  await closedCard.locator(".gt-row", { hasText: "I-9 Section 2" }).click();
+  const reopen = btn("Reopen gap", modal());
+  assert.equal(await reopen.isDisabled(), true, "a reason is required");
+  await modal().locator("#gap-reopen").fill("Two forms were missed.");
+  await reopen.click();
+  await toast(/Gap reopened/);
+  const g = dv.su_compliancegaps.find(x => x.su_compliancegapid === G(601));
+  assert.deepEqual([g.su_status, g.su_closeddate ?? null, g.su_closenote ?? null], [100000020, null, null]);
+  assert.equal(dv.su_archives.at(-1).su_eventtype, "Reversed");
+  assert.equal(dv.su_archives.at(-1).su_reason, "Two forms were missed.\n\nPrior closure note: Late forms re-verified.");
+  assert.equal(a9.su_opencontrolgaps, 3, "recounted on reopen");
+  assert.equal(dv.su_portalactions.at(-1).su_action, 100000127);
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.equal(await page.locator(".fd-tags .risk").innerText().then(t => t.trim().toLowerCase()), "moderate", "Function Detail shows the assessed risk");
+  await btn("Edit this record").click();
+  assert.match(await page.locator("#fd-risk").locator("xpath=..").innerText(), /Shown as Moderate, from the latest accepted assessment/);
 });
 
 /* the admin audit: an administrator in the default User view, on functions

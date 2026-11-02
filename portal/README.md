@@ -76,11 +76,12 @@ on presentation. A few things are this build's own, noted below.
 | Gap Tracker | everyone; administrators see every gap, everyone else the gaps on their own functions |
 | Deadlines | Admin view sees every deadline; administrators in User view, their own functions' with a My deadlines / All deadlines switch (My deadlines by default); everyone else, their own functions' only |
 | Every deadline of a function on Function Detail, to complete or reverse | administrators, and the function's own people |
-| Risk rating on Function Detail | administrators, or an owner of the function |
+| Risk rating on Function Detail | administrators, or an owner of the function | (the latest accepted assessment's rating where there is one, on Dataverse; otherwise the rating set by hand)
 | Compliance Risk Dashboard, Reporting | administrators (see *Open questions*) |
 | Flagged for Review | administrators; everyone else gets No Access |
 | Edit, create, delete a function; Manage people; the risk area and domain manager; add, edit, reassign and remove people in the directory | administrators |
 | Flag, log a gap, close a gap, complete or reverse a deadline | everyone, on what they can see |
+| Reopen a closed gap (Dataverse) | administrators |
 
 "Own functions" means every function where the person appears anywhere in the
 Accountability Structure, General Counsel and Support included, as the app's

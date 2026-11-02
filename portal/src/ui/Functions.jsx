@@ -31,7 +31,7 @@ export const FnCard = ({ f, g, fl, onClick }) => {
     <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
       <div style={{ flex: 1, minWidth: 0 }}><div className="t">{f.name}</div>
         <div className="sub" style={{ marginTop: 3 }}>{f.topic} {"·"} {f.area}</div></div>
-      <Risk r={f.risk} /></div>
+      <Risk r={f.displayRisk} /></div>
     <div className="m">{f.statute && <span className="chip"><Icon n="scale" s={12} />{f.statute}</span>}
       {g > 0 && <span className="gapbadge">{g} {g === 1 ? "gap" : "gaps"}</span>}
       {fl && <span className="flagb"><Icon n="flag" s={10} sw={2.4} />Flagged</span>}</div>
@@ -75,9 +75,9 @@ export function Functions({ filter, setFilter }) {
       .map(d => ({ ...d, n: searched.filter(f => String(f.areaId) === String(d.id)).length }))
   })), [ds, searched]);
   const inArea = f => (!area || String(f.topicId) === area) && (!domain || String(f.areaId) === domain);
-  const riskCounts = useMemo(() => Object.fromEntries(RATINGS.map(([k]) => [k, searched.filter(f => inArea(f) && f.risk === k).length])), [searched, area, domain]); // eslint-disable-line react-hooks/exhaustive-deps
+  const riskCounts = useMemo(() => Object.fromEntries(RATINGS.map(([k]) => [k, searched.filter(f => inArea(f) && f.displayRisk === k).length])), [searched, area, domain]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const rows = useMemo(() => searched.filter(f => inArea(f) && (!risk || f.risk === risk) &&
+  const rows = useMemo(() => searched.filter(f => inArea(f) && (!risk || f.displayRisk === risk) &&
     (!status || (status === "gaps" ? gapCount(f) > 0 : flagged(f)))
   ).sort(byName), [searched, area, domain, risk, status, openGapsBy, flaggedSet]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -158,7 +158,7 @@ export function Functions({ filter, setFilter }) {
       <td><div className="mx-cell">{f.statute}</div><div className="sub">{f.citation}</div></td>
       <td><div className="owner"><Avatar person={o.p} size={30} /><div style={{ minWidth: 0 }}>
         <div className="nm">{o.p ? o.p.n + (o.more ? " +" + o.more : "") : "Not assigned"}</div><div className="ti">{o.p ? o.p.u : ""}</div></div></div></td>
-      <td><Risk r={f.risk} /></td></tr>;
+      <td><Risk r={f.displayRisk} /></td></tr>;
   };
 
   const Table = list => <div className="tblwrap"><table className="table-simple mx-table"><thead><tr>
@@ -222,7 +222,7 @@ export function Functions({ filter, setFilter }) {
                   <span className="t">{g.k}</span>
                   <span className="sub">{lens === "topic" ? meta.length + " domain" + (meta.length === 1 ? "" : "s") : meta.join(" · ")}</span>
                 </span>
-                <span className="mx-mix">{RATINGS.map(([r, l]) => { const n = g.fns.filter(f => f.risk === r).length; return n ? <span key={r} title={n + " " + l} style={{ background: RISK_COLOR[r] }}>{n}</span> : null; })}</span>
+                <span className="mx-mix">{RATINGS.map(([r, l]) => { const n = g.fns.filter(f => f.displayRisk === r).length; return n ? <span key={r} title={n + " " + l} style={{ background: RISK_COLOR[r] }}>{n}</span> : null; })}</span>
                 <span className="mx-group-n">{g.fns.length}</span>
                 <Icon n="chev" s={16} style={{ color: "#6B7280", transform: isOpen ? "rotate(180deg)" : "", flex: "none" }} />
               </button>
@@ -233,7 +233,7 @@ export function Functions({ filter, setFilter }) {
                     <span className="sub">{lens === "area" ? f.topic : lens === "statute" ? f.topic + " · " + f.area : f.area} {"·"} {o.p ? o.p.n : "Not assigned"}</span></span>
                   {gapCount(f) > 0 && <span className="gapbadge">{gapCount(f)}</span>}
                   {flagged(f) && <span className="flagb"><Icon n="flag" s={10} sw={2.4} />Flagged</span>}
-                  <Risk r={f.risk} /></button>; })}
+                  <Risk r={f.displayRisk} /></button>; })}
               </div>}
             </div>;
           })}

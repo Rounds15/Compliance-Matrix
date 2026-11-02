@@ -48,7 +48,7 @@ const FLAG_CLEARED = 100000051;
 const invert = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [v, Number(k)]));
 const RISK_CODE = invert(RISK), ROLE_CODE = invert(ROLE), SUB_CODE = invert(SUB);
 const GAP_OPEN = 100000020;
-export const ACTION = { completeDeadline: 100000120, reverseDeadline: 100000121, closeGap: 100000122, resolveFlag: 100000123, raiseFlag: 100000124, deleteFunction: 100000125, addToCalendar: 100000126 };
+export const ACTION = { completeDeadline: 100000120, reverseDeadline: 100000121, closeGap: 100000122, resolveFlag: 100000123, raiseFlag: 100000124, deleteFunction: 100000125, addToCalendar: 100000126, reopenGap: 100000127 };
 
 const TABLE_OF = {
   riskAreas: "su_riskarea", domains: "su_domain", people: "su_compliancedirectory",
@@ -61,7 +61,7 @@ const SELECT = {
   su_riskarea: "su_riskareaid,su_name,su_colorhex,su_sortorder",
   su_domain: "su_domainid,su_name,_su_riskarea_value",
   su_compliancedirectory: "su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value",
-  su_compliancefunction: "su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value",
+  su_compliancefunction: "su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_assessedrisk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value",
   su_functionownership: "su_functionownershipid,_su_function_value,_su_person_value,su_role,su_subrole",
   su_compliancedeadline: "su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes",
   su_compliancegap: "su_compliancegapid,su_name,su_gapcode,_su_function_value,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,_su_owner_value,su_responsibleunit,su_gapsource",
@@ -99,7 +99,7 @@ export function mapTables(t) {
     statute: r.su_statute, citation: r.su_citation, statuteUrl: r.su_statuteurl,
     description: r.su_description, reporting: r.su_reporting, deadline: r.su_deadlinenarrative,
     resourceLabel: r.su_resourcelabel, resourceUrl: r.su_resourceurl,
-    risk: RISK[r.su_risk] || "", lastReviewed: toDay(r.su_lastreviewed),
+    risk: RISK[r.su_risk] || "", assessedRisk: RISK[r.su_assessedrisk] || "", lastReviewed: toDay(r.su_lastreviewed),
     fixedOwners: { exec: r._su_executiveowner_value, unit: r._su_unitowner_value, compliance: r._su_complianceowner_value }
   }));
   if (t.ownership) out.ownership = t.ownership.map(r => ({
@@ -260,7 +260,13 @@ export function createDataverseAdapter(cfg) {
     },
     async closeGap({ gap, note }) {
       await runAction("closeGap", "Close gap: " + gap.title, { fn: gap.functionId, gap: gap.id }, note);
-      return ["gaps"];
+      /* the flow recounts the gap's assessment and rates its function */
+      return ["gaps", "functions"];
+    },
+    /* administrators only; the flow refuses anyone else */
+    async reopenGap({ gap, reason }) {
+      await runAction("reopenGap", "Reopen gap: " + gap.title, { fn: gap.functionId, gap: gap.id }, reason);
+      return ["gaps", "functions"];
     },
 
     async saveFunction({ draft, isNew }) {

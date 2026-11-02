@@ -765,7 +765,7 @@ request cannot set them directly:
 | su_compliancedeadline | su_completedby, su_completedbydisplayname, su_completedon, su_completedreason, su_completeddate, su_complete |
 | su_compliancegap | su_closedby, su_closeddate |
 | su_functionflag | su_flaggedby, su_clearedby, su_clearedon |
-| su_compliancefunction | su_functioncode |
+| su_compliancefunction | su_functioncode, su_assessedrisk |
 
 **Web API site settings** (Portal Management > Site Settings > New, website
 = this site). Two per table, named with the table's **logical name**
@@ -785,7 +785,7 @@ Power Pages maps for you.
 | su_riskarea | su_riskareas | `su_riskareaid,su_name,su_colorhex,su_sortorder` |
 | su_domain | su_domains | `su_domainid,su_name,_su_riskarea_value` |
 | su_compliancedirectory | su_compliancedirectorys | `su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value,su_photo` |
-| su_compliancefunction | su_compliancefunctions | `su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value` |
+| su_compliancefunction | su_compliancefunctions | `su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_assessedrisk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value` |
 | su_functionownership | su_functionownerships | `su_functionownershipid,_su_function_value,_su_person_value,su_role,su_subrole,su_name` |
 | su_compliancedeadline | su_compliancedeadlines | `su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes` |
 | su_compliancegap | su_compliancegaps | `su_compliancegapid,su_name,su_gapcode,_su_function_value,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,_su_owner_value,su_responsibleunit,su_gapsource` |
@@ -1222,24 +1222,56 @@ you than assume it. Delete the test rows afterwards.
    on it afterwards even if the page they have open still offers the button.
 7. **Allowed:** an administrator may do any action; anyone may Raise flag; an
    owner (step 6) may Complete deadline, Reverse completion and Close gap.
-   A gap with no function has no owners, so only an administrator may close
-   it; every other action needs a function. Otherwise Fail with "You are not
-   allowed to do that on this function."
+   Reopen gap is for administrators only. A gap with no function has no
+   owners, so only an administrator may close or reopen it; every other
+   action needs a function. Otherwise Fail with "You are not allowed to do
+   that on this function." Then: Close gap on a gap already Closed fails with
+   "That gap is already closed."; Reopen gap on a gap that is not Closed
+   fails with "That gap is not closed."; Reopen gap with no reason fails with
+   "Reopening a gap needs a reason."
 8. **Switch** on Action Type:
 
 | Action | Update | Archive entry |
 |---|---|---|
 | Complete deadline | Deadline: Last Completed Date = today, Completed Date And Time = now, Completed Reason = Reason, Completed By Name (su_completedbydisplayname) = person's name, Completed By = person, Complete = true only for a One-time cadence | Entry "Deadline Completed - <function>", Record Type "Deadline Completion", Event Type "Completed", Reason, Completed Occurrence = the deadline's due date, Cadence |
 | Reverse completion | Deadline: clear those six columns, Complete = false | "Deadline Reversed - <function>", "Deadline Completion", "Reversed", Reason |
-| Close gap | Gap: Status Closed, Closed = today, Closure Notes = Reason, Closed By = person | none (the canvas app writes none) |
+| Close gap | Gap: Status Closed, Closed = today, Closure Notes = Reason, Closed By = person; then the recount below | "Gap Closed - <function>", Record Type "Gap Closed", Event Type "Closed", Reason = the closure note, Source Item ID = the gap's |
+| Reopen gap | first the archive entry; then Gap: Status Open, clear Closed, Closure Notes and Closed By; then the recount below | "Gap Reopened - <function>", "Gap Closed", "Reversed", Reason = the reopen reason, a blank line, then "Prior closure note: <the closure note>" |
 | Raise flag | Add a Function Flag: Name = function name, Reason, Status Active, Source Manual, Flagged On = today, Flagged By = person | none |
 | Resolve flag | Flag: Status Cleared, Cleared On = today, Cleared By = person | "Flag Resolved - <function>", "Flag Resolution", "Resolved", Reason = the flag's reason, Source Item ID, Flagged By (name), Flagged Date, Flag Source |
 | Delete function | first an archive entry per gap ("Gap: <name>"), deadline ("Deadline: MM/DD/YYYY <cadence>"), flag ("Flag: <reason>") and owner row ("Owner: <name> (<role>)"), then "Function record deleted"; then delete the function (the schema cascades to its children) | Record Type "Function Deleted", Event Type "Deleted" |
 
    Every archive entry also sets Function Name (su_archivedfunctionname), Function ID (the function's
    su_legacyspid, or its Function ID as a number), Compliance Function
-   (lookup, cleared when the function is deleted), Resolved By = person's
-   name, Resolved Date And Time = now.
+   (lookup, cleared when the function is deleted; empty for a gap with no
+   function), Resolved By = person's name, Resolved Date And Time = now.
+
+   **The recount**, after Close gap and Reopen gap, when the gap has an
+   Assessment (su_assessment):
+   1. Get the assessment. Count its gaps with Status Closed and Gap Source
+      exactly "Assessment" (Manual gaps are not counted).
+   2. Open Control Gaps Now (su_opencontrolgaps) = Key Controls Missing
+      (su_keycontrolsmissing, from MissingControlCount) minus that count,
+      never below 0.
+   3. Internal Risk Current (su_internalriskcurrent) = 9 - r - c, where r is
+      1 when open gaps now >= 9, 2 when >= 6, 3 when >= 3, else 4; and c is 1
+      when Frequency Band contains "Daily", 2 "Several", 3 "4-12", else 4
+      (not case-sensitive).
+   4. University Risk Current (su_universityriskcurrent) is blank when
+      internal risk or External Risk (su_externalrisk, blank counts as 0) is
+      0; High when internal >= 5 and internal + external >= 9; Moderate when
+      internal >= 2 and internal + external >= 6; else Low. Risk Rating
+      (su_risk) gets the same level, or blank.
+   5. When the assessment has a function: its latest Accepted assessment by
+      Assessment Date (an assessment with no date is not counted) sets the
+      function's Assessed Risk (su_assessedrisk) to that assessment's
+      University Risk Current, or blank when there is none. The page shows
+      Assessed Risk when it is set and the function's Risk Rating otherwise.
+
+   A refresh of the CM Load 4 - Assessments dataflow writes the SharePoint
+   list's figures back over the recount, and CM Load 5 - Records writes the
+   gaps' Assessment back from the list. Turn those refreshes off once gaps
+   are closed in Dataverse (section 11).
 9. **Done:** update the action row, Status Done, Processed On = now; Return
    value(s) to Power Pages, Text `result` = `{"ok":true}`.
 10. **Fail:** update the action row, Status Failed, Result = the message;
