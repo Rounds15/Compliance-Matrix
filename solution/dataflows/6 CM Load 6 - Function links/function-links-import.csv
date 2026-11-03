@@ -38,14 +38,14 @@ su_function,su_functionname,su_name,su_linktype,su_url,su_sortorder,su_source
 24bdfd91-34c7-f111-aaad-6045bd05b251,Retirement Plan Contributions,5 C.F.R. § 353,Regulation,https://www.ecfr.gov/current/title-5/chapter-I/subchapter-B/part-353,2,HECA Regulation 1
 24bdfd91-34c7-f111-aaad-6045bd05b251,Retirement Plan Contributions,20 C.F.R. § 1002,Regulation,https://www.ecfr.gov/current/title-20/chapter-IX/part-1002,3,HECA Regulation 2
 22bdfd91-34c7-f111-aaad-6045bd05b251,Protected Health Information (PHI) Privacy,45 C.F.R. § 160,Regulation,https://www.ecfr.gov/current/title-45/part-160,1,HECA Regulation 1
-22bdfd91-34c7-f111-aaad-6045bd05b251,Protected Health Information (PHI) Privacy,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/164,2,HECA Regulation 2
+22bdfd91-34c7-f111-aaad-6045bd05b251,Protected Health Information (PHI) Privacy,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/part-164,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
 23bdfd91-34c7-f111-aaad-6045bd05b251,Telephone Consumer Protection Act (TCPA) Compliance,47 C.F.R. § 64.1200,Regulation,https://www.law.cornell.edu/cfr/text/47/64.1200,1,HECA Regulation 1
 1ebdfd91-34c7-f111-aaad-6045bd05b251,Reemployment Rights,38 U.S.C. §§ 4301-4335,Statute,https://www.law.cornell.edu/uscode/text/38/4301,1,HECA Statute 1
 1ebdfd91-34c7-f111-aaad-6045bd05b251,Reemployment Rights,5 C.F.R. § 353,Regulation,https://www.ecfr.gov/current/title-5/chapter-I/subchapter-B/part-353,2,HECA Regulation 1
 1ebdfd91-34c7-f111-aaad-6045bd05b251,Reemployment Rights,20 C.F.R. § 1002,Regulation,https://www.ecfr.gov/current/title-20/chapter-IX/part-1002,3,HECA Regulation 2
 1dbdfd91-34c7-f111-aaad-6045bd05b251,Unsolicited Fax Compliance,47 C.F.R. § 64.1200,Regulation,https://www.law.cornell.edu/cfr/text/47/64.1200,1,HECA Regulation 1
 1cbdfd91-34c7-f111-aaad-6045bd05b251,Medical Records,45 C.F.R. § 160,Regulation,https://www.ecfr.gov/current/title-45/part-160,1,HECA Regulation 1
-1cbdfd91-34c7-f111-aaad-6045bd05b251,Medical Records,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/164,2,HECA Regulation 2
+1cbdfd91-34c7-f111-aaad-6045bd05b251,Medical Records,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/part-164,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
 18bdfd91-34c7-f111-aaad-6045bd05b251,Email List Management,15 U.S.C. §§ 7701-7713,Statute,https://www.law.cornell.edu/uscode/text/15/chapter-103,1,HECA Statute 1
 18bdfd91-34c7-f111-aaad-6045bd05b251,Email List Management,16 C.F.R. § 316,Regulation,https://www.ecfr.gov/current/title-16/part-316,2,HECA Regulation 1
 16bdfd91-34c7-f111-aaad-6045bd05b251,Non-Discrimination in Benefits,"28 C.F.R. §§ 42.201-42.215, 42.601-42.613",Regulation,https://www.ecfr.gov/current/title-28/part-42,1,HECA Regulation 1
@@ -53,19 +53,19 @@ su_function,su_functionname,su_name,su_linktype,su_url,su_sortorder,su_source
 16bdfd91-34c7-f111-aaad-6045bd05b251,Non-Discrimination in Benefits,29 C.F.R. § 1604,Regulation,https://www.ecfr.gov/current/title-29/part-1604,3,HECA Regulation 3
 16bdfd91-34c7-f111-aaad-6045bd05b251,Non-Discrimination in Benefits,45 C.F.R. § 86,Regulation,https://www.ecfr.gov/current/title-45/part-86,4,HECA Regulation 4
 17bdfd91-34c7-f111-aaad-6045bd05b251,HIPAA Covered Entities - Health Care Provider,45 C.F.R. § 160,Regulation,https://www.ecfr.gov/current/title-45/part-160,1,HECA Regulation 1
-17bdfd91-34c7-f111-aaad-6045bd05b251,HIPAA Covered Entities - Health Care Provider,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/164,2,HECA Regulation 2
+17bdfd91-34c7-f111-aaad-6045bd05b251,HIPAA Covered Entities - Health Care Provider,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/part-164,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
 10bdfd91-34c7-f111-aaad-6045bd05b251,Covered Entities - Security Rule Compliance,45 C.F.R. § 160,Regulation,https://www.ecfr.gov/current/title-45/part-160,1,HECA Regulation 1
-10bdfd91-34c7-f111-aaad-6045bd05b251,Covered Entities - Security Rule Compliance,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/164,2,HECA Regulation 2
+10bdfd91-34c7-f111-aaad-6045bd05b251,Covered Entities - Security Rule Compliance,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/part-164,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
 09bdfd91-34c7-f111-aaad-6045bd05b251,Breach Notification,45 C.F.R. § 160,Regulation,https://www.ecfr.gov/current/title-45/part-160,1,HECA Regulation 1
-09bdfd91-34c7-f111-aaad-6045bd05b251,Breach Notification,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/164,2,HECA Regulation 2
-00bdfd91-34c7-f111-aaad-6045bd05b251,Business Associates Breach Notification,45 C.F.R. § 160,Regulation,https://www.law.cornell.edu/cfr/text/45/160,1,HECA Regulation 1
-00bdfd91-34c7-f111-aaad-6045bd05b251,Business Associates Breach Notification,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/164,2,HECA Regulation 2
+09bdfd91-34c7-f111-aaad-6045bd05b251,Breach Notification,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/part-164,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
+00bdfd91-34c7-f111-aaad-6045bd05b251,Business Associates Breach Notification,45 C.F.R. § 160,Regulation,https://www.law.cornell.edu/cfr/text/45/part-160,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
+00bdfd91-34c7-f111-aaad-6045bd05b251,Business Associates Breach Notification,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/part-164,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
 febcfd91-34c7-f111-aaad-6045bd05b251,Non-Discrimination (General),28 C.F.R. §§ 42.101-42.112,Regulation,https://www.ecfr.gov/current/title-28/part-42,1,HECA Regulation 1
 febcfd91-34c7-f111-aaad-6045bd05b251,Non-Discrimination (General),28 C.F.R. § 50.3,Regulation,https://www.ecfr.gov/current/title-28/part-50,2,HECA Regulation 2
 febcfd91-34c7-f111-aaad-6045bd05b251,Non-Discrimination (General),34 C.F.R. § 100,Regulation,https://www.ecfr.gov/current/title-34/part-100,3,HECA Regulation 3
 febcfd91-34c7-f111-aaad-6045bd05b251,Non-Discrimination (General),45 C.F.R. § 80,Regulation,https://www.ecfr.gov/current/title-45/part-80,4,HECA Regulation 4
-f7bcfd91-34c7-f111-aaad-6045bd05b251,Business Associate Compliance,45 C.F.R. § 160,Regulation,https://www.law.cornell.edu/cfr/text/45/160,1,HECA Regulation 1
-f7bcfd91-34c7-f111-aaad-6045bd05b251,Business Associate Compliance,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/164,2,HECA Regulation 2
+f7bcfd91-34c7-f111-aaad-6045bd05b251,Business Associate Compliance,45 C.F.R. § 160,Regulation,https://www.law.cornell.edu/cfr/text/45/part-160,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
+f7bcfd91-34c7-f111-aaad-6045bd05b251,Business Associate Compliance,45 C.F.R. § 164,Regulation,https://www.law.cornell.edu/cfr/text/45/part-164,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
 f6bcfd91-34c7-f111-aaad-6045bd05b251,Student Title IX Compliance,"28 C.F.R. §§ 42.201-42.215, 42.601-42.613",Regulation,https://www.ecfr.gov/current/title-28/part-42,1,HECA Regulation 1
 f6bcfd91-34c7-f111-aaad-6045bd05b251,Student Title IX Compliance,34 C.F.R. § 106,Regulation,https://www.ecfr.gov/current/title-34/part-106,2,HECA Regulation 2
 f6bcfd91-34c7-f111-aaad-6045bd05b251,Student Title IX Compliance,29 C.F.R. § 1604,Regulation,https://www.ecfr.gov/current/title-29/part-1604,3,HECA Regulation 3
@@ -109,14 +109,14 @@ c3bcfd91-34c7-f111-aaad-6045bd05b251,Online Data Collection from Minors,16 C.F.R
 bfbcfd91-34c7-f111-aaad-6045bd05b251,Claims and Appeals Procedures,29 C.F.R. Parts 2510-2550,Regulation,https://www.ecfr.gov/current/title-29/subtitle-B/chapter-XXV,1,HECA Regulation 1
 bebcfd91-34c7-f111-aaad-6045bd05b251,Housing Accommodation,28 C.F.R. § 36,Regulation,https://www.ecfr.gov/current/title-28/part-36,1,HECA Regulation 1
 bbbcfd91-34c7-f111-aaad-6045bd05b251,Children's Online Privacy,16 C.F.R. 312,Regulation,https://www.ecfr.gov/current/title-16/part-312,1,HECA Regulation 1
-b7bcfd91-34c7-f111-aaad-6045bd05b251,Cafeteria Plan Benefit,IRC § 501(c)(3),Statute,https://www.stayexempt.irs.gov/,1,HECA Statute 2
-b4bcfd91-34c7-f111-aaad-6045bd05b251,Recordkeeping and Inventory,21 C.F.R. § 1300,Regulation,https://www.law.cornell.edu/cfr/text/21/1300,1,HECA Regulation 1
+b7bcfd91-34c7-f111-aaad-6045bd05b251,Cafeteria Plan Benefit,IRC § 501(c)(3),Statute,https://www.irs.gov/charities-non-profits/stay-exempt,1,HECA Statute 2; address updated 2026-11-03 (moved)
+b4bcfd91-34c7-f111-aaad-6045bd05b251,Recordkeeping and Inventory,21 C.F.R. § 1300,Regulation,https://www.law.cornell.edu/cfr/text/21/part-1300,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 b0bcfd91-34c7-f111-aaad-6045bd05b251,Flexible Spending Accounts,26 C.F.R. § 1.125-3,Regulation,https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFRb467872627553f1/section-1.125-3,1,HECA Regulation 1
 b0bcfd91-34c7-f111-aaad-6045bd05b251,Flexible Spending Accounts,26 C.F.R. § 1.125-4,Regulation,https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFRb467872627553f1/section-1.125-4,2,HECA Regulation 2
-adbcfd91-34c7-f111-aaad-6045bd05b251,DEA Registration and Licensing,21 C.F.R. § 1300,Regulation,https://www.law.cornell.edu/cfr/text/21/1300,1,HECA Regulation 1
+adbcfd91-34c7-f111-aaad-6045bd05b251,DEA Registration and Licensing,21 C.F.R. § 1300,Regulation,https://www.law.cornell.edu/cfr/text/21/part-1300,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 a7bcfd91-34c7-f111-aaad-6045bd05b251,Pre-Tax Benefits Administration,26 C.F.R. § 1.125-3,Regulation,https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFRb467872627553f1/section-1.125-3,1,HECA Regulation 1
 a7bcfd91-34c7-f111-aaad-6045bd05b251,Pre-Tax Benefits Administration,26 C.F.R. § 1.125-4,Regulation,https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFRb467872627553f1/section-1.125-4,2,HECA Regulation 2
-a4bcfd91-34c7-f111-aaad-6045bd05b251,Controlled Substance Security and Storage,21 C.F.R. § 1300,Regulation,https://www.law.cornell.edu/cfr/text/21/1300,1,HECA Regulation 1
+a4bcfd91-34c7-f111-aaad-6045bd05b251,Controlled Substance Security and Storage,21 C.F.R. § 1300,Regulation,https://www.law.cornell.edu/cfr/text/21/part-1300,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 a3bcfd91-34c7-f111-aaad-6045bd05b251,IT Equipment Disposal and Transport,49 C.F.R. § 107,Regulation,https://www.ecfr.gov/current/title-49/part-107,1,HECA Regulation 1
 a3bcfd91-34c7-f111-aaad-6045bd05b251,IT Equipment Disposal and Transport,49 C.F.R. § 172,Regulation,https://www.ecfr.gov/current/title-49/part-172,2,HECA Regulation 2
 9ebcfd91-34c7-f111-aaad-6045bd05b251,Dependent Care Flexible Spending Account (FSA),26 U.S.C. § 125,Statute,https://www.law.cornell.edu/uscode/text/26/125,1,HECA Statute 1
@@ -158,10 +158,10 @@ a3bcfd91-34c7-f111-aaad-6045bd05b251,IT Equipment Disposal and Transport,49 C.F.
 76bcfd91-34c7-f111-aaad-6045bd05b251,Lead Hazard Reduction,40 C.F.R. §745.100,Regulation,https://www.law.cornell.edu/cfr/text/40/part-745/subpart-F,3,HECA Regulation 3
 74bcfd91-34c7-f111-aaad-6045bd05b251,Title II - Web and Digital Accessibility,28 C.F.R. § 36,Regulation,https://www.ecfr.gov/current/title-28/part-36,1,HECA Regulation 1
 70bcfd91-34c7-f111-aaad-6045bd05b251,Quid Pro Quo Disclosure,26 U.S.C. § 170,Statute,https://www.law.cornell.edu/uscode/text/26/170,1,HECA Statute 1
-6ebcfd91-34c7-f111-aaad-6045bd05b251,Laboratory Chemical Hygiene,"29 C.F.R. §§ 1910.1000, et seq., 29 C.F.R. §  1910.145",Regulation,https://www.osha.gov/pls/oshaweb/owadisp.show_document?p_id=10106&p_table=STANDARDS,1,HECA Regulation 1
+6ebcfd91-34c7-f111-aaad-6045bd05b251,Laboratory Chemical Hygiene,"29 C.F.R. §§ 1910.1000, et seq., 29 C.F.R. §  1910.145",Regulation,https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.1450,1,HECA Regulation 1; address updated 2026-11-03 (moved)
 6cbcfd91-34c7-f111-aaad-6045bd05b251,TEACH Act Compliance,Technology Education and Copyright Harmonization Act (TEACH,Statute,https://www.govinfo.gov/content/pkg/GPO-CDOC-107sdoc18/pdf/GPO-CDOC-107sdoc18-2-10-1.pdf,1,"Original link, new address"
 65bcfd91-34c7-f111-aaad-6045bd05b251,Genetic Information Discrimination,42 U.S.C. § 2000ff,Statute,"https://www.law.cornell.edu/uscode/text/42/2000ff-1#:~:text=to%20limit%2C%20segregate%2C%20or%20classify%20the%20employees%20of,of%20genetic%20information%20with%20respect%20to%20the%20employee.",1,HECA Statute 1
-65bcfd91-34c7-f111-aaad-6045bd05b251,Genetic Information Discrimination,Public Law No. 110-233,Statute,https://www.eeoc.gov/laws/statutes/gina.cfm,2,HECA Statute 2
+65bcfd91-34c7-f111-aaad-6045bd05b251,Genetic Information Discrimination,Public Law No. 110-233,Statute,https://www.eeoc.gov/statutes/genetic-information-nondiscrimination-act-2008,2,HECA Statute 2; address updated 2026-11-03 (moved)
 65bcfd91-34c7-f111-aaad-6045bd05b251,Genetic Information Discrimination,29 C.F.R. § 1635,Regulation,https://www.ecfr.gov/current/title-29/part-1635,3,HECA Regulation 1
 62bcfd91-34c7-f111-aaad-6045bd05b251,Gift-in-Kind Processing,26 U.S.C. § 170,Statute,https://www.law.cornell.edu/uscode/text/26/170,1,HECA Statute 1
 5dbcfd91-34c7-f111-aaad-6045bd05b251,Emergency Action Plans,29 C.F.R. § 1910.38,Regulation,https://www.ecfr.gov/current/title-29/section-1910.38,1,HECA Regulation 1
@@ -194,7 +194,7 @@ a3bcfd91-34c7-f111-aaad-6045bd05b251,IT Equipment Disposal and Transport,49 C.F.
 29bcfd91-34c7-f111-aaad-6045bd05b251,Program Participation Agreements,Public Law No. 110-315 § 493,Statute,https://www.govinfo.gov/content/pkg/PLAW-110publ315/pdf/PLAW-110publ315.pdf,2,HECA Statute 2
 28bcfd91-34c7-f111-aaad-6045bd05b251,Exempt/Non-Exempt Classification,26 U.S.C. §§ 3101–3128,Statute,https://www.law.cornell.edu/uscode/text/26/subtitle-C/chapter-21,1,"Original link, new address"
 28bcfd91-34c7-f111-aaad-6045bd05b251,Exempt/Non-Exempt Classification,26 C.F.R. § 31.3306,Regulation,https://www.ecfr.gov/current/title-26/part-31/subpart-D,2,HECA Regulation 3
-23bcfd91-34c7-f111-aaad-6045bd05b251,Organizational Political Activity,IRC § 501 (c)(3),Statute,https://www.stayexempt.irs.gov/,1,HECA Statute 1
+23bcfd91-34c7-f111-aaad-6045bd05b251,Organizational Political Activity,IRC § 501 (c)(3),Statute,https://www.irs.gov/charities-non-profits/stay-exempt,1,HECA Statute 1; address updated 2026-11-03 (moved)
 22bcfd91-34c7-f111-aaad-6045bd05b251,General Occupational Safety Compliance,OSHA,Statute,https://www.law.cornell.edu/uscode/text/29/chapter-15,1,"Original link, new address"
 21bcfd91-34c7-f111-aaad-6045bd05b251,Incentive Compensation Prohibition,20 U.S.C. § 1094(a)(29),Statute,https://www.law.cornell.edu/uscode/text/20/1094,1,HECA Statute 1
 21bcfd91-34c7-f111-aaad-6045bd05b251,Incentive Compensation Prohibition,Public Law No. 110-315 § 493,Statute,https://www.govinfo.gov/content/pkg/PLAW-110publ315/pdf/PLAW-110publ315.pdf,2,HECA Statute 2
@@ -203,7 +203,7 @@ a3bcfd91-34c7-f111-aaad-6045bd05b251,IT Equipment Disposal and Transport,49 C.F.
 20bcfd91-34c7-f111-aaad-6045bd05b251,Payroll Tax Compliance,26 C.F.R. § 31.3306,Regulation,https://www.ecfr.gov/current/title-26/part-31/subpart-D,3,HECA Regulation 3
 1dbcfd91-34c7-f111-aaad-6045bd05b251,Bloodborne Pathogens Standard – Bloodborne Pathogens Exposure Control,OSHA,Statute,https://www.law.cornell.edu/uscode/text/29/chapter-15,1,"Original link, new address"
 1abcfd91-34c7-f111-aaad-6045bd05b251,State and Local Lobbying Registration,"Public Law No. 104-65, 109 Stat. 691",Statute,https://lobbyingdisclosure.house.gov/lda.pdf,1,HECA Statute 2
-18bcfd91-34c7-f111-aaad-6045bd05b251,Overtime and Minimum Wage Compliance,29 C.F.R. §§ 500-870,Regulation,https://www.dol.gov/dol/cfr/Title_29/Chapter_V.htm,1,HECA Regulation 1
+18bcfd91-34c7-f111-aaad-6045bd05b251,Overtime and Minimum Wage Compliance,29 C.F.R. §§ 500-870,Regulation,https://www.dol.gov/general/cfr/title_29,1,HECA Regulation 1; address updated 2026-11-03 (moved)
 16bcfd91-34c7-f111-aaad-6045bd05b251,Oil Spill Prevention and Response,33 U.S.C. § 2701; 40 C.F.R. Part 112,Statute,https://www.epa.gov/laws-regulations/summary-oil-pollution-act,1,"Original link, new address"
 13bcfd91-34c7-f111-aaad-6045bd05b251,Federal Lobbying Registration and Reporting,2 U.S.C. §§ 1601-1614,Statute,https://www.law.cornell.edu/uscode/text/2/1601,1,HECA Statute 1
 13bcfd91-34c7-f111-aaad-6045bd05b251,Federal Lobbying Registration and Reporting,"Public Law No. 104-65, 109 Stat. 691",Statute,https://lobbyingdisclosure.house.gov/lda.pdf,2,HECA Statute 2
@@ -303,7 +303,7 @@ a6eb028c-34c7-f111-aaad-6045bd05b251,Employment Eligibility Verification (I-9),8
 a6eb028c-34c7-f111-aaad-6045bd05b251,Employment Eligibility Verification (I-9),20 C.F.R. § 655,Regulation,https://www.ecfr.gov/current/title-20/part-655,3,HECA Regulation 3
 a6eb028c-34c7-f111-aaad-6045bd05b251,Employment Eligibility Verification (I-9),20 C.F.R. § 656,Regulation,https://www.ecfr.gov/current/title-20/part-656,4,HECA Regulation 4
 a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,38 U.S. Code § 3485 - Work-study allowance,Statute,https://www.govinfo.gov/content/pkg/PLAW-110publ315/pdf/PLAW-110publ315.pdf,1,"Original link, new address"
-a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,34 C.F.R. § 675,Regulation,https://www.law.cornell.edu/cfr/text/34/675,2,HECA Regulation 1
+a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,34 C.F.R. § 675,Regulation,https://www.law.cornell.edu/cfr/text/34/part-675,2,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 9feb028c-34c7-f111-aaad-6045bd05b251,1099-MISC,26 U.S.C. § 6050N,Statute,https://www.law.cornell.edu/uscode/text/26/6050N,1,HECA Statute 2
 9feb028c-34c7-f111-aaad-6045bd05b251,1099-MISC,26 C.F.R. § 1.6045-5,Regulation,https://www.law.cornell.edu/cfr/text/26/1.6045-5,2,HECA Regulation 1
 9feb028c-34c7-f111-aaad-6045bd05b251,1099-MISC,26 C.F.R. § 1.6041-6,Regulation,https://www.law.cornell.edu/cfr/text/26/1.6041-6,3,HECA Regulation 2
@@ -314,7 +314,7 @@ a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,34 C.F.R. § 675,Regulat
 96eb028c-34c7-f111-aaad-6045bd05b251,Form 1098-T,26 C.F.R. § 1.6050S-3,Regulation,https://www.ecfr.gov/current/title-26/section-1.6050S-3,3,HECA Regulation 3
 96eb028c-34c7-f111-aaad-6045bd05b251,Form 1098-T,26 C.F.R. § 1.6050S-4,Regulation,https://www.ecfr.gov/current/title-26/section-1.6050S-4,4,HECA Regulation 4
 91eb028c-34c7-f111-aaad-6045bd05b251,Stop Campus Hazing Act,Public Law No. 110-315,Statute,https://www.govinfo.gov/content/pkg/PLAW-110publ315/pdf/PLAW-110publ315.pdf,1,HECA Statute 2
-8feb028c-34c7-f111-aaad-6045bd05b251,Pre-Employment Screening,29 C.F.R. § 801,Regulation,https://www.law.cornell.edu/cfr/text/29/801,1,HECA Regulation 1
+8feb028c-34c7-f111-aaad-6045bd05b251,Pre-Employment Screening,29 C.F.R. § 801,Regulation,https://www.law.cornell.edu/cfr/text/29/part-801,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 89eb028c-34c7-f111-aaad-6045bd05b251,IRC Section 409A,26 C.F.R. §§ 1.409A-0 et seq.,Regulation,https://www.ecfr.gov/current/title-26/section-1.409A-0,1,HECA Regulation 1
 87eb028c-34c7-f111-aaad-6045bd05b251,Policy and Awareness Programs,41 U.S.C. §§ 8101–8106; 2 C.F.R. Part 182,Statute,https://www.law.cornell.edu/uscode/text/41/chapter-81,1,"Original link, new address"
 87eb028c-34c7-f111-aaad-6045bd05b251,Policy and Awareness Programs,48 C.F.R. § 23.504,Regulation,https://www.law.cornell.edu/cfr/text/48/23.504,2,HECA Regulation 2
@@ -322,7 +322,7 @@ a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,34 C.F.R. § 675,Regulat
 81eb028c-34c7-f111-aaad-6045bd05b251,Sex Offender Registration Disclosure,34 C.F.R. § 668,Regulation,https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-668?toc=1,1,HECA Regulation 1
 7feb028c-34c7-f111-aaad-6045bd05b251,Employee Notification and Sanctions,41 U.S.C. §§ 8101–8106; 2 C.F.R. Part 182,Statute,https://www.law.cornell.edu/uscode/text/41/chapter-81,1,"Original link, new address"
 7feb028c-34c7-f111-aaad-6045bd05b251,Employee Notification and Sanctions,48 C.F.R. § 23.504,Regulation,https://www.law.cornell.edu/cfr/text/48/23.504,2,HECA Regulation 2
-78eb028c-34c7-f111-aaad-6045bd05b251,Research Integrity Program,42 C.F.R. § 93,Regulation,https://www.law.cornell.edu/cfr/text/42/93,1,HECA Regulation 1
+78eb028c-34c7-f111-aaad-6045bd05b251,Research Integrity Program,42 C.F.R. § 93,Regulation,https://www.law.cornell.edu/cfr/text/42/part-93,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 78eb028c-34c7-f111-aaad-6045bd05b251,Research Integrity Program,"70 Fed. Reg. 28,370",Regulation,https://ori.hhs.gov/sites/default/files/42_cfr_parts_50_and_93_2005.pdf,2,HECA Regulation 2
 77eb028c-34c7-f111-aaad-6045bd05b251,Employment-Based Visa Sponsorship,8 C.F.R. § 214,Regulation,https://www.law.cornell.edu/cfr/text/8/part-214,1,HECA Regulation 1
 77eb028c-34c7-f111-aaad-6045bd05b251,Employment-Based Visa Sponsorship,8 C.F.R. § 274a,Regulation,https://www.ecfr.gov/current/title-8/part-274a,2,HECA Regulation 2
@@ -334,7 +334,7 @@ a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,34 C.F.R. § 675,Regulat
 6feb028c-34c7-f111-aaad-6045bd05b251,Employment Eligibility I-9 Verification,20 C.F.R. § 655,Regulation,https://www.ecfr.gov/current/title-20/part-655,3,HECA Regulation 3
 6feb028c-34c7-f111-aaad-6045bd05b251,Employment Eligibility I-9 Verification,20 C.F.R. § 656,Regulation,https://www.ecfr.gov/current/title-20/part-656,4,HECA Regulation 4
 6ceb028c-34c7-f111-aaad-6045bd05b251,Bankruptcy Filing and Debt Collection,Public Law No. 109-8,Statute,https://www.govinfo.gov/content/pkg/PLAW-109publ8/html/PLAW-109publ8.htm,1,HECA Statute 2
-6aeb028c-34c7-f111-aaad-6045bd05b251,Research Misconduct Investigations,45 C.F.R. § 689,Regulation,https://www.law.cornell.edu/cfr/text/45/689,1,HECA Regulation 1
+6aeb028c-34c7-f111-aaad-6045bd05b251,Research Misconduct Investigations,45 C.F.R. § 689,Regulation,https://www.law.cornell.edu/cfr/text/45/part-689,1,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 68eb028c-34c7-f111-aaad-6045bd05b251,457(b) and 409A Compliance,26 C.F.R. §§ 1.457-1 et seq.,Regulation,https://www.ecfr.gov/current/title-26/section-1.457,1,HECA Regulation 1
 67eb028c-34c7-f111-aaad-6045bd05b251,Anti-Discrimination (INA Section 274B),8 C.F.R. § 214,Regulation,https://www.law.cornell.edu/cfr/text/8/part-214,1,HECA Regulation 1
 67eb028c-34c7-f111-aaad-6045bd05b251,Anti-Discrimination (INA Section 274B),8 C.F.R. § 274a,Regulation,https://www.ecfr.gov/current/title-8/part-274a,2,HECA Regulation 2
@@ -344,17 +344,17 @@ a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,34 C.F.R. § 675,Regulat
 60eb028c-34c7-f111-aaad-6045bd05b251,Tax on Unrelated Business Income,26 C.F.R. § 1.511-1,Regulation,https://www.law.cornell.edu/cfr/text/26/1.511-1,1,HECA Regulation 1
 60eb028c-34c7-f111-aaad-6045bd05b251,Tax on Unrelated Business Income,26 C.F.R. § 1.513-4,Regulation,https://www.law.cornell.edu/cfr/text/26/1.513-4,2,HECA Regulation 2
 5beb028c-34c7-f111-aaad-6045bd05b251,Clinical Trial Registration and Reporting,21 U.S.C. § 282; 21 C.F.R. Parts 50–56,Statute,https://www.govinfo.gov/content/pkg/PLAW-110publ85/pdf/PLAW-110publ85.pdf,1,"Original link, new address"
-5beb028c-34c7-f111-aaad-6045bd05b251,Clinical Trial Registration and Reporting,21 C.F.R. § 56,Regulation,https://www.law.cornell.edu/cfr/text/21/56,2,HECA Regulation 2
-5beb028c-34c7-f111-aaad-6045bd05b251,Clinical Trial Registration and Reporting,21 C.F.R. § 312,Regulation,https://www.law.cornell.edu/cfr/text/21/312,3,HECA Regulation 3
-5beb028c-34c7-f111-aaad-6045bd05b251,Clinical Trial Registration and Reporting,21 C.F.R. § 314,Regulation,https://www.law.cornell.edu/cfr/text/21/314,4,HECA Regulation 4
+5beb028c-34c7-f111-aaad-6045bd05b251,Clinical Trial Registration and Reporting,21 C.F.R. § 56,Regulation,https://www.law.cornell.edu/cfr/text/21/part-56,2,HECA Regulation 2; address fixed 2026-11-03 (Cornell part form)
+5beb028c-34c7-f111-aaad-6045bd05b251,Clinical Trial Registration and Reporting,21 C.F.R. § 312,Regulation,https://www.law.cornell.edu/cfr/text/21/part-312,3,HECA Regulation 3; address fixed 2026-11-03 (Cornell part form)
+5beb028c-34c7-f111-aaad-6045bd05b251,Clinical Trial Registration and Reporting,21 C.F.R. § 314,Regulation,https://www.law.cornell.edu/cfr/text/21/part-314,4,HECA Regulation 4; address fixed 2026-11-03 (Cornell part form)
 56eb028c-34c7-f111-aaad-6045bd05b251,Employee FMLA Administration,29 C.F.R. § 825,Regulation,https://www.ecfr.gov/current/title-29/part-825,1,HECA Regulation 1
-50eb028c-34c7-f111-aaad-6045bd05b251,Form 990 - Use of University Resources,IRC § 501 (c)(3),Statute,https://www.stayexempt.irs.gov/,1,HECA Statute 1
+50eb028c-34c7-f111-aaad-6045bd05b251,Form 990 - Use of University Resources,IRC § 501 (c)(3),Statute,https://www.irs.gov/charities-non-profits/stay-exempt,1,HECA Statute 1; address updated 2026-11-03 (moved)
 4ceb028c-34c7-f111-aaad-6045bd05b251,Transfer-Out Rate Disclosure,20 U.S.C. § 1092,Statute,https://www.law.cornell.edu/uscode/text/20/1092,1,HECA Statute 1
 4ceb028c-34c7-f111-aaad-6045bd05b251,Transfer-Out Rate Disclosure,Public Law No. 101-542,Statute,https://www.govinfo.gov/content/pkg/STATUTE-104/pdf/STATUTE-104-Pg2381.pdf,2,HECA Statute 2
 4ceb028c-34c7-f111-aaad-6045bd05b251,Transfer-Out Rate Disclosure,34 C.F.R. § 668.41,Regulation,https://www.law.cornell.edu/cfr/text/34/668.41,3,HECA Regulation 1
 4ceb028c-34c7-f111-aaad-6045bd05b251,Transfer-Out Rate Disclosure,34 C.F.R. § 668.45,Regulation,https://www.law.cornell.edu/cfr/text/34/668.45,4,HECA Regulation 2
 4ceb028c-34c7-f111-aaad-6045bd05b251,Transfer-Out Rate Disclosure,34 C.F.R. § 668.48,Regulation,https://www.law.cornell.edu/cfr/text/34/668.48,5,HECA Regulation 3
-49eb028c-34c7-f111-aaad-6045bd05b251,Form 990 - Tax-Exempt Status and Partisan Political Activity Prohibition,IRC § 501 (c)(3),Statute,https://www.stayexempt.irs.gov/,1,HECA Statute 1
+49eb028c-34c7-f111-aaad-6045bd05b251,Form 990 - Tax-Exempt Status and Partisan Political Activity Prohibition,IRC § 501 (c)(3),Statute,https://www.irs.gov/charities-non-profits/stay-exempt,1,HECA Statute 1; address updated 2026-11-03 (moved)
 43eb028c-34c7-f111-aaad-6045bd05b251,Completion and Graduation Rate Disclosure,Public Law No. 101-542,Statute,https://www.govinfo.gov/content/pkg/STATUTE-104/pdf/STATUTE-104-Pg2381.pdf,1,HECA Statute 2
 43eb028c-34c7-f111-aaad-6045bd05b251,Completion and Graduation Rate Disclosure,34 C.F.R. § 668.41,Regulation,https://www.law.cornell.edu/cfr/text/34/668.41,2,HECA Regulation 1
 43eb028c-34c7-f111-aaad-6045bd05b251,Completion and Graduation Rate Disclosure,34 C.F.R. § 668.45,Regulation,https://www.law.cornell.edu/cfr/text/34/668.45,3,HECA Regulation 2
@@ -390,7 +390,7 @@ a4eb028c-34c7-f111-aaad-6045bd05b251,Federal Work Study,34 C.F.R. § 675,Regulat
 09eb028c-34c7-f111-aaad-6045bd05b251,Health Care Flexible Spending Account (FSA),26 C.F.R. § 1.125-4,Regulation,https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFRb467872627553f1/section-1.125-4,2,HECA Regulation 2
 05eb028c-34c7-f111-aaad-6045bd05b251,Campus Physical Accessibility,28 C.F.R. § 36,Regulation,https://www.ecfr.gov/current/title-28/part-36,1,HECA Regulation 1
 03eb028c-34c7-f111-aaad-6045bd05b251,Patent Prosecution and Portfolio Management,"Consolidated Patent Rules, 37 C.F.R. §§ 1-150",Regulation,https://www.ecfr.gov/current/title-37,1,HECA Regulation 1
-04eb028c-34c7-f111-aaad-6045bd05b251,Endowment Excise Tax,Public Law 115-97,Statute,https://eplanning.blm.gov/public_projects/nepa/102555/141879/174233/Tax_Act.pdf,1,HECA Statute 1
+04eb028c-34c7-f111-aaad-6045bd05b251,Endowment Excise Tax,Public Law 115-97,Statute,https://eplanning.blm.gov/public_projects/?doc=nepa%2F102555%2F141879%2F174233%2FTax_Act.pdf,1,HECA Statute 1; address updated 2026-11-03 (moved)
 fdea028c-34c7-f111-aaad-6045bd05b251,Contracts & Purchasing - Antitrust and Competition Compliance,15 U.S.C. §§ 1-38,Statute,https://www.law.cornell.edu/uscode/text/15/chapter-1,1,HECA Statute 1
 fbea028c-34c7-f111-aaad-6045bd05b251,Joint Research Agreement Compliance,35 U.S.C. § 103,Statute,https://www.govinfo.gov/content/pkg/PLAW-108publ453/pdf/PLAW-108publ453.pdf,1,"Original link, new address"
 fbea028c-34c7-f111-aaad-6045bd05b251,Joint Research Agreement Compliance,Rules of Practice in Patent Cases,Regulation,https://www.law.cornell.edu/cfr/text/37/part-1,2,HECA Regulation 2
@@ -398,14 +398,14 @@ fbea028c-34c7-f111-aaad-6045bd05b251,Joint Research Agreement Compliance,"Assign
 f9ea028c-34c7-f111-aaad-6045bd05b251,Veteran Outreach Programs,41 C.F.R. § 61-250.10,Regulation,https://www.law.cornell.edu/cfr/text/41/61-250.10,1,HECA Regulation 1
 f5ea028c-34c7-f111-aaad-6045bd05b251,Royalty Sharing,Public Law No. 96-517,Statute,https://www.govinfo.gov/content/pkg/STATUTE-94/pdf/STATUTE-94-Pg3015.pdf,1,HECA Statute 2
 f5ea028c-34c7-f111-aaad-6045bd05b251,Royalty Sharing,37 C.F.R. § 401,Regulation,https://www.ecfr.gov/current/title-37/chapter-IV/part-401,2,HECA Regulation 1
-f5ea028c-34c7-f111-aaad-6045bd05b251,Royalty Sharing,48 C.F.R. § 927,Regulation,https://www.law.cornell.edu/cfr/text/48/927/subpart-927.3,3,HECA Regulation 2
+f5ea028c-34c7-f111-aaad-6045bd05b251,Royalty Sharing,48 C.F.R. § 927,Regulation,https://www.law.cornell.edu/cfr/text/48/part-927/subpart-927.3,3,HECA Regulation 2; address updated 2026-11-03 (moved)
 f5ea028c-34c7-f111-aaad-6045bd05b251,Royalty Sharing,48 C.F.R. § 952,Regulation,https://www.law.cornell.edu/cfr/text/48/952.204-2,4,HECA Regulation 3
 f5ea028c-34c7-f111-aaad-6045bd05b251,Royalty Sharing,48 C.F.R. § 970,Regulation,https://www.ecfr.gov/current/title-48/chapter-9/subchapter-I/part-970,5,HECA Regulation 4
 f3ea028c-34c7-f111-aaad-6045bd05b251,Electronic Payment Systems,12 C.F.R. §§ 205.1-205.20,Regulation,https://www.ecfr.gov/current/title-12/part-205,1,HECA Regulation 1
 efea028c-34c7-f111-aaad-6045bd05b251,Veteran Hiring Benchmark,41 C.F.R. § 61-250.10,Regulation,https://www.law.cornell.edu/cfr/text/41/61-250.10,1,HECA Regulation 1
 eeea028c-34c7-f111-aaad-6045bd05b251,Invention Disclosure and Reporting,Public Law No. 96-517,Statute,https://www.govinfo.gov/content/pkg/STATUTE-94/pdf/STATUTE-94-Pg3015.pdf,1,HECA Statute 2
 eeea028c-34c7-f111-aaad-6045bd05b251,Invention Disclosure and Reporting,37 C.F.R. § 401,Regulation,https://www.ecfr.gov/current/title-37/chapter-IV/part-401,2,HECA Regulation 1
-eeea028c-34c7-f111-aaad-6045bd05b251,Invention Disclosure and Reporting,48 C.F.R. § 927,Regulation,https://www.law.cornell.edu/cfr/text/48/927/subpart-927.3,3,HECA Regulation 2
+eeea028c-34c7-f111-aaad-6045bd05b251,Invention Disclosure and Reporting,48 C.F.R. § 927,Regulation,https://www.law.cornell.edu/cfr/text/48/part-927/subpart-927.3,3,HECA Regulation 2; address updated 2026-11-03 (moved)
 eeea028c-34c7-f111-aaad-6045bd05b251,Invention Disclosure and Reporting,48 C.F.R. § 952,Regulation,https://www.law.cornell.edu/cfr/text/48/952.204-2,4,HECA Regulation 3
 eeea028c-34c7-f111-aaad-6045bd05b251,Invention Disclosure and Reporting,48 C.F.R. § 970,Regulation,https://www.ecfr.gov/current/title-48/chapter-9/subchapter-I/part-970,5,HECA Regulation 4
 ecea028c-34c7-f111-aaad-6045bd05b251,Textbook Pricing Disclosure,34 C.F.R. § 600,Regulation,https://www.ecfr.gov/current/title-34/part-600,1,HECA Regulation 1
@@ -413,7 +413,7 @@ ecea028c-34c7-f111-aaad-6045bd05b251,Textbook Pricing Disclosure,34 C.F.R. § 66
 e8ea028c-34c7-f111-aaad-6045bd05b251,Job Listing Requirements,41 C.F.R. § 61-250.10,Regulation,https://www.law.cornell.edu/cfr/text/41/61-250.10,1,HECA Regulation 1
 e7ea028c-34c7-f111-aaad-6045bd05b251,Government Rights and March-In,Public Law No. 96-517,Statute,https://www.govinfo.gov/content/pkg/STATUTE-94/pdf/STATUTE-94-Pg3015.pdf,1,HECA Statute 2
 e7ea028c-34c7-f111-aaad-6045bd05b251,Government Rights and March-In,37 C.F.R. § 401,Regulation,https://www.ecfr.gov/current/title-37/chapter-IV/part-401,2,HECA Regulation 1
-e7ea028c-34c7-f111-aaad-6045bd05b251,Government Rights and March-In,48 C.F.R. § 927,Regulation,https://www.law.cornell.edu/cfr/text/48/927/subpart-927.3,3,HECA Regulation 2
+e7ea028c-34c7-f111-aaad-6045bd05b251,Government Rights and March-In,48 C.F.R. § 927,Regulation,https://www.law.cornell.edu/cfr/text/48/part-927/subpart-927.3,3,HECA Regulation 2; address updated 2026-11-03 (moved)
 e7ea028c-34c7-f111-aaad-6045bd05b251,Government Rights and March-In,48 C.F.R. § 952,Regulation,https://www.law.cornell.edu/cfr/text/48/952.204-2,4,HECA Regulation 3
 e7ea028c-34c7-f111-aaad-6045bd05b251,Government Rights and March-In,48 C.F.R. § 970,Regulation,https://www.ecfr.gov/current/title-48/chapter-9/subchapter-I/part-970,5,HECA Regulation 4
 e3ea028c-34c7-f111-aaad-6045bd05b251,Textbook Information,34 C.F.R. § 600,Regulation,https://www.ecfr.gov/current/title-34/part-600,1,HECA Regulation 1
@@ -428,7 +428,7 @@ deea028c-34c7-f111-aaad-6045bd05b251,Federal Tax Incentive & Deduction,Public La
 deea028c-34c7-f111-aaad-6045bd05b251,Federal Tax Incentive & Deduction,26 U.S.C. § 409A,Statute,https://www.law.cornell.edu/uscode/text/26/409A,3,HECA Statute 3
 ddea028c-34c7-f111-aaad-6045bd05b251,Due Diligence for Foreign Activities,FCPA Resource Guide (U.S. Department of Justice),Regulation,https://www.justice.gov/criminal-fraud/fcpa-resource-guide,1,HECA Regulation 1
 daea028c-34c7-f111-aaad-6045bd05b251,Standard of Care,HEA § 487(a)(25); 34 C.F.R. § 601.21,Statute,https://www.govinfo.gov/content/pkg/PLAW-110publ315/pdf/PLAW-110publ315.pdf,1,"Original link, new address"
-daea028c-34c7-f111-aaad-6045bd05b251,Standard of Care,34 C.F.R. § 675,Regulation,https://www.law.cornell.edu/cfr/text/34/675,2,HECA Regulation 1
+daea028c-34c7-f111-aaad-6045bd05b251,Standard of Care,34 C.F.R. § 675,Regulation,https://www.law.cornell.edu/cfr/text/34/part-675,2,HECA Regulation 1; address fixed 2026-11-03 (Cornell part form)
 d8ea028c-34c7-f111-aaad-6045bd05b251,Employer Support of the Guard and Reserve (ESGR),38 U.S.C. §§ 4301-4335,Statute,https://www.law.cornell.edu/uscode/text/38/4301,1,HECA Statute 1
 d8ea028c-34c7-f111-aaad-6045bd05b251,Employer Support of the Guard and Reserve (ESGR),5 C.F.R. § 353,Regulation,https://www.ecfr.gov/current/title-5/chapter-I/subchapter-B/part-353,2,HECA Regulation 1
 d8ea028c-34c7-f111-aaad-6045bd05b251,Employer Support of the Guard and Reserve (ESGR),20 C.F.R. § 1002,Regulation,https://www.ecfr.gov/current/title-20/chapter-IX/part-1002,3,HECA Regulation 2
@@ -487,7 +487,7 @@ a1ea028c-34c7-f111-aaad-6045bd05b251,Sex Discrimination in Admissions,45 C.F.R. 
 9bea028c-34c7-f111-aaad-6045bd05b251,Cost Principles Compliance,2 C.F.R. Part 200,Regulation,https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II,2,HECA Regulation 2
 99ea028c-34c7-f111-aaad-6045bd05b251,Accessibility in Admissions,34 C.F.R. § 104.42,Regulation,https://www.ecfr.gov/current/title-34/section-104.42,1,HECA Regulation 1
 96ea028c-34c7-f111-aaad-6045bd05b251,GINA Title II - Employment,42 U.S.C. § 2000ff,Statute,"https://www.law.cornell.edu/uscode/text/42/2000ff-1#:~:text=to%20limit%2C%20segregate%2C%20or%20classify%20the%20employees%20of,of%20genetic%20information%20with%20respect%20to%20the%20employee.",1,HECA Statute 1
-96ea028c-34c7-f111-aaad-6045bd05b251,GINA Title II - Employment,Public Law No. 110-233,Statute,https://www.eeoc.gov/laws/statutes/gina.cfm,2,HECA Statute 2
+96ea028c-34c7-f111-aaad-6045bd05b251,GINA Title II - Employment,Public Law No. 110-233,Statute,https://www.eeoc.gov/statutes/genetic-information-nondiscrimination-act-2008,2,HECA Statute 2; address updated 2026-11-03 (moved)
 96ea028c-34c7-f111-aaad-6045bd05b251,GINA Title II - Employment,29 C.F.R. § 1635,Regulation,https://www.ecfr.gov/current/title-29/part-1635,3,HECA Regulation 1
 93ea028c-34c7-f111-aaad-6045bd05b251,Servicer Contract Management,20 U.S.C. § 1094(c),Statute,https://www.law.cornell.edu/uscode/text/20/1094,1,HECA Statute 1
 92ea028c-34c7-f111-aaad-6045bd05b251,Administrative Requirements Compliance,"34 C.F.R. §§ 75-79, 81-86, and 97-99",Regulation,https://www.ecfr.gov/current/title-34/part-75,1,HECA Regulation 1
@@ -495,7 +495,7 @@ a1ea028c-34c7-f111-aaad-6045bd05b251,Sex Discrimination in Admissions,45 C.F.R. 
 91ea028c-34c7-f111-aaad-6045bd05b251,Readmission Requirements for Servicemembers,34 C.F.R. § 668.18,Regulation,https://www.ecfr.gov/current/title-34/section-668.18,1,HECA Regulation 1
 8aea028c-34c7-f111-aaad-6045bd05b251,Contractor Payment Compliance,48 C.F.R. § 3.502-2,Regulation,https://www.ecfr.gov/current/title-48/section-3.502-2,1,HECA Regulation 1
 8bea028c-34c7-f111-aaad-6045bd05b251,Genetic Information Confidentiality,42 U.S.C. § 2000ff,Statute,"https://www.law.cornell.edu/uscode/text/42/2000ff-1#:~:text=to%20limit%2C%20segregate%2C%20or%20classify%20the%20employees%20of,of%20genetic%20information%20with%20respect%20to%20the%20employee.",1,HECA Statute 1
-8bea028c-34c7-f111-aaad-6045bd05b251,Genetic Information Confidentiality,Public Law No. 110-233,Statute,https://www.eeoc.gov/laws/statutes/gina.cfm,2,HECA Statute 2
+8bea028c-34c7-f111-aaad-6045bd05b251,Genetic Information Confidentiality,Public Law No. 110-233,Statute,https://www.eeoc.gov/statutes/genetic-information-nondiscrimination-act-2008,2,HECA Statute 2; address updated 2026-11-03 (moved)
 8bea028c-34c7-f111-aaad-6045bd05b251,Genetic Information Confidentiality,29 C.F.R. § 1635,Regulation,https://www.ecfr.gov/current/title-29/part-1635,3,HECA Regulation 1
 8cea028c-34c7-f111-aaad-6045bd05b251,Non-Discrimination in Admissions,42 U.S.C. §§ 6101-6107,Statute,https://www.law.cornell.edu/uscode/text/42/6101,1,HECA Statute 1
 8cea028c-34c7-f111-aaad-6045bd05b251,Non-Discrimination in Admissions,34 C.F.R. § 110,Regulation,https://www.ecfr.gov/current/title-34/part-110,2,HECA Regulation 1
