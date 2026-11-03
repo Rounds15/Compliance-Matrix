@@ -5,7 +5,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import { readFileSync } from "node:fs";
-import { parseCsv, targets, checkUrl, run, reportCsv } from "../../tools/check_links.mjs";
+import { parseCsv, targets, checkUrl, run, reportCsv, ecfrQuery } from "../../tools/check_links.mjs";
 
 async function site() {
   const server = http.createServer((req, res) => {
@@ -59,7 +59,7 @@ test("link check: reads the import CSV and a functions export, asks each address
     assert.equal(r.distinct, 3);
     // /ok once, /moved twice (the redirect), /gone twice (a 404 on HEAD is asked again with GET)
     assert.equal(asked, 5, "each distinct address once, not once per link");
-    assert.deepEqual(r.summary, { OK: 3, Moved: 1, Broken: 1, Failed: 0, notHttps: 5 });
+    assert.deepEqual(r.summary, { OK: 3, Moved: 1, Broken: 1, Blocked: 0, Failed: 0, notHttps: 5 });
     assert.deepEqual(r.rows.map(x => [x.result, x.field, x.fn]), [
       ["Broken", "Link (su_url)", "Air Emissions"], ["Moved", "Statute URL (su_statuteurl)", "Clery Act"],
       ["OK", "Link (su_url)", "Air Emissions"], ["OK", "Link (su_url)", "Clery Act"], ["OK", "Resource URL (su_resourceurl)", "Title IX"]]);
@@ -75,4 +75,52 @@ test("link check: the import CSV parses to its 517 links, all https", () => {
   assert.equal(t.length, 517);
   assert.ok(t.every(x => x.url.startsWith("https://")));
   assert.equal(new Set(t.map(x => x.url)).size, 229);
+});
+
+/* a stand-in for the internet: answers by address */
+const fake = table => async (url, opts = {}) => {
+  const hit = table[url] || table[url.split("?")[0] + "?*"];
+  const [status, location] = hit || [404];
+  return { status, headers: new Map(location ? [["location", location]] : []), body: { cancel: async () => {} }, json: async () => hit[2] };
+};
+const TITLES = ["https://www.ecfr.gov/api/versioner/v1/titles.json", [200, null, { titles: [
+  { number: 34, up_to_date_as_of: "2026-10-30", reserved: false }, { number: 26, up_to_date_as_of: "2026-10-29", reserved: false }, { number: 35, up_to_date_as_of: "2026-10-30", reserved: true }] }]];
+
+test("link check: eCFR addresses are checked with the eCFR API, not the bot-checked page", async () => {
+  assert.deepEqual([...ecfrQuery("https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-668/subpart-D/section-668.46").params],
+    [["subtitle", "B"], ["chapter", "VI"], ["part", "668"], ["subpart", "D"], ["section", "668.46"]]);
+  assert.equal(ecfrQuery("https://www.ecfr.gov/current/title-40/part-50").title, 40);
+  assert.deepEqual([...ecfrQuery("https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFRb467872627553f1/section-1.125-3").params],
+    [["chapter", "I"], ["subchapter", "A"], ["part", "1"], ["section", "1.125-3"]], "a subject group is skipped");
+  assert.equal(ecfrQuery("https://www.ecfr.gov/cgi-bin/text-idx?node=x"), null, "an old eCFR address is checked as a page");
+  assert.equal(ecfrQuery("https://www.law.cornell.edu/cfr/text/34/668.46"), null);
+  const net = fake(Object.fromEntries([TITLES,
+    ["https://www.ecfr.gov/api/versioner/v1/ancestry/2026-10-30/title-34.json?part=668&section=668.46", [200]],
+    ["https://www.ecfr.gov/api/versioner/v1/ancestry/2026-10-29/title-26.json?section=1.457", [404]]]));
+  assert.deepEqual(await checkUrl("https://www.ecfr.gov/current/title-34/part-668/section-668.46", { fetchImpl: net }),
+    { result: "OK", status: 200, final: "", note: "checked with the eCFR API" });
+  assert.equal((await checkUrl("https://www.ecfr.gov/current/title-26/section-1.457", { fetchImpl: net })).note, "not in the current CFR (checked with the eCFR API)");
+  assert.equal((await checkUrl("https://www.ecfr.gov/current/title-35/part-1", { fetchImpl: net })).note, "title 35 is reserved (checked with the eCFR API)");
+});
+
+test("link check: a bot check is Blocked, not Moved; a Cornell CFR 404 suggests the part form", async () => {
+  const net = fake({
+    "https://www.uscis.gov/i-9": [302, "https://unblock.federalregister.gov/"],
+    "https://unblock.federalregister.gov/": [200],
+    "https://www.law.cornell.edu/cfr/text/45/164": [404],
+    "https://www.law.cornell.edu/cfr/text/45/part-164": [200],
+    "https://www.law.cornell.edu/cfr/text/45/999": [404]
+  });
+  const b = await checkUrl("https://www.uscis.gov/i-9", { fetchImpl: net });
+  assert.equal(b.result, "Blocked");
+  const net2 = fake({
+    "https://www.ethics.senate.gov/manual.pdf": [302, "https://www.senate.gov/general/file_not_found.htm"],
+    "https://www.senate.gov/general/file_not_found.htm": [200],
+    "https://www.bis.doc.gov/ear": [301, "https://www.bis.gov/"], "https://www.bis.gov/": [200] });
+  assert.deepEqual(await checkUrl("https://www.ethics.senate.gov/manual.pdf", { fetchImpl: net2 }),
+    { result: "Broken", status: 200, final: "https://www.senate.gov/general/file_not_found.htm", note: "redirected to a not-found page" });
+  assert.equal((await checkUrl("https://www.bis.doc.gov/ear", { fetchImpl: net2 })).note, "redirected to the site's home page");
+  const c = await checkUrl("https://www.law.cornell.edu/cfr/text/45/164", { fetchImpl: net });
+  assert.deepEqual([c.result, c.note], ["Broken", "try https://www.law.cornell.edu/cfr/text/45/part-164"]);
+  assert.equal((await checkUrl("https://www.law.cornell.edu/cfr/text/45/999", { fetchImpl: net })).note, "", "no suggestion when the part form is not found either");
 });
