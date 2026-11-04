@@ -3,7 +3,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { nextOccurrence, cadenceMonths } from "../src/lib/deadlines.js";
+import { nextOccurrence, cadenceMonths, recalcDue } from "../src/lib/deadlines.js";
 import { addMonths, monthDiff, fiscalQ, fiscalTarget, toDay } from "../src/lib/dates.js";
 import { normRisk } from "../src/lib/risk.js";
 import { mapLists, LISTS } from "../src/data/adapters/sharepoint.js";
@@ -51,6 +51,20 @@ test("a gap's target quarter ends on the July 1 fiscal year", () => {
 });
 
 /* ---------------- RefreshDeadlines() parity ---------------- */
+test("a cadence change counts from the last completion, or from the current due date", () => {
+  const today = D("2026-11-04");
+  // completed Sep 30 2026, Annually to Quarterly: one quarter after the completion
+  assert.equal(recalcDue({ cadence: "Quarterly", lastDone: D("2026-09-30"), currentDue: D("2027-09-30"), today }).toDateString(), D("2026-12-30").toDateString());
+  // completed long ago: one period after it, rolled forward to this month
+  assert.equal(recalcDue({ cadence: "Monthly", lastDone: D("2025-01-15"), currentDue: D("2026-01-15"), today }).toDateString(), D("2026-11-15").toDateString());
+  // never completed: from the current due date
+  assert.equal(recalcDue({ cadence: "Quarterly", lastDone: null, currentDue: D("2027-03-15"), today }).toDateString(), D("2027-03-15").toDateString());
+  // never completed and past: its latest occurrence, which shows as overdue (the canvas app's rule)
+  assert.equal(recalcDue({ cadence: "Semiannual", lastDone: null, currentDue: D("2025-12-01"), today }).toDateString(), D("2026-06-01").toDateString());
+  // no period: the date stays
+  assert.equal(recalcDue({ cadence: "One-time", lastDone: D("2026-01-01"), currentDue: D("2026-02-01"), today }).toDateString(), D("2026-02-01").toDateString());
+  assert.equal(recalcDue({ cadence: "Ongoing", lastDone: null, currentDue: null, today }), null);
+});
 test("cadence vocabulary matches CadenceMonths()", () => {
   assert.equal(cadenceMonths("Annually"), 12);
   assert.equal(cadenceMonths("Annual"), 12);

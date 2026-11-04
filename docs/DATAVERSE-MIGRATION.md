@@ -551,6 +551,18 @@ SharePoint (section 1).
 Not loaded: su_risk (a copy of the function's rating; the rating lives in one
 place, section 5).
 
+**Edited on the portal.** Administrators edit, add and delete deadlines on
+Function Detail through the Web API (CM Administer). An edit writes su_name,
+su_duedate, su_narrative (Description), su_reportingrequirement, su_owner,
+su_changedby and su_changedon; a cadence change also writes su_cadence,
+su_cadencetext and su_deadlinetype (Fixed Recurring, One-time for One-Time,
+Ongoing for As Needed; an Event-Relative or Conditional row keeps its type).
+A cadence change stores the recalculated next due date in su_duedate, which
+the reminder flow rolls forward as before. Until cutover, a refresh of CM
+Load 5 writes the SharePoint values back over these edits and, with Delete
+rows on, removes a deadline added on the portal (it has no SharePoint ID).
+Edit deadlines on the portal once the dataflow schedules are off (section 11).
+
 Option 100000071 is **Event-Relative**: a deadline whose clock starts at an
 event (a trigger and an offset, no calendar date). No SharePoint cadence maps
 to it today.
@@ -795,7 +807,7 @@ Power Pages maps for you.
 | su_compliancedirectory | su_compliancedirectorys | `su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value,su_photo` |
 | su_compliancefunction | su_compliancefunctions | `su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_assessedrisk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value` |
 | su_functionownership | su_functionownerships | `su_functionownershipid,_su_function_value,_su_person_value,su_role,su_subrole,su_name` |
-| su_compliancedeadline | su_compliancedeadlines | `su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes` |
+| su_compliancedeadline | su_compliancedeadlines | `su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes,su_deadlinetype,su_narrative,su_reportingrequirement,_su_owner_value,_su_changedby_value,su_changedon` |
 | su_compliancegap | su_compliancegaps | `su_compliancegapid,su_name,su_gapcode,_su_function_value,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,_su_owner_value,su_responsibleunit,su_gapsource` |
 | su_functionflag | su_functionflags | `su_functionflagid,_su_function_value,su_reason,su_status,_su_flaggedby_value,su_flaggedon,su_respondentemail` |
 | su_counselassignment | su_counselassignments | `su_counselassignmentid,_su_riskarea_value,_su_attorney_value,su_isdefault` |

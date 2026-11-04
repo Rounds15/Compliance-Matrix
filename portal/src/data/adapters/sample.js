@@ -46,7 +46,9 @@ export function sampleRaw(today = todayFn()) {
   });
   const deadlines = S.DL.map((r, i) => ({
     id: "DL-" + (1000 + i), functionId: r[0], title: r[1], base: dt(r[2]), cadence: r[3],
-    lastDone: r[4] ? today : null, reason: ""
+    lastDone: r[4] ? today : null, reason: "",
+    narrative: S.DL_DETAIL[r[1]] ? S.DL_DETAIL[r[1]][0] : "", reporting: S.DL_DETAIL[r[1]] ? S.DL_DETAIL[r[1]][1] : "",
+    ownerId: null, changedById: null, changedOn: null
   }));
   const gaps = S.GP.map((r, i) => ({
     id: "GAP-" + (200 + i), code: "GAP-" + (200 + i), functionId: r[0], title: r[1],
@@ -117,6 +119,22 @@ export function createSampleAdapter() {
       const id = newId("GAP");
       raw.gaps.unshift({ id, code: id, functionId: fn.id, title, note, status: "Open", opened: nowDay(ctx), closeNote: "" });
       return ["gaps"];
+    },
+    async saveDeadline({ draft, isNew }, ctx) {
+      const fields = { title: draft.title, base: draft.due, narrative: draft.narrative || "", reporting: draft.reporting || "",
+        ownerId: draft.ownerId || null, changedById: ctx && ctx.me ? ctx.me.id : null, changedOn: new Date() };
+      if (isNew || draft.cadenceChanged) fields.cadence = draft.cadence;
+      if (isNew) {
+        const id = newId("DL");
+        raw.deadlines.push({ id, functionId: draft.functionId, lastDone: null, reason: "", ...fields });
+        return { id, reload: ["deadlines"] };
+      }
+      Object.assign(find("deadlines", draft.id), fields);
+      return { id: draft.id, reload: ["deadlines"] };
+    },
+    async deleteDeadline({ dl }) {
+      raw.deadlines = raw.deadlines.filter(x => String(x.id) !== String(dl.id));
+      return ["deadlines"];
     },
     async completeDeadline({ dl, reason }, ctx) {
       Object.assign(find("deadlines", dl.id), { lastDone: nowDay(ctx), reason });

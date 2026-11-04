@@ -160,6 +160,9 @@ export function useStore(cfg) {
     reopenGap: (gap, reason) => act("gap-" + gap.id, (a, c) => a.reopenGap({ gap, reason }, c), "Gap reopened."),
     completeDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.completeDeadline({ dl, fn, reason }, c), "Deadline marked complete"),
     reverseDeadline: (dl, fn, reason) => act("dl-" + dl.id, (a, c) => a.reverseDeadline({ dl, fn, reason }, c), "Completion reversed"),
+    /* administrators: edit, add and delete a deadline */
+    saveDeadline: (draft, isNew) => act("dl-edit", (a, c) => a.saveDeadline({ draft, isNew }, c), isNew ? "Deadline added." : "Deadline saved."),
+    deleteDeadline: dl => act("dl-del", (a, c) => a.deleteDeadline({ dl }, c), "Deadline deleted."),
     /* the record and, when rows is given, its ownership rows, and when links
        is given, its additional links, under one button: the function first
        (a new one needs its ID), then the rows, then the links */

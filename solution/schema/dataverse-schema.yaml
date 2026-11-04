@@ -390,6 +390,14 @@ tables:
         type: Lookup
         target: su_compliancedirectory
       - { name: su_risk, displayName: Risk Rating, type: Choice, choice: su_risklevel, description: "Legacy copy of the function's rating. Not loaded or written; the function holds the rating." }
+      - { name: su_reportingrequirement, displayName: Reporting Requirement, type: Memo, maxLength: 1048576, description: "What this deadline's filing or report must contain. Set by administrators on the portal." }
+      - name: su_changedby
+        displayName: Last Changed By (portal)
+        description: "The administrator who last edited or added the deadline on the portal. The portal writes as its own app user, so Modified By cannot name the person."
+        type: Lookup
+        target: su_compliancedirectory
+        relationshipName: su_changedby_su_compliancedeadline
+      - { name: su_changedon, displayName: Last Changed On (portal), type: DateTime, format: DateAndTime }
 
   su_assessment:
     displayName: Assessment

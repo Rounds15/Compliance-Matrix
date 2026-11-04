@@ -153,6 +153,8 @@
   "columns": {
    "su_cadence": "Choice",
    "su_cadencetext": "String",
+   "su_changedby": "lookup:su_compliancedirectory",
+   "su_changedon": "DateTime",
    "su_complete": "Boolean",
    "su_completedby": "lookup:su_compliancedirectory",
    "su_completedbydisplayname": "String",
@@ -171,6 +173,7 @@
    "su_offsetunit": "Choice",
    "su_offsetvalue": "Integer",
    "su_owner": "lookup:su_compliancedirectory",
+   "su_reportingrequirement": "Memo",
    "su_risk": "Choice",
    "su_triggerevent": "String"
   },

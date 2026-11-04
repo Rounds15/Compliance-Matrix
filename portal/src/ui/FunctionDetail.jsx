@@ -18,6 +18,7 @@ import { fmtDate, fiscalQ } from "../lib/dates.js";
 import { RISK_COLOR, RISK_CHOICES, riskRank } from "../lib/risk.js";
 import { useAddToCalendar } from "./calendar.js";
 import { LinkList, LinksEditor, editableLinks } from "./Links.jsx";
+import { DeadlineEditor } from "./DeadlineEditor.jsx";
 import { STATUTE_TYPES, RESOURCE_TYPES, linkProblem, linksKey } from "../data/links.js";
 
 const draftOf = f => f ? { ...f } : {
@@ -86,6 +87,9 @@ export function FunctionDetail({ f, isNew }) {
   const [gapForm, setGapForm] = useState({ title: "", note: "" });
   const [confirmDel, setConfirmDel] = useState(false);
   const [completing, setCompleting] = useState(null);
+  /* administrators edit and add deadlines where the backend can save them */
+  const canEditDl = realAdmin && typeof adapter.saveDeadline === "function";
+  const [editingDl, setEditingDl] = useState(null); // a deadline, "new", or null
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const sorted = useMemo(() => [...ds.fns].sort((a, b) => a.name.localeCompare(b.name)), [ds]);
@@ -222,10 +226,13 @@ export function FunctionDetail({ f, isNew }) {
           <Field label="What the obligation is"><p>{f.description || <span className="sub">No description recorded.</span>}</p></Field>
           <Field label="Reporting requirement"><p>{f.reporting || <span className="sub">No reporting requirement recorded.</span>}</p></Field>
           <Field label="Deadline and cadence">
+            {canEditDl && <div className="dl-addbar"><button className="button button-secondary-outline button-sm" onClick={() => setEditingDl("new")}><Icon n="plus" s={14} />Add deadline</button></div>}
             <p style={{ marginBottom: dls.length ? 12 : 0 }}>{f.deadline || <span className="sub">No deadline narrative recorded.</span>}</p>
             {!!dls.length && <div className="fd-cards">{dls.map(x => {
               const st = dueState(x, today);
-              return <div key={x.id} className="dlrow" style={{ background: st.cls === "late" ? "#FFF7F7" : "#fff" }}>
+              const open = canEditDl ? { role: "button", tabIndex: 0, "aria-label": "Edit " + x.title, onClick: () => setEditingDl(x),
+                onKeyDown: e => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setEditingDl(x); } } } : {};
+              return <div key={x.id} className={"dlrow" + (canEditDl ? " editable" : "")} style={{ background: st.cls === "late" ? "#FFF7F7" : "#fff" }} {...open}>
                 <Icon n="clock" s={15} style={{ color: "#707780" }} />
                 <div style={{ flex: 1, minWidth: 140 }}>
                   <div style={{ fontSize: 13.5, fontWeight: 600, color: "#000E54" }}>{x.title}</div>
@@ -316,5 +323,6 @@ export function FunctionDetail({ f, isNew }) {
       </div>
     </Modal>}
     {completing && <CompletionDialog dl={completing} onClose={() => setCompleting(null)} />}
+    {editingDl && <DeadlineEditor f={f} dl={editingDl === "new" ? null : editingDl} onClose={() => setEditingDl(null)} />}
   </div>;
 }

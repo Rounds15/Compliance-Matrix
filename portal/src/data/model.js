@@ -16,7 +16,9 @@
                  resourceUrl, risk, lastReviewed, fixedOwners?, assessedRisk?}
      ownership  {id, functionId, personId, role, sub}
      counsel    {riskAreaId, personId, isDefault}          (Dataverse only)
-     deadlines  {id, functionId, title, base, cadence, lastDone, reason}
+     deadlines  {id, functionId, title, base, cadence, lastDone, reason,
+                 narrative?, reporting?, ownerId?, changedById?, changedOn?,
+                 cadenceText?, deadlineType?}
      gaps       {id, code, functionId, title, status, source, note, closeNote,
                  unit, responsibleId, opened, closed, targetQuarter, targetFY,
                  severity?, gapCode?}
@@ -207,7 +209,17 @@ export function buildDataset(raw, { today, meEmail, meName, meContactId }) {
       complete: r.withinHold,
       status: r.status,
       owner: f ? f.owner : NOBODY,
-      risk: f ? f.displayRisk : "Unrated"
+      risk: f ? f.displayRisk : "Unrated",
+      /* for the administrators' editor; owner above stays the function's,
+         which the calendar and Coming Up show */
+      /* the name as stored, kept when an edit leaves the shown name alone */
+      rawTitle: d.title || "",
+      narrative: d.narrative || "",
+      reporting: d.reporting || "",
+      assignee: d.ownerId ? findPerson(d.ownerId) || null : null,
+      changedOn: d.changedOn || null,
+      changedBy: d.changedById ? findPerson(d.changedById) || null : null,
+      deadlineType: d.deadlineType ?? null
     };
   }).filter(d => fnById.has(String(d.functionId)));
 

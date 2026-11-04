@@ -98,6 +98,11 @@ the copied compliance owner. Fall back to the parent function's
 mailing the compliance office about an unassigned obligation. Send to
 `su_owner.su_email`.
 
+An administrator can set su_owner on a deadline on the portal (Function
+Detail, edit a deadline, Owner). Left as "The function's compliance owner",
+the portal clears su_owner, and the step above falls back as it does for a
+deadline loaded with no owner.
+
 **Step 4: respect the leaver rule.** Skip when the resolved person has
 `su_active` = false. A departed owner's obligations need reassignment, not mail
 to a disabled mailbox; surface those in the app instead.

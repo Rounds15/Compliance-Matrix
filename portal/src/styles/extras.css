@@ -367,3 +367,15 @@ code { font-size: .88em; overflow-wrap: anywhere }
 .lk-fields > div { flex: 1 1 220px; min-width: 0 }
 .lk-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px }
 .lk-problem { color: #B91C1C; font-size: 13px; font-weight: 700; margin: 6px 0 0 }
+
+/* Function Detail: the administrators' deadline editor */
+.dl-addbar { display: flex; justify-content: flex-end; margin-bottom: 10px }
+.dlrow.editable { cursor: pointer }
+.dlrow.editable:hover { box-shadow: inset 3px 0 0 var(--navy) }
+.dlrow.editable:focus-visible { outline: 3px solid #2B72D7; outline-offset: 2px }
+.dle { display: grid; gap: 12px }
+.dle .frow { display: flex; flex-wrap: wrap; gap: 12px }
+.dle .frow > .dle-f { flex: 1 1 200px; min-width: 0 }
+.dle textarea.ti { min-height: 80px }
+.dle-preview { margin: 0 }
+.dle-changed { margin: 0 }

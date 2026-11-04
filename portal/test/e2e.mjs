@@ -805,6 +805,14 @@ await session("Dataverse · owner · permitted writes succeed, admin UI absent",
   await go("#/gaps");
   await page.locator("h1", { hasText: "Gap Tracker" }).waitFor();
   assert.equal(await page.locator(".gt-row", { hasText: "Records retention schedule not adopted" }).count(), 0, "an owner does not see a gap with no function");
+  // deadlines are read-only for an owner: no Add button, rows do not open an editor
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.equal(await btn("Add deadline").count(), 0);
+  assert.equal(await page.locator(".dlrow.editable, .dlrow[role=button]").count(), 0);
+  await page.locator(".dlrow").first().click({ position: { x: 30, y: 12 } });
+  assert.equal(await page.locator(".cm-modal").count(), 0);
+  await go("#/gaps");
   // a closed gap on his function: read-only, no Reopen (administrators only)
   portal.dv.su_compliancegaps.push({ su_compliancegapid: G(605), su_name: "Old I-9 finding", _su_function_value: G(202), su_status: 100000021, su_closeddate: "2026-09-01", su_closenote: "Fixed." });
   await page.reload();
@@ -1025,6 +1033,68 @@ await session("Dataverse · a link save that fails is reported and loses nothing
   const t = await toast(/The record was saved\. The links were not saved\. Step 1 of 3 \(adding "New statute"\) failed/);
   assert.ok(t);
   assert.equal(JSON.stringify(portal.dv.su_functionlinks), before, "the existing links are untouched");
+});
+
+/* deadline management: an administrator edits a deadline (with the cadence
+   preview), adds one and deletes it, through the Web API */
+await session("Dataverse · an administrator edits, adds and deletes deadlines", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn, modal }) => {
+  const dv = portal.dv;
+  const row = id => dv.su_compliancedeadlines.find(r => r.su_compliancedeadlineid === id);
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  // the Complete button on a row still completes, and does not open the editor
+  assert.equal(await page.locator(".dlrow.editable").count(), 1);
+  await page.locator(".dlrow", { hasText: "I-9 internal audit sample" }).click({ position: { x: 30, y: 12 } });
+  await modal().waitFor();
+  assert.equal(await modal().locator("#dle-fn").isDisabled(), true, "the function is fixed");
+  assert.equal(await modal().locator("#dle-name").inputValue(), "I-9 internal audit sample | 3/15/2026", "the shown name, without the record number");
+  assert.equal(await modal().locator("#dle-cadence").inputValue(), "Quarterly");
+  assert.deepEqual(await modal().locator("#dle-cadence option").allInnerTexts(), ["Annual", "Semi-Annual", "Quarterly", "Monthly", "One-Time", "As Needed"]);
+  assert.match(await modal().locator(".dle-changed").innerText(), /Not changed on the portal yet/);
+  // completed Sep 10, 2026: Quarterly to Annual counts a year from the completion
+  await modal().locator("#dle-cadence").selectOption("Annually");
+  assert.equal(await modal().locator(".dle-preview").innerText().then(t => t.split(".")[0] + "."), "Next due date will change from Sep 15, 2026 to Sep 10, 2027.");
+  assert.equal(await modal().locator("#dle-due").inputValue(), "2027-09-10");
+  await modal().locator("#dle-owner").selectOption(G(103));
+  await modal().locator("#dle-desc").fill("Sample 25 new-hire forms.");
+  await modal().locator("#dle-reporting").fill("Results to HR leadership.");
+  await btn("Save changes", modal()).click();
+  await toast(/Deadline saved/);
+  const r = row(G(402));
+  assert.deepEqual([r.su_duedate, r.su_cadence, r.su_cadencetext, r.su_deadlinetype, r.su_narrative, r.su_reportingrequirement, r._su_owner_value, r._su_changedby_value],
+    ["2027-09-10", 100000010, "Annually", 100000070, "Sample 25 new-hire forms.", "Results to HR leadership.", G(103), G(101)]);
+  assert.ok(r.su_changedon, "the change is stamped");
+  assert.equal(r.su_name, "202 | I-9 internal audit sample | 3/15/2026", "an unchanged name keeps its stored form");
+  assert.equal(r.su_completeddate, "2026-09-10", "the completion is untouched");
+  // reopening shows who changed it; Cancel discards
+  await page.locator(".dlrow", { hasText: "I-9 internal audit sample" }).click({ position: { x: 30, y: 12 } });
+  assert.match(await modal().locator(".dle-changed").innerText(), /^Last changed [A-Z][a-z]{2} \d{1,2}, \d{4} by Camila Ruiz\.$/);
+  await modal().locator("#dle-name").fill("Changed and cancelled");
+  await btn("Cancel", modal()).click();
+  assert.equal(row(G(402)).su_name, "202 | I-9 internal audit sample | 3/15/2026", "Cancel writes nothing");
+
+  // add: name and due date are required
+  await btn("Add deadline").click();
+  await btn("Add deadline", modal()).click();
+  await toast(/A deadline needs a name and a due date/);
+  await modal().locator("#dle-name").fill("E-Verify MOU review");
+  await modal().locator("#dle-due").fill("2026-12-01");
+  await modal().locator("#dle-cadence").selectOption("One-time");
+  await btn("Add deadline", modal()).click();
+  await toast(/Deadline added/);
+  const added = dv.su_compliancedeadlines.find(x => x.su_name === "E-Verify MOU review");
+  assert.deepEqual([added._su_function_value, added.su_duedate, added.su_cadence, added.su_deadlinetype, added.su_complete],
+    [G(202), "2026-12-01", 100000016, 100000074, false]);
+  assert.equal(await page.locator(".dlrow", { hasText: "E-Verify MOU review" }).count(), 1);
+
+  // delete, with a confirmation step
+  await page.locator(".dlrow", { hasText: "E-Verify MOU review" }).click({ position: { x: 30, y: 12 } });
+  await btn("Delete deadline", modal()).click();
+  assert.equal(await modal().locator(".mbd p").innerText(), "Delete E-Verify MOU review? This removes the deadline and its completion history. This cannot be undone.");
+  await btn("Delete deadline", modal()).click();
+  await toast(/Deadline deleted/);
+  assert.equal(dv.su_compliancedeadlines.some(x => x.su_name === "E-Verify MOU review"), false);
+  assert.equal(await page.locator(".dlrow", { hasText: "E-Verify MOU review" }).count(), 0);
 });
 
 /* the admin audit: an administrator in the default User view, on functions

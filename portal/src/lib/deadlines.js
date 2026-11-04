@@ -48,3 +48,18 @@ export function nextOccurrence(base, cadence, lastDone, today) {
   const status = withinHold ? "Completed" : (next && today > next ? "Overdue" : "Upcoming");
   return { next, withinHold, status };
 }
+
+/* An administrator changing a deadline's cadence: the next due date under
+   the new cadence, counted from the last completion (one new period after
+   it) or, when it was never completed, from the current due date, then
+   rolled forward the way the page and the reminder flow roll every row.
+   A cadence with no period (One-time, Ongoing) keeps the current date.
+   Returns a local-midnight Date, or null when there is nothing to count
+   from. */
+export function recalcDue({ cadence, lastDone, currentDue, today }) {
+  const mp = cadenceMonths(cadence);
+  if (mp === 0) return currentDue || null;
+  const base = lastDone ? addMonths(lastDone, mp) : currentDue;
+  if (!base) return null;
+  return nextOccurrence(base, cadence, lastDone, today).next;
+}

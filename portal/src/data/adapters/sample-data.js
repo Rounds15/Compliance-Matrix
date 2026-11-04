@@ -190,3 +190,9 @@ export const LINKS = [
 ["CF-7060","16 C.F.R. § 314","Regulation","https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-314"],
 ["CF-7060","University policies","SU Resource","https://policies.syr.edu/"]
 ];
+
+/* deadline descriptions and reporting requirements: title -> [description, reporting] */
+export const DL_DETAIL = {
+  "I-9 internal audit sample": ["Pull a sample of new-hire I-9 forms and check Sections 1 and 2 against the hire dates.", "Results and corrective actions to HR leadership."],
+  "Publish Annual Security Report": ["Publish the ASR with three years of Clery crime statistics and the required policy statements.", "Notice of availability to all students and employees by October 1."]
+};

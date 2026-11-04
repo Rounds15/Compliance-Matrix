@@ -72,6 +72,7 @@
   <EntityRelationship Name="su_assessment_su_assessmentowner"/>
   <EntityRelationship Name="su_assessment_su_compliancegap"/>
   <EntityRelationship Name="su_assessmentowner_person"/>
+  <EntityRelationship Name="su_changedby_su_compliancedeadline"/>
   <EntityRelationship Name="su_completedby_su_compliancedeadline"/>
   <EntityRelationship Name="su_compliancedeadline_owner"/>
   <EntityRelationship Name="su_compliancedeadline_su_portalaction"/>

@@ -49,7 +49,10 @@ export const SUB = { 100000040: "Primary", 100000041: "Advisory", 100000042: "Su
 export const LINK_TYPE = { 100000140: "Statute", 100000141: "Regulation", 100000142: "Guidance", 100000143: "SU Resource" };
 const FLAG_CLEARED = 100000051;
 const invert = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [v, Number(k)]));
-const RISK_CODE = invert(RISK), ROLE_CODE = invert(ROLE), SUB_CODE = invert(SUB), LINK_TYPE_CODE = invert(LINK_TYPE);
+const RISK_CODE = invert(RISK), ROLE_CODE = invert(ROLE), SUB_CODE = invert(SUB), LINK_TYPE_CODE = invert(LINK_TYPE), CADENCE_CODE = invert(CADENCE);
+/* su_deadlinetype: the reminder flow reads Fixed Recurring and One-time rows */
+const DL_TYPE = { fixed: 100000070, ongoing: 100000072, oneTime: 100000074 };
+const typeFor = cadence => (cadence === "One-time" ? DL_TYPE.oneTime : cadence === "Ongoing" ? DL_TYPE.ongoing : DL_TYPE.fixed);
 const GAP_OPEN = 100000020;
 export const ACTION = { completeDeadline: 100000120, reverseDeadline: 100000121, closeGap: 100000122, resolveFlag: 100000123, raiseFlag: 100000124, deleteFunction: 100000125, addToCalendar: 100000126, reopenGap: 100000127 };
 
@@ -66,7 +69,7 @@ const SELECT = {
   su_compliancedirectory: "su_compliancedirectoryid,su_name,su_email,su_jobtitle,su_unit,su_phone,su_location,su_netid,su_active,_su_contact_value",
   su_compliancefunction: "su_compliancefunctionid,su_name,su_functioncode,_su_riskarea_value,_su_domain_value,su_statute,su_citation,su_statuteurl,su_description,su_reporting,su_deadlinenarrative,su_resourcelabel,su_resourceurl,su_risk,su_assessedrisk,su_lastreviewed,_su_executiveowner_value,_su_unitowner_value,_su_complianceowner_value",
   su_functionownership: "su_functionownershipid,_su_function_value,_su_person_value,su_role,su_subrole",
-  su_compliancedeadline: "su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes",
+  su_compliancedeadline: "su_compliancedeadlineid,su_name,_su_function_value,su_duedate,su_cadence,su_cadencetext,su_complete,su_completeddate,su_completedreason,su_notes,su_deadlinetype,su_narrative,su_reportingrequirement,_su_owner_value,_su_changedby_value,su_changedon",
   su_compliancegap: "su_compliancegapid,su_name,su_gapcode,_su_function_value,su_severity,su_status,su_openeddate,su_closeddate,su_targetquarter,su_targetfy,su_note,su_closenote,_su_owner_value,su_responsibleunit,su_gapsource",
   su_functionflag: "su_functionflagid,_su_function_value,su_reason,su_status,_su_flaggedby_value,su_flaggedon,su_respondentemail",
   su_counselassignment: "su_counselassignmentid,_su_riskarea_value,_su_attorney_value,su_isdefault",
@@ -116,7 +119,12 @@ export function mapTables(t) {
     /* a one-off marked complete keeps showing as complete; a recurring row
        rolls forward from its last completion like the SharePoint lists do */
     lastDone: toDay(r.su_completeddate) || (r.su_complete ? toDay(r.su_duedate) : null),
-    reason: r.su_completedreason || ""
+    reason: r.su_completedreason || "",
+    /* for the administrators' editor */
+    cadenceText: r.su_cadencetext || "", deadlineType: r.su_deadlinetype ?? null,
+    narrative: r.su_narrative || "", reporting: r.su_reportingrequirement || "",
+    ownerId: r._su_owner_value || null, changedById: r._su_changedby_value || null,
+    changedOn: r.su_changedon ? new Date(r.su_changedon) : null
   }));
   if (t.gaps) out.gaps = t.gaps.map(r => ({
     id: r.su_compliancegapid, code: r.su_gapcode || "", functionId: r._su_function_value,
@@ -252,6 +260,36 @@ export function createDataverseAdapter(cfg) {
         ...bind("su_owner", "su_compliancedirectory", fn.owner && fn.owner.id)
       });
       return ["gaps"];
+    },
+
+    /* administrators edit and add deadlines through the Web API (CM
+       Administer); the cadence is written only when it was changed, so a
+       SharePoint value with no option (su_cadencetext) is kept otherwise */
+    async saveDeadline({ draft, isNew }, ctx) {
+      const body = {
+        su_name: draft.title.slice(0, 300), su_duedate: isoDate(draft.due),
+        su_narrative: draft.narrative || "", su_reportingrequirement: draft.reporting || "",
+        su_changedon: new Date().toISOString(),
+        ...bind("su_changedby", "su_compliancedirectory", ctx && ctx.me && !ctx.me.none ? ctx.me.id : null),
+        ...bind("su_owner", "su_compliancedirectory", draft.ownerId)
+      };
+      if (isNew || draft.cadenceChanged) {
+        body.su_cadence = CADENCE_CODE[draft.cadence] ?? null;
+        body.su_cadencetext = draft.cadence;
+        /* leave an Event-Relative or Conditional row's type alone */
+        if (isNew || [DL_TYPE.fixed, DL_TYPE.ongoing, DL_TYPE.oneTime, null].includes(draft.deadlineType ?? null)) body.su_deadlinetype = typeFor(draft.cadence);
+      }
+      if (isNew) {
+        const r = await post("su_compliancedeadline", { ...body, su_complete: false, ...bind("su_function", "su_compliancefunction", draft.functionId) });
+        return { id: r.id, reload: ["deadlines"] };
+      }
+      await patch("su_compliancedeadline", draft.id, body);
+      if (!draft.ownerId) await unbind("su_compliancedeadline", draft.id, "su_owner");
+      return { id: draft.id, reload: ["deadlines"] };
+    },
+    async deleteDeadline({ dl }) {
+      await del("su_compliancedeadline", dl.id);
+      return ["deadlines"];
     },
 
     async completeDeadline({ dl, fn, reason }) {
