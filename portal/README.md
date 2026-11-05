@@ -94,8 +94,14 @@ admin-only controls are hidden (Edit, Add new function, Delete, Manage
 people, the deadline and link editors, Clear flag, Reopen gap, the risk area
 manager, directory upkeep, Flagged Items), and a banner reads "Viewing as
 <name> (Owner)", or "(Tester)" for someone in no function's Accountability
-Structure. The page cannot read another person's web roles, so each person
-is previewed as a non-administrator. It is display only: what the
+Structure. Someone the page knows to be an administrator is previewed as
+one: "Viewing as <name> (Administrator)", with the admin controls. For
+administrators only, the template lists the members of the administrator
+web role with a `fetchxml` query, and adds the emails in the site setting
+`ComplianceMatrix/Administrators` (comma-separated). Power Pages applies
+table permissions to `fetchxml`, so with CM Self on contact the query finds
+only the signed-in administrator; the setting covers the rest. It is
+display only: what the
 administrator does while previewing (completing a deadline, closing a gap,
 flagging) is still saved as the administrator.
 
@@ -231,6 +237,7 @@ for SharePoint, the flow URLs.
 | `ComplianceMatrix/Flow/Action` | Dataverse: the **HTTP URL** of **CM - Process portal action**'s trigger (or its `/_api/cloudflow/...` URL if it uses the Power Pages trigger) | completions, closures, flags and deletes cannot be saved |
 | `ComplianceMatrix/Flow/Calendar` | Dataverse: URL Power Pages shows for **CM - Add to calendar** | the calendar buttons download a calendar file instead of sending Outlook invitations |
 | `ComplianceMatrix/AdminWebRole` | web role name, matched exactly | `Administrators` |
+| `ComplianceMatrix/Administrators` | administrators' emails, comma-separated, for the View as preview (adds to the web role members the template can read) | none |
 | `ComplianceMatrix/CacheMinutes` | how long a browser reuses what it read | `5` |
 | `ComplianceMatrix/TimeZone` | zone SharePoint date-only columns are stored in | `America/New_York` |
 | `ComplianceMatrix/PowerBIEmbedUrl` | a report's *Secure embed* link | placeholder frame |

@@ -106,20 +106,26 @@ export function useStore(cfg) {
   const adminView = cfg.isAdmin && viewAs.mode === "Admin";
   /* View as specific user, on someone other than the administrator: a
      preview of what that person sees, admin controls included. The page
-     cannot read another person's web roles (contact access is Self only),
-     so the person is previewed as a non-administrator: an Owner when they
-     are in a function's Accountability Structure, a Tester otherwise.
-     Display only: writes are still made as the administrator. */
+     cannot read another person's web roles (contact access is Self only):
+     someone whose email is in the site setting ComplianceMatrix/
+     Administrators is previewed as an Administrator, with the admin
+     controls; anyone else as an Owner when they are in a function's
+     Accountability Structure, a Tester otherwise. Display only: writes are
+     still made as the administrator. */
   const simulating = useMemo(() => {
     if (!ds || !cfg.isAdmin || viewAs.mode !== "AsUser") return null;
     if (actingPerson === ds.me || samePerson(actingPerson, ds.me)) return null;
-    return { person: actingPerson, role: functionsFor(actingPerson, ds.fns).length ? "Owner" : "Tester" };
+    const email = String(actingPerson.e || "").trim().toLowerCase();
+    const admin = !!email && (cfg.administrators || []).includes(email);
+    return { person: actingPerson, admin, role: admin ? "Administrator" : functionsFor(actingPerson, ds.fns).length ? "Owner" : "Tester" };
   }, [ds, cfg, viewAs, actingPerson]);
   /* an administrator (the administrator web role) sees and opens everything
-     in Admin view and User view, and when viewing as themselves */
-  const fullAccess = cfg.isAdmin && !simulating;
-  /* whether admin-only controls show: the web role, unless previewing */
-  const adminUi = cfg.isAdmin && !simulating;
+     in Admin view and User view, when viewing as themselves, and when
+     previewing another administrator */
+  const fullAccess = cfg.isAdmin && (!simulating || simulating.admin);
+  /* whether admin-only controls show: the web role, unless previewing a
+     non-administrator */
+  const adminUi = fullAccess;
 
   const reload = useCallback(async tables => {
     const part = await adapter.load(tables, baseCtx);

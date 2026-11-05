@@ -14,6 +14,12 @@
     who is signed in        user.emailaddress1, user.fullname, user.id
     administrator?          holds the web role named by the site setting
                             ComplianceMatrix/AdminWebRole (default below)
+    who else is one         for the View as preview, administrators only:
+                            the members of that web role, read with
+                            fetchxml (table permissions apply, so this
+                            lists everyone only where administrators can
+                            read contacts), plus the emails in the site
+                            setting ComplianceMatrix/Administrators
     backend + endpoints     site settings, all under ComplianceMatrix/
 
   None of that is a security boundary. Administrator screens are hidden from
@@ -22,7 +28,7 @@
 
   Signed-out visitors get the CM Sign In web template instead of the matrix.
 
-  c54e981c506a is replaced by the build with a hash of the two web files, so a
+  528a2b63f911 is replaced by the build with a hash of the two web files, so a
   new upload is never served from a stale browser cache.
 {% endcomment %}{% assign cm_admin_role = settings['ComplianceMatrix/AdminWebRole'] | default: 'Administrators' %}{% assign cm_is_admin = false %}{% if user %}{% for r in user.roles %}{% if r == cm_admin_role %}{% assign cm_is_admin = true %}{% endif %}{% endfor %}{% endif %}<!DOCTYPE html>
 <html lang="en">
@@ -31,10 +37,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Compliance Matrix | Syracuse University</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="{{ settings['ComplianceMatrix/CssUrl'] | default: '/cm-matrix.css' }}?v=c54e981c506a">
+<link rel="stylesheet" href="{{ settings['ComplianceMatrix/CssUrl'] | default: '/cm-matrix.css' }}?v=528a2b63f911">
 </head>
 <body>
 {% if user %}{% assign cm_site_set = settings['ComplianceMatrix/SiteNavigation'] | default: 'Default' %}{% assign cm_site_nav = weblinks[cm_site_set] %}
+{% comment %} administrators only: who holds the administrator web role, as a JSON array of emails, for the View as preview {% endcomment %}{% assign cm_admin_emails = '' %}{% if cm_is_admin %}{% fetchxml cm_admins %}
+<fetch distinct="true" top="500">
+  <entity name="contact">
+    <attribute name="emailaddress1" />
+    <link-entity name="powerpagecomponent_mspp_webrole_contact" from="contactid" to="contactid" intersect="true">
+      <link-entity name="powerpagecomponent" from="powerpagecomponentid" to="powerpagecomponentid">
+        <filter><condition attribute="name" operator="eq" value="{{ cm_admin_role | escape }}" /></filter>
+      </link-entity>
+    </link-entity>
+  </entity>
+</fetch>
+{% endfetchxml %}{% assign cm_sep = '' %}{% capture cm_admin_emails %}[{% for c in cm_admins.results.entities %}{% if c.emailaddress1 %}{{ cm_sep }}"{{ c.emailaddress1 | replace: '"', '' }}"{% assign cm_sep = ',' %}{% endif %}{% endfor %}]{% endcapture %}{% endif %}
 {% comment %} the site's own navigation, so the matrix can link back out to it {% endcomment %}
 <template id="cm-site-links">{% if cm_site_nav %}{% for link in cm_site_nav.weblinks %}<a href="{{ link.url | escape }}"{% if link.open_in_new_window %} target="_blank"{% endif %}>{{ link.name | escape }}</a>{% endfor %}{% endif %}</template>
 <div id="cm-root"
@@ -43,6 +61,8 @@
   data-user-name="{{ user.fullname | escape }}"
   data-user-id="{{ user.id | escape }}"
   data-is-admin="{{ cm_is_admin }}"
+  data-admin-emails="{{ cm_admin_emails | escape }}"
+  data-administrators="{% if cm_is_admin %}{{ settings['ComplianceMatrix/Administrators'] | escape }}{% endif %}"
   data-flow-read="{{ settings['ComplianceMatrix/Flow/Read'] | escape }}"
   data-flow-write="{{ settings['ComplianceMatrix/Flow/Write'] | escape }}"
   data-flow-admin-write="{{ settings['ComplianceMatrix/Flow/AdminWrite'] | escape }}"
@@ -58,7 +78,7 @@
   data-power-bi-url="{{ settings['ComplianceMatrix/PowerBIUrl'] | default: 'https://app.powerbi.com' | escape }}"
   data-power-bi-embed-url="{{ settings['ComplianceMatrix/PowerBIEmbedUrl'] | escape }}"></div>
 <noscript><p style="font:16px/1.5 Verdana,sans-serif;padding:40px;color:#000E54">The Compliance Matrix needs JavaScript. Turn it on for this site.</p></noscript>
-<script src="{{ settings['ComplianceMatrix/JsUrl'] | default: '/cm-matrix.js' }}?v=c54e981c506a" defer></script>
+<script src="{{ settings['ComplianceMatrix/JsUrl'] | default: '/cm-matrix.js' }}?v=528a2b63f911" defer></script>
 {% else %}
 {% comment %} signed out: the branded sign-in card (web template "CM Sign In") {% endcomment %}
 {% include 'CM Sign In' %}

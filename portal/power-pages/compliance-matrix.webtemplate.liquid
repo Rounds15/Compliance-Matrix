@@ -14,6 +14,12 @@
     who is signed in        user.emailaddress1, user.fullname, user.id
     administrator?          holds the web role named by the site setting
                             ComplianceMatrix/AdminWebRole (default below)
+    who else is one         for the View as preview, administrators only:
+                            the members of that web role, read with
+                            fetchxml (table permissions apply, so this
+                            lists everyone only where administrators can
+                            read contacts), plus the emails in the site
+                            setting ComplianceMatrix/Administrators
     backend + endpoints     site settings, all under ComplianceMatrix/
 
   None of that is a security boundary. Administrator screens are hidden from
@@ -35,6 +41,18 @@
 </head>
 <body>
 {% if user %}{% assign cm_site_set = settings['ComplianceMatrix/SiteNavigation'] | default: 'Default' %}{% assign cm_site_nav = weblinks[cm_site_set] %}
+{% comment %} administrators only: who holds the administrator web role, as a JSON array of emails, for the View as preview {% endcomment %}{% assign cm_admin_emails = '' %}{% if cm_is_admin %}{% fetchxml cm_admins %}
+<fetch distinct="true" top="500">
+  <entity name="contact">
+    <attribute name="emailaddress1" />
+    <link-entity name="powerpagecomponent_mspp_webrole_contact" from="contactid" to="contactid" intersect="true">
+      <link-entity name="powerpagecomponent" from="powerpagecomponentid" to="powerpagecomponentid">
+        <filter><condition attribute="name" operator="eq" value="{{ cm_admin_role | escape }}" /></filter>
+      </link-entity>
+    </link-entity>
+  </entity>
+</fetch>
+{% endfetchxml %}{% assign cm_sep = '' %}{% capture cm_admin_emails %}[{% for c in cm_admins.results.entities %}{% if c.emailaddress1 %}{{ cm_sep }}"{{ c.emailaddress1 | replace: '"', '' }}"{% assign cm_sep = ',' %}{% endif %}{% endfor %}]{% endcapture %}{% endif %}
 {% comment %} the site's own navigation, so the matrix can link back out to it {% endcomment %}
 <template id="cm-site-links">{% if cm_site_nav %}{% for link in cm_site_nav.weblinks %}<a href="{{ link.url | escape }}"{% if link.open_in_new_window %} target="_blank"{% endif %}>{{ link.name | escape }}</a>{% endfor %}{% endif %}</template>
 <div id="cm-root"
@@ -43,6 +61,8 @@
   data-user-name="{{ user.fullname | escape }}"
   data-user-id="{{ user.id | escape }}"
   data-is-admin="{{ cm_is_admin }}"
+  data-admin-emails="{{ cm_admin_emails | escape }}"
+  data-administrators="{% if cm_is_admin %}{{ settings['ComplianceMatrix/Administrators'] | escape }}{% endif %}"
   data-flow-read="{{ settings['ComplianceMatrix/Flow/Read'] | escape }}"
   data-flow-write="{{ settings['ComplianceMatrix/Flow/Write'] | escape }}"
   data-flow-admin-write="{{ settings['ComplianceMatrix/Flow/AdminWrite'] | escape }}"

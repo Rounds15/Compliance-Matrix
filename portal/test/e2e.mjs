@@ -1153,6 +1153,48 @@ await session("Dataverse · viewing as someone hides the admin controls, display
   assert.equal(await btn("Add deadline").count(), 1);
 });
 
+/* who else is an administrator, for the View as preview: the web role's
+   members as the template's fetchxml reads them, plus the site setting
+   ComplianceMatrix/Administrators; a listed person keeps the admin
+   controls, and the list goes to administrators only */
+const asAdministrator = async ({ page, go, btn, view }) => {
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  await view("p:" + G(103));
+  assert.equal(await page.locator(".sim-banner").innerText(), "Viewing as Dwight Ferrell (Administrator)");
+  assert.equal(await btn("Edit this record").count(), 1);
+  assert.equal(await btn("Add deadline").count(), 1);
+  assert.equal(await page.locator(".dlrow.editable").count(), 1);
+  await go("#/flags");
+  await page.locator("h1", { hasText: "Flagged for Review" }).waitFor();
+  // someone not listed is still previewed as an Owner or Tester
+  await view("p:" + G(104));
+  assert.equal(await page.locator(".sim-banner").innerText(), "Viewing as Grace Whitfield (Tester)");
+  await page.locator("text=Administrator access required").waitFor();
+};
+
+await session("Dataverse · the Administrators web role's members, from the template's fetchxml, are previewed as Administrators",
+  { backend: "dataverse", admin: true, webRoleMembers: ["cruiz@syr.edu", "DFerrell@syr.edu"] }, async (h) => {
+  const q = h.portal.fetchxml.at(-1);
+  assert.match(q, /<entity name="contact">[\s\S]*name="powerpagecomponent_mspp_webrole_contact"[\s\S]*<condition attribute="name" operator="eq" value="Administrators" \/>/);
+  assert.equal(await h.page.locator("#cm-root").getAttribute("data-admin-emails"), '["cruiz@syr.edu","DFerrell@syr.edu"]', "a JSON array");
+  await asAdministrator(h);
+});
+
+await session("Dataverse · where fetchxml can read only the signed-in contact, the site setting lists the others",
+  { backend: "dataverse", admin: true, settings: { "ComplianceMatrix/Administrators": "bwrounds@syr.edu,  DFerrell@syr.edu ; gmrauch@syr.edu" } }, async (h) => {
+  assert.equal(await h.page.locator("#cm-root").getAttribute("data-admin-emails"), '["cruiz@syr.edu"]', "CM Self: only her own row");
+  await asAdministrator(h);
+});
+
+await session("Dataverse · the administrators list is not sent to a non-administrator", { backend: "dataverse", admin: false, user: { email: "dferrell@syr.edu", name: "Dwight Ferrell" },
+  webRoleMembers: ["cruiz@syr.edu", "gmrauch@syr.edu"], settings: { "ComplianceMatrix/Administrators": "bwrounds@syr.edu, gmrauch@syr.edu" } }, async ({ page, portal }) => {
+  assert.equal(await page.locator("#cm-root").getAttribute("data-administrators"), "");
+  assert.equal(await page.locator("#cm-root").getAttribute("data-admin-emails"), "");
+  assert.equal(portal.fetchxml.length, 0, "the query is not run for a non-administrator");
+  assert.doesNotMatch(await page.content(), /gmrauch/);
+});
+
 /* the admin audit: an administrator in the default User view, on functions
    they are not in the Accountability Structure for, sees and does what
    Admin view allows; View as specific user still previews that person */

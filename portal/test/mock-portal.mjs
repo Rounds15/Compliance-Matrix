@@ -59,8 +59,27 @@ const MEMBER_GAP_FIELDS = ["field_13", "field_14", "ClosedById"];
 /* web templates the matrix template includes, by name, as Power Pages finds them */
 const liquid = new Liquid({ templates: { "CM Sign In": readFileSync(join(DIST, "cm-sign-in.webtemplate.liquid"), "utf8") } });
 liquid.registerFilter("url_escape", v => encodeURIComponent(String(v ?? "")));
+/* {% fetchxml name %}...{% endfetchxml %}: the query is rendered and kept,
+   and the result is what the page's context offers as __fetchxml, the way
+   Power Pages answers within the viewer's table permissions */
+liquid.registerTag("fetchxml", {
+  parse(token, remain) {
+    this.name = token.args.trim();
+    this.tpl = [];
+    const stream = this.liquid.parser.parseStream(remain);
+    stream.on("tag:endfetchxml", () => stream.stop()).on("template", t => this.tpl.push(t))
+      .on("end", () => { throw new Error("fetchxml not closed"); });
+    stream.start();
+  },
+  * render(ctx) {
+    const xml = yield this.liquid.renderer.renderTemplates(this.tpl, ctx);
+    const answer = ctx.getSync(["__fetchxml"]);
+    if (answer) answer.queries.push(xml);
+    ctx.bottom()[this.name] = { results: { entities: answer ? answer.rows(xml) : [] } };
+  }
+});
 
-export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [], assessments = false, tokenFail = false } = {}) {
+export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [], assessments = false, tokenFail = false, webRoleMembers = null } = {}) {
   const sp = sharepointLists();
   const dv = dataverseTables();
   /* assessments: the 9 assessments with their current figures, and the open
@@ -433,12 +452,26 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     return res.end();
   }
 
+  /* the template's fetchxml for the administrator web role's members. With
+     the site's CM Self permission on contact, Power Pages returns only the
+     signed-in contact; webRoleMembers stands for a site where
+     administrators can read contacts */
+  const fetchxml = {
+    queries: [],
+    rows: xml => {
+      const roleQuery = /link-entity name="powerpagecomponent_mspp_webrole_contact"[\s\S]*value="Administrators"/.test(xml);
+      if (!roleQuery) return [];
+      const members = webRoleMembers || (user && admin ? [user.email] : []);
+      return members.map(e => ({ emailaddress1: e }));
+    }
+  };
   const handler = async (req, res) => {
     const url = new URL(req.url, "http://localhost");
     try {
       if (url.pathname === "/matrix" || url.pathname === "/matrix/") {
         const html = await liquid.parseAndRender(template, {
-          user: userCtx(), settings, weblinks, request: { path: url.pathname, path_and_query: url.pathname + url.search }
+          user: userCtx(), settings, weblinks, request: { path: url.pathname, path_and_query: url.pathname + url.search },
+          __fetchxml: fetchxml
         });
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); return res.end(html);
       }
@@ -511,6 +544,6 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   for (const [name, key] of [["action", "ComplianceMatrix/Flow/Action"], ["calendar", "ComplianceMatrix/Flow/Calendar"]])
     if (httpFlow(name) && !(key in extra)) settings[key] = `http://127.0.0.1:${flowHost.address().port}/flow-http/${name}?api-version=2016-06-01&sig=test-signature`;
   const { port } = server.address();
-  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, emails: outlook.sent, events: outlook.events,
+  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, fetchxml: fetchxml.queries, emails: outlook.sent, events: outlook.events,
     close: () => Promise.all([new Promise(r => server.close(r)), new Promise(r => flowHost.close(r))]) };
 }

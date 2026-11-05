@@ -46,6 +46,12 @@ export function readConfig(el) {
       contactId: d.userId || ""
     },
     isAdmin: sample ? true : truthy(d.isAdmin),
+    /* the administrators' emails, for the View as preview only (the template
+       passes them to administrators): the web role's members, as the
+       template's fetchxml could read them, and the site setting
+       ComplianceMatrix/Administrators */
+    administrators: [...new Set([...[].concat(json(d.adminEmails, [])), ...String(d.administrators || "").split(/[,;\s]+/)]
+      .map(e => String(e || "").trim().toLowerCase()).filter(e => e.includes("@")))],
     flows: {
       read: d.flowRead || "",
       write: d.flowWrite || "",
