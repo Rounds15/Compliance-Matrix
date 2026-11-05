@@ -104,7 +104,7 @@ const isThisPage = url => {
 /* The design's navy footer, carrying the matrix's own navigation, the
    site's pages (its web link set) and where the data comes from. */
 function Footer({ go, store, onSearch }) {
-  const { cfg, adapter, loadedAt, actions, realAdmin, fullAccess } = store;
+  const { cfg, adapter, loadedAt, actions, adminUi, fullAccess } = store;
   const L = cfg.links;
   const link = (s, label) => <a key={s} href={"#/" + (PATHS[s] ?? "")} onClick={e => { e.preventDefault(); go(s); }}>{label || s}</a>;
   const site = cfg.siteLinks.filter(l => l.url !== "/" && l.url !== L.siteHome && !isThisPage(l.url));
@@ -118,7 +118,7 @@ function Footer({ go, store, onSearch }) {
       <div><div className="fh">Browse</div>
         {link("Functions", "Compliance Functions")}{link("Deadlines")}{link("Directory")}{link("Executive Team")}{link("Definitions")}</div>
       <div><div className="fh">Risk and Reporting</div>
-        {link("Gap Tracker")}{fullAccess && link("Risk Dashboard")}{fullAccess && link("Reporting")}{realAdmin && link("Flagged Items")}</div>
+        {link("Gap Tracker")}{fullAccess && link("Risk Dashboard")}{fullAccess && link("Reporting")}{adminUi && link("Flagged Items")}</div>
       {cfg.siteLinks.length > 0 && <div><div className="fh">This site</div>
         <a href={L.siteHome}>Home</a>
         {site.map(l => <a key={l.url} href={l.url} target={l.ext ? "_blank" : undefined} rel={l.ext ? "noopener" : undefined}>{l.name}</a>)}</div>}
@@ -185,7 +185,7 @@ export function App({ store }) {
     else go("Home");
   };
 
-  const { ds, status, fullAccess, realAdmin } = store;
+  const { ds, status, fullAccess, adminUi } = store;
   const ctx = useMemo(() => ({ ...store, go, openFn, newFn, back }), [store, go, openFn, newFn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Access. Flagged Items is for administrators (App.OnStart GoTo). Risk
@@ -196,12 +196,12 @@ export function App({ store }) {
      is an administrator action. */
   const screen = route.screen;
   let s = screen;
-  if (screen === "Flagged Items" && !realAdmin) s = "NoAccess";
+  if (screen === "Flagged Items" && !adminUi) s = "NoAccess";
   if ((screen === "Risk Dashboard" || screen === "Reporting") && !fullAccess) s = "NoAccess";
 
   let body;
   if (status === "loading" || !ds) body = status === "error" ? <LoadError store={store} /> : <Loading store={store} />;
-  else if (route.fnNew) body = realAdmin ? <FunctionDetail isNew key="new" /> : <NoAccess />;
+  else if (route.fnNew) body = adminUi ? <FunctionDetail isNew key="new" /> : <NoAccess />;
   else if (route.fnId != null) {
     const fn = ds.fnById.get(String(route.fnId));
     body = fn ? <FunctionDetail f={fn} key={String(fn.id)} />
@@ -230,6 +230,9 @@ export function App({ store }) {
   const openPalette = () => setPalette(true);
   return <AppCtx.Provider value={ctx}>
     <Header screen={isFn ? "Functions" : screen} go={go} onSearch={openPalette} />
+    {/* previewing another person: their view, without the admin controls */}
+    {store.simulating && <div className="sim-banner" role="status"><div className="wrap">
+      <Icon n="users" s={16} />Viewing as {store.simulating.person.n} ({store.simulating.role})</div></div>}
     {ds && !isHome && !isFn && <div className="backbar"><div className="wrap">
       <button className="backbtn" onClick={back}><Icon n="arrow-right" s={14} style={{ transform: "rotate(180deg)" }} />Back</button>
       {section && <span className="sub">{section} /</span>}

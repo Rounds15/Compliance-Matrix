@@ -379,3 +379,7 @@ code { font-size: .88em; overflow-wrap: anywhere }
 .dle textarea.ti { min-height: 80px }
 .dle-preview { margin: 0 }
 .dle-changed { margin: 0 }
+
+/* View as specific user: the preview banner */
+.sim-banner { background: #FCF3DA; border-bottom: 1px solid #E9C46A; color: #7C4008; font-size: 14px; font-weight: 700 }
+.sim-banner .wrap { display: flex; align-items: center; gap: 8px; padding-top: 9px; padding-bottom: 9px }

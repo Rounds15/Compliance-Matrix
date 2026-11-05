@@ -73,7 +73,7 @@ function EditForm({ f, d, set, own, setOwn, links, setLinks, tried }) {
 }
 
 export function FunctionDetail({ f, isNew }) {
-  const { ds, adapter, actions, flash, realAdmin, fullAccess, actingPerson, go, openFn, today } = useApp();
+  const { ds, adapter, actions, flash, adminUi, fullAccess, actingPerson, go, openFn, today } = useApp();
   const visible = useVisibleDeadlines();
   const [mode, setMode] = useState(isNew ? "edit" : "read");
   const [d, setD] = useState(() => draftOf(f));
@@ -88,7 +88,7 @@ export function FunctionDetail({ f, isNew }) {
   const [confirmDel, setConfirmDel] = useState(false);
   const [completing, setCompleting] = useState(null);
   /* administrators edit and add deadlines where the backend can save them */
-  const canEditDl = realAdmin && typeof adapter.saveDeadline === "function";
+  const canEditDl = adminUi && typeof adapter.saveDeadline === "function";
   const [editingDl, setEditingDl] = useState(null); // a deadline, "new", or null
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -205,7 +205,7 @@ export function FunctionDetail({ f, isNew }) {
       <main className="fd-main">
         {flag && !editing && <div className="note fd-flagnote">
           <b>Flagged for review</b> by {flag.by}{flag.at ? " on " + fmtDate(flag.at) : ""}: {flag.reason}
-          {realAdmin && <div style={{ marginTop: 8 }}><Busy busyKey={"flag-" + flag.id} className="button button-secondary-outline button-sm" onClick={() => actions.resolveFlag(flag, f).catch(() => null)}><Icon n="check" s={13} />Clear flag</Busy></div>}
+          {adminUi && <div style={{ marginTop: 8 }}><Busy busyKey={"flag-" + flag.id} className="button button-secondary-outline button-sm" onClick={() => actions.resolveFlag(flag, f).catch(() => null)}><Icon n="check" s={13} />Clear flag</Busy></div>}
         </div>}
 
         {editing ? <>
@@ -242,7 +242,7 @@ export function FunctionDetail({ f, isNew }) {
               </div>;
             })}</div>}
           </Field>
-          <OwnershipChain f={f} admin={realAdmin} />
+          <OwnershipChain f={f} admin={adminUi} />
           <Field label={"Gap history (" + gs.length + ")"}>
             {gs.length ? <div className="fd-cards">{gs.map(g => <div key={g.id} className="gaprow" style={{ borderLeftColor: g.open ? (RISK_COLOR[g.severity] || "#DC2626") : "#16A34A" }}>
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -283,13 +283,13 @@ export function FunctionDetail({ f, isNew }) {
               <button className="button button-secondary-outline button-sm" onClick={cancel}>Cancel</button>
               <div className="rail-sep" role="presentation"></div>
             </>}
-            {realAdmin && !editing && <button className="button button-secondary-outline button-sm" onClick={startEdit}><Icon n="edit" s={14} />Edit this record</button>}
+            {adminUi && !editing && <button className="button button-secondary-outline button-sm" onClick={startEdit}><Icon n="edit" s={14} />Edit this record</button>}
             <button className={"button button-secondary-outline button-sm" + (panel === "flag" ? " on" : "")} aria-pressed={panel === "flag"} onClick={() => setPanel(p => p === "flag" ? null : "flag")}><Icon n="flag" s={14} />Flag for review</button>
             <button className={"button button-warn-outline button-sm" + (panel === "gap" ? " on" : "")} aria-pressed={panel === "gap"} onClick={() => setPanel(p => p === "gap" ? null : "gap")}><Icon n="alert" s={14} />Log a gap</button>
             <button className="button button-info-outline button-sm" onClick={() => go("Deadlines")}><Icon n="calendar" s={14} />See all deadlines</button>
             <Busy busyKey="cal" className="button button-secondary-outline button-sm" disabled={!nextDue} onClick={addToCalendar} title={!nextDue ? "No deadlines to add" : calendar.viaFlow ? undefined : "Download the deadlines as a calendar file"}><Icon n="plus" s={14} />Add to my calendar</Busy>
             <button className="button button-warn-outline button-sm" disabled={!dls.length} onClick={() => setCompleting(nextDue || dls[0])}><Icon n="check" s={14} />Mark complete for this cycle</button>
-            {realAdmin && !editing && <button className="button button-danger-outline button-sm" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
+            {adminUi && !editing && <button className="button button-danger-outline button-sm" onClick={() => setConfirmDel(true)}><Icon n="trash" s={14} />Delete this function</button>}
           </div>
         </div>
         <CounselCard f={f} locked={editing} />

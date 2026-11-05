@@ -125,7 +125,7 @@ function AddPerson({ onClose }) {
 
 /* the profile: contact, work, and the ownership portfolio */
 function Profile({ p, onDialog }) {
-  const { ds, realAdmin, openFn } = useApp();
+  const { ds, adminUi, openFn } = useApp();
   const owned = useMemo(() => functionsFor(p, ds.fns).sort((a, b) => a.name.localeCompare(b.name)), [p, ds]);
   const areas = new Set(owned.map(f => String(f.topicId))).size;
   /* only Executive Team members (the Executive Team page's people) carry a
@@ -157,7 +157,7 @@ function Profile({ p, onDialog }) {
     </div>
     <div className="dir-rail-ft" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       {p.e && <a className="button button-primary" href={"mailto:" + p.e}><Icon n="mail" s={15} />Email {p.n.split(" ")[0]}</a>}
-      {realAdmin && <>
+      {adminUi && <>
         <button className="button button-secondary-outline button-sm" onClick={() => onDialog("edit")}><Icon n="edit" s={13} />Edit</button>
         <button className="button button-secondary-outline button-sm" disabled={!owned.length} onClick={() => onDialog("reassign")}><Icon n="swap" s={13} />Reassign</button>
         <button className="button button-ghost button-sm" onClick={() => onDialog("remove")}><Icon n="trash" s={13} />Remove</button>
@@ -167,7 +167,7 @@ function Profile({ p, onDialog }) {
 }
 
 export function Directory({ personId }) {
-  const { ds, realAdmin } = useApp();
+  const { ds, adminUi } = useApp();
   const { people, fns } = ds;
   const [kw, setKw] = useState("");
   const [unit, setUnit] = useState("All");
@@ -208,7 +208,7 @@ export function Directory({ personId }) {
   return <div className="page wrap dir-page">
     <PageHead eyebrow="Browse" title="Compliance Directory"
       sub="The people layer of the matrix, every owner in an ownership chain, with title, unit, and contact information."
-      right={realAdmin && <button className="button button-secondary-outline button-sm" onClick={() => setDialog("add")}><Icon n="plus" s={14} />Add person</button>} />
+      right={adminUi && <button className="button button-secondary-outline button-sm" onClick={() => setDialog("add")}><Icon n="plus" s={14} />Add person</button>} />
 
     <div className="dir-filters">
       <label><span>Keywords</span>

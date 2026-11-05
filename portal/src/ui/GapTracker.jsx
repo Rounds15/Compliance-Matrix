@@ -40,7 +40,7 @@ function TargetChip({ t }) {
 }
 
 export function GapTracker() {
-  const { ds, adapter, today, actions, openFn, fullAccess, realAdmin, go } = useApp();
+  const { ds, adapter, today, actions, openFn, fullAccess, adminUi, go } = useApp();
   const gaps = useVisibleGaps();
   const [tab, setTab] = useState("open");
   const [level, setLevel] = useState("");
@@ -84,7 +84,7 @@ export function GapTracker() {
   const pick = g => { setSel(g); setNote(""); };
   const close = async () => { try { await actions.closeGap(sel, note.trim()); setSel(null); } catch (e) { /* the toast says what failed */ } };
   /* reopening is for administrators, where the backend has it */
-  const canReopen = realAdmin && typeof adapter.reopenGap === "function";
+  const canReopen = adminUi && typeof adapter.reopenGap === "function";
   const reopen = async () => { try { await actions.reopenGap(sel, note.trim()); setSel(null); } catch (e) { /* the toast says what failed */ } };
   const selFn = sel && sel.functionId ? ds.fnById.get(String(sel.functionId)) : null;
   const selT = sel ? targetOf(sel, today) : null;
@@ -93,7 +93,7 @@ export function GapTracker() {
     <PageHead eyebrow="Risk and Reporting" title="Gap Tracker"
       sub={(fullAccess ? "Every open compliance gap across the institution, tied to the function it came from." : "The compliance gaps on the functions you are in the Accountability Structure for.")
         + " Close a gap with documented notes and the count badge updates everywhere it appears."}
-      right={realAdmin && ds.flags.length > 0 && <button className="button button-secondary-outline button-sm" onClick={() => go("Flagged Items")}><Icon n="flag" s={14} />{ds.flags.length} flagged for review</button>} />
+      right={adminUi && ds.flags.length > 0 && <button className="button button-secondary-outline button-sm" onClick={() => go("Flagged Items")}><Icon n="flag" s={14} />{ds.flags.length} flagged for review</button>} />
     <div className="cm-grid g-stat" style={{ marginBottom: 8 }}>
       <Stat n={open.length} l="Open" tone={open.length ? "bad" : null} onClick={() => setTab("open")} />
       <Stat n={closed.length} l="Closed" onClick={() => setTab("closed")} />

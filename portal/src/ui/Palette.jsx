@@ -16,7 +16,7 @@ const SCREENS = [
 ];
 
 export function Palette({ onClose }) {
-  const { ds, go, openFn, realAdmin, fullAccess, cfg } = useApp();
+  const { ds, go, openFn, adminUi, fullAccess, cfg } = useApp();
   const [q, setQ] = useState("");
   const [sel, setSel] = useState(0);
   const input = useRef(null);
@@ -27,7 +27,7 @@ export function Palette({ onClose }) {
     const t = q.trim().toLowerCase();
     const has = s => String(s || "").toLowerCase().includes(t);
     /* only offer screens the viewer can open */
-    const allowed = s => (s.screen === "Flagged Items" ? realAdmin : s.screen === "Risk Dashboard" || s.screen === "Reporting" ? fullAccess : true);
+    const allowed = s => (s.screen === "Flagged Items" ? adminUi : s.screen === "Risk Dashboard" || s.screen === "Reporting" ? fullAccess : true);
     const screens = SCREENS.filter(allowed).filter(s => !t || has(s.title) || has(s.desc))
       .map(s => ({ kind: "Go to", key: "s:" + s.screen, s, run: () => go(s.screen) }));
     /* the rest of the site, from its web link set */
@@ -42,7 +42,7 @@ export function Palette({ onClose }) {
     const people = ds.people.filter(p => has(p.n) || has(p.e) || has(p.t) || has(p.u)).slice(0, 5)
       .map(p => ({ kind: "People", key: "p:" + p.id, p, run: () => go("Directory", { person: p.id }) }));
     return [...fns, ...people, ...screens, ...site];
-  }, [q, ds, go, openFn, realAdmin, fullAccess, cfg]);
+  }, [q, ds, go, openFn, adminUi, fullAccess, cfg]);
 
   useEffect(() => { setSel(0); }, [q]);
   useEffect(() => {

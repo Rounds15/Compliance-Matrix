@@ -163,12 +163,12 @@ export function OwnershipChain({ f, admin }) {
    so administrators can assign, change or remove it here; on Dataverse it
    is set per risk area, so the card only shows it. */
 export function CounselCard({ f, locked }) {
-  const { adapter, actions, realAdmin } = useApp();
+  const { adapter, actions, adminUi } = useApp();
   const [pick, setPick] = useState(false);
   useEffect(() => { setPick(false); }, [f]);
   const counsel = f.counsel;
   const own = f.chain.counsel.length > 0;
-  const canEdit = realAdmin && adapter.counselPerFunction && !locked;
+  const canEdit = adminUi && adapter.counselPerFunction && !locked;
   const save = async list => {
     try { await actions.setOwnership(f, rowsOf(chainFrom(f), list), "General Counsel saved."); setPick(false); } catch (e) { /* the toast says what failed */ }
   };
@@ -226,14 +226,14 @@ function PersonCard({ p, role, manage, onSub, onRemove, size = 40 }) {
    Administrators add, remove and re-weight people here, then save; the save
    carries the tiers and counsel through unchanged. */
 export function SupportCard({ f, locked }) {
-  const { adapter, actions, realAdmin, flash } = useApp();
+  const { adapter, actions, adminUi, flash } = useApp();
   const [list, setList] = useState(() => chainFrom(f).support);
   const [manage, setManage] = useState(false);
   const [adding, setAdding] = useState(false);
   const [dirty, setDirty] = useState(false);
   const reset = () => { setList(chainFrom(f).support); setManage(false); setAdding(false); setDirty(false); };
   useEffect(reset, [f]);
-  if (!adapter.roles.includes(ROLE_SUPPORT) || (!list.length && !realAdmin)) return null;
+  if (!adapter.roles.includes(ROLE_SUPPORT) || (!list.length && !adminUi)) return null;
 
   const edit = next => { setList(next); setDirty(true); };
   const add = (p, sub) => {
@@ -245,7 +245,7 @@ export function SupportCard({ f, locked }) {
   };
   return <div className="rail-card support">
     <div className="rail-t">{ROLE_SUPPORT} <span className="orole-n">{list.length} {list.length === 1 ? "person" : "people"}</span>
-      {realAdmin && !manage && !locked && <button className="gc-edit" onClick={() => setManage(true)} aria-label="Manage Support"><Icon n="edit" s={12} />Manage</button>}</div>
+      {adminUi && !manage && !locked && <button className="gc-edit" onClick={() => setManage(true)} aria-label="Manage Support"><Icon n="edit" s={12} />Manage</button>}</div>
     <div className="gc-lede">{ROLE_INFO[ROLE_SUPPORT].note}</div>
     <div className="sup-people">
       {list.length ? list.map(p => <PersonCard key={p.id} p={p} role={ROLE_SUPPORT} manage={manage} size={30}

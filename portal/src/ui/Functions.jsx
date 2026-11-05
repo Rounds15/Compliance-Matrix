@@ -43,7 +43,7 @@ export const FnCard = ({ f, g, fl, onClick }) => {
 };
 
 export function Functions({ filter, setFilter }) {
-  const { ds, realAdmin, actingPerson, openFn, newFn } = useApp();
+  const { ds, adminUi, actingPerson, openFn, newFn } = useApp();
   const { fns, gaps, flags } = ds;
   const [open, setOpen] = useState({});
   const [railOpen, setRailOpen] = useState(false);
@@ -113,7 +113,7 @@ export function Functions({ filter, setFilter }) {
   const Rail = <div className="mx-rail">
     <div className="mx-rail-sec">
       <div className="mx-rail-h">Risk Areas / Domains
-        {realAdmin && <button className="mx-railadd" onClick={() => setTax(true)} aria-label="Add or manage risk areas and domains" title="Add or manage risk areas and domains"><Icon n="plus" s={13} sw={2.2} /></button>}</div>
+        {adminUi && <button className="mx-railadd" onClick={() => setTax(true)} aria-label="Add or manage risk areas and domains" title="Add or manage risk areas and domains"><Icon n="plus" s={13} sw={2.2} /></button>}</div>
       <button className={"mx-facet" + (!area ? " on" : "")} onClick={() => set({ area: "", domain: "" })}>
         <span>All risk areas</span><span className="n">{searched.length}</span></button>
       {areas.map(t => {
@@ -172,8 +172,8 @@ export function Functions({ filter, setFilter }) {
     <PageHead eyebrow="Browse the matrix" title="Compliance Functions"
       sub="One view of every obligation. Narrow by risk area, domain, rating, or status on the left; switch the lens to read the same result set as a flat list or grouped by risk area, domain, or statute."
       right={<>
-        {realAdmin && <button className="button button-secondary-outline button-sm" onClick={() => setTax(true)}><Icon n="layers" s={14} />Risk areas and domains</button>}
-        {realAdmin && <button className="button button-primary button-sm" onClick={newFn}><Icon n="plus" s={14} />Add new function</button>}
+        {adminUi && <button className="button button-secondary-outline button-sm" onClick={() => setTax(true)}><Icon n="layers" s={14} />Risk areas and domains</button>}
+        {adminUi && <button className="button button-primary button-sm" onClick={newFn}><Icon n="plus" s={14} />Add new function</button>}
       </>} />
 
     <div className="mx-bar">

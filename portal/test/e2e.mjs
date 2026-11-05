@@ -1097,6 +1097,62 @@ await session("Dataverse · an administrator edits, adds and deletes deadlines",
   assert.equal(await page.locator(".dlrow", { hasText: "E-Verify MOU review" }).count(), 0);
 });
 
+/* View as specific user previews that person's role: no admin controls,
+   a banner naming them, their own actions still there and still saved as
+   the administrator; viewing as yourself, or User view, brings them back */
+await session("Dataverse · viewing as someone hides the admin controls, display only", { backend: "dataverse", admin: true }, async ({ page, portal, go, toast, btn, modal, view }) => {
+  const adminControls = async () => ({
+    edit: await btn("Edit this record").count(), del: await btn("Delete this function").count(),
+    addDl: await btn("Add deadline").count(), rows: await page.locator(".dlrow.editable").count(),
+    manage: await page.locator("button", { hasText: "Manage" }).count() + await page.locator("button.gc-edit").count()
+  });
+  const none = { edit: 0, del: 0, addDl: 0, rows: 0, manage: 0 };
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.notDeepEqual(await adminControls(), none, "an administrator sees them");
+  assert.equal(await page.locator(".sim-banner").count(), 0);
+
+  await view("p:" + G(103));
+  assert.equal(await page.locator(".sim-banner").innerText(), "Viewing as Dwight Ferrell (Owner)");
+  assert.deepEqual(await adminControls(), none, "Dwight is not an administrator: no Edit, Delete, Add deadline, editable rows or Manage");
+  await page.locator(".dlrow").first().click({ position: { x: 30, y: 12 } });
+  assert.equal(await page.locator(".cm-modal").count(), 0, "a deadline row opens nothing");
+  // what Dwight can do is still there
+  assert.equal(await btn("Flag for review").count(), 1);
+  assert.equal(await btn("Log a gap").count(), 1);
+  assert.equal(await btn("Mark complete for this cycle").count(), 1);
+  // and other screens: no Add new function, no Add person, no Flagged Items
+  await go("#/functions");
+  assert.equal(await btn("Add new function").count(), 0);
+  await go("#/directory");
+  assert.equal(await btn("Add person").count(), 0);
+  await go("#/flags");
+  await page.locator("text=Administrator access required").waitFor();
+  // display only: an action is still made, and saved as the administrator
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  await btn("Mark complete for this cycle").click();
+  await modal().locator("textarea").fill("Done while previewing.");
+  await btn("Confirm", modal()).click();
+  await toast(/Deadline marked complete/);
+  assert.equal(portal.dv.su_compliancedeadlines.find(r => r.su_compliancedeadlineid === G(402))._su_completedby_value, G(101), "recorded as Camila");
+
+  // someone in no function's Accountability Structure is a Tester
+  await view("p:" + G(104));
+  assert.equal(await page.locator(".sim-banner").innerText(), "Viewing as Grace Whitfield (Tester)");
+  // viewing as yourself, or User view: the controls are back
+  await view("p:" + G(101));
+  assert.equal(await page.locator(".sim-banner").count(), 0, "viewing as yourself is not a preview");
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  assert.equal(await btn("Edit this record").count(), 1);
+  await view("p:" + G(103));
+  await view("User");
+  assert.equal(await page.locator(".sim-banner").count(), 0);
+  assert.equal(await btn("Edit this record").count(), 1);
+  assert.equal(await btn("Add deadline").count(), 1);
+});
+
 /* the admin audit: an administrator in the default User view, on functions
    they are not in the Accountability Structure for, sees and does what
    Admin view allows; View as specific user still previews that person */

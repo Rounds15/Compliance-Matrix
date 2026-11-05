@@ -6,7 +6,7 @@
    run per list touched (a second or two); the button shows it is working. */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { buildDataset, samePerson, NOBODY, allRows } from "./model.js";
+import { buildDataset, samePerson, NOBODY, allRows, functionsFor } from "./model.js";
 import { createSampleAdapter } from "./adapters/sample.js";
 import { createSharePointAdapter } from "./adapters/sharepoint.js";
 import { createDataverseAdapter } from "./adapters/dataverse.js";
@@ -104,10 +104,22 @@ export function useStore(cfg) {
     return ds.me;
   }, [ds, viewAs, cfg]);
   const adminView = cfg.isAdmin && viewAs.mode === "Admin";
+  /* View as specific user, on someone other than the administrator: a
+     preview of what that person sees, admin controls included. The page
+     cannot read another person's web roles (contact access is Self only),
+     so the person is previewed as a non-administrator: an Owner when they
+     are in a function's Accountability Structure, a Tester otherwise.
+     Display only: writes are still made as the administrator. */
+  const simulating = useMemo(() => {
+    if (!ds || !cfg.isAdmin || viewAs.mode !== "AsUser") return null;
+    if (actingPerson === ds.me || samePerson(actingPerson, ds.me)) return null;
+    return { person: actingPerson, role: functionsFor(actingPerson, ds.fns).length ? "Owner" : "Tester" };
+  }, [ds, cfg, viewAs, actingPerson]);
   /* an administrator (the administrator web role) sees and opens everything
-     in Admin view and User view. View as specific user stays a preview of
-     what that person sees. */
-  const fullAccess = cfg.isAdmin && viewAs.mode !== "AsUser";
+     in Admin view and User view, and when viewing as themselves */
+  const fullAccess = cfg.isAdmin && !simulating;
+  /* whether admin-only controls show: the web role, unless previewing */
+  const adminUi = cfg.isAdmin && !simulating;
 
   const reload = useCallback(async tables => {
     const part = await adapter.load(tables, baseCtx);
@@ -249,6 +261,6 @@ export function useStore(cfg) {
 
   return {
     cfg, adapter, today, status, error, ds, loadedAt, busy, toast, flash,
-    viewAs, setViewAs, actingPerson, adminView, fullAccess, realAdmin: cfg.isAdmin, actions, retry: () => loadAll()
+    viewAs, setViewAs, actingPerson, adminView, fullAccess, adminUi, simulating, realAdmin: cfg.isAdmin, actions, retry: () => loadAll()
   };
 }

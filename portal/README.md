@@ -88,10 +88,16 @@ Accountability Structure, General Counsel and Support included, as the app's
 `colMyFunctions` does. Home's figures are always the viewer's own.
 
 "Administrators" means holders of the administrator web role, in Admin view
-or User view. **View as specific user** is a preview: it shows what that
-person sees, so the rows above apply as for that person, except that the
-administrator's own buttons (Edit, Delete, Manage people, Clear flag) stay,
-since changes are saved as the administrator.
+or User view, or viewing as themselves. **View as specific user** on anyone
+else is a preview of that person: the rows above apply as for that person,
+admin-only controls are hidden (Edit, Add new function, Delete, Manage
+people, the deadline and link editors, Clear flag, Reopen gap, the risk area
+manager, directory upkeep, Flagged Items), and a banner reads "Viewing as
+<name> (Owner)", or "(Tester)" for someone in no function's Accountability
+Structure. The page cannot read another person's web roles, so each person
+is previewed as a non-administrator. It is display only: what the
+administrator does while previewing (completing a deadline, closing a gap,
+flagging) is still saved as the administrator.
 
 ### What the page deliberately does differently from the app
 
