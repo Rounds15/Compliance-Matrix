@@ -20,6 +20,8 @@
   everyone else, but what actually stops a write is the table permission
   (Dataverse) or the flow's web-role assignment (SharePoint).
 
+  Signed-out visitors get the CM Sign In web template instead of the matrix.
+
   390b7815489c is replaced by the build with a hash of the two web files, so a
   new upload is never served from a stale browser cache.
 {% endcomment %}{% assign cm_admin_role = settings['ComplianceMatrix/AdminWebRole'] | default: 'Administrators' %}{% assign cm_is_admin = false %}{% if user %}{% for r in user.roles %}{% if r == cm_admin_role %}{% assign cm_is_admin = true %}{% endif %}{% endfor %}{% endif %}<!DOCTYPE html>
@@ -58,12 +60,8 @@
 <noscript><p style="font:16px/1.5 Verdana,sans-serif;padding:40px;color:#000E54">The Compliance Matrix needs JavaScript. Turn it on for this site.</p></noscript>
 <script src="{{ settings['ComplianceMatrix/JsUrl'] | default: '/cm-matrix.js' }}?v=390b7815489c" defer></script>
 {% else %}
-<div style="font:16px/1.5 Verdana,sans-serif;max-width:560px;margin:12vh auto;padding:0 24px;color:#000E54">
-  <div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#D74100;font-weight:700">Office of Compliance</div>
-  <h1 style="font-size:29px;margin:10px 0 12px">Sign in to open the Compliance Matrix</h1>
-  <p>The matrix shows who owns each of the University's obligations, so it is limited to signed-in University staff.</p>
-  <p style="margin-top:22px"><a href="/SignIn?returnUrl={{ request.path_and_query | url_escape }}" style="display:inline-block;background:#F76900;color:#fff;padding:12px 24px;font-weight:700;text-decoration:none">Sign in</a></p>
-</div>
+{% comment %} signed out: the branded sign-in card (web template "CM Sign In") {% endcomment %}
+{% include 'CM Sign In' %}
 {% endif %}
 </body>
 </html>

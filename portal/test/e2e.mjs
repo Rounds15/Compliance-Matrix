@@ -1270,7 +1270,8 @@ async function sitePage(name, opts, body) {
   page.on("console", m => { if (m.type() === "error") problems.push("console: " + m.text()); });
   try {
     await body({ page, portal });
-    assert.deepEqual(problems, [], "no page errors");
+    /* a session can name the failed loads it causes on purpose */
+    assert.deepEqual(problems.filter(p => !(opts.expectStatus && p.includes("status of " + opts.expectStatus))), [], "no page errors");
     results.push("PASS  " + name); passed++;
   } catch (e) {
     await page.screenshot({ path: "/tmp/cm-e2e-failure.png", fullPage: true }).catch(() => { });
@@ -1329,6 +1330,48 @@ await sitePage("Site header · administrator links, signed-out Sign in, home act
   await page.locator("#cmh-hamb").click();
   assert.equal(await page.locator("#cmh-nav").isVisible(), true);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390, "no sideways scroll");
+});
+
+/* signed out, the matrix page is the branded sign-in card: one button, which
+   waits for the anti-forgery token and posts the provider and the page's own
+   address, hash included, to the built-in external sign-in */
+await sitePage("Sign-in card · signed out, one button to Microsoft, back to the same function", { backend: "sharepoint", admin: false, user: null }, async ({ page, portal }) => {
+  await page.goto(portal.url + "#/functions/201");
+  await page.locator(".cmsi-card").waitFor();
+  assert.equal(await page.locator("#cm-root").count(), 0, "no matrix for a signed-out visitor");
+  assert.equal(await page.locator(".cmh, header, nav, footer").count(), 0, "no header, footer or navigation");
+  assert.equal(await page.locator(".cmsi-eyebrow").innerText().then(t => t.toLowerCase()), "office of compliance");
+  assert.equal(await page.locator(".cmsi h1").innerText(), "Syracuse University Compliance Matrix");
+  assert.equal(await page.locator(".cmsi-lede").innerText(), "Sign in with your Syracuse University NetID to see the compliance functions, deadlines, and gaps you are responsible for.");
+  assert.equal(await page.locator(".cmsi-help").innerText(), "Need access or having trouble signing in? Contact the Office of Compliance at finance.syr.edu/office-of-compliance");
+  assert.equal(await page.locator(".cmsi-help a").getAttribute("href"), "https://finance.syr.edu/office-of-compliance/");
+  assert.equal(await page.locator("button").count(), 1, "one button");
+  const go = page.locator("#cmsi-go");
+  assert.equal(await go.innerText(), "Sign in with your SU NetID");
+  await page.waitForFunction(() => !document.getElementById("cmsi-go").disabled);
+  assert.equal(await page.locator("#cmsi-error").isVisible(), false);
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector(".cmsi")).backgroundColor), "rgb(0, 14, 84)", "SU navy");
+  assert.match(await page.evaluate(() => getComputedStyle(document.querySelector(".cmsi h1")).fontFamily), /^ShermanSans/);
+  await Promise.all([page.waitForURL(/\/Account\/Login\/ExternalLogin/), go.click()]);
+  const s = portal.log.find(x => x.signIn).signIn;
+  assert.deepEqual([s.provider, s.ReturnUrl, s.queryReturnUrl, s.tokenOk], ["https://login.windows.net/4278a402-1a9e-4eb9-8414-ffb55a5fcf1e/", "/matrix/#/functions/201", "/matrix/#/functions/201", true]);
+});
+
+await sitePage("Sign-in card · a failed token fetch says so and keeps the button off", { backend: "sharepoint", admin: false, user: null, tokenFail: true, expectStatus: 500 }, async ({ page, portal }) => {
+  await page.goto(portal.url);
+  await page.locator("#cmsi-error").waitFor({ state: "visible" });
+  assert.equal(await page.locator("#cmsi-error").innerText(), "Sign-in could not start. Refresh the page and try again.");
+  assert.equal(await page.locator("#cmsi-go").isDisabled(), true);
+});
+
+/* a phone: the card fits, with no sideways scroll */
+await sitePage("Sign-in card · phone width", { backend: "sharepoint", admin: false, user: null }, async ({ page, portal }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto(portal.url);
+  await page.locator(".cmsi-card").waitFor();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  const box = await page.locator(".cmsi-card").boundingBox();
+  assert.ok(box.x >= 15 && box.x + box.width <= 345, "16px side gutter, got " + JSON.stringify(box));
 });
 
 await sitePage("Site header · signed out", { backend: "sharepoint", admin: false, user: null }, async ({ page, portal }) => {

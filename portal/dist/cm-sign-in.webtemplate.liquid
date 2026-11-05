@@ -1,0 +1,73 @@
+{% comment %}
+  CM Sign In - Power Pages web template, included by the Compliance Matrix
+  template for signed-out visitors ({% include 'CM Sign In' %}).
+
+  Create it in Portal Management > Web Templates > New: Name "CM Sign In",
+  Website this site, Source this file. It has no page of its own and no
+  page template.
+
+  One button signs in with the University's Microsoft Entra ID account. It
+  posts what the built-in sign-in page posts for that provider to
+  /Account/Login/ExternalLogin: the provider, the return address and the
+  anti-forgery token, which it reads from /_layout/tokenhtml first. The
+  return address keeps the hash, so /#/functions/... opens that function
+  after sign-in.
+
+  The provider is the identity provider's Authority, as the built-in page
+  posts it; the site setting ComplianceMatrix/SignInProvider overrides it.
+  The built-in /SignIn page is unchanged and still works.
+{% endcomment %}{% assign cm_provider = settings['ComplianceMatrix/SignInProvider'] | default: 'https://login.windows.net/4278a402-1a9e-4eb9-8414-ffb55a5fcf1e/' %}{% assign cm_help = settings['ComplianceMatrix/ComplianceHomeUrl'] | default: 'https://finance.syr.edu/office-of-compliance/' %}
+<style>
+  html, body { margin: 0; min-height: 100%; background: #000E54; }
+  .cmsi { box-sizing: border-box; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: #000E54;
+    font-family: ShermanSans, Verdana, system-ui, sans-serif; color: #000E54; }
+  .cmsi *, .cmsi *::before, .cmsi *::after { box-sizing: border-box; }
+  .cmsi-card { width: 100%; max-width: 520px; background: #fff; border-top: 6px solid #F76900; padding: 40px 36px 32px; box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+  .cmsi-eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #D74100; }
+  .cmsi h1 { margin: 10px 0 14px; font-family: ShermanSans, Verdana, system-ui, sans-serif; font-size: 30px; line-height: 1.15; font-weight: 700; color: #000E54; }
+  .cmsi-lede { margin: 0 0 26px; font-size: 16px; line-height: 1.55; color: #3B4358; }
+  .cmsi-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; padding: 12px 20px; border: 0; border-radius: 0;
+    background: #D74100; color: #fff; font: 700 16px/1.2 ShermanSans, Verdana, system-ui, sans-serif; letter-spacing: .02em; cursor: pointer; }
+  .cmsi-btn:hover { background: #B23600; }
+  .cmsi-btn:focus-visible { outline: 3px solid #2B72D7; outline-offset: 3px; }
+  .cmsi-btn[disabled] { background: #E9A27F; cursor: default; }
+  .cmsi-error { margin: 14px 0 0; padding: 10px 12px; background: #FBE9E9; border-left: 4px solid #B91C1C; color: #8E1414; font-size: 14px; font-weight: 700; }
+  .cmsi-help { margin: 22px 0 0; padding-top: 18px; border-top: 1px solid #E3E6EC; font-size: 14px; line-height: 1.55; color: #3B4358; }
+  .cmsi-help a { color: #000E54; font-weight: 700; text-decoration: underline; overflow-wrap: anywhere; }
+  @media (max-width: 480px) { .cmsi-card { padding: 30px 22px 24px; } .cmsi h1 { font-size: 25px; } }
+</style>
+<main class="cmsi">
+  <div class="cmsi-card">
+    <p class="cmsi-eyebrow">Office of Compliance</p>
+    <h1>Syracuse University Compliance Matrix</h1>
+    <p class="cmsi-lede">Sign in with your Syracuse University NetID to see the compliance functions, deadlines, and gaps you are responsible for.</p>
+    <form id="cmsi-form" method="post" action="/Account/Login/ExternalLogin">
+      <input type="hidden" name="__RequestVerificationToken" id="cmsi-token" value="">
+      <input type="hidden" name="provider" value="{{ cm_provider | escape }}">
+      <input type="hidden" name="ReturnUrl" id="cmsi-return" value="/">
+      <button type="submit" class="cmsi-btn" id="cmsi-go" disabled aria-describedby="cmsi-error">Sign in with your SU NetID</button>
+    </form>
+    <p class="cmsi-error" id="cmsi-error" role="alert" hidden>Sign-in could not start. Refresh the page and try again.</p>
+    <p class="cmsi-help">Need access or having trouble signing in? Contact the Office of Compliance at <a href="{{ cm_help | escape }}">finance.syr.edu/office-of-compliance</a></p>
+  </div>
+</main>
+<script>
+(function () {
+  var form = document.getElementById("cmsi-form");
+  var go = document.getElementById("cmsi-go");
+  var fail = function () { go.disabled = true; document.getElementById("cmsi-error").hidden = false; };
+  /* back to this page, hash and all, after sign-in */
+  var back = window.location.pathname + window.location.search + window.location.hash;
+  document.getElementById("cmsi-return").value = back;
+  form.action = "/Account/Login/ExternalLogin?ReturnUrl=" + encodeURIComponent(back);
+  fetch("/_layout/tokenhtml", { credentials: "same-origin", cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error("token " + r.status); return r.text(); })
+    .then(function (html) {
+      var m = /value="([^"]+)"/.exec(html);
+      if (!m) throw new Error("no token");
+      document.getElementById("cmsi-token").value = m[1];
+      go.disabled = false;
+    })
+    .catch(fail);
+})();
+</script>

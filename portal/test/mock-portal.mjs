@@ -56,10 +56,11 @@ const MEMBER_OPS = ["create|Flags List", "create|Gap List", "create|Archive", "u
 const MEMBER_DEADLINE_FIELDS = ["field_4", "field_5", "field_6", "field_7"];
 const MEMBER_GAP_FIELDS = ["field_13", "field_14", "ClosedById"];
 
-const liquid = new Liquid();
+/* web templates the matrix template includes, by name, as Power Pages finds them */
+const liquid = new Liquid({ templates: { "CM Sign In": readFileSync(join(DIST, "cm-sign-in.webtemplate.liquid"), "utf8") } });
 liquid.registerFilter("url_escape", v => encodeURIComponent(String(v ?? "")));
 
-export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [], assessments = false } = {}) {
+export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [], assessments = false, tokenFail = false } = {}) {
   const sp = sharepointLists();
   const dv = dataverseTables();
   /* assessments: the 9 assessments with their current figures, and the open
@@ -471,7 +472,15 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
         return res.end("<!DOCTYPE html><html><head><meta charset=utf-8><title>Done</title></head><body><p>Recorded.</p></body></html>");
       }
       if (url.pathname === "/favicon.ico") { res.writeHead(204); return res.end(); }
+      /* the built-in external sign-in: record what was posted */
+      if (url.pathname === "/Account/Login/ExternalLogin" && req.method === "POST") {
+        const f = Object.fromEntries(new URLSearchParams(await body(req)));
+        log.push({ signIn: { ...f, queryReturnUrl: url.searchParams.get("ReturnUrl"), tokenOk: f.__RequestVerificationToken === TOKEN } });
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        return res.end("<!DOCTYPE html><html><head><meta charset=utf-8><title>Microsoft sign-in</title></head><body><p>Signing in.</p></body></html>");
+      }
       if (url.pathname === "/_layout/tokenhtml") {
+        if (tokenFail) return fail(res, 500, "token service down for the test");
         res.writeHead(200, { "Content-Type": "text/html" });
         return res.end(`<input name="__RequestVerificationToken" type="hidden" value="${TOKEN}" />`);
       }

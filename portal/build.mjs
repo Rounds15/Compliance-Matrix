@@ -9,6 +9,9 @@
      preview.html                      opens in any browser, sample data
      cm-site.css, cm-site.js           the site header and footer's styles and
                                        behaviour, for every other page
+     cm-sign-in.webtemplate.liquid     web template "CM Sign In": the sign-in
+                                       card the matrix template includes for
+                                       signed-out visitors
      site-header.webtemplate.liquid    replaces the Power Pages site header
      site-footer.webtemplate.liquid    replaces the Power Pages site footer
      site-preview.html                 the site header and footer over a mock
@@ -208,11 +211,14 @@ const site = await buildSite();
 const siteVersion = createHash("sha256").update(site.js).update(site.css).digest("hex").slice(0, 12);
 const siteHeader = read(join(ROOT, "power-pages", "site-header.webtemplate.liquid")).replaceAll("__VERSION__", siteVersion);
 const siteFooter = read(join(ROOT, "power-pages", "site-footer.webtemplate.liquid"));
+const signIn = read(join(ROOT, "power-pages", "cm-sign-in.webtemplate.liquid"));
+if (/\u2014/.test(signIn)) { console.error("cm-sign-in.webtemplate.liquid contains an em dash"); process.exit(1); }
 
 const files = {
   "cm-matrix.js": js,
   "cm-matrix.css": css,
   "compliance-matrix.webtemplate.liquid": template,
+  "cm-sign-in.webtemplate.liquid": signIn,
   "preview.html": preview(),
   "cm-site.css": site.css,
   "cm-site.js": site.js,
@@ -236,6 +242,7 @@ if (check) {
   console.log(`  cm-matrix.js   ${kb(js)}`);
   console.log(`  cm-matrix.css  ${kb(css)}`);
   console.log(`  compliance-matrix.webtemplate.liquid  version ${version}`);
+  console.log(`  cm-sign-in.webtemplate.liquid`);
   console.log(`  preview.html`);
   console.log(`  cm-site.css    ${kb(site.css)}`);
   console.log(`  cm-site.js     ${kb(site.js)}`);

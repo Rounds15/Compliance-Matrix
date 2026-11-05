@@ -270,6 +270,23 @@ ID; the flow checks the person may act and does the rest.
 Rebuild it with `python3 tools/build_webpage.py` and paste
 `webpages/home/dist/home.webtemplate.html` as before.
 
+### 8b. Sign-in card (signed-out visitors)
+
+The Compliance Matrix template shows signed-out visitors the **CM Sign In**
+web template: the Matrix's navy and orange, one button, "Sign in with your
+SU NetID", that posts to `/Account/Login/ExternalLogin` with the Entra ID
+provider and the page's own address, hash included, so a link to a function
+opens that function after sign-in. The built-in `/SignIn` page is unchanged.
+
+```
+dist/cm-sign-in.webtemplate.liquid      web template source ("CM Sign In")
+```
+
+Portal Management > **Web Templates** > **New**: Name `CM Sign In`, this
+website, the whole file as Source; no page template. The provider is the
+Entra ID identity provider's Authority; the site setting
+`ComplianceMatrix/SignInProvider` overrides it if it ever changes.
+
 ### 9. Site header and footer (every other page)
 
 The matrix page draws its own header. Every other page on the site gets the
