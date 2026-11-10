@@ -831,6 +831,11 @@ def add_to_calendar(s: dict) -> dict:
     matches and moved when it does not."""
     f = Flow(s)
     c = s["calendar"]
+    # the Outlook connector takes its own display names ("(UTC-05:00) Eastern
+    # Time (US & Canada)"); a Windows name fails when the flow is saved
+    if not re.match(r"^\(UTC([+-]\d{2}:\d{2})?\) \S", str(c["timeZone"])):
+        raise SystemExit("flows.yaml: calendar.timeZone must be an Outlook time zone name such as "
+                         "'(UTC-05:00) Eastern Time (US & Canada)', not " + repr(c["timeZone"]))
     A = "body('Get_action')"
     P = first("Find_person")
     err = "variables('Error')"

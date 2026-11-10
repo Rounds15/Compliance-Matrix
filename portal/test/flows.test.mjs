@@ -526,7 +526,7 @@ test("add to calendar: invites the signed-in person to an all-day event with the
   assert.deepEqual(r.reply, { ok: true, added: 1, moved: 0, already: 0, skipped: 0 });
   const [e] = env.outlook.events;
   assert.equal(e.subject, "Clery Act Annual Security Report: Publish Annual Security Report");
-  assert.deepEqual([e.start, e.end, e.timeZone, e.isAllDay], ["2026-10-01T00:00:00", "2026-10-02T00:00:00", "Eastern Standard Time", true]);
+  assert.deepEqual([e.start, e.end, e.timeZone, e.isAllDay], ["2026-10-01T00:00:00", "2026-10-02T00:00:00", "(UTC-05:00) Eastern Time (US & Canada)", true]);
   assert.equal(e.requiredAttendees, "cruiz@syr.edu;", "the person the server says asked, from their directory row");
   assert.deepEqual([e.isReminderOn, e.reminderMinutesBeforeStart, e.showAs], [true, 10080, "free"], "a reminder 7 days before; shown as free");
   assert.match(e.body, /Due date: 2026-10-01/);
@@ -631,4 +631,15 @@ test("CM - Process portal action reads the request as text or as JSON; an empty 
     assert.equal(r.status, "Succeeded");
     assert.deepEqual(JSON.parse(r.response.body.result), { ok: false, error: "That action does not exist." });
   }
+});
+
+test("add to calendar: the event's time zone is an Outlook name, as Power Automate checks on save", () => {
+  const def = FLOWS["CM - Add to calendar"];
+  const zones = JSON.stringify(def).match(/"item\/timeZone":"[^"]*"/g);
+  assert.ok(zones && zones.length >= 2, "Create event and Move event both set it");
+  for (const z of zones) assert.equal(z, '"item/timeZone":"(UTC-05:00) Eastern Time (US & Canada)"');
+  // the emulator refuses the Windows name, as the connector does
+  const ol = outlookConnector();
+  assert.throws(() => ol("V4CalendarPostItem", { table: "Calendar", "item/subject": "x", "item/start": "2026-10-01T00:00:00", "item/end": "2026-10-02T00:00:00", "item/timeZone": "Eastern Standard Time" }),
+    /item\/timeZone must be one of the connector's time zones/);
 });

@@ -618,6 +618,12 @@ export function usersConnector(people) {
 export function outlookConnector({ calendars = ["Calendar"] } = {}) {
   const sent = [], events = [];
   let next = 1;
+  /* item/timeZone is one of the connector's display names, as Power
+     Automate checks when the flow is saved ("Eastern Standard Time" fails) */
+  const checkZone = z => {
+    if (z !== "" && !/^\(UTC([+-]\d{2}:\d{2})?\) \S/.test(String(z)))
+      throw new ConnectorError(400, "item/timeZone must be one of the connector's time zones, such as '(UTC-05:00) Eastern Time (US & Canada)', but is set to '" + z + "'");
+  };
   const EVENT = ["subject", "start", "end", "timeZone", "isAllDay", "requiredAttendees", "body", "isReminderOn",
     "reminderMinutesBeforeStart", "showAs", "importance"];
   const calendar = p => { if (!calendars.includes(p.table)) throw new ConnectorError(404, `The calendar '${p.table}' was not found.`); };
@@ -650,6 +656,7 @@ export function outlookConnector({ calendars = ["Calendar"] } = {}) {
         calendar(p);
         const e = fields(p);
         for (const k of ["subject", "start", "end", "timeZone"]) if (!e[k]) throw new ConnectorError(400, "item/" + k + " is required");
+        checkZone(e.timeZone);
         events.push({ id: "event-" + next++, ...e });
         return { ...events.at(-1) };
       }
@@ -657,6 +664,7 @@ export function outlookConnector({ calendars = ["Calendar"] } = {}) {
         calendar(p);
         const e = events.find(x => x.id === p.id);
         if (!e) throw new ConnectorError(404, "The event was not found.");
+        if (fields(p).timeZone !== undefined) checkZone(fields(p).timeZone);
         Object.assign(e, fields(p));
         return { ...e };
       }

@@ -43,10 +43,12 @@ directorySync:
 # connection account's calendar (calendarId; "Calendar" is its default
 # calendar) with the person invited, all day in timeZone, with a reminder
 # reminderMinutes before (on the organizer's copy). At most maxDeadlines per
-# request.
+# request. timeZone is the Outlook connector's display name for the zone,
+# not the Windows name the schedule above takes: Create event (V4) refuses
+# "Eastern Standard Time" when the flow is saved.
 calendar:
   calendarId: Calendar
-  timeZone: Eastern Standard Time
+  timeZone: (UTC-05:00) Eastern Time (US & Canada)
   reminderMinutes: 10080
   maxDeadlines: 50
 
