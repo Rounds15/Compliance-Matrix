@@ -1209,6 +1209,16 @@ await session("Dataverse · a calendar invite that cannot be sent falls back to 
   await toast(/^The calendar invite could not be sent: The flow could not be reached at its HTTP URL\. Check that the flow is on and that the site setting holds its HTTP POST URL\. A calendar file was downloaded instead\.$/);
 });
 
+/* without the calendar flow set up, an administrator is told why a file was downloaded */
+await session("Dataverse · without ComplianceMatrix/Flow/Calendar an administrator is told why a file downloaded", { backend: "dataverse", admin: true,
+  settings: { "ComplianceMatrix/Flow/Calendar": "" } }, async ({ page, go, toast, btn }) => {
+  await go("#/functions/" + G(201));
+  await page.waitForSelector("h1:has-text('Clery Act')");
+  const [dl] = await Promise.all([page.waitForEvent("download"), btn("Add to my calendar").click()]);
+  assert.match(dl.suggestedFilename(), /\.ics$/);
+  await toast(/^Downloaded a calendar file\. No Outlook invite was sent because the site setting ComplianceMatrix\/Flow\/Calendar is empty\.$/);
+});
+
 /* the admin audit: an administrator in the default User view, on functions
    they are not in the Accountability Structure for, sees and does what
    Admin view allows; View as specific user still previews that person */

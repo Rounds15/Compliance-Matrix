@@ -9,7 +9,7 @@ import { useApp } from "./parts.jsx";
 import { deadlinesIcs, download } from "./exports.js";
 
 export function useAddToCalendar() {
-  const { adapter, actions, flash } = useApp();
+  const { adapter, actions, flash, cfg, realAdmin } = useApp();
   const viaFlow = !!adapter.addToCalendar;
   const add = (list, fileName = "compliance-deadlines.ics") => {
     const open = list.filter(d => d && d.due && d.status !== "Completed");
@@ -22,6 +22,10 @@ export function useAddToCalendar() {
       return null;
     });
     file();
+    /* administrators are told why no invitation was sent */
+    if (realAdmin) flash(cfg.backend !== "dataverse"
+      ? "Downloaded a calendar file. Outlook invites need the Dataverse backend; ComplianceMatrix/Backend is " + cfg.backend + "."
+      : "Downloaded a calendar file. No Outlook invite was sent because the site setting ComplianceMatrix/Flow/Calendar is empty.", "error");
     return null;
   };
   return { add, viaFlow };
