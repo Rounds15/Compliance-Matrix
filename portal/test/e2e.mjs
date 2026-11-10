@@ -37,7 +37,8 @@ async function session(name, opts, body) {
     await page.goto(portal.url);
     await page.waitForSelector(".hm-band", { timeout: 20000 });
     await body({ page, portal, ...h });
-    assert.deepEqual(problems.filter(p => !/status of 40[03]/.test(p)), [], "no page errors");
+    /* a session can name the console error it causes on purpose */
+    assert.deepEqual(problems.filter(p => !/status of 40[03]/.test(p) && !(opts.expectConsole && opts.expectConsole.test(p))), [], "no page errors");
     results.push("PASS  " + name);
     passed++;
   } catch (e) {
@@ -538,7 +539,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await page.waitForSelector("h1:has-text('Clery Act')");
   // Add to my calendar: an Outlook invitation for the function's next open deadline, through the flow
   await btn("Add to my calendar").click();
-  await toast(/^Added 1 event to your Outlook calendar\.$/);
+  await toast(/^Calendar invite sent to your email\.$/);
   assert.equal(portal.events.length, 1);
   assert.equal(portal.events[0].subject, "Clery Act Annual Security Report: Publish Annual Security Report");
   assert.equal(portal.events[0].requiredAttendees, "cruiz@syr.edu;", "the signed-in person, from the server-set requester");
@@ -553,7 +554,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   await go("#/deadlines");
   // Add this month to my calendar: October's open deadlines; the one already sent is not sent again
   await btn("Add this month to my calendar").click();
-  await toast(/^Added 0 events to your Outlook calendar \(1 already there\)\.$/);
+  await toast(/^Already on your Outlook calendar\.$/);
   assert.equal(portal.events.length, 1, "no duplicate");
   // the calendar on the left (about 75%), Coming up in a sticky rail on the right (about 25%)
   const [calMain, calSide] = [await page.locator(".cal-main").boundingBox(), await page.locator(".cal-side").boundingBox()];
@@ -1193,6 +1194,19 @@ await session("Dataverse · the administrators list is not sent to a non-adminis
   assert.equal(await page.locator("#cm-root").getAttribute("data-admin-emails"), "");
   assert.equal(portal.fetchxml.length, 0, "the query is not run for a non-administrator");
   assert.doesNotMatch(await page.content(), /gmrauch/);
+});
+
+/* Add to my calendar when the invitation cannot be sent: the error says
+   so, and the calendar file is downloaded instead */
+await session("Dataverse · a calendar invite that cannot be sent falls back to the calendar file", { backend: "dataverse", admin: true,
+  settings: { "ComplianceMatrix/Flow/Calendar": "http://127.0.0.1:59999/unreachable" }, expectConsole: /ERR_CONNECTION_REFUSED/ }, async ({ page, go, toast, btn }) => {
+  await go("#/functions/" + G(201));
+  await page.waitForSelector("h1:has-text('Clery Act')");
+  const [dl] = await Promise.all([page.waitForEvent("download"), btn("Add to my calendar").click()]);
+  assert.match(dl.suggestedFilename(), /\.ics$/);
+  const chunks = []; for await (const c of await dl.createReadStream()) chunks.push(c);
+  assert.match(Buffer.concat(chunks).toString("utf8"), /BEGIN:VCALENDAR[\s\S]*BEGIN:VEVENT/);
+  await toast(/^The calendar invite could not be sent: The flow could not be reached at its HTTP URL\. Check that the flow is on and that the site setting holds its HTTP POST URL\. A calendar file was downloaded instead\.$/);
 });
 
 /* the admin audit: an administrator in the default User view, on functions

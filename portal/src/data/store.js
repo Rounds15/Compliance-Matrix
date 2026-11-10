@@ -230,13 +230,14 @@ export function useStore(cfg) {
     }, "Function deleted and archived."),
     setOwnership: (fn, rows, msg) => act("own", (a, c) => a.setOwnership({ fn, rows, ...ownershipNow(fn.id) }, c),
       r => (r && r.warning) || msg || "Ownership chain saved."),
-    /* "Added 2 events to your Outlook calendar", with what was moved or already there */
+    /* "Calendar invite sent to your email", with what was moved or already there */
     addToCalendar: async list => {
       const r = await act("cal", (a, c) => a.addToCalendar({ deadlines: list }, c));
-      const n = r.added || 0, extra = [];
+      const sent = (r.added || 0) + (r.moved || 0), extra = [];
       if (r.moved) extra.push(r.moved + " moved to " + (r.moved === 1 ? "its" : "their") + " new date");
-      if (r.already) extra.push(r.already + " already there");
-      flash("Added " + n + " event" + (n === 1 ? "" : "s") + " to your Outlook calendar" + (extra.length ? " (" + extra.join(", ") + ")" : "") + ".");
+      if (r.already) extra.push(r.already + " already on your calendar");
+      flash(!sent && r.already ? "Already on your Outlook calendar."
+        : (sent === 1 ? "Calendar invite sent to your email" : sent + " calendar invites sent to your email") + (extra.length ? " (" + extra.join(", ") + ")" : "") + ".");
       return r;
     },
     addPerson: person => act("person", (a, c) => a.addPerson({ person }, c), person.name + " added to the Compliance Directory."),
