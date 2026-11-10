@@ -510,3 +510,21 @@ test("links: a failed step undoes the steps before it and names the step", async
   await assert.rejects(runLinksSave(plan, io), /^Error: The links were not saved\. Step 1 of 3 \(adding "Bad"\) failed: Refused\. The changes made before it were undone\.$/);
   assert.deepEqual(store.map(x => x.label), ["A"], "the good one was taken out again; A is kept");
 });
+
+/* ---------------- a flow that answers with an HTML error page ---------------- */
+import { callFlow } from "../src/data/transport.js";
+test("a 500 HTML error page from Power Pages reads as its title and a hint, not as markup", async () => {
+  const page = "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'> <html xmlns='http://www.w3.org/1999/xhtml'> <head> <title>We're sorry, but something went wrong (500)</title> <style type='text/css'> body { color: #333 } </style></head><body>x</body></html>";
+  const real = globalThis.fetch, hadWindow = "window" in globalThis;
+  if (!hadWindow) globalThis.window = {};
+  globalThis.fetch = async url => String(url).includes("tokenhtml")
+    ? new Response('<input name="__RequestVerificationToken" type="hidden" value="t" />', { status: 200 })
+    : new Response(page, { status: 500, headers: { "Content-Type": "text/html" } });
+  try {
+    await assert.rejects(callFlow("/_api/cloudflow/v1.0/trigger/abc", { actionId: "x" }), e => {
+      assert.equal(e.message, "The site answered 500: We're sorry, but something went wrong (500). Power Pages could not run the flow at /_api/cloudflow/v1.0/trigger/abc; check it is on and added to the site, or move it to its HTTP trigger.");
+      assert.doesNotMatch(e.message, /<|DOCTYPE|style/);
+      return true;
+    });
+  } finally { globalThis.fetch = real; if (!hadWindow) delete globalThis.window; }
+});

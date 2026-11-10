@@ -235,7 +235,7 @@ for SharePoint, the flow URLs.
 | `ComplianceMatrix/Flow/AdminWrite` | … for **CM - Write (administrators)** | |
 | `ComplianceMatrix/Flow/FindPerson` | … for **CM - Find person** | Entra lookup hidden |
 | `ComplianceMatrix/Flow/Action` | Dataverse: the **HTTP URL** of **CM - Process portal action**'s trigger (or its `/_api/cloudflow/...` URL if it uses the Power Pages trigger) | completions, closures, flags and deletes cannot be saved |
-| `ComplianceMatrix/Flow/Calendar` | Dataverse: URL Power Pages shows for **CM - Add to calendar** | the calendar buttons download a calendar file instead of sending Outlook invitations |
+| `ComplianceMatrix/Flow/Calendar` | Dataverse: the **HTTP URL** of **CM - Add to calendar**'s trigger (or its `/_api/cloudflow/...` URL if it uses the Power Pages trigger) | the calendar buttons download a calendar file instead of sending Outlook invitations |
 | `ComplianceMatrix/AdminWebRole` | web role name, matched exactly | `Administrators` |
 | `ComplianceMatrix/Administrators` | administrators' emails, comma-separated, for the View as preview (adds to the web role members the template can read) | none |
 | `ComplianceMatrix/CacheMinutes` | how long a browser reuses what it read | `5` |

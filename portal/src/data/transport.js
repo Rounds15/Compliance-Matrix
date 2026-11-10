@@ -46,6 +46,12 @@ async function readError(res) {
     const j = JSON.parse(text);
     msg = (j.error && (j.error.message || (j.error.innererror && j.error.innererror.message))) || j.message || text;
   } catch (e) { /* not JSON */ }
+  /* an HTML error page (Power Pages' own "something went wrong"): its title,
+     not its markup */
+  if (/^\s*<(!doctype|html)/i.test(msg)) {
+    const title = (/<title[^>]*>([\s\S]*?)<\/title>/i.exec(msg) || [])[1];
+    msg = "The site answered " + res.status + (title ? ": " + title.replace(/\s+/g, " ").trim() : "") + ".";
+  }
   if (res.status === 401 || res.status === 403) {
     msg = "You do not have permission to do that. " + (msg ? "(" + String(msg).slice(0, 200) + ")" : "");
   }
@@ -146,7 +152,12 @@ export async function callFlow(url, request) {
   });
   let res = await send(await antiForgeryToken());
   if (res.status === 403) res = await send(await antiForgeryToken(true));
-  if (!res.ok) throw await readError(res);
+  if (!res.ok) {
+    const e = await readError(res);
+    /* Power Pages could not run the flow it was given */
+    if (res.status >= 500) e.message = e.message.replace(/[.\s]*$/, "") + ". Power Pages could not run the flow at " + url + "; check it is on and added to the site, or move it to its HTTP trigger.";
+    throw e;
+  }
   const text = await res.text();
   return parseFlowResult(text);
 }

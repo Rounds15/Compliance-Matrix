@@ -27,7 +27,7 @@ webRoleRelationship: powerpagecomponent_mspp_webrole_contact
 #               flow's checks on the Portal Action row decide what it does).
 pageTriggers:
   processPortalAction: http
-  addToCalendar: powerpages
+  addToCalendar: http
 
 # CM - Sync directory from M365. schedule: true runs it weekly on weekDay at
 # hour:minute in timeZone (a Windows time zone name); it can also be started

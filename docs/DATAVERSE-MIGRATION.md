@@ -254,12 +254,15 @@ The flows import turned off; they need connections first.
    sign-ins > **Run**. With an empty directory it links nobody and sends a
    "not linked" notice for each sign-in; that is expected until the people
    are in the directory (section 6 has a one-row test).
-8. **Add the calendar flow to the site.** Set up > Cloud flows > + Add cloud
-   flow > **CM - Add to calendar**; roles Compliance Matrix Testers and
-   Administrators. Copy its URL into the site setting
-   **`ComplianceMatrix/Flow/Calendar`** (create it). Until it is set, the
-   calendar buttons download a calendar file instead (section 8, Add to
-   calendar).
+8. **Give the page the calendar flow's URL.** CM - Add to calendar starts
+   with **When an HTTP request is received**, like the action flow (step 5):
+   in Power Automate > Edit > the trigger, **Who can trigger the flow** =
+   Anyone, Save, and copy its **HTTP URL** (ending in `&sig=...`) into the
+   site setting **`ComplianceMatrix/Flow/Calendar`** (create it). It is not
+   added under Set up > Cloud flows. If the site has an
+   `HTTP/Content-Security-Policy` setting with `connect-src`, the host is
+   the same as the action flow's. Until the setting is set, the calendar
+   buttons download a calendar file instead (section 8, Add to calendar).
 9. **Fill in the directory from Microsoft 365:** Cloud flows > CM - Sync
    directory from M365 > **Run**. It then runs again every Sunday at 10 PM
    Eastern (section 6, "Directory details and photos").
@@ -1359,7 +1362,10 @@ the same CM Portal Action form (so Requested By is set by the server, as
 above), with the deadlines in Reason as JSON: the page's address and, for
 each deadline, its ID, the due date the page shows and its title. The page
 sends the date because it is the page that rolls a recurring deadline
-forward. Then it calls the flow with the row's ID. The flow:
+forward. Then it calls the flow with the row's ID, at the flow's own HTTP
+URL (its trigger is **When an HTTP request is received**, for the reason in
+"Its trigger" above: the site's Power Pages trigger for it answered 500).
+The flow:
 
 1. Reads the row; refuses one that is missing, already processed, not an Add
    to calendar row, or has no requester.
@@ -1374,8 +1380,9 @@ forward. Then it calls the flow with the row's ID. The flow:
    line matches: leaves it (already there). One with a different date:
    moves it to the new date.
 5. Records the counts on the row (Result) and replies, and the page says
-   "Added 2 events to your Outlook calendar", noting any moved or already
-   there.
+   "Calendar invite sent to your email" ("2 calendar invites sent to your
+   email"), noting any moved or already on the calendar. When the invite
+   cannot be sent, the page says why and downloads the calendar file instead.
 
 Anything else going wrong (the calendar not found, Outlook refusing an event)
 marks the row Failed, tells the person "The deadlines could not be added to

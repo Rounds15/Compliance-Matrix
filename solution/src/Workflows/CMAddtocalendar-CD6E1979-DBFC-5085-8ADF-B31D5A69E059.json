@@ -36,20 +36,14 @@
       "triggers": {
         "manual": {
           "type": "Request",
-          "kind": "PowerPages",
+          "kind": "Http",
           "inputs": {
+            "method": "POST",
             "schema": {
               "type": "object",
-              "required": [
-                "text"
-              ],
               "properties": {
-                "text": {
-                  "title": "request",
-                  "type": "string",
-                  "x-ms-dynamically-added": true,
-                  "description": "The request, as JSON: {\"actionId\": \"<Portal Action ID>\"}",
-                  "x-ms-content-hint": "TEXT"
+                "actionId": {
+                  "type": "string"
                 }
               }
             }
@@ -161,7 +155,7 @@
               "type": "SetVariable",
               "inputs": {
                 "name": "ActionId",
-                "value": "@{coalesce(json(triggerBody()?['text'])?['actionId'], '')}"
+                "value": "@{coalesce(json(if(empty(string(triggerBody())), '{}', string(triggerBody())))?['actionId'], '')}"
               },
               "runAfter": {}
             },
@@ -782,7 +776,6 @@
             },
             "Reply_done": {
               "type": "Response",
-              "kind": "PowerPages",
               "runAfter": {
                 "Record_done": [
                   "Succeeded",
@@ -794,15 +787,9 @@
                 "body": {
                   "result": "@{string(addProperty(addProperty(addProperty(addProperty(json('{\"ok\":true}'), 'added', variables('Added')), 'moved', variables('Moved')), 'already', variables('Already')), 'skipped', variables('Skipped')))}"
                 },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "result": {
-                      "title": "result",
-                      "type": "string",
-                      "x-ms-dynamically-added": true
-                    }
-                  }
+                "headers": {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*"
                 }
               }
             }
@@ -849,7 +836,6 @@
               },
               "Reply_refused": {
                 "type": "Response",
-                "kind": "PowerPages",
                 "runAfter": {
                   "Has_an_action_row": [
                     "Succeeded",
@@ -861,15 +847,9 @@
                   "body": {
                     "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', variables('Error')))}"
                   },
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "result": {
-                        "title": "result",
-                        "type": "string",
-                        "x-ms-dynamically-added": true
-                      }
-                    }
+                  "headers": {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
                   }
                 }
               }
@@ -905,7 +885,6 @@
             },
             "Reply_error": {
               "type": "Response",
-              "kind": "PowerPages",
               "runAfter": {
                 "Record_error": [
                   "Succeeded",
@@ -917,15 +896,9 @@
                 "body": {
                   "result": "@{string(addProperty(json('{\"ok\":false}'), 'error', 'The deadlines could not be added to your calendar. The compliance office has been told.'))}"
                 },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "result": {
-                      "title": "result",
-                      "type": "string",
-                      "x-ms-dynamically-added": true
-                    }
-                  }
+                "headers": {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*"
                 }
               }
             },
