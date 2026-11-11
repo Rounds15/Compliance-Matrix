@@ -426,7 +426,12 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     (formWithout === "su_reason" ? "" : `<textarea id="su_reason" name="${FORM_PREFIX}su_reason"></textarea>`) +
     Object.keys(FORM_LOOKUPS).map(c => `<input type="text" id="${c}_name" readonly><input type="hidden" id="${c}" name="${FORM_PREFIX}${c}"><input type="hidden" id="${c}_entityname" name="${FORM_PREFIX}${c}_entityname">`).join("") +
     `<input type="submit" id="InsertButton" name="${FORM_PREFIX}InsertButton" value="Submit">` +
-    "</form></body></html>";
+    "</form>" +
+    /* formWithout "late": the fields are added by script after the page
+       loads, as with form fill assistance on */
+    (formWithout === "late" ? `<script>(() => { const f = document.getElementById("content_form"), t = document.createElement("template");` +
+      `t.innerHTML = f.innerHTML; f.innerHTML = ""; setTimeout(() => f.append(t.content), 1500); })();</script>` : "") +
+    "</body></html>";
 
   async function actionForm(req, res) {
     if (!user) { res.writeHead(302, { Location: "/SignIn?returnUrl=%2Fcm-action%2F" }); return res.end(); }

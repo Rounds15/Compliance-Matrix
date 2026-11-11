@@ -14,7 +14,9 @@
 
 export const ACTION_FORM_PATH = "/cm-action/";
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const SETUP = "Check the CM Portal Action form and its page (docs/DATAVERSE-MIGRATION.md, section 8).";
+/* how long to wait for fields the site adds with script after the page loads */
+const READY_MS = 10000;
+const SETUP ="Check the CM Portal Action form and its page (docs/DATAVERSE-MIGRATION.md, section 8).";
 
 /* What the form says when it refuses: its validation summary or alert. */
 function formMessage(doc) {
@@ -93,20 +95,29 @@ export function submitActionForm(values, { path = ACTION_FORM_PATH, timeoutMs = 
         if (id && GUID.test(id)) return finish(null, id.toLowerCase());
         return finish(new Error(formMessage(doc) || "The action could not be recorded."));
       }
-      try {
-        const button = fillActionForm(doc, values, loc.pathname);
-        submitted = true;
-        button.click();
-        /* a client-side validation failure does not navigate; report it */
-        poll = setInterval(() => {
-          try {
-            const msg = frame.contentDocument === doc ? formMessage(doc) : "";
-            if (msg) finish(new Error(msg));
-          } catch (e) { /* navigating */ }
-        }, 400);
-      } catch (e) {
-        finish(e);
-      }
+      /* the site may add the form's fields with script after the page loads
+         (for example, with form fill assistance on): wait for them */
+      let tries = 0;
+      const ready = () => doc.getElementById("InsertButton") && doc.getElementById("su_name");
+      const fill = () => {
+        try { if (submitted || !frame.isConnected || frame.contentDocument !== doc) return; } catch (e) { return; }
+        if (!ready() && ++tries < READY_MS / 200) return void setTimeout(fill, 200);
+        try {
+          const button = fillActionForm(doc, values, loc.pathname);
+          submitted = true;
+          button.click();
+          /* a client-side validation failure does not navigate; report it */
+          poll = setInterval(() => {
+            try {
+              const msg = frame.contentDocument === doc ? formMessage(doc) : "";
+              if (msg) finish(new Error(msg));
+            } catch (e) { /* navigating */ }
+          }, 400);
+        } catch (e) {
+          finish(e);
+        }
+      };
+      fill();
     });
     frame.src = path + (path.includes("?") ? "&" : "?") + "_=" + Date.now();
     document.body.appendChild(frame);

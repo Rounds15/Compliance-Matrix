@@ -1349,6 +1349,19 @@ await session("Dataverse · a mis-built action form is reported, and nothing is 
   assert.equal(portal.log.some(x => x.flow === "action"), false, "the flow is not called");
 });
 
+/* the site adds the form's fields with script after the page loads: the
+   page waits for them, and the flag is saved */
+await session("Dataverse · an action form whose fields appear after load still saves", { backend: "dataverse", admin: true, formWithout: "late" }, async ({ page, portal, go, toast, btn }) => {
+  await go("#/functions/" + G(202));
+  await page.waitForSelector("h1:has-text('Form I-9')");
+  await btn("Flag for review").click();
+  await page.locator(".fd-panel textarea").fill("Check the 2026 amendment.");
+  await btn("Submit flag").click();
+  await toast(/Flag submitted/);
+  assert.equal(portal.dv.su_portalactions.length, 1, "one action row");
+  assert.equal(portal.log.some(x => x.flow === "action"), true, "the flow is called");
+});
+
 /* the Action column is not on the site's form (for example, it is in the
    form header), or the page shows a permissions notice instead of the form:
    the message says which, and nothing is saved */
