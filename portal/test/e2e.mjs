@@ -1362,6 +1362,23 @@ await session("Dataverse · an action form whose fields appear after load still 
   assert.equal(portal.log.some(x => x.flow === "action"), true, "the flow is called");
 });
 
+/* after submit: an ID in braces is read; a redirect without the ID, or a
+   refusal that stays on the form, says what to set */
+for (const [done, want] of [
+  ["braces", /Flag submitted/],
+  ["noid", /The action was saved, but the form did not pass back its ID.*Append Record ID To Query String to Yes/],
+  ["stay", /The action form did not save: "Permission denied for the Compliance Function\."/]]) {
+  await session("Dataverse · after the action form submits: " + done, { backend: "dataverse", admin: true, formDone: done }, async ({ page, portal, go, toast, btn }) => {
+    await go("#/functions/" + G(202));
+    await page.waitForSelector("h1:has-text('Form I-9')");
+    await btn("Flag for review").click();
+    await page.locator(".fd-panel textarea").fill("Check the 2026 amendment.");
+    await btn("Submit flag").click();
+    await toast(want);
+    assert.equal(portal.log.some(x => x.flow === "action"), done === "braces", "the flow is called only with an ID");
+  });
+}
+
 /* the Action column is not on the site's form (for example, it is in the
    form header), or the page shows a permissions notice instead of the form:
    the message says which, and nothing is saved */

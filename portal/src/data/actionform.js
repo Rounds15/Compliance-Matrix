@@ -24,6 +24,35 @@ function formMessage(doc) {
   return box ? (box.textContent || "").replace(/\s+/g, " ").trim() : "";
 }
 
+/* The new row's ID from the page the form went to: the id parameter, with
+   or without braces, or on the done page any parameter that is an ID. */
+export function recordId(loc) {
+  const q = new URLSearchParams(loc.search || "");
+  const clean = v => String(v || "").replace(/^\{|\}$/g, "");
+  const named = clean(q.get("id"));
+  if (GUID.test(named)) return named.toLowerCase();
+  if (!/^\/cm-action-done\/?$/i.test(loc.pathname || "")) return "";
+  for (const v of q.values()) if (GUID.test(clean(v))) return clean(v).toLowerCase();
+  return "";
+}
+
+/* Why a submitted form gave no record ID, from where it ended up. */
+export function afterSubmit(doc, loc) {
+  const msg = formMessage(doc);
+  if (msg) return msg;
+  const path = loc.pathname || "";
+  const text = el => (el ? (el.textContent || "").replace(/\s+/g, " ").trim() : "").slice(0, 200);
+  const note = text(doc.querySelector(".alert, .message, [role=alert], .text-danger, .error"));
+  if (/^\/cm-action-done\/?$/i.test(path))
+    return "The action was saved, but the form did not pass back its ID, so it was not processed. In Portal Management > Basic Forms > CM Portal Action, " +
+      "On Success Settings, set Append Record ID To Query String to Yes and Record ID Query String Parameter Name to id. " + SETUP;
+  if (/^\/cm-action\/?$/i.test(path))
+    return "The action form did not save" + (note ? `: "${note}"` : ", or it stayed on its page instead of going to CM Action Done") +
+      ". Check that the form's On Submit is Redirect to a webpage, CM Action Done, and that its table permissions give this person's web role Create and Append, " +
+      "and Append To on the function, deadline, gap and flag. " + SETUP;
+  return `The action form went to ${path || "another page"} instead of CM Action Done` + (note ? `: "${note}"` : "") + `. ${SETUP}`;
+}
+
 /* Why a field is missing, from what the frame got: another page (sign-in,
    access denied, not found), a page with no basic form (or a message in its
    place, such as a permissions notice), or a form without that column. */
@@ -90,10 +119,10 @@ export function submitActionForm(values, { path = ACTION_FORM_PATH, timeoutMs = 
       catch (e) { return finish(new Error("The action form could not be opened. " + SETUP)); }
       if (!doc || !loc) return finish(new Error("The action form could not be opened. " + SETUP));
 
-      const id = new URLSearchParams(loc.search).get("id");
       if (submitted) {
-        if (id && GUID.test(id)) return finish(null, id.toLowerCase());
-        return finish(new Error(formMessage(doc) || "The action could not be recorded."));
+        const id = recordId(loc);
+        if (id) return finish(null, id);
+        return finish(new Error(afterSubmit(doc, loc)));
       }
       /* the site may add the form's fields with script after the page loads
          (for example, with form fill assistance on): wait for them */

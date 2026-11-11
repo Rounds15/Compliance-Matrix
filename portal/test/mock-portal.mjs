@@ -79,7 +79,7 @@ liquid.registerTag("fetchxml", {
   }
 });
 
-export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, webApiOff = [], refuse = [], assessments = false, tokenFail = false, webRoleMembers = null } = {}) {
+export async function startPortal({ backend = "sharepoint", admin = true, user = { email: "cruiz@syr.edu", name: "Camila Ruiz" }, settings: extra = {}, formWithout = null, formDone = null, webApiOff = [], refuse = [], assessments = false, tokenFail = false, webRoleMembers = null } = {}) {
   const sp = sharepointLists();
   const dv = dataverseTables();
   /* assessments: the 9 assessments with their current figures, and the open
@@ -456,8 +456,14 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     }
     log.push({ form: "cm-action", fields: Object.keys(f).filter(k => k !== "InsertButton" && f[k] !== "").sort() });
     if (errors.length) return html(200, errors);
+    /* formDone "stay": the site refuses with a plain alert and stays on the
+       form; "noid": it saves but redirects without the record ID; "braces":
+       it passes the ID in braces */
+    if (formDone === "stay") { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      return res.end(`<!DOCTYPE html><html><head><title>CM Action</title></head><body><div class="alert alert-danger" role="alert">Permission denied for the Compliance Function.</div></body></html>`.replace("alert-danger", "alert-info")); }
     dv.su_portalactions.push(row);
-    res.writeHead(302, { Location: "/cm-action-done/?id=" + row.su_portalactionid });
+    if (formDone === "noid") { res.writeHead(302, { Location: "/cm-action-done/" }); return res.end(); }
+    res.writeHead(302, { Location: "/cm-action-done/?id=" + (formDone === "braces" ? "{" + row.su_portalactionid.toUpperCase() + "}" : row.su_portalactionid) });
     return res.end();
   }
 
