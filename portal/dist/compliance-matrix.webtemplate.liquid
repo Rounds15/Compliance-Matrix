@@ -28,7 +28,7 @@
 
   Signed-out visitors get the CM Sign In web template instead of the matrix.
 
-  34bf62e28338 is replaced by the build with a hash of the two web files, so a
+  4a3f7209d6a0 is replaced by the build with a hash of the two web files, so a
   new upload is never served from a stale browser cache.
 {% endcomment %}{% assign cm_admin_role = settings['ComplianceMatrix/AdminWebRole'] | default: 'Administrators' %}{% assign cm_is_admin = false %}{% if user %}{% for r in user.roles %}{% if r == cm_admin_role %}{% assign cm_is_admin = true %}{% endif %}{% endfor %}{% endif %}<!DOCTYPE html>
 <html lang="en">
@@ -37,7 +37,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Compliance Matrix | Syracuse University</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="{{ settings['ComplianceMatrix/CssUrl'] | default: '/cm-matrix.css' }}?v=34bf62e28338">
+<link rel="stylesheet" href="{{ settings['ComplianceMatrix/CssUrl'] | default: '/cm-matrix.css' }}?v=4a3f7209d6a0">
 </head>
 <body>
 {% if user %}{% assign cm_site_set = settings['ComplianceMatrix/SiteNavigation'] | default: 'Default' %}{% assign cm_site_nav = weblinks[cm_site_set] %}
@@ -78,7 +78,7 @@
   data-power-bi-url="{{ settings['ComplianceMatrix/PowerBIUrl'] | default: 'https://app.powerbi.com' | escape }}"
   data-power-bi-embed-url="{{ settings['ComplianceMatrix/PowerBIEmbedUrl'] | escape }}"></div>
 <noscript><p style="font:16px/1.5 Verdana,sans-serif;padding:40px;color:#000E54">The Compliance Matrix needs JavaScript. Turn it on for this site.</p></noscript>
-<script src="{{ settings['ComplianceMatrix/JsUrl'] | default: '/cm-matrix.js' }}?v=34bf62e28338" defer></script>
+<script src="{{ settings['ComplianceMatrix/JsUrl'] | default: '/cm-matrix.js' }}?v=4a3f7209d6a0" defer></script>
 {% else %}
 {% comment %} signed out: the branded sign-in card (web template "CM Sign In") {% endcomment %}
 {% include 'CM Sign In' %}

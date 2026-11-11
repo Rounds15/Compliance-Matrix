@@ -22,13 +22,32 @@ function formMessage(doc) {
   return box ? (box.textContent || "").replace(/\s+/g, " ").trim() : "";
 }
 
+/* Why a field is missing, from what the frame got: another page (sign-in,
+   access denied, not found), a page with no basic form (or a message in its
+   place, such as a permissions notice), or a form without that column. */
+export function missingField(doc, id, path = "") {
+  const text = el => (el ? (el.textContent || "").replace(/\s+/g, " ").trim() : "").slice(0, 200);
+  const where = path && !/^\/cm-action\/?$/i.test(path) ? ` The frame was sent to ${path} instead of ${ACTION_FORM_PATH}.` : "";
+  const title = text(doc.querySelector("title"));
+  const fields = [...doc.querySelectorAll("input[id], select[id], textarea[id]")]
+    .filter(el => el.type !== "hidden" && el.type !== "submit" && !/_name$/.test(el.id)).map(el => el.id);
+  if (!doc.getElementById("InsertButton")) {
+    const note = text(doc.querySelector(".alert, .message, #ValidationSummaryEntityFormView, .validation-summary"));
+    return `The action form page shows no form to fill in${title ? ` (page "${title}")` : ""}.${where}` +
+      (note ? ` It says: "${note}".` : " Check that the CM Portal Action basic form is on the CM Action page, the page uses the default page template, and the form's table permission gives your web role Create.") +
+      " " + SETUP;
+  }
+  return `The action form has no field ${id}.` + (fields.length ? ` Its fields are: ${fields.slice(0, 12).join(", ")}.` : "") +
+    ` Add ${id} to a section in the body of the CM Portal Action main form (a field in the form header is not shown on the site), then publish the form and clear the cache. ${SETUP}`;
+}
+
 /* Fill the form in place. `values`: { name, action, reason, lookups: [[column, table, id], ...] }.
    Throws when a field the form needs is missing, so a mis-built form fails
    with a message rather than saving half a request. */
-export function fillActionForm(doc, values) {
+export function fillActionForm(doc, values, path = "") {
   const need = id => {
     const el = doc.getElementById(id);
-    if (!el) throw new Error(`The action form has no field ${id}. ${SETUP}`);
+    if (!el) throw new Error(missingField(doc, id, path));
     return el;
   };
   need("su_name").value = String(values.name || "").slice(0, 400);
@@ -75,7 +94,7 @@ export function submitActionForm(values, { path = ACTION_FORM_PATH, timeoutMs = 
         return finish(new Error(formMessage(doc) || "The action could not be recorded."));
       }
       try {
-        const button = fillActionForm(doc, values);
+        const button = fillActionForm(doc, values, loc.pathname);
         submitted = true;
         button.click();
         /* a client-side validation failure does not navigate; report it */

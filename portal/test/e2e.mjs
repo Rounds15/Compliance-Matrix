@@ -1349,6 +1349,23 @@ await session("Dataverse · a mis-built action form is reported, and nothing is 
   assert.equal(portal.log.some(x => x.flow === "action"), false, "the flow is not called");
 });
 
+/* the Action column is not on the site's form (for example, it is in the
+   form header), or the page shows a permissions notice instead of the form:
+   the message says which, and nothing is saved */
+for (const [without, want] of [
+  ["su_name", /action form has no field su_name\. Its fields are: su_action, su_reason\. Add su_name to a section in the body/],
+  ["form", /shows no form to fill in \(page "CM Action"\)\. It says: "You don't have the appropriate permissions\."/]]) {
+  await session("Dataverse · an action form without " + without + " says why", { backend: "dataverse", admin: true, formWithout: without }, async ({ page, portal, go, toast, btn }) => {
+    await go("#/functions/" + G(202));
+    await page.waitForSelector("h1:has-text('Form I-9')");
+    await btn("Flag for review").click();
+    await page.locator(".fd-panel textarea").fill("Check the 2026 amendment.");
+    await btn("Submit flag").click();
+    await toast(want);
+    assert.equal(portal.dv.su_portalactions.length, 0, "no action row");
+  });
+}
+
 /* a table whose Web API is off: the page names the two site settings it needs */
 {
   const portal = await startPortal({ backend: "dataverse", admin: true, webApiOff: ["su_riskarea"] });

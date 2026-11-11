@@ -413,11 +413,15 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   const FORM_LOOKUPS = { su_function: "su_compliancefunction", su_deadline: "su_compliancedeadline", su_gap: "su_compliancegap", su_flag: "su_functionflag" };
   const ACTION_TYPES = { 100000120: "Complete deadline", 100000121: "Reverse completion", 100000122: "Close gap", 100000123: "Resolve flag", 100000124: "Raise flag", 100000125: "Delete function", 100000126: "Add to calendar", 100000127: "Reopen gap" };
   const esc = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-  const formPage = (errors = []) => "<!DOCTYPE html><html><head><meta charset=utf-8><title>CM Action</title></head><body>" +
+  /* formWithout "form": the page shows the notice Power Pages puts in place
+     of a basic form the visitor's web role cannot create with */
+  const formPage = (errors = []) => formWithout === "form" ? "<!DOCTYPE html><html><head><meta charset=utf-8><title>CM Action</title></head><body>" +
+    `<div class="alert alert-block alert-danger"><span class="fa fa-lock"></span> You don't have the appropriate permissions.</div></body></html>` :
+    "<!DOCTYPE html><html><head><meta charset=utf-8><title>CM Action</title></head><body>" +
     `<form method="post" action="/cm-action/" id="content_form">` +
     `<input type="hidden" name="__RequestVerificationToken" value="${TOKEN}">` +
     `<div id="ValidationSummaryEntityFormView" class="validation-summary">${errors.map(esc).join(" ")}</div>` +
-    `<input type="text" id="su_name" name="${FORM_PREFIX}su_name">` +
+    (formWithout === "su_name" ? "" : `<input type="text" id="su_name" name="${FORM_PREFIX}su_name">`) +
     `<select id="su_action" name="${FORM_PREFIX}su_action"><option value=""></option>${Object.entries(ACTION_TYPES).map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}</select>` +
     (formWithout === "su_reason" ? "" : `<textarea id="su_reason" name="${FORM_PREFIX}su_reason"></textarea>`) +
     Object.keys(FORM_LOOKUPS).map(c => `<input type="text" id="${c}_name" readonly><input type="hidden" id="${c}" name="${FORM_PREFIX}${c}"><input type="hidden" id="${c}_entityname" name="${FORM_PREFIX}${c}_entityname">`).join("") +

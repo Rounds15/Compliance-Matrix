@@ -1128,7 +1128,9 @@ Why not the other two ways:
    form > Main form, named **CM Portal Action**. Fields: Action (su_name),
    Action Type, Reason, Compliance Function, Deadline, Gap, Flag. Remove
    Owner. Leave Requested By, Status, Result and Processed On off the form.
-   Save and publish.
+   Put each field in a section of the form body: a field in the form header
+   (where a new form puts the primary column, Action, by default in some
+   layouts) is not shown on the site. Save and publish.
 2. **Two pages.** Design Studio > Pages > + Page, blank:
    - **CM Action**, partial URL **`cm-action`**, directly under Home.
    - **CM Action Done**, partial URL **`cm-action-done`**, directly under
