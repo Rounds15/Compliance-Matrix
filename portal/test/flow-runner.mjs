@@ -233,7 +233,7 @@ function getProp(obj, key, safe) {
 }
 
 /* ---------------- the run ---------------- */
-export function runFlow(def, { trigger = {}, dataverse, users, outlook, workflow = {} }) {
+export function runFlow(def, { trigger = {}, dataverse, users, outlook, http = null, workflow = {} }) {
   const d = def.properties.definition;
   const run = { states: {}, vars: {}, loops: [], emails: [], response: null, log: [] };
   /* only the connectors the flow declares a connection reference for */
@@ -385,6 +385,18 @@ export function runFlow(def, { trigger = {}, dataverse, users, outlook, workflow
           const body = handler(host.operationId, params);
           return set("Succeeded", { body, outputs: { statusCode: 200, body } });
         }
+        /* the built-in HTTP action: `http` answers { statusCode, body }; a
+           status of 400 or more fails the action, as Power Automate does */
+        case "Http": {
+          if (!http) throw new FlowError("no HTTP handler for " + name);
+          const req = { method: value(a.inputs.method), uri: value(a.inputs.uri), headers: value(a.inputs.headers || {}), body: value(a.inputs.body) };
+          run.log.push({ action: name, op: "Http", params: req });
+          if (!/^https:\/\//i.test(String(req.uri))) throw new ConnectorError(400, "The HTTP action needs an https address, got " + req.uri);
+          const r = http(req) || { statusCode: 500, body: null };
+          const out = { statusCode: r.statusCode, body: r.body ?? null };
+          if (r.statusCode >= 400) return set("Failed", { body: out.body, outputs: out, error: "HTTP " + r.statusCode });
+          return set("Succeeded", { body: out.body, outputs: out });
+        }
         default: throw new FlowError("action type not modelled: " + a.type);
       }
     } catch (e) {
@@ -460,10 +472,13 @@ export function dataverseConnector({ dv, schema, contacts = [], roleRelationship
   /* the tables the flows touch that are not in the solution */
   const SYSTEM = {
     contacts: { id: "contactid", primaryName: "fullname", columns: { contactid: 1, fullname: 1, emailaddress1: 1, [roleRelationship]: 1 } },
+    /* Power Pages site settings on the enhanced data model */
+    mspp_sitesettings: { id: "mspp_sitesettingid", primaryName: "mspp_name", columns: { mspp_sitesettingid: 1, mspp_name: 1, mspp_value: 1 } },
     adx_externalidentities: { id: "adx_externalidentityid", primaryName: "adx_username", columns: { adx_externalidentityid: 1, adx_username: 1, adx_identityprovidername: 1, _adx_contactid_value: 1 }, lookups: { _adx_contactid_value: "contacts" } }
   };
   dv.contacts = contacts;
   dv.adx_externalidentities = dv.adx_externalidentities || [];
+  dv.mspp_sitesettings = dv.mspp_sitesettings || [];
   const tableOf = set => {
     if (SYSTEM[set]) return { set, ...SYSTEM[set] };
     const e = Object.entries(schema).find(([, t]) => t.set === set);

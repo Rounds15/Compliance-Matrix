@@ -189,6 +189,128 @@
                         "Already_linked": {
                           "case": "already",
                           "actions": {}
+                        },
+                        "Not_in_the_directory": {
+                          "case": "none",
+                          "actions": {
+                            "Get_auto_create_url": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "ListRecords",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                                },
+                                "parameters": {
+                                  "entityName": "mspp_sitesettings",
+                                  "$filter": "@{concat('mspp_name eq ', concat('''', replace('ComplianceMatrix/Flow/DirectoryCreate', '''', ''''''), ''''))}",
+                                  "$select": "mspp_sitesettingid,mspp_name,mspp_value",
+                                  "$top": 1
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              },
+                              "runAfter": {}
+                            },
+                            "Auto_create_is_set_up": {
+                              "type": "If",
+                              "expression": {
+                                "and": [
+                                  {
+                                    "equals": [
+                                      "@startsWith(toLower(trim(coalesce(first(body('Get_auto_create_url')?['value'])?['mspp_value'], ''))), 'https://')",
+                                      true
+                                    ]
+                                  }
+                                ]
+                              },
+                              "actions": {
+                                "Call_Directory_Auto_Create": {
+                                  "type": "Http",
+                                  "inputs": {
+                                    "method": "POST",
+                                    "uri": "@{trim(coalesce(first(body('Get_auto_create_url')?['value'])?['mspp_value'], ''))}",
+                                    "headers": {
+                                      "Content-Type": "application/json"
+                                    },
+                                    "body": {
+                                      "contactId": "@{triggerOutputs()?['body/_adx_contactid_value']}"
+                                    }
+                                  },
+                                  "runAfter": {}
+                                },
+                                "Auto_create_failed": {
+                                  "type": "If",
+                                  "expression": {
+                                    "and": [
+                                      {
+                                        "equals": [
+                                          "@not(equals(actions('Call_Directory_Auto_Create')?['status'], 'Succeeded'))",
+                                          true
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "actions": {
+                                    "Tell_the_office_not_in_directory_after_call": {
+                                      "type": "OpenApiConnection",
+                                      "inputs": {
+                                        "host": {
+                                          "connectionName": "shared_office365",
+                                          "operationId": "SendEmailV2",
+                                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                                        },
+                                        "parameters": {
+                                          "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                                          "emailMessage/Subject": "Compliance Matrix: a sign-in is not linked to the directory",
+                                          "emailMessage/Body": "@{concat('<p>A sign-in to the Compliance Matrix site could not be linked to the Compliance Directory, so the person cannot act on functions in the matrix yet.</p><p><b>Why:</b> ', if(equals(outputs('Safe_to_link'), 'none'), 'No active Compliance Directory row has this person''s user principal name or mail address as its email. Add them to the directory, or correct their directory email to their NetID address.', if(equals(outputs('Safe_to_link'), 'ambiguous'), 'Their user principal name and their mail address match two different Compliance Directory rows. Correct the row that is not theirs.', if(equals(outputs('Safe_to_link'), 'moved'), 'The Compliance Directory row with their email is already linked to a different contact. Check which contact is right, then change Portal Contact on the row by hand.', 'This contact is already linked to a different Compliance Directory row. Check which row is right, then change Portal Contact by hand.'))), '</p><ul><li>Name: ', coalesce(body('Get_Entra_user')?['displayName'], ''), '</li><li>User principal name: ', coalesce(body('Get_Entra_user')?['userPrincipalName'], ''), '</li><li>Mail: ', coalesce(body('Get_Entra_user')?['mail'], ''), '</li><li>Contact ID: ', triggerOutputs()?['body/_adx_contactid_value'], '</li></ul><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                                          "emailMessage/Importance": "Normal"
+                                        },
+                                        "authentication": "@parameters('$authentication')"
+                                      },
+                                      "runAfter": {}
+                                    }
+                                  },
+                                  "else": {
+                                    "actions": {}
+                                  },
+                                  "runAfter": {
+                                    "Call_Directory_Auto_Create": [
+                                      "Succeeded",
+                                      "Failed",
+                                      "TimedOut"
+                                    ]
+                                  }
+                                }
+                              },
+                              "else": {
+                                "actions": {
+                                  "Tell_the_office_not_in_directory": {
+                                    "type": "OpenApiConnection",
+                                    "inputs": {
+                                      "host": {
+                                        "connectionName": "shared_office365",
+                                        "operationId": "SendEmailV2",
+                                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                                      },
+                                      "parameters": {
+                                        "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                                        "emailMessage/Subject": "Compliance Matrix: a sign-in is not linked to the directory",
+                                        "emailMessage/Body": "@{concat('<p>A sign-in to the Compliance Matrix site could not be linked to the Compliance Directory, so the person cannot act on functions in the matrix yet.</p><p><b>Why:</b> ', if(equals(outputs('Safe_to_link'), 'none'), 'No active Compliance Directory row has this person''s user principal name or mail address as its email. Add them to the directory, or correct their directory email to their NetID address.', if(equals(outputs('Safe_to_link'), 'ambiguous'), 'Their user principal name and their mail address match two different Compliance Directory rows. Correct the row that is not theirs.', if(equals(outputs('Safe_to_link'), 'moved'), 'The Compliance Directory row with their email is already linked to a different contact. Check which contact is right, then change Portal Contact on the row by hand.', 'This contact is already linked to a different Compliance Directory row. Check which row is right, then change Portal Contact by hand.'))), '</p><ul><li>Name: ', coalesce(body('Get_Entra_user')?['displayName'], ''), '</li><li>User principal name: ', coalesce(body('Get_Entra_user')?['userPrincipalName'], ''), '</li><li>Mail: ', coalesce(body('Get_Entra_user')?['mail'], ''), '</li><li>Contact ID: ', triggerOutputs()?['body/_adx_contactid_value'], '</li></ul><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                                        "emailMessage/Importance": "Normal"
+                                      },
+                                      "authentication": "@parameters('$authentication')"
+                                    },
+                                    "runAfter": {}
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "Get_auto_create_url": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          }
                         }
                       },
                       "default": {
@@ -221,30 +343,228 @@
                     }
                   },
                   "else": {
-                    "actions": {}
+                    "actions": {
+                      "Is_a_guest": {
+                        "type": "If",
+                        "expression": {
+                          "and": [
+                            {
+                              "equals": [
+                                "@and(equals(body('Get_Entra_user')?['userType'], 'Guest'), equals(body('Get_Entra_user')?['accountEnabled'], true))",
+                                true
+                              ]
+                            }
+                          ]
+                        },
+                        "actions": {
+                          "Guest_Get_auto_create_url": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connectionName": "shared_commondataserviceforapps",
+                                "operationId": "ListRecords",
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                              },
+                              "parameters": {
+                                "entityName": "mspp_sitesettings",
+                                "$filter": "@{concat('mspp_name eq ', concat('''', replace('ComplianceMatrix/Flow/DirectoryCreate', '''', ''''''), ''''))}",
+                                "$select": "mspp_sitesettingid,mspp_name,mspp_value",
+                                "$top": 1
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            },
+                            "runAfter": {}
+                          },
+                          "Guest_Auto_create_is_set_up": {
+                            "type": "If",
+                            "expression": {
+                              "and": [
+                                {
+                                  "equals": [
+                                    "@startsWith(toLower(trim(coalesce(first(body('Guest_Get_auto_create_url')?['value'])?['mspp_value'], ''))), 'https://')",
+                                    true
+                                  ]
+                                }
+                              ]
+                            },
+                            "actions": {
+                              "Guest_Call_Directory_Auto_Create": {
+                                "type": "Http",
+                                "inputs": {
+                                  "method": "POST",
+                                  "uri": "@{trim(coalesce(first(body('Guest_Get_auto_create_url')?['value'])?['mspp_value'], ''))}",
+                                  "headers": {
+                                    "Content-Type": "application/json"
+                                  },
+                                  "body": {
+                                    "contactId": "@{triggerOutputs()?['body/_adx_contactid_value']}"
+                                  }
+                                },
+                                "runAfter": {}
+                              },
+                              "Guest_Auto_create_failed": {
+                                "type": "If",
+                                "expression": {
+                                  "and": [
+                                    {
+                                      "equals": [
+                                        "@not(equals(actions('Guest_Call_Directory_Auto_Create')?['status'], 'Succeeded'))",
+                                        true
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "actions": {},
+                                "else": {
+                                  "actions": {}
+                                },
+                                "runAfter": {
+                                  "Guest_Call_Directory_Auto_Create": [
+                                    "Succeeded",
+                                    "Failed",
+                                    "TimedOut"
+                                  ]
+                                }
+                              }
+                            },
+                            "else": {
+                              "actions": {}
+                            },
+                            "runAfter": {
+                              "Guest_Get_auto_create_url": [
+                                "Succeeded"
+                              ]
+                            }
+                          }
+                        },
+                        "else": {
+                          "actions": {}
+                        },
+                        "runAfter": {}
+                      }
+                    }
                   },
                   "runAfter": {}
                 }
               },
               "else": {
                 "actions": {
-                  "Tell_the_office_no_account": {
+                  "No_account_Get_auto_create_url": {
                     "type": "OpenApiConnection",
                     "inputs": {
                       "host": {
-                        "connectionName": "shared_office365",
-                        "operationId": "SendEmailV2",
-                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                        "connectionName": "shared_commondataserviceforapps",
+                        "operationId": "ListRecords",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
                       },
                       "parameters": {
-                        "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
-                        "emailMessage/Subject": "Compliance Matrix: a sign-in is not linked to the directory",
-                        "emailMessage/Body": "@{concat('<p>A sign-in to the Compliance Matrix site has no matching Microsoft Entra account, so it was not linked to the Compliance Directory.</p><ul><li>Contact: ', coalesce(triggerOutputs()?['body/_adx_contactid_value@OData.Community.Display.V1.FormattedValue'], ''), '</li><li>Contact ID: ', triggerOutputs()?['body/_adx_contactid_value'], '</li><li>External Identity username: ', triggerOutputs()?['body/adx_username'], '</li></ul><p>If the username is not the person''s Entra object ID, the site stores the sub claim instead (docs/DATAVERSE-MIGRATION.md, section 6).</p><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
-                        "emailMessage/Importance": "Normal"
+                        "entityName": "mspp_sitesettings",
+                        "$filter": "@{concat('mspp_name eq ', concat('''', replace('ComplianceMatrix/Flow/DirectoryCreate', '''', ''''''), ''''))}",
+                        "$select": "mspp_sitesettingid,mspp_name,mspp_value",
+                        "$top": 1
                       },
                       "authentication": "@parameters('$authentication')"
                     },
                     "runAfter": {}
+                  },
+                  "No_account_Auto_create_is_set_up": {
+                    "type": "If",
+                    "expression": {
+                      "and": [
+                        {
+                          "equals": [
+                            "@startsWith(toLower(trim(coalesce(first(body('No_account_Get_auto_create_url')?['value'])?['mspp_value'], ''))), 'https://')",
+                            true
+                          ]
+                        }
+                      ]
+                    },
+                    "actions": {
+                      "No_account_Call_Directory_Auto_Create": {
+                        "type": "Http",
+                        "inputs": {
+                          "method": "POST",
+                          "uri": "@{trim(coalesce(first(body('No_account_Get_auto_create_url')?['value'])?['mspp_value'], ''))}",
+                          "headers": {
+                            "Content-Type": "application/json"
+                          },
+                          "body": {
+                            "contactId": "@{triggerOutputs()?['body/_adx_contactid_value']}"
+                          }
+                        },
+                        "runAfter": {}
+                      },
+                      "No_account_Auto_create_failed": {
+                        "type": "If",
+                        "expression": {
+                          "and": [
+                            {
+                              "equals": [
+                                "@not(equals(actions('No_account_Call_Directory_Auto_Create')?['status'], 'Succeeded'))",
+                                true
+                              ]
+                            }
+                          ]
+                        },
+                        "actions": {
+                          "Tell_the_office_no_account_after_call": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connectionName": "shared_office365",
+                                "operationId": "SendEmailV2",
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                              },
+                              "parameters": {
+                                "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                                "emailMessage/Subject": "Compliance Matrix: a sign-in is not linked to the directory",
+                                "emailMessage/Body": "@{concat('<p>A sign-in to the Compliance Matrix site has no matching Microsoft Entra account, so it was not linked to the Compliance Directory.</p><ul><li>Contact: ', coalesce(triggerOutputs()?['body/_adx_contactid_value@OData.Community.Display.V1.FormattedValue'], ''), '</li><li>Contact ID: ', triggerOutputs()?['body/_adx_contactid_value'], '</li><li>External Identity username: ', triggerOutputs()?['body/adx_username'], '</li></ul><p>If the username is not the person''s Entra object ID, the site stores the sub claim instead (docs/DATAVERSE-MIGRATION.md, section 6).</p><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                                "emailMessage/Importance": "Normal"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            },
+                            "runAfter": {}
+                          }
+                        },
+                        "else": {
+                          "actions": {}
+                        },
+                        "runAfter": {
+                          "No_account_Call_Directory_Auto_Create": [
+                            "Succeeded",
+                            "Failed",
+                            "TimedOut"
+                          ]
+                        }
+                      }
+                    },
+                    "else": {
+                      "actions": {
+                        "Tell_the_office_no_account": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_office365",
+                              "operationId": "SendEmailV2",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                            },
+                            "parameters": {
+                              "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+                              "emailMessage/Subject": "Compliance Matrix: a sign-in is not linked to the directory",
+                              "emailMessage/Body": "@{concat('<p>A sign-in to the Compliance Matrix site has no matching Microsoft Entra account, so it was not linked to the Compliance Directory.</p><ul><li>Contact: ', coalesce(triggerOutputs()?['body/_adx_contactid_value@OData.Community.Display.V1.FormattedValue'], ''), '</li><li>Contact ID: ', triggerOutputs()?['body/_adx_contactid_value'], '</li><li>External Identity username: ', triggerOutputs()?['body/adx_username'], '</li></ul><p>If the username is not the person''s Entra object ID, the site stores the sub claim instead (docs/DATAVERSE-MIGRATION.md, section 6).</p><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+                              "emailMessage/Importance": "Normal"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        }
+                      }
+                    },
+                    "runAfter": {
+                      "No_account_Get_auto_create_url": [
+                        "Succeeded"
+                      ]
+                    }
                   }
                 }
               },

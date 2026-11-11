@@ -182,7 +182,7 @@ table, so the first import creates them:
   option value prefix 10000, so choice values start at 100000000;
 - the solution **Compliance Matrix** (`ComplianceMatrix`);
 - 16 tables and 14 global choices, all empty;
-- six cloud flows, imported turned off, and the three connection
+- eight cloud flows, imported turned off, and the three connection
   references they use (After the import, below).
 
 1. Extract `ComplianceMatrix-solution-src.zip`. You get a `src` folder holding
@@ -215,9 +215,9 @@ The flows import turned off; they need connections first.
 
 | Connection reference | Connector | Used by |
 |---|---|---|
-| CM - Microsoft Dataverse (su_CMDataverse) | Microsoft Dataverse | all six flows |
-| CM - Office 365 Users (su_CMOffice365Users) | Office 365 Users | the three link flows and CM - Sync directory from M365 |
-| CM - Office 365 Outlook (su_CMOffice365Outlook) | Office 365 Outlook | all six flows (notices and failure alerts); CM - Add to calendar also sends its calendar invitations from this account |
+| CM - Microsoft Dataverse (su_CMDataverse) | Microsoft Dataverse | all eight flows |
+| CM - Office 365 Users (su_CMOffice365Users) | Office 365 Users | the three link flows, CM - Sync directory from M365, CM - Directory Auto-Create and CM - Directory Profile Sync |
+| CM - Office 365 Outlook (su_CMOffice365Outlook) | Office 365 Outlook | all eight flows (notices and failure alerts); CM - Add to calendar also sends its calendar invitations from this account |
 
 1. **Pick the account.** One licensed member account makes all three
    connections and owns the flows: a service account if you have one,
@@ -266,6 +266,15 @@ The flows import turned off; they need connections first.
 9. **Fill in the directory from Microsoft 365:** Cloud flows > CM - Sync
    directory from M365 > **Run**. It then runs again every Sunday at 10 PM
    Eastern (section 6, "Directory details and photos").
+10. **Let new sign-ins make their own directory entry** (optional; section
+    6, "New sign-ins with no directory entry"). CM - Directory Auto-Create
+    starts with **When an HTTP request is received**: in Power Automate >
+    Edit > the trigger, **Who can trigger the flow** = Anyone, Save, and
+    copy its **HTTP URL** into the site setting
+    **`ComplianceMatrix/Flow/DirectoryCreate`** (create it). The link flows
+    read it from there; until it is set they send the "not linked" notice,
+    as before. Turn on **CM - Directory Profile Sync** too; it needs no
+    setting.
 
 If CM - Process portal action does not appear under Set up > Cloud flows,
 open it in Power Automate: its trigger should read "When Power Pages calls a
@@ -1013,6 +1022,56 @@ email sees "Nothing assigned" there.
 
 ---
 
+### New sign-ins with no directory entry (CM - Directory Auto-Create)
+
+When CM - Link directory to contact or CM - Link existing sign-ins finds a
+sign-in with no Compliance Directory row, it calls **CM - Directory
+Auto-Create** at the URL in the site setting
+`ComplianceMatrix/Flow/DirectoryCreate`, sending only the contact's ID. The
+flow reads the rest itself, so a request cannot make an entry for anyone
+but a real contact:
+
+1. The contact, its Microsoft Entra sign-in, and the person's Microsoft 365
+   profile (by the sign-in's object ID, or by the contact's email when there
+   is no Entra sign-in).
+2. If the contact already has a directory row, it stops (a second call
+   makes nothing). If another row already has the email, it makes no row and
+   emails the office to set Portal Contact on that row by hand.
+3. Otherwise it adds an active row linked to the contact:
+
+| Directory column | A University account | A guest, or not found in Microsoft 365 |
+|---|---|---|
+| Full Name (su_name) | Display name | Display name (guest), or the contact's name |
+| Email (su_email) | User principal name (the NetID address) | Mail (guest), or the contact's email |
+| Title, Unit, Location, Phone | Job title, department, office location, first business phone | blank |
+| Photo (su_photo) | Profile photo, if there is one | blank |
+
+4. It emails the office (subject "a directory entry was created
+   automatically"), saying whether the details came from Microsoft 365 or,
+   if not, why (a guest such as outside counsel, a disabled account, or the
+   lookup's status).
+
+A new University account is linked when the person first signs in; a
+guest's entry is made at sign-in too, where before a guest was left alone.
+A disabled account is still left alone. CM - Link contact to directory never
+calls it: a row's own email change cannot make a second row.
+
+If the setting is empty, or the call fails, the link flows send the "not
+linked" notice instead, and a failure inside CM - Directory Auto-Create
+sends its own failure email. The trigger accepts calls from anyone who has
+the URL (as the action flow's does); the most such a call can do is make the
+entry the person's own sign-in would have made.
+
+### Rows added by hand (CM - Directory Profile Sync)
+
+When a directory row is added by hand with an email, **CM - Directory
+Profile Sync** looks the email up in Microsoft 365 and fills in Title, Unit,
+Location and Phone where the row has none. A value typed into the row is
+kept. If the person is not found, the row stays as it was entered. It does
+not run for a row CM - Directory Auto-Create made (that row is linked to a
+contact when it is added), for a row that already has a title and a unit, or
+for a row with no email. The weekly sync below stores the photo.
+
 ### Directory details and photos from Microsoft 365
 
 **CM - Sync directory from M365** fills in the directory from each person's
@@ -1476,7 +1535,7 @@ With one, do steps 1 to 6 there first, then repeat 1 to 4 in production.
 5. Build the five dataflows (section 3), run them in order, and reconcile
    against the baseline counts.
 6. Check what External Identity Username holds (section 6). Set the
-   connection references, turn the six flows on, set
+   connection references, turn the eight flows on, set
    `ComplianceMatrix/Flow/Action` to the action flow's HTTP URL, add the
    calendar flow to the site and set `ComplianceMatrix/Flow/Calendar`
    (section 2, After the import).

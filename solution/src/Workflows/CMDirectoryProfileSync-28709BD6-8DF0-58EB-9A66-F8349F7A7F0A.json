@@ -1,0 +1,225 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMDataverse"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_office365users": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Users"
+        },
+        "api": {
+          "name": "shared_office365users"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "su_CMOffice365Outlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_a_directory_row_is_added": {
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/entityname": "su_compliancedirectory",
+              "subscriptionRequest/scope": 4
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "conditions": [
+            {
+              "expression": "@not(empty(trim(coalesce(triggerOutputs()?['body/su_email'], ''))))"
+            },
+            {
+              "expression": "@or(empty(trim(coalesce(triggerOutputs()?['body/su_jobtitle'], ''))), empty(trim(coalesce(triggerOutputs()?['body/su_unit'], ''))))"
+            },
+            {
+              "expression": "@empty(coalesce(triggerOutputs()?['body/_su_contact_value'], ''))"
+            }
+          ]
+        }
+      },
+      "actions": {
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "Get_entry": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "su_compliancedirectorys",
+                  "recordId": "@{triggerOutputs()?['body/su_compliancedirectoryid']}",
+                  "$select": "su_compliancedirectoryid,su_email,su_jobtitle,su_unit,su_location,su_phone"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Get_profile": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365users",
+                  "operationId": "UserProfile_V2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365users"
+                },
+                "parameters": {
+                  "id": "@{trim(coalesce(body('Get_entry')?['su_email'], ''))}",
+                  "$select": "id,mail,userPrincipalName,accountEnabled,jobTitle,department,officeLocation,businessPhones"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Get_entry": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "In_Microsoft_365": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@and(equals(actions('Get_profile')?['status'], 'Succeeded'), not(equals(body('Get_profile')?['accountEnabled'], false)))",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Anything_to_fill_in": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@or(and(empty(trim(coalesce(body('Get_entry')?['su_jobtitle'], ''))), not(empty(coalesce(if(empty(trim(coalesce(body('Get_profile')?['jobTitle'], ''))), null, substring(trim(coalesce(body('Get_profile')?['jobTitle'], '')), 0, min(250, length(trim(coalesce(body('Get_profile')?['jobTitle'], '')))))), '')))), and(empty(trim(coalesce(body('Get_entry')?['su_unit'], ''))), not(empty(coalesce(if(empty(trim(coalesce(body('Get_profile')?['department'], ''))), null, substring(trim(coalesce(body('Get_profile')?['department'], '')), 0, min(255, length(trim(coalesce(body('Get_profile')?['department'], '')))))), '')))), and(empty(trim(coalesce(body('Get_entry')?['su_location'], ''))), not(empty(coalesce(if(empty(trim(coalesce(body('Get_profile')?['officeLocation'], ''))), null, substring(trim(coalesce(body('Get_profile')?['officeLocation'], '')), 0, min(200, length(trim(coalesce(body('Get_profile')?['officeLocation'], '')))))), '')))), and(empty(trim(coalesce(body('Get_entry')?['su_phone'], ''))), not(empty(coalesce(if(empty(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), ''))), null, substring(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), '')), 0, min(40, length(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), '')))))), '')))))",
+                          true
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Fill_in_empty_fields": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "UpdateRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "su_compliancedirectorys",
+                          "recordId": "@{triggerOutputs()?['body/su_compliancedirectoryid']}",
+                          "item/su_jobtitle": "@if(empty(trim(coalesce(body('Get_entry')?['su_jobtitle'], ''))), if(empty(trim(coalesce(body('Get_profile')?['jobTitle'], ''))), null, substring(trim(coalesce(body('Get_profile')?['jobTitle'], '')), 0, min(250, length(trim(coalesce(body('Get_profile')?['jobTitle'], '')))))), body('Get_entry')?['su_jobtitle'])",
+                          "item/su_unit": "@if(empty(trim(coalesce(body('Get_entry')?['su_unit'], ''))), if(empty(trim(coalesce(body('Get_profile')?['department'], ''))), null, substring(trim(coalesce(body('Get_profile')?['department'], '')), 0, min(255, length(trim(coalesce(body('Get_profile')?['department'], '')))))), body('Get_entry')?['su_unit'])",
+                          "item/su_location": "@if(empty(trim(coalesce(body('Get_entry')?['su_location'], ''))), if(empty(trim(coalesce(body('Get_profile')?['officeLocation'], ''))), null, substring(trim(coalesce(body('Get_profile')?['officeLocation'], '')), 0, min(200, length(trim(coalesce(body('Get_profile')?['officeLocation'], '')))))), body('Get_entry')?['su_location'])",
+                          "item/su_phone": "@if(empty(trim(coalesce(body('Get_entry')?['su_phone'], ''))), if(empty(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), ''))), null, substring(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), '')), 0, min(40, length(trim(coalesce(first(coalesce(body('Get_profile')?['businessPhones'], json('[]'))), '')))))), body('Get_entry')?['su_phone'])"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {}
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Get_profile": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Alert_the_office": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "SendEmailV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "emailMessage/To": "SyracuseComplianceMatrix@groups.syr.edu",
+              "emailMessage/Subject": "Compliance Matrix: CM - Directory Profile Sync failed",
+              "emailMessage/Body": "@{concat('<p>The flow CM - Directory Profile Sync failed. Open the run to see the step that failed.</p><p>Run: ', concat('https://make.powerautomate.com/environments/', workflow()?['tags']?['environmentName'], '/flows/', workflow()?['name'], '/runs/', workflow()?['run']?['name']), '</p>')}",
+              "emailMessage/Importance": "Normal"
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        },
+        "Fail_the_run": {
+          "type": "Terminate",
+          "inputs": {
+            "runStatus": "Failed",
+            "runError": {
+              "code": "CMFlowFailed",
+              "message": "CM - Directory Profile Sync failed; the office was emailed."
+            }
+          },
+          "runAfter": {
+            "Alert_the_office": [
+              "Succeeded",
+              "Failed"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

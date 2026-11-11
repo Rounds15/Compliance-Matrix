@@ -99,6 +99,8 @@
       <RootComponent type="1" schemaName="su_functionownership" behavior="0"/>
       <RootComponent type="1" schemaName="su_portalaction" behavior="0"/>
       <RootComponent type="1" schemaName="su_riskarea" behavior="0"/>
+      <RootComponent type="29" id="{28709bd6-8df0-58eb-9a66-f8349f7a7f0a}" behavior="0"/>
+      <RootComponent type="29" id="{45e055bf-76e6-523b-9e71-36d87b31a548}" behavior="0"/>
       <RootComponent type="29" id="{4e033ef7-61bd-5c3d-9beb-2b4f9a4f2fb2}" behavior="0"/>
       <RootComponent type="29" id="{a2bb433a-2fd4-56ae-bcca-ec3598eaa2cb}" behavior="0"/>
       <RootComponent type="29" id="{b4419898-6f02-5fe0-88f2-3b4123cc0daf}" behavior="0"/>

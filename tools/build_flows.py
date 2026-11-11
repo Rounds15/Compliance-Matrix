@@ -13,6 +13,11 @@ The Compliance Matrix solution's cloud flows, as Power Automate definitions.
     CM - Add to calendar               called by the matrix page: invites the
                                        person to an all-day Outlook event for
                                        each deadline they add
+    CM - Directory Auto-Create         called by the link flows: makes a directory
+                                       entry, from Microsoft 365 where it can,
+                                       for a sign-in that has none
+    CM - Directory Profile Sync        a directory row added by hand: fills its
+                                       empty title, unit, location and phone
 
 build_solution.py writes them to solution/src/Workflows/ in the layout
 `pac solution unpack` produces, with the connection references they use. The
@@ -259,9 +264,36 @@ def notice(f: Flow, p: str, user_expr: str, contact_expr: str, reason_expr: str)
     return f.email("Compliance Matrix: a sign-in is not linked to the directory", body)
 
 
-def link_steps(f: Flow, p: str, contact_expr: str, user_expr: str) -> list:
+def auto_create(f: Flow, p: str, contact_expr: str, fallback: list) -> list:
+    """Ask CM - Directory Auto-Create to make a directory entry for the
+    contact, at the URL in the site setting flows.yaml names. With no URL set,
+    or when the call fails, the `fallback` steps run instead (the notice the
+    office got before). Only the contact ID is sent: the flow reads the rest.
+    Each fallback runs under its own names, since one name per flow is the
+    rule."""
+    u, call = p + "Get_auto_create_url", p + "Call_Directory_Auto_Create"
+    url = f"trim(coalesce({first(u)}?['mspp_value'], ''))"
+    setting = f.s["directoryAutoCreate"]["urlSetting"]
+    named = lambda suffix: [(n + suffix, a) for n, a in fallback]
+    post = {"type": "Http", "inputs": {"method": "POST", "uri": "@{" + url + "}",
+                                       "headers": {"Content-Type": "application/json"},
+                                       "body": {"contactId": "@{" + contact_expr + "}"}}}
+    return [
+        (u, f.list("mspp_sitesettings", f"concat('mspp_name eq ', {odata(q(setting))})", "mspp_sitesettingid,mspp_name,mspp_value", 1)),
+        (p + "Auto_create_is_set_up", when(f"startsWith(toLower({url}), 'https://')", seq(
+            (call, post),
+            (p + "Auto_create_failed", when(f"not(equals(actions({q(call)})?['status'], 'Succeeded'))", seq(*named("_after_call")),
+                                            run_after={call: ["Succeeded", "Failed", "TimedOut"]}))),
+            seq(*named("") if fallback else []))),
+    ]
+
+
+def link_steps(f: Flow, p: str, contact_expr: str, user_expr: str, create: bool = False) -> list:
     """Find the directory row for an Entra user and link it to the contact
-    when that is safe. `p` prefixes action names (unique per flow)."""
+    when that is safe. `p` prefixes action names (unique per flow). With
+    `create`, someone with no directory row gets one from CM - Directory
+    Auto-Create; without it (a directory row's own trigger) the office is told,
+    so a row whose email matches neither address is not duplicated."""
     upn = f"toLower(coalesce({user_expr}?['userPrincipalName'], ''))"
     mail = f"toLower(coalesce({user_expr}?['mail'], ''))"
     where = (f"concat('(su_email eq ', {odata(upn)}, "
@@ -281,7 +313,10 @@ def link_steps(f: Flow, p: str, contact_expr: str, user_expr: str) -> list:
                   "Link": {"case": "link", "actions": seq(
                       (p + "Set_Portal_Contact", f.update("su_compliancedirectorys", f"{row}?['su_compliancedirectoryid']",
                                                           {"su_contact@odata.bind": "@{concat('contacts(', " + contact_expr + ", ')')}"})))},
-                  "Already_linked": {"case": "already", "actions": {}}},
+                  "Already_linked": {"case": "already", "actions": {}},
+                  **({"Not_in_the_directory": {"case": "none", "actions": seq(*auto_create(
+                      f, p, contact_expr, [(p + "Tell_the_office_not_in_directory", notice(f, p, user_expr, contact_expr, reason))]))}}
+                     if create else {})},
               "default": {"actions": seq((p + "Tell_the_office", notice(f, p, user_expr, contact_expr, reason)))}}
     return [
         (d, f.list("su_compliancedirectorys", where, "su_compliancedirectoryid,su_name,su_email,_su_contact_value", 2)),
@@ -303,11 +338,16 @@ def from_sign_in(f: Flow, p: str, username_expr: str, contact_expr: str, contact
         "</li><li>Contact ID: ", "=" + contact_expr, "</li><li>External Identity username: ", "=" + username_expr,
         "</li></ul><p>If the username is not the person's Entra object ID, the site stores the sub claim "
         "instead (docs/DATAVERSE-MIGRATION.md, section 6).</p><p>Run: ", "=" + RUN_LINK, "</p>"))
+    guest = f"and(equals({user}?['userType'], 'Guest'), equals({user}?['accountEnabled'], true))"
     return seq(
         (g, f.user(username_expr)),
         (p + "Found_in_Entra", when(f"equals(actions({q(g)})?['status'], 'Succeeded')",
-                                    seq((p + "Is_a_member", when(member, seq(*link_steps(f, p, contact_expr, user)))),),
-                                    seq((p + "Tell_the_office_no_account", no_user)),
+                                    seq((p + "Is_a_member", when(member, seq(*link_steps(f, p, contact_expr, user, create=True)),
+                                                                 # a guest (someone outside the University's tenant)
+                                                                 # gets an entry with name and email; a disabled
+                                                                 # account is left alone
+                                                                 seq((p + "Is_a_guest", when(guest, seq(*auto_create(f, p + "Guest_", contact_expr, []))))))),),
+                                    seq(*auto_create(f, p + "No_account_", contact_expr, [(p + "Tell_the_office_no_account", no_user)])),
                                     run_after={g: ["Succeeded", "Failed"]})))
 
 
@@ -966,6 +1006,200 @@ def add_to_calendar(s: dict) -> dict:
     return page_trigger(s, "addToCalendar", definition("manual", power_pages_trigger(), acts, f.used, s))
 
 
+# ---------------------------------------------------------------------------
+# CM - Directory Auto-Create and CM - Directory Profile Sync
+# ---------------------------------------------------------------------------
+def fit(col: str, expr: str, longest: dict) -> str:
+    """`expr` trimmed to the column's length; null when blank."""
+    v = f"trim(coalesce({expr}, ''))"
+    return f"if(empty({v}), null, substring({v}, 0, min({longest[col]}, length({v}))))"
+
+
+def http_reply(name: str, status: int, body_expr: str, after: dict) -> tuple[str, dict]:
+    return name, {"type": "Response", "runAfter": after, "inputs": {
+        "statusCode": status, "body": "@" + body_expr,
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}}}
+
+
+EMAIL_COL = "su_email"
+
+
+def directory_auto_create(s: dict) -> dict:
+    """docs/DATAVERSE-MIGRATION.md, section 6. Called by the link flows, with
+    {"contactId": "<contact ID>"}, for a sign-in that has no Compliance
+    Directory row. It reads everything else itself, so a caller cannot make
+    an entry for someone else: the contact, its Entra sign-in, and the
+    person's Microsoft 365 profile (by the sign-in's object ID, or the
+    contact's email when there is no sign-in). It makes an active row linked
+    to the contact, with title, unit, location, phone and photo when the
+    profile is found, or name and email alone when it is not (someone outside
+    the University's tenant), and emails the office either way. A contact
+    that already has a row, or an email another row has, gets no new row."""
+    f = Flow(s)
+    longest = max_lengths("su_compliancedirectory")
+    err = "variables('Error')"
+    cid = "variables('ContactId')"
+    C = "body('Get_contact')"
+    S = first("Find_sign_in")
+    P = "body('Get_profile')"
+    V = "outputs('New_entry')"
+    found = "outputs('In_Microsoft_365')"
+    decision = "outputs('Decision')"
+
+    def check(name, cond, message):
+        return name, when(f"and(empty({err}), {cond})", seq(("Set_" + name, set_var("Error", message))))
+
+    lookup = f"coalesce({S}?['adx_username'], {C}?['emailaddress1'], '')"
+    phone = f"first(coalesce({P}?['businessPhones'], json('[]')))"
+    # found: a member of the University's tenant, stored by UPN (the NetID
+    # address the office uses). A guest is read for name and mail only; anyone
+    # else gets the contact's name and email
+    read = "outputs('Profile_read')"
+    email = (f"toLower(trim(if({found}, coalesce({P}?['userPrincipalName'], {P}?['mail'], ''), "
+             f"if({read}, coalesce({P}?['mail'], {C}?['emailaddress1'], ''), coalesce({C}?['emailaddress1'], '')))))")
+    name = f"coalesce(if({read}, {P}?['displayName'], null), {C}?['fullname'], '')"
+    profile = lambda prop: f"if({found}, {prop}, null)"
+    new_values = compose({
+        "su_name": "@" + fit("su_name", name, longest),
+        "su_email": "@" + fit("su_email", email, longest),
+        "su_jobtitle": "@" + fit("su_jobtitle", profile(f"{P}?['jobTitle']"), longest),
+        "su_unit": "@" + fit("su_unit", profile(f"{P}?['department']"), longest),
+        "su_location": "@" + fit("su_location", profile(f"{P}?['officeLocation']"), longest),
+        "su_phone": "@" + fit("su_phone", profile(phone), longest)})
+    same_email = f.list("su_compliancedirectorys",
+                        f"concat('su_email eq ', {odata(f'coalesce({V}?[{q(EMAIL_COL)}], {q(ZERO)})')})",
+                        "su_compliancedirectoryid,su_name,su_active,_su_contact_value", 1)
+    decide = (f"if(greater({count('Rows_linked_to_contact')}, 0), 'linked', if(empty(coalesce({V}?['su_name'], '')), 'incomplete', "
+              f"if(empty(coalesce({V}?['su_email'], '')), 'incomplete', if(greater({count('Rows_with_this_email')}, 0), 'exists', 'create'))))")
+    why_not = (f"if({read}, 'they are a guest in the University''s Microsoft 365 tenant, so it has no title or unit for them', "
+               f"if(equals(actions('Get_profile')?['status'], 'Succeeded'), 'their Microsoft 365 account is disabled', "
+               f"concat('their Microsoft 365 profile could not be read (status ', "
+               f"string(coalesce(outputs('Get_profile')?['statusCode'], '')), ')')))")
+    details = lambda: ("</li><li>Name: ", f"=coalesce({V}?['su_name'], '')", "</li><li>Email: ", f"=coalesce({V}?['su_email'], '')",
+                       "</li><li>Contact ID: ", "=" + cid)
+    created_mail = f.email("Compliance Matrix: a directory entry was created automatically", html(
+        "<p>A sign-in to the Compliance Matrix site had no Compliance Directory entry, so one was created and linked to the "
+        "person's sign-in.</p><p>", f"=if({found}, 'Title, unit, location and phone were filled in from their Microsoft 365 profile.', "
+        f"concat('Only name and email were filled in: ', {why_not}, '. Add their title, unit, location and phone by hand if "
+        f"they are needed.'))",
+        "</p><ul><li>Title: ", f"=coalesce({V}?['su_jobtitle'], '')", "</li><li>Unit: ", f"=coalesce({V}?['su_unit'], '')",
+        *details(), "</li></ul><p>If this person should not be in the directory, set Active to No on their entry.</p><p>Run: ",
+        "=" + RUN_LINK, "</p>"))
+    exists_mail = f.email("Compliance Matrix: a sign-in is not linked to the directory", html(
+        "<p>A sign-in to the Compliance Matrix site has no linked Compliance Directory entry, but the entry ",
+        f"=coalesce({first('Rows_with_this_email')}?['su_name'], '')",
+        f"=if(equals({first('Rows_with_this_email')}?['su_active'], false), ' (inactive)', '')",
+        " already has their email, so no new entry was made. Check the entry, then set its Portal Contact by hand.</p><ul>",
+        "<li>Entra sign-in: ", f"=if(empty(coalesce({S}?['adx_username'], '')), 'none found', {S}?['adx_username'])",
+        *details(), "</li></ul><p>Run: ", "=" + RUN_LINK, "</p>"))
+    incomplete_mail = f.email("Compliance Matrix: a sign-in is not linked to the directory", html(
+        "<p>A sign-in to the Compliance Matrix site has no Compliance Directory entry, and no entry was made because no ",
+        f"=if(empty(coalesce({V}?['su_email'], '')), 'email', 'name')",
+        " could be found for it in Microsoft 365 or on the contact. Add them to the directory by hand.</p><ul>",
+        *details(), "</li></ul><p>Run: ", "=" + RUN_LINK, "</p>"))
+    has_photo = ("and(equals(actions('Get_photo')?['status'], 'Succeeded'), "
+                 "not(empty(coalesce(body('Get_photo')?['$content'], ''))))")
+    new_row = "body('Create_entry')?['su_compliancedirectoryid']"
+    create = seq(
+        ("Create_entry", f.create("su_compliancedirectorys", {
+            **{c: f"@{V}?[{q(c)}]" for c in ("su_name", "su_email", "su_jobtitle", "su_unit", "su_location", "su_phone")},
+            "su_active": True, "su_contact@odata.bind": "@{concat('contacts(', " + cid + ", ')')}"})),
+        ("Keep_the_new_ID", set_var("DirectoryId", "@{" + new_row + "}")),
+        ("Found_for_photo", when(found, seq(
+            ("Get_photo", f.photo(f"{P}?['id']")),
+            # no photo (404) leaves su_photo empty
+            ("Has_photo", when(has_photo, seq(
+                ("Store_photo", f.update("su_compliancedirectorys", new_row, {"su_photo": "@body('Get_photo')?['$content']"}))),
+                run_after={"Get_photo": ["Succeeded", "Failed"]}))))),
+        ("Tell_the_office_created", {**created_mail, "runAfter": {"Found_for_photo": ["Succeeded", "Failed"]}}))
+    switch = {"type": "Switch", "expression": "@" + decision, "cases": {
+        "Create": {"case": "create", "actions": create},
+        "Exists": {"case": "exists", "actions": seq(("Tell_the_office_exists", exists_mail))},
+        "Incomplete": {"case": "incomplete", "actions": seq(("Tell_the_office_incomplete", incomplete_mail))}},
+        "default": {"actions": {}}}
+    work = seq(
+        ("Find_sign_in", f.list("adx_externalidentities",
+                                f"concat('_adx_contactid_value eq ', {cid}, ' and adx_identityprovidername eq ', {odata(q(s['identityProvider']))})",
+                                "adx_externalidentityid,adx_username", 1)),
+        ("Get_profile", f.user(lookup, PROFILE_FIELDS + ",displayName,userType")),
+        ("Profile_read", {**compose(f"@and(equals(actions('Get_profile')?['status'], 'Succeeded'), "
+                                    f"not(equals({P}?['accountEnabled'], false)))"),
+                          "runAfter": {"Get_profile": ["Succeeded", "Failed"]}}),
+        ("In_Microsoft_365", compose(f"@and({read}, not(equals({P}?['userType'], 'Guest')))")),
+        ("New_entry", new_values),
+        ("Rows_linked_to_contact", f.list("su_compliancedirectorys", f"concat('_su_contact_value eq ', {cid})", "su_compliancedirectoryid", 1)),
+        ("Rows_with_this_email", same_email),
+        ("Decision", compose("@" + decide)),
+        ("Create_or_tell_the_office", switch))
+    steps = seq(
+        ("Read_request", set_var("ContactId", f"@{{toLower(trim(string(coalesce({HTTP_REQUEST}?['contactId'], ''))))}}")),
+        ("Get_contact", f.get("contacts", f"if(equals(length({cid}), 36), {cid}, {q(ZERO)})", "contactid,fullname,emailaddress1")),
+        ("Contact_missing", {**check("Contact_missing", "not(equals(actions('Get_contact')?['status'], 'Succeeded'))",
+                                     "That contact does not exist.")[1], "runAfter": {"Get_contact": ["Succeeded", "Failed"]}}),
+        ("Do_the_work", when(f"empty({err})", work)))
+    ok = (f"addProperty(addProperty(json('{{\"ok\":true}}'), 'result', {decision}), 'directoryId', "
+          f"if(empty(variables('DirectoryId')), null, variables('DirectoryId')))")
+    acts = {
+        "Initialize_ContactId": init_var("ContactId", "string", ""),
+        "Initialize_Error": {**init_var("Error", "string", ""), "runAfter": {"Initialize_ContactId": ["Succeeded"]}},
+        "Initialize_DirectoryId": {**init_var("DirectoryId", "string", ""), "runAfter": {"Initialize_Error": ["Succeeded"]}},
+        "Try": scope(steps, run_after={"Initialize_DirectoryId": ["Succeeded"]}),
+        "Finish": when(f"empty({err})", seq(http_reply("Reply_done", 200, ok, {})),
+                       seq(http_reply("Reply_refused", 400, "addProperty(json('{\"ok\":false}'), 'error', " + err + ")", {})),
+                       run_after={"Try": ["Succeeded"]}),
+        "Catch": scope(seq(
+            http_reply("Reply_error", 500, "json('{\"ok\":false,\"error\":\"The directory entry could not be made. The compliance office has been told.\"}')", {}),
+            ("Alert_the_office", {**f.email("Compliance Matrix: CM - Directory Auto-Create failed", html(
+                "<p>Making a Compliance Directory entry for a new sign-in failed. Open the run to see the step that failed.</p>"
+                "<ul><li>Contact ID: ", "=" + cid, "</li></ul><p>Run: ", "=" + RUN_LINK, "</p>")),
+                "runAfter": {"Reply_error": ["Succeeded", "Failed"]}}),
+            ("Fail_the_run", {**terminate("Failed", "CM - Directory Auto-Create failed; the office was emailed."),
+                              "runAfter": {"Alert_the_office": ["Succeeded", "Failed"]}})),
+            run_after={"Try": ["Failed", "TimedOut"]}),
+    }
+    trig = {"type": "Request", "kind": "Http", "inputs": {"method": "POST", "schema": {
+        "type": "object", "properties": {"contactId": {"type": "string"}}}}}
+    return definition("manual", trig, acts, f.used, s)
+
+
+def directory_profile_sync(s: dict) -> dict:
+    """docs/DATAVERSE-MIGRATION.md, section 6. When a directory row is added
+    by hand (one CM - Directory Auto-Create makes is already linked to a
+    contact, so it does not run this): look the email up in Microsoft 365 and
+    fill in title, unit, location and phone where the row has none. A value
+    already on the row is kept. Not found in Microsoft 365: the row stays as
+    it was entered."""
+    f = Flow(s)
+    longest = max_lengths("su_compliancedirectory")
+    t = "triggerOutputs()?['body/{}']"
+    trig = dataverse_trigger(f, "su_compliancedirectory", 1, None, [
+        f"not(empty(trim(coalesce({t.format('su_email')}, ''))))",
+        f"or(empty(trim(coalesce({t.format('su_jobtitle')}, ''))), empty(trim(coalesce({t.format('su_unit')}, ''))))",
+        f"empty(coalesce({t.format('_su_contact_value')}, ''))"])
+    R = "body('Get_entry')"
+    P = "body('Get_profile')"
+
+    def profile(prop):
+        if prop == "businessPhones":
+            return f"first(coalesce({P}?['businessPhones'], json('[]')))"
+        return f"{P}?[{q(prop)}]"
+
+    blank = lambda c: f"empty(trim(coalesce({R}?[{q(c)}], '')))"
+    new = lambda c, prop: fit(c, profile(prop), longest)
+    fills = "or(" + ", ".join(f"and({blank(c)}, not(empty(coalesce({new(c, p)}, ''))))" for c, p in SYNC_FIELDS) + ")"
+    found = f"and(equals(actions('Get_profile')?['status'], 'Succeeded'), not(equals({P}?['accountEnabled'], false)))"
+    rid = t.format("su_compliancedirectoryid")
+    body = seq(
+        ("Get_entry", f.get("su_compliancedirectorys", rid, "su_compliancedirectoryid,su_email," + ",".join(c for c, _ in SYNC_FIELDS))),
+        ("Get_profile", f.user(f"trim(coalesce({R}?['su_email'], ''))", PROFILE_FIELDS)),
+        ("In_Microsoft_365", when(found, seq(
+            ("Anything_to_fill_in", when(fills, seq(
+                ("Fill_in_empty_fields", f.update("su_compliancedirectorys", rid, {
+                    c: f"@if({blank(c)}, {new(c, p)}, {R}?[{q(c)}])" for c, p in SYNC_FIELDS})))))),
+            run_after={"Get_profile": ["Succeeded", "Failed"]})))
+    return definition("When_a_directory_row_is_added", trig, try_catch(f, body, "CM - Directory Profile Sync"), f.used, s)
+
+
 FLOWS = [
     ("CM - Link directory to contact", "Links a new Entra sign-in to its Compliance Directory row (section 6).", link_directory_to_contact),
     ("CM - Link contact to directory", "Links a directory row to the person's existing sign-in when its email is set (section 6).", link_contact_to_directory),
@@ -975,6 +1209,10 @@ FLOWS = [
      "to the Compliance Directory (section 6).", sync_directory),
     ("CM - Add to calendar", "Invites the signed-in person to an all-day Outlook event for each deadline they add (section 8).",
      add_to_calendar),
+    ("CM - Directory Auto-Create", "Called by the link flows: makes a Compliance Directory entry, from Microsoft 365 where it "
+     "can, for a sign-in that has none (section 6).", directory_auto_create),
+    ("CM - Directory Profile Sync", "Fills in a new hand-made directory row's empty title, unit, location and phone from "
+     "Microsoft 365 (section 6).", directory_profile_sync),
 ]
 
 

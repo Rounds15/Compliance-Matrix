@@ -52,7 +52,7 @@ const added = (env, row) => runFlow(FLOWS["CM - Link directory to contact"], { t
 test("every expression in every generated flow parses, with only modelled functions", () => {
   let n = 0;
   for (const def of Object.values(FLOWS)) for (const e of expressionsIn(def.properties.definition)) { parseExpression(e); n++; }
-  assert.equal(Object.keys(FLOWS).length, 6);
+  assert.equal(Object.keys(FLOWS).length, 8);
   assert.ok(n > 150, "found " + n);
 });
 
@@ -642,4 +642,159 @@ test("add to calendar: the event's time zone is an Outlook name, as Power Automa
   const ol = outlookConnector();
   assert.throws(() => ol("V4CalendarPostItem", { table: "Calendar", "item/subject": "x", "item/start": "2026-10-01T00:00:00", "item/end": "2026-10-02T00:00:00", "item/timeZone": "Eastern Standard Time" }),
     /item\/timeZone must be one of the connector's time zones/);
+});
+
+/* ---------------- CM - Directory Auto-Create, called by the link flows ---------------- */
+const CREATE_URL = "https://example.invalid/powerautomate/directory-create?sig=x";
+const JPEG2 = Buffer.from("another jpeg").toString("base64");
+const PEOPLE = [
+  ...ENTRA.filter(u => u.id !== OID(5)),
+  { id: OID(5), displayName: "Nora Lindqvist", userPrincipalName: "nlindqvist@syr.edu", mail: "nora.lindqvist@syr.edu", accountEnabled: true, userType: "Member",
+    jobTitle: "Research Compliance Analyst", department: "Office of Research", officeLocation: "Lyman Hall", businessPhones: ["+1 315 443 2000"],
+    photo: { type: "image/jpeg", base64: JPEG2 } },
+  { id: OID(6), displayName: "Christine Stallmann", userPrincipalName: "cstallmann_example.org#EXT#@syr.onmicrosoft.com", mail: "cstallmann@example.org",
+    accountEnabled: true, userType: "Guest", jobTitle: null, department: null }
+];
+/* the link flows with the URL set, calling the real CM - Directory Auto-Create */
+function autoWorld({ url = CREATE_URL, answer = null } = {}) {
+  const env = world();
+  env.users = usersConnector(PEOPLE);
+  env.dv.mspp_sitesettings.push({ mspp_sitesettingid: "cccccccc-0000-4000-8000-000000000001", mspp_name: "ComplianceMatrix/Flow/DirectoryCreate", mspp_value: url });
+  env.calls = [];
+  env.http = req => {
+    env.calls.push(req);
+    if (answer) return answer;
+    const r = runFlow(FLOWS["CM - Directory Auto-Create"], { trigger: { body: req.body }, dataverse: env.dataverse, users: env.users, outlook: env.outlook });
+    env.last = r;
+    return r.response;
+  };
+  return env;
+}
+const create = (env, body) => runFlow(FLOWS["CM - Directory Auto-Create"], { trigger: { body }, dataverse: env.dataverse, users: env.users, outlook: env.outlook });
+const byContact = (env, c) => env.dv.su_compliancedirectorys.filter(p => p._su_contact_value === c);
+
+test("auto-create: a member not in the directory gets an entry from Microsoft 365, linked to the sign-in", () => {
+  const env = autoWorld();
+  const r = added(env, env.signIn(G(964), OID(5)));
+  assert.equal(r.status, "Succeeded");
+  assert.deepEqual(env.calls.map(c => [c.method, c.uri, c.body]), [["POST", CREATE_URL, { contactId: G(964) }]], "only the contact ID is sent");
+  assert.equal(env.last.status, "Succeeded");
+  const [row] = byContact(env, G(964));
+  assert.deepEqual({ n: row.su_name, e: row.su_email, t: row.su_jobtitle, u: row.su_unit, l: row.su_location, p: row.su_phone, a: row.su_active, ph: row.su_photo },
+    { n: "Nora Lindqvist", e: "nlindqvist@syr.edu", t: "Research Compliance Analyst", u: "Office of Research", l: "Lyman Hall", p: "+1 315 443 2000", a: true, ph: JPEG2 });
+  assert.deepEqual(env.last.response.body, { ok: true, result: "create", directoryId: row.su_compliancedirectoryid });
+  assert.equal(env.outlook.sent.length, 1, "one email, not the old notice as well");
+  assert.match(env.outlook.sent[0].subject, /a directory entry was created automatically/);
+  assert.match(env.outlook.sent[0].body, /filled in from their Microsoft 365 profile/);
+  assert.match(env.outlook.sent[0].body, /Research Compliance Analyst/);
+});
+
+test("auto-create: a guest from outside the tenant gets name and email only, and the office is told why", () => {
+  const env = autoWorld();
+  added(env, env.signIn(G(965), OID(6)));
+  const [row] = byContact(env, G(965));
+  assert.equal(row.su_name, "Christine Stallmann");
+  assert.equal(row.su_email, "cstallmann@example.org");
+  assert.equal(row.su_jobtitle ?? null, null);
+  assert.equal(row.su_photo, undefined);
+  assert.equal(env.outlook.sent.length, 1);
+  assert.match(env.outlook.sent[0].body, /Only name and email were filled in: they are a guest in the University's Microsoft 365 tenant/);
+});
+
+test("auto-create: no Entra account falls back to the contact's name and email", () => {
+  const env = autoWorld();
+  const sign = env.signIn(G(966), "pairwise-sub-claim-value");
+  Object.assign(env.dv.contacts.find(c => c.contactid === G(966)), { fullname: "Pat Visitor", emailaddress1: "Pat.Visitor@Example.org" });
+  added(env, sign);
+  const [row] = byContact(env, G(966));
+  assert.deepEqual([row.su_name, row.su_email], ["Pat Visitor", "pat.visitor@example.org"]);
+  assert.equal(env.outlook.sent.length, 1);
+  assert.match(env.outlook.sent[0].body, /profile could not be read \(status 404\)/);
+});
+
+test("auto-create: an email another row has (or no email at all) makes no row; the office is told", () => {
+  const env = autoWorld();
+  added(env, env.signIn(G(962), OID(4)));   // a guest whose mail is Grace Whitfield's directory email
+  assert.equal(byContact(env, G(962)).length, 0);
+  assert.equal(env.person(G(104))._su_contact_value, null, "the existing row is not linked");
+  assert.match(env.outlook.sent.at(-1).body, /Grace Whitfield.* already has their email, so no new entry was made/);
+  const n = env.dv.su_compliancedirectorys.length;
+  added(env, env.signIn(G(967), "another-sub-claim"));   // no account, contact without email
+  assert.equal(env.dv.su_compliancedirectorys.length, n);
+  assert.match(env.outlook.sent.at(-1).body, /no entry was made because no email could be found/);
+});
+
+test("auto-create: called again, or for a contact that has a row, it makes nothing; a bad request is refused", () => {
+  const env = autoWorld();
+  added(env, env.signIn(G(964), OID(5)));
+  const rows = env.dv.su_compliancedirectorys.length, mails = env.outlook.sent.length;
+  const again = create(env, { contactId: G(964) });
+  assert.deepEqual(again.response.body, { ok: true, result: "linked", directoryId: null });
+  assert.equal(env.dv.su_compliancedirectorys.length, rows);
+  assert.equal(env.outlook.sent.length, mails, "and sends no email");
+  const r = create(env, { contactId: G(999) });
+  assert.equal(r.response.statusCode, 400);
+  assert.deepEqual(r.response.body, { ok: false, error: "That contact does not exist." });
+  assert.equal(create(env, { contactId: "not an id" }).response.statusCode, 400);
+});
+
+test("auto-create: with no URL set, or when the call fails, the office gets the notice as before", () => {
+  for (const env of [autoWorld({ url: "" }), autoWorld({ answer: { statusCode: 500, body: { ok: false } } })]) {
+    const r = added(env, env.signIn(G(964), OID(5)));
+    assert.equal(r.status, "Succeeded");
+    assert.equal(byContact(env, G(964)).length, 0);
+    assert.equal(env.outlook.sent.length, 1);
+    assert.match(env.outlook.sent[0].body, /No active Compliance Directory row has this person's user principal name/);
+  }
+});
+
+test("auto-create: Link existing sign-ins creates too; Link contact to directory never calls it", () => {
+  const env = autoWorld();
+  env.signIn(G(964), OID(5));
+  const r = runFlow(FLOWS["CM - Link existing sign-ins"], { trigger: {}, ...env });
+  assert.equal(r.status, "Succeeded");
+  assert.equal(byContact(env, G(964)).length, 1);
+  assert.ok(!JSON.stringify(FLOWS["CM - Link contact to directory"]).includes('"Http"'), "a directory row's own trigger does not make rows");
+  const trig = FLOWS["CM - Directory Auto-Create"].properties.definition.triggers.manual;
+  assert.deepEqual([trig.type, trig.kind, trig.inputs.method], ["Request", "Http", "POST"]);
+});
+
+test("auto-create: a failure replies, alerts the office and fails the run", () => {
+  const env = autoWorld();
+  env.signIn(G(964), OID(5));
+  const dv = env.dataverse;
+  /* a Dataverse refusal on create */
+  const refusing = (op, p) => op === "CreateRecord" ? dv("CreateRecord", { ...p, "item/su_nosuchcolumn": "x" }) : dv(op, p);
+  const r = runFlow(FLOWS["CM - Directory Auto-Create"], { trigger: { body: { contactId: G(964) } }, dataverse: refusing, users: env.users, outlook: env.outlook });
+  assert.equal(r.status, "Failed");
+  assert.equal(r.response.statusCode, 500);
+  assert.match(env.outlook.sent.at(-1).subject, /CM - Directory Auto-Create failed/);
+});
+
+/* ---------------- CM - Directory Profile Sync ---------------- */
+const profileSync = (env, row) => runFlow(FLOWS["CM - Directory Profile Sync"], { trigger: { body: row }, dataverse: env.dataverse, users: env.users, outlook: env.outlook });
+
+test("profile sync: a hand-made row gets its empty fields from Microsoft 365, and keeps what was typed", () => {
+  const env = autoWorld();
+  const row = { su_compliancedirectoryid: "dddddddd-0000-4000-8000-000000000001", su_name: "Nora L", su_email: "nlindqvist@syr.edu", su_unit: "Research Integrity", su_active: true };
+  env.dv.su_compliancedirectorys.push(row);
+  const r = profileSync(env, { ...row });
+  assert.equal(r.status, "Succeeded");
+  assert.deepEqual([row.su_name, row.su_jobtitle, row.su_unit, row.su_location, row.su_phone],
+    ["Nora L", "Research Compliance Analyst", "Research Integrity", "Lyman Hall", "+1 315 443 2000"]);
+  assert.equal(env.outlook.sent.length, 0);
+});
+
+test("profile sync: not found leaves the row as entered; rows made by auto-create, filled in, or without email do not run it", () => {
+  const env = autoWorld();
+  const row = { su_compliancedirectoryid: "dddddddd-0000-4000-8000-000000000002", su_name: "Outside Person", su_email: "someone@example.org", su_active: true };
+  env.dv.su_compliancedirectorys.push(row);
+  const before = { ...row };
+  const r = profileSync(env, { ...row });
+  assert.equal(r.status, "Succeeded");
+  assert.deepEqual(row, before);
+  assert.ok(!r.log.some(x => x.op === "UpdateRecord"), "nothing is written");
+  assert.equal(env.outlook.sent.length, 0);
+  for (const t of [{ ...row, _su_contact_value: G(964) }, { ...row, su_jobtitle: "A", su_unit: "B" }, { ...row, su_email: " " }])
+    assert.equal(profileSync(env, t).status, "NotTriggered");
 });

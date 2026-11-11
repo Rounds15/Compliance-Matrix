@@ -39,6 +39,13 @@ directorySync:
   minute: 0
   timeZone: Eastern Standard Time
 
+# CM - Directory Auto-Create. The link flows call it for a sign-in with no
+# Compliance Directory row, at the "When an HTTP request is received" URL
+# stored in this Power Pages site setting. With the setting empty they send
+# the "not linked" notice instead, as before.
+directoryAutoCreate:
+  urlSetting: ComplianceMatrix/Flow/DirectoryCreate
+
 # CM - Add to calendar. Events are made on the CM - Office 365 Outlook
 # connection account's calendar (calendarId; "Calendar" is its default
 # calendar) with the person invited, all day in timeZone, with a reminder
