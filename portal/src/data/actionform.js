@@ -62,6 +62,10 @@ export function missingField(doc, id, path = "") {
   const title = text(doc.querySelector("title"));
   const fields = [...doc.querySelectorAll("input[id], select[id], textarea[id]")]
     .filter(el => el.type !== "hidden" && el.type !== "submit" && !/_name$/.test(el.id)).map(el => el.id);
+  if (/^\/(signin|account\/login)/i.test(path))
+    return "The CM Action page sent you to sign in, although you are signed in on this page. Power Pages does that when the page's permissions do not " +
+      "include one of your web roles, or when your session cookie did not reach it. In Design Studio > Pages > CM Action > Permissions, check that " +
+      "your web role is listed, then sync and clear the cache. " + SETUP;
   if (!doc.getElementById("InsertButton")) {
     const note = text(doc.querySelector(".alert, .message, #ValidationSummaryEntityFormView, .validation-summary"));
     return `The action form page shows no form to fill in${title ? ` (page "${title}")` : ""}.${where}` +

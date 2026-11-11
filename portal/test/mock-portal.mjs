@@ -434,7 +434,9 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
     "</body></html>";
 
   async function actionForm(req, res) {
-    if (!user) { res.writeHead(302, { Location: "/SignIn?returnUrl=%2Fcm-action%2F" }); return res.end(); }
+    /* formWithout "signin": the page's permissions leave this person out, so
+       Power Pages sends them to sign in */
+    if (!user || formWithout === "signin") { res.writeHead(302, { Location: "/SignIn?returnUrl=%2Fcm-action%2F" }); return res.end(); }
     const html = (status, errors) => { res.writeHead(status, { "Content-Type": "text/html; charset=utf-8" }); res.end(formPage(errors)); };
     if (req.method === "GET") return html(200, []);
     if (req.method !== "POST") return fail(res, 405, "Method not allowed");

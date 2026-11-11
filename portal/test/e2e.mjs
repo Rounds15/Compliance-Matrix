@@ -1384,8 +1384,9 @@ for (const [done, want] of [
    the message says which, and nothing is saved */
 for (const [without, want] of [
   ["su_name", /action form has no field su_name\. Its fields are: su_action, su_reason\. Add su_name to a section in the body/],
+  ["signin", /The CM Action page sent you to sign in, although you are signed in on this page\./],
   ["form", /shows no form to fill in \(page "CM Action"\)\. It says: "You don't have the appropriate permissions\."/]]) {
-  await session("Dataverse · an action form without " + without + " says why", { backend: "dataverse", admin: true, formWithout: without }, async ({ page, portal, go, toast, btn }) => {
+  await session("Dataverse · an action form without " + without + " says why", { backend: "dataverse", admin: true, formWithout: without, expectConsole: without === "signin" ? /status of 404/ : null }, async ({ page, portal, go, toast, btn }) => {
     await go("#/functions/" + G(202));
     await page.waitForSelector("h1:has-text('Form I-9')");
     await btn("Flag for review").click();
