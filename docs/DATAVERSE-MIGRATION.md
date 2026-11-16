@@ -263,10 +263,6 @@ The flows import turned off; they need connections first.
    `HTTP/Content-Security-Policy` setting with `connect-src`, the host is
    the same as the action flow's. Until the setting is set, the calendar
    buttons download a calendar file instead (section 8, Add to calendar).
-   The invitations come from the group mailbox
-   SyracuseComplianceMatrix@groups.syr.edu, so give the CM - Office 365
-   Outlook connection's account **Send As** on that group (section 8, Add to
-   calendar, "Send As").
 9. **Fill in the directory from Microsoft 365:** Cloud flows > CM - Sync
    directory from M365 > **Run**. It then runs again every Sunday at 10 PM
    Eastern (section 6, "Directory details and photos").
@@ -1407,31 +1403,29 @@ switched to the HTTP trigger the same way (`addToCalendar: http`).
 
 **Add to my calendar** on a function adds its next open deadline; **Add this
 month to my calendar** on the Deadlines calendar adds the open deadlines the
-month shows (with the page's search and filter). Each becomes an **email
-with a calendar invitation attached**, sent to the person signed in from the
-compliance office's group mailbox (SyracuseComplianceMatrix@groups.syr.edu):
-an all-day event on the due date, shown as free, with a 7-day reminder, the
-function's deadline narrative and a link back to the function.
+month shows (with the page's search and filter). Each becomes an Outlook
+**invitation** to the person signed in: an all-day event on the due date,
+shown as free, with the function's deadline narrative and a link back to the
+function. No response is requested, so the organizer gets no acceptances or
+declines.
 
-**Why an email.** A flow that Power Pages calls runs on its own connections,
-not the visitor's, so it cannot write to the visitor's calendar, and the
-Outlook calendar actions (Create event, Get events, Update event) cannot use
-a Microsoft 365 group's calendar: given the group's address they answer "Id
-is malformed". So the flow sends the invitation with **Send an email (V2)**,
-From the group mailbox, with the event as an attached calendar file (.ics,
-METHOD:REQUEST, the group as organizer and the person as attendee). Opening
-the attachment adds the event to their calendar. Send an email (V2) cannot
-send a native Outlook meeting request, so how the invitation shows depends on
-the mail client: Outlook shows the attachment, which opens as the event;
-some other clients show it as an invitation. The event is not on the group's
-own calendar.
+**Why an invitation.** A flow that the page calls runs on its own
+connections, not the visitor's, so it cannot write to the visitor's
+calendar. CM - Add to calendar makes each event on the calendar of the **CM -
+Office 365 Outlook** connection's account and invites the person. Outlook
+adds the invitation to their calendar (tentatively, until they accept,
+unless they have changed that setting). The 7-day reminder is set on the
+organizer's copy; an invitee's reminder is their own Outlook default.
 
-**Send As.** The CM - Office 365 Outlook connection's account needs **Send
-As** on the group: Exchange admin center > Recipients > Groups > Microsoft
-365 > SyracuseComplianceMatrix > Settings (or Delegates) > **Send as** > add
-the account. Without it each request fails with "does not have the right to
-send mail on behalf of the specified sending account", and the office is
-emailed.
+**The organizer's copy stays.** Deleting a meeting from the organizer's
+calendar sends the attendees a cancellation, so the flow leaves its copy in
+place. To keep those events out of the way, make a separate calendar on the
+connection account (for example "Compliance Matrix invites"), pick it in the
+flow's Create event, Move event and Create event again steps, and turn that
+calendar off in Outlook's calendar list. Tell me its ID so
+`solution/schema/flows.yaml` matches, or a later import puts "Calendar" back.
+The Outlook calendar actions cannot use a Microsoft 365 group's calendar
+(they answer "Id is malformed").
 
 **How it runs.** The page records an **Add to calendar** Portal Action through
 the same CM Portal Action form (so Requested By is set by the server, as
@@ -1452,27 +1446,30 @@ The flow:
    or date. The subject is the function name, a colon, and the deadline's
    title.
 4. Looks for a **Calendar Invite** row for this deadline and this person
-   (the table keeps what the flow has sent). None: sends the invitation and
-   adds the row. One with the same due date: sends nothing (already there).
-   One with a different date: sends an update of the same event (the same
-   UID, the next SEQUENCE), which moves it when the person opens it, and
-   records the new date.
+   (the table keeps what the flow has sent, with the event's ID). None:
+   creates the event and adds the row. One with the same due date: leaves it
+   (already there). One with a different date: moves the event, which sends
+   the person the update, and records the new date. If the organizer's copy
+   was deleted, it makes a new event instead.
 5. Records the counts on the row (Result) and replies, and the page says
    "Calendar invite sent to your email" ("2 calendar invites sent to your
    email"), noting any moved or already on the calendar. When the invite
    cannot be sent, the page says why and downloads the calendar file instead.
 
-Anything else going wrong (no Send As on the group, Outlook refusing the
-email) marks the row Failed, tells the person "The deadlines could not be added to
+Anything else going wrong (the calendar not found, Outlook refusing an event)
+marks the row Failed, tells the person "The deadlines could not be added to
 your calendar. The compliance office has been told.", emails the office and
 fails the run.
 
-**Settings** (`solution/schema/flows.yaml`, `calendar`): the group mailbox
-the invitations come from (`from`), the reminder (10080 minutes, 7 days) and
-the most deadlines per request (50).
+**Settings** (`solution/schema/flows.yaml`, `calendar`): the calendar
+(`Calendar`, the account's default calendar), the time zone ((UTC-05:00)
+Eastern Time (US & Canada)), the reminder (10080 minutes, 7 days) and the
+most deadlines per request (50). If a run fails on "calendar not found",
+open the flow, pick the calendar in the Create event, Move event and Create
+event again steps, and tell me so the file matches.
 
 **Sending one again.** To send someone a deadline's invitation again (they
-deleted the email, say), delete their Calendar Invite row for it: Tables >
+deleted the event, say), delete their Calendar Invite row for it: Tables >
 Calendar Invite > the row with their email and the deadline.
 
 **Without the flow** (its site setting empty, or the SharePoint backend) the

@@ -148,6 +148,23 @@
             ]
           }
         },
+        "Initialize_EventId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "EventId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Skipped": [
+              "Succeeded"
+            ]
+          }
+        },
         "Try": {
           "type": "Scope",
           "actions": {
@@ -536,15 +553,6 @@
                           "inputs": "@substring(concat(coalesce(first(body('Find_function')?['value'])?['su_name'], ''), if(or(empty(trim(string(coalesce(items('For_each_deadline')?['title'], '')))), equals(trim(string(coalesce(items('For_each_deadline')?['title'], ''))), coalesce(first(body('Find_function')?['value'])?['su_name'], ''))), '', concat(': ', trim(string(coalesce(items('For_each_deadline')?['title'], '')))))), 0, min(255, length(concat(coalesce(first(body('Find_function')?['value'])?['su_name'], ''), if(or(empty(trim(string(coalesce(items('For_each_deadline')?['title'], '')))), equals(trim(string(coalesce(items('For_each_deadline')?['title'], ''))), coalesce(first(body('Find_function')?['value'])?['su_name'], ''))), '', concat(': ', trim(string(coalesce(items('For_each_deadline')?['title'], '')))))))))",
                           "runAfter": {}
                         },
-                        "File_name": {
-                          "type": "Compose",
-                          "inputs": "@substring(replace(replace(replace(replace(replace(replace(replace(replace(replace(outputs('Subject'), '/', '-'), '\\', '-'), ':', '-'), '*', ''), '?', ''), '\"', ''), '<', ''), '>', ''), '|', '-'), 0, min(80, length(replace(replace(replace(replace(replace(replace(replace(replace(replace(outputs('Subject'), '/', '-'), '\\', '-'), ':', '-'), '*', ''), '?', ''), '\"', ''), '<', ''), '>', ''), '|', '-'))))",
-                          "runAfter": {
-                            "Subject": [
-                              "Succeeded"
-                            ]
-                          }
-                        },
                         "Find_invite": {
                           "type": "OpenApiConnection",
                           "inputs": {
@@ -556,13 +564,13 @@
                             "parameters": {
                               "entityName": "su_calendarinvites",
                               "$filter": "@{concat('_su_deadline_value eq ', trim(string(coalesce(items('For_each_deadline')?['id'], ''))), ' and _su_contact_value eq ', body('Get_action')?['_su_requestedby_value'])}",
-                              "$select": "su_calendarinviteid,su_duedatesent,su_sequence",
+                              "$select": "su_calendarinviteid,su_duedatesent,su_eventid",
                               "$top": 1
                             },
                             "authentication": "@parameters('$authentication')"
                           },
                           "runAfter": {
-                            "File_name": [
+                            "Subject": [
                               "Succeeded"
                             ]
                           }
@@ -580,30 +588,44 @@
                             ]
                           },
                           "actions": {
-                            "Send_invitation": {
+                            "Create_event": {
                               "type": "OpenApiConnection",
                               "inputs": {
                                 "host": {
                                   "connectionName": "shared_office365",
-                                  "operationId": "SendEmailV2",
+                                  "operationId": "V4CalendarPostItem",
                                   "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
                                 },
                                 "parameters": {
-                                  "emailMessage/From": "SyracuseComplianceMatrix@groups.syr.edu",
-                                  "emailMessage/To": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
-                                  "emailMessage/Subject": "@{outputs('Subject')}",
-                                  "emailMessage/Body": "@{concat('<p><b>', coalesce(first(body('Find_function')?['value'])?['su_name'], ''), '</b></p><p>', concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), '</p><p>', replace(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>'), '</p>', if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat('<p><a href=\"', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), ''), '\">Open this function in the Compliance Matrix</a></p>')))}",
-                                  "emailMessage/Importance": "Normal",
-                                  "emailMessage/Attachments": [
-                                    {
-                                      "Name": "@{concat(outputs('File_name'), '.ics')}",
-                                      "ContentBytes": "@{base64(concat('BEGIN:VCALENDAR', decodeUriComponent('%0D%0A'), 'VERSION:2.0', decodeUriComponent('%0D%0A'), 'PRODID:-//Syracuse University//Compliance Matrix//EN', decodeUriComponent('%0D%0A'), 'METHOD:REQUEST', decodeUriComponent('%0D%0A'), 'BEGIN:VEVENT', decodeUriComponent('%0D%0A'), concat('UID:', concat('cm-', trim(string(coalesce(items('For_each_deadline')?['id'], ''))), '-', toLower(body('Get_action')?['_su_requestedby_value']), '@syr.edu')), decodeUriComponent('%0D%0A'), concat('SEQUENCE:', string(0)), decodeUriComponent('%0D%0A'), concat('DTSTAMP:', utcNow('yyyyMMddTHHmmssZ')), decodeUriComponent('%0D%0A'), concat('DTSTART;VALUE=DATE:', replace(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), '-', '')), decodeUriComponent('%0D%0A'), concat('DTEND;VALUE=DATE:', replace(addDays(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 1, 'yyyy-MM-dd'), '-', '')), decodeUriComponent('%0D%0A'), concat('SUMMARY:', replace(replace(replace(replace(replace(coalesce(outputs('Subject'), ''), decodeUriComponent('%0D'), ''), '\\', '\\\\'), ';', '\\;'), ',', '\\,'), decodeUriComponent('%0A'), '\\n')), decodeUriComponent('%0D%0A'), concat('DESCRIPTION:', replace(replace(replace(replace(replace(coalesce(concat(coalesce(first(body('Find_function')?['value'])?['su_name'], ''), decodeUriComponent('%0A'), concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), if(empty(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], '')), '', concat(decodeUriComponent('%0A%0A'), coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''))), if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat(decodeUriComponent('%0A%0A'), 'Open this function in the Compliance Matrix: ', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')))), ''), decodeUriComponent('%0D'), ''), '\\', '\\\\'), ';', '\\;'), ',', '\\,'), decodeUriComponent('%0A'), '\\n')), decodeUriComponent('%0D%0A'), 'ORGANIZER;CN=Syracuse University Compliance Matrix:mailto:SyracuseComplianceMatrix@groups.syr.edu', decodeUriComponent('%0D%0A'), concat('ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=FALSE:mailto:', trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))), decodeUriComponent('%0D%0A'), 'TRANSP:TRANSPARENT', decodeUriComponent('%0D%0A'), 'X-MICROSOFT-CDO-BUSYSTATUS:FREE', decodeUriComponent('%0D%0A'), 'X-MICROSOFT-CDO-ALLDAYEVENT:TRUE', decodeUriComponent('%0D%0A'), 'BEGIN:VALARM', decodeUriComponent('%0D%0A'), 'ACTION:DISPLAY', decodeUriComponent('%0D%0A'), 'DESCRIPTION:Reminder', decodeUriComponent('%0D%0A'), 'TRIGGER:-PT10080M', decodeUriComponent('%0D%0A'), 'END:VALARM', decodeUriComponent('%0D%0A'), 'END:VEVENT', decodeUriComponent('%0D%0A'), 'END:VCALENDAR', decodeUriComponent('%0D%0A'), ''))}"
-                                    }
-                                  ]
+                                  "table": "Calendar",
+                                  "item/subject": "@{outputs('Subject')}",
+                                  "item/start": "@{concat(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 'T00:00:00')}",
+                                  "item/end": "@{concat(addDays(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 1, 'yyyy-MM-dd'), 'T00:00:00')}",
+                                  "item/timeZone": "(UTC-05:00) Eastern Time (US & Canada)",
+                                  "item/isAllDay": true,
+                                  "item/requiredAttendees": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
+                                  "item/body": "@{concat('<p><b>', coalesce(first(body('Find_function')?['value'])?['su_name'], ''), '</b></p><p>', concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), '</p><p>', replace(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>'), '</p>', if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat('<p><a href=\"', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), ''), '\">Open this function in the Compliance Matrix</a></p>')))}",
+                                  "item/isReminderOn": true,
+                                  "item/reminderMinutesBeforeStart": 10080,
+                                  "item/showAs": "free",
+                                  "item/importance": "normal",
+                                  "item/responseRequested": false
                                 },
                                 "authentication": "@parameters('$authentication')"
                               },
                               "runAfter": {}
+                            },
+                            "Keep_event_id": {
+                              "type": "SetVariable",
+                              "inputs": {
+                                "name": "EventId",
+                                "value": "@{body('Create_event')?['id']}"
+                              },
+                              "runAfter": {
+                                "Create_event": [
+                                  "Succeeded"
+                                ]
+                              }
                             },
                             "Record_invitation": {
                               "type": "OpenApiConnection",
@@ -616,17 +638,17 @@
                                 "parameters": {
                                   "entityName": "su_calendarinvites",
                                   "item/su_name": "@substring(concat(outputs('Subject'), ' | ', trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))), 0, min(400, length(concat(outputs('Subject'), ' | ', trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))))))",
-                                  "item/su_sequence": 0,
                                   "item/su_duedatesent": "@{trim(string(coalesce(items('For_each_deadline')?['due'], '')))}",
                                   "item/su_email": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
                                   "item/su_senton": "@{utcNow()}",
+                                  "item/su_eventid": "@{variables('EventId')}",
                                   "item/su_deadline@odata.bind": "@{concat('su_compliancedeadlines(', trim(string(coalesce(items('For_each_deadline')?['id'], ''))), ')')}",
                                   "item/su_contact@odata.bind": "@{concat('contacts(', body('Get_action')?['_su_requestedby_value'], ')')}"
                                 },
                                 "authentication": "@parameters('$authentication')"
                               },
                               "runAfter": {
-                                "Send_invitation": [
+                                "Keep_event_id": [
                                   "Succeeded"
                                 ]
                               }
@@ -670,30 +692,108 @@
                                 },
                                 "else": {
                                   "actions": {
-                                    "Send_update": {
+                                    "Keep_old_event_id": {
+                                      "type": "SetVariable",
+                                      "inputs": {
+                                        "name": "EventId",
+                                        "value": "@{coalesce(first(body('Find_invite')?['value'])?['su_eventid'], '')}"
+                                      },
+                                      "runAfter": {}
+                                    },
+                                    "Move_event": {
                                       "type": "OpenApiConnection",
                                       "inputs": {
                                         "host": {
                                           "connectionName": "shared_office365",
-                                          "operationId": "SendEmailV2",
+                                          "operationId": "V4CalendarPatchItem",
                                           "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
                                         },
                                         "parameters": {
-                                          "emailMessage/From": "SyracuseComplianceMatrix@groups.syr.edu",
-                                          "emailMessage/To": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
-                                          "emailMessage/Subject": "@{outputs('Subject')}",
-                                          "emailMessage/Body": "@{concat('<p><b>', coalesce(first(body('Find_function')?['value'])?['su_name'], ''), '</b></p><p>', concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), '</p><p>', replace(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>'), '</p>', if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat('<p><a href=\"', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), ''), '\">Open this function in the Compliance Matrix</a></p>')))}",
-                                          "emailMessage/Importance": "Normal",
-                                          "emailMessage/Attachments": [
-                                            {
-                                              "Name": "@{concat(outputs('File_name'), '.ics')}",
-                                              "ContentBytes": "@{base64(concat('BEGIN:VCALENDAR', decodeUriComponent('%0D%0A'), 'VERSION:2.0', decodeUriComponent('%0D%0A'), 'PRODID:-//Syracuse University//Compliance Matrix//EN', decodeUriComponent('%0D%0A'), 'METHOD:REQUEST', decodeUriComponent('%0D%0A'), 'BEGIN:VEVENT', decodeUriComponent('%0D%0A'), concat('UID:', concat('cm-', trim(string(coalesce(items('For_each_deadline')?['id'], ''))), '-', toLower(body('Get_action')?['_su_requestedby_value']), '@syr.edu')), decodeUriComponent('%0D%0A'), concat('SEQUENCE:', string(add(coalesce(first(body('Find_invite')?['value'])?['su_sequence'], 0), 1))), decodeUriComponent('%0D%0A'), concat('DTSTAMP:', utcNow('yyyyMMddTHHmmssZ')), decodeUriComponent('%0D%0A'), concat('DTSTART;VALUE=DATE:', replace(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), '-', '')), decodeUriComponent('%0D%0A'), concat('DTEND;VALUE=DATE:', replace(addDays(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 1, 'yyyy-MM-dd'), '-', '')), decodeUriComponent('%0D%0A'), concat('SUMMARY:', replace(replace(replace(replace(replace(coalesce(outputs('Subject'), ''), decodeUriComponent('%0D'), ''), '\\', '\\\\'), ';', '\\;'), ',', '\\,'), decodeUriComponent('%0A'), '\\n')), decodeUriComponent('%0D%0A'), concat('DESCRIPTION:', replace(replace(replace(replace(replace(coalesce(concat(coalesce(first(body('Find_function')?['value'])?['su_name'], ''), decodeUriComponent('%0A'), concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), if(empty(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], '')), '', concat(decodeUriComponent('%0A%0A'), coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''))), if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat(decodeUriComponent('%0A%0A'), 'Open this function in the Compliance Matrix: ', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')))), ''), decodeUriComponent('%0D'), ''), '\\', '\\\\'), ';', '\\;'), ',', '\\,'), decodeUriComponent('%0A'), '\\n')), decodeUriComponent('%0D%0A'), 'ORGANIZER;CN=Syracuse University Compliance Matrix:mailto:SyracuseComplianceMatrix@groups.syr.edu', decodeUriComponent('%0D%0A'), concat('ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=FALSE:mailto:', trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))), decodeUriComponent('%0D%0A'), 'TRANSP:TRANSPARENT', decodeUriComponent('%0D%0A'), 'X-MICROSOFT-CDO-BUSYSTATUS:FREE', decodeUriComponent('%0D%0A'), 'X-MICROSOFT-CDO-ALLDAYEVENT:TRUE', decodeUriComponent('%0D%0A'), 'BEGIN:VALARM', decodeUriComponent('%0D%0A'), 'ACTION:DISPLAY', decodeUriComponent('%0D%0A'), 'DESCRIPTION:Reminder', decodeUriComponent('%0D%0A'), 'TRIGGER:-PT10080M', decodeUriComponent('%0D%0A'), 'END:VALARM', decodeUriComponent('%0D%0A'), 'END:VEVENT', decodeUriComponent('%0D%0A'), 'END:VCALENDAR', decodeUriComponent('%0D%0A'), ''))}"
-                                            }
-                                          ]
+                                          "table": "Calendar",
+                                          "id": "@{variables('EventId')}",
+                                          "item/subject": "@{outputs('Subject')}",
+                                          "item/start": "@{concat(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 'T00:00:00')}",
+                                          "item/end": "@{concat(addDays(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 1, 'yyyy-MM-dd'), 'T00:00:00')}",
+                                          "item/timeZone": "(UTC-05:00) Eastern Time (US & Canada)",
+                                          "item/isAllDay": true,
+                                          "item/requiredAttendees": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
+                                          "item/body": "@{concat('<p><b>', coalesce(first(body('Find_function')?['value'])?['su_name'], ''), '</b></p><p>', concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), '</p><p>', replace(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>'), '</p>', if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat('<p><a href=\"', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), ''), '\">Open this function in the Compliance Matrix</a></p>')))}",
+                                          "item/isReminderOn": true,
+                                          "item/reminderMinutesBeforeStart": 10080,
+                                          "item/showAs": "free",
+                                          "item/importance": "normal",
+                                          "item/responseRequested": false
                                         },
                                         "authentication": "@parameters('$authentication')"
                                       },
-                                      "runAfter": {}
+                                      "runAfter": {
+                                        "Keep_old_event_id": [
+                                          "Succeeded"
+                                        ]
+                                      }
+                                    },
+                                    "Event_gone": {
+                                      "type": "If",
+                                      "expression": {
+                                        "and": [
+                                          {
+                                            "equals": [
+                                              "@not(equals(actions('Move_event')?['status'], 'Succeeded'))",
+                                              true
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      "actions": {
+                                        "Create_event_again": {
+                                          "type": "OpenApiConnection",
+                                          "inputs": {
+                                            "host": {
+                                              "connectionName": "shared_office365",
+                                              "operationId": "V4CalendarPostItem",
+                                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                                            },
+                                            "parameters": {
+                                              "table": "Calendar",
+                                              "item/subject": "@{outputs('Subject')}",
+                                              "item/start": "@{concat(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 'T00:00:00')}",
+                                              "item/end": "@{concat(addDays(trim(string(coalesce(items('For_each_deadline')?['due'], ''))), 1, 'yyyy-MM-dd'), 'T00:00:00')}",
+                                              "item/timeZone": "(UTC-05:00) Eastern Time (US & Canada)",
+                                              "item/isAllDay": true,
+                                              "item/requiredAttendees": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
+                                              "item/body": "@{concat('<p><b>', coalesce(first(body('Find_function')?['value'])?['su_name'], ''), '</b></p><p>', concat('Due date: ', trim(string(coalesce(items('For_each_deadline')?['due'], '')))), '</p><p>', replace(coalesce(first(body('Find_function')?['value'])?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>'), '</p>', if(empty(if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), '')), '', concat('<p><a href=\"', if(startsWith(toLower(trim(string(coalesce(outputs('Read_deadlines')?['page'], '')))), 'https://'), concat(first(split(trim(string(coalesce(outputs('Read_deadlines')?['page'], ''))), '#')), '#/functions/', first(body('Find_function')?['value'])?['su_compliancefunctionid']), ''), '\">Open this function in the Compliance Matrix</a></p>')))}",
+                                              "item/isReminderOn": true,
+                                              "item/reminderMinutesBeforeStart": 10080,
+                                              "item/showAs": "free",
+                                              "item/importance": "normal",
+                                              "item/responseRequested": false
+                                            },
+                                            "authentication": "@parameters('$authentication')"
+                                          },
+                                          "runAfter": {}
+                                        },
+                                        "Keep_new_event_id": {
+                                          "type": "SetVariable",
+                                          "inputs": {
+                                            "name": "EventId",
+                                            "value": "@{body('Create_event_again')?['id']}"
+                                          },
+                                          "runAfter": {
+                                            "Create_event_again": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "else": {
+                                        "actions": {}
+                                      },
+                                      "runAfter": {
+                                        "Move_event": [
+                                          "Succeeded",
+                                          "Failed"
+                                        ]
+                                      }
                                     },
                                     "Record_update": {
                                       "type": "OpenApiConnection",
@@ -706,15 +806,15 @@
                                         "parameters": {
                                           "entityName": "su_calendarinvites",
                                           "recordId": "@{first(body('Find_invite')?['value'])?['su_calendarinviteid']}",
-                                          "item/su_sequence": "@add(coalesce(first(body('Find_invite')?['value'])?['su_sequence'], 0), 1)",
                                           "item/su_duedatesent": "@{trim(string(coalesce(items('For_each_deadline')?['due'], '')))}",
                                           "item/su_email": "@{trim(coalesce(first(body('Find_person')?['value'])?['su_email'], ''))}",
-                                          "item/su_senton": "@{utcNow()}"
+                                          "item/su_senton": "@{utcNow()}",
+                                          "item/su_eventid": "@{variables('EventId')}"
                                         },
                                         "authentication": "@parameters('$authentication')"
                                       },
                                       "runAfter": {
-                                        "Send_update": [
+                                        "Event_gone": [
                                           "Succeeded"
                                         ]
                                       }
@@ -782,7 +882,7 @@
             }
           },
           "runAfter": {
-            "Initialize_Skipped": [
+            "Initialize_EventId": [
               "Succeeded"
             ]
           }

@@ -647,7 +647,7 @@ export function outlookConnector({ calendars = ["Calendar"], sendAs = null } = {
       throw new ConnectorError(400, "item/timeZone must be one of the connector's time zones, such as '(UTC-05:00) Eastern Time (US & Canada)', but is set to '" + z + "'");
   };
   const EVENT = ["subject", "start", "end", "timeZone", "isAllDay", "requiredAttendees", "body", "isReminderOn",
-    "reminderMinutesBeforeStart", "showAs", "importance"];
+    "reminderMinutesBeforeStart", "showAs", "importance", "responseRequested"];
   const calendar = p => { if (!calendars.includes(p.table)) throw new ConnectorError(404, `The calendar '${p.table}' was not found.`); };
   const fields = p => {
     const out = {};

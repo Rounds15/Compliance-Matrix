@@ -561,6 +561,6 @@ export async function startPortal({ backend = "sharepoint", admin = true, user =
   for (const [name, key] of [["action", "ComplianceMatrix/Flow/Action"], ["calendar", "ComplianceMatrix/Flow/Calendar"]])
     if (httpFlow(name) && !(key in extra)) settings[key] = `http://127.0.0.1:${flowHost.address().port}/flow-http/${name}?api-version=2016-06-01&sig=test-signature`;
   const { port } = server.address();
-  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, fetchxml: fetchxml.queries, emails: outlook.sent, events: outlook.events, get invites() { return outlook.sent.filter(m => m.attachments && m.attachments.length); },
+  return { url: `http://127.0.0.1:${port}/matrix/`, base: `http://127.0.0.1:${port}`, sp, dv, log, fetchxml: fetchxml.queries, emails: outlook.sent, events: outlook.events,
     close: () => Promise.all([new Promise(r => server.close(r)), new Promise(r => flowHost.close(r))]) };
 }

@@ -792,10 +792,10 @@ tables:
     displayCollectionName: Calendar Invites
     description: >-
       One row per person and deadline that CM - Add to calendar has sent a
-      calendar invitation for, from the compliance office's group mailbox.
-      The flow reads it to tell a new invitation from one already sent, and
-      sends an update (the same event, a higher sequence) when the due date
-      changes. Written by the flow only; the Web API is off for this table.
+      calendar invitation for. The flow reads it to tell a new invitation from
+      one already sent, and moves the event (which updates the invitation)
+      when the due date changes. Written by the flow only; the Web API is off
+      for this table.
     primaryName: su_name
     ownership: UserOwned
     hasActivities: false
@@ -818,7 +818,7 @@ tables:
         cascade: { delete: Cascade }
       - { name: su_email, displayName: Sent To, type: String, format: Email, maxLength: 320 }
       - { name: su_duedatesent, displayName: Due Date Sent, type: String, maxLength: 10, description: "The due date the last invitation carried, as yyyy-MM-dd." }
-      - { name: su_sequence, displayName: Sequence, type: Integer, minValue: 0, maxValue: 100000, description: "The last invitation's SEQUENCE: 0 for the first, one more for each update." }
+      - { name: su_eventid, displayName: Event ID, type: String, maxLength: 1000, description: "The Outlook event's ID on the organizer's calendar, which Move event updates." }
       - { name: su_senton, displayName: Sent On, type: DateTime, format: DateAndTime }
 
   su_appadmin:

@@ -537,13 +537,14 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
 
   await go("#/functions/" + G(201));
   await page.waitForSelector("h1:has-text('Clery Act')");
-  // Add to my calendar: an emailed invitation for the function's next open deadline, through the flow
+  // Add to my calendar: an Outlook invitation for the function's next open deadline, through the flow
   await btn("Add to my calendar").click();
   await toast(/^Calendar invite sent to your email\.$/);
-  assert.equal(portal.invites.length, 1);
-  assert.equal(portal.invites[0].subject, "Clery Act Annual Security Report: Publish Annual Security Report");
-  assert.deepEqual([portal.invites[0].from, portal.invites[0].to], ["SyracuseComplianceMatrix@groups.syr.edu", "cruiz@syr.edu"], "to the signed-in person, from the server-set requester");
-  assert.match(portal.invites[0].attachments[0].text, /\r\nDTSTART;VALUE=DATE:\d{4}1001\r\n/);
+  assert.equal(portal.events.length, 1);
+  assert.equal(portal.events[0].subject, "Clery Act Annual Security Report: Publish Annual Security Report");
+  assert.equal(portal.events[0].requiredAttendees, "cruiz@syr.edu;", "the signed-in person, from the server-set requester");
+  assert.equal(portal.events[0].responseRequested, false);
+  assert.match(portal.events[0].start, /^\d{4}-10-01T00:00:00$/);
   const calRow = dv.su_portalactions.at(-1);
   assert.deepEqual([calRow.su_action, calRow.su_status], [100000126, 100000131], "recorded through the CM Portal Action form, then done");
   assert.doesNotMatch(await page.locator(".fd").innerText(), /\bID\b|\b201\b|GAP-/, "no SharePoint IDs, function codes or gap numbers on the page");
@@ -555,7 +556,7 @@ await session("Dataverse · administrator · every write", { backend: "dataverse
   // Add this month to my calendar: October's open deadlines; the one already sent is not sent again
   await btn("Add this month to my calendar").click();
   await toast(/^Already on your Outlook calendar\.$/);
-  assert.equal(portal.invites.length, 1, "no duplicate");
+  assert.equal(portal.events.length, 1, "no duplicate");
   // the calendar on the left (about 75%), Coming up in a sticky rail on the right (about 25%)
   const [calMain, calSide] = [await page.locator(".cal-main").boundingBox(), await page.locator(".cal-side").boundingBox()];
   assert.ok(calSide.x >= calMain.x + calMain.width, "the rail is beside the calendar");

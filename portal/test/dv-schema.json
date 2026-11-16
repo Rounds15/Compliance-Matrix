@@ -155,9 +155,9 @@
    "su_deadline": "lookup:su_compliancedeadline",
    "su_duedatesent": "String",
    "su_email": "String",
+   "su_eventid": "String",
    "su_name": "String",
-   "su_senton": "DateTime",
-   "su_sequence": "Integer"
+   "su_senton": "DateTime"
   },
   "id": "su_calendarinviteid",
   "set": "su_calendarinvites",

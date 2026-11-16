@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="Calendar Invites" languagecode="1033"/>
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="One row per person and deadline that CM - Add to calendar has sent a calendar invitation for, from the compliance office's group mailbox. The flow reads it to tell a new invitation from one already sent, and sends an update (the same event, a higher sequence) when the due date changes. Written by the flow only; the Web API is off for this table." languagecode="1033"/>
+        <Description description="One row per person and deadline that CM - Add to calendar has sent a calendar invitation for. The flow reads it to tell a new invitation from one already sent, and moves the event (which updates the invitation) when the due date changes. Written by the flow only; the Web API is off for this table." languagecode="1033"/>
       </Descriptions>
       <attributes>
         <attribute PhysicalName="su_name">
@@ -211,10 +211,10 @@
             <Description description="The due date the last invitation carried, as yyyy-MM-dd." languagecode="1033"/>
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="su_sequence">
-          <Type>int</Type>
-          <Name>su_sequence</Name>
-          <LogicalName>su_sequence</LogicalName>
+        <attribute PhysicalName="su_eventid">
+          <Type>nvarchar</Type>
+          <Name>su_eventid</Name>
+          <LogicalName>su_eventid</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -237,18 +237,18 @@
           <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
           <IsDataSourceSecret>0</IsDataSourceSecret>
           <AutoNumberFormat/>
-          <IsSearchable>0</IsSearchable>
+          <IsSearchable>1</IsSearchable>
           <IsFilterable>0</IsFilterable>
           <IsRetrievable>0</IsRetrievable>
           <IsLocalizable>0</IsLocalizable>
-          <Format>none</Format>
-          <MinValue>0</MinValue>
-          <MaxValue>100000</MaxValue>
+          <Format>text</Format>
+          <MaxLength>1000</MaxLength>
+          <Length>2000</Length>
           <displaynames>
-            <displayname description="Sequence" languagecode="1033"/>
+            <displayname description="Event ID" languagecode="1033"/>
           </displaynames>
           <Descriptions>
-            <Description description="The last invitation's SEQUENCE: 0 for the first, one more for each update." languagecode="1033"/>
+            <Description description="The Outlook event's ID on the organizer's calendar, which Move event updates." languagecode="1033"/>
           </Descriptions>
         </attribute>
         <attribute PhysicalName="su_senton">
