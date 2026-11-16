@@ -858,24 +858,31 @@ def reply(name: str, result_expr: str, after: dict) -> tuple[str, dict]:
         "schema": {"type": "object", "properties": {"result": {"title": "result", "type": "string", "x-ms-dynamically-added": True}}}}}
 
 
+def file_name(expr: str) -> str:
+    """`expr` as a file name: characters Windows refuses taken out, at most 80."""
+    v = expr
+    for bad, good in [("/", "-"), ("\\", "-"), (":", "-"), ("*", ""), ("?", ""), ('"', ""), ("<", ""), (">", ""), ("|", "-")]:
+        v = f"replace({v}, {q(bad)}, {q(good)})"
+    return f"substring({v}, 0, min(80, length({v})))"
+
+
 def add_to_calendar(s: dict) -> dict:
     """docs/DATAVERSE-MIGRATION.md, section 8, Add to calendar. The page records
     an Add to calendar Portal Action through the CM Portal Action form (so
     Requested By is the signed-in contact, set by the server) with the
     deadlines in Reason as JSON: {"page": "<matrix page URL>", "deadlines":
-    [{"id", "due" (yyyy-MM-dd, the date the page shows), "title"}]}. A flow
-    called by Power Pages runs on its own connections, not the visitor's, so
-    each event is made on the CM - Office 365 Outlook account's calendar with
-    the person invited: all day, shown as free, with a reminder. An event of
-    the same subject that already invites them is left alone when its date
-    matches and moved when it does not."""
+    [{"id", "due" (yyyy-MM-dd, the date the page shows), "title"}]}. For each
+    deadline the person is emailed from the compliance office's group mailbox
+    (calendar.from, Send As) with the details and an all-day calendar
+    invitation attached (.ics, METHOD:REQUEST, shown as free, with a
+    reminder). The Outlook calendar actions cannot use a group's calendar, so
+    what was sent is kept in Calendar Invite rows: a deadline already sent
+    with the same date is skipped, and a new date sends an update of the same
+    event (same UID, next SEQUENCE)."""
     f = Flow(s)
     c = s["calendar"]
-    # the Outlook connector takes its own display names ("(UTC-05:00) Eastern
-    # Time (US & Canada)"); a Windows name fails when the flow is saved
-    if not re.match(r"^\(UTC([+-]\d{2}:\d{2})?\) \S", str(c["timeZone"])):
-        raise SystemExit("flows.yaml: calendar.timeZone must be an Outlook time zone name such as "
-                         "'(UTC-05:00) Eastern Time (US & Canada)', not " + repr(c["timeZone"]))
+    if not re.match(r"^[^@\s]+@[^@\s]+$", str(c.get("from", ""))):
+        raise SystemExit("flows.yaml: calendar.from must be the group mailbox address the invitations come from")
     A = "body('Get_action')"
     P = first("Find_person")
     err = "variables('Error')"
@@ -896,23 +903,53 @@ def add_to_calendar(s: dict) -> dict:
     body = html("<p><b>", f"={fn_name}", "</b></p><p>", f"={marker}", "</p><p>",
                 f"=replace(coalesce({F}?['su_deadlinenarrative'], ''), decodeUriComponent('%0A'), '<br>')", "</p>",
                 f"=if(empty({link}), '', concat('<p><a href=\"', {link}, '\">Open this function in the Compliance Matrix</a></p>'))")
-    event = {"subject": f"@{{{subject}}}", "start": f"@{{concat({due}, 'T00:00:00')}}",
-             "end": f"@{{concat(addDays({due}, 1, 'yyyy-MM-dd'), 'T00:00:00')}}", "timeZone": c["timeZone"],
-             "isAllDay": True, "requiredAttendees": f"@{{{email}}}", "body": f"@{{{body}}}",
-             "isReminderOn": True, "reminderMinutesBeforeStart": int(c["reminderMinutes"]),
-             "showAs": "free", "importance": "normal"}
-    cal = c["calendarId"]
+    contact = f"{A}?['_su_requestedby_value']"
+    CRLF = "decodeUriComponent('%0D%0A')"
 
-    def outlook(op, params):
-        return f.op("outlook", op, {"table": cal, **params})
+    def ics_text(expr):
+        """RFC 5545 TEXT: backslash, semicolon, comma and line breaks escaped."""
+        v = f"replace(replace(coalesce({expr}, ''), decodeUriComponent('%0D'), ''), '\\', '\\\\')"
+        v = f"replace(replace({v}, ';', '\;'), ',', '\\,')"
+        return f"replace({v}, decodeUriComponent('%0A'), '\\n')"
+
+    narrative = f"coalesce({F}?['su_deadlinenarrative'], '')"
+    description = (f"concat({fn_name}, decodeUriComponent('%0A'), {marker}, "
+                   f"if(empty({narrative}), '', concat(decodeUriComponent('%0A%0A'), {narrative})), "
+                   f"if(empty({link}), '', concat(decodeUriComponent('%0A%0A'), 'Open this function in the Compliance Matrix: ', {link})))")
+    uid = f"concat('cm-', {did}, '-', toLower({contact}), '@syr.edu')"
+    organizer = c["from"]
+
+    def invitation(seq_expr):
+        lines = [
+            "'BEGIN:VCALENDAR'", "'VERSION:2.0'", "'PRODID:-//Syracuse University//Compliance Matrix//EN'", "'METHOD:REQUEST'",
+            "'BEGIN:VEVENT'", f"concat('UID:', {uid})", f"concat('SEQUENCE:', string({seq_expr}))",
+            "concat('DTSTAMP:', utcNow('yyyyMMddTHHmmssZ'))",
+            f"concat('DTSTART;VALUE=DATE:', replace({due}, '-', ''))",
+            f"concat('DTEND;VALUE=DATE:', replace(addDays({due}, 1, 'yyyy-MM-dd'), '-', ''))",
+            f"concat('SUMMARY:', {ics_text(subject)})", f"concat('DESCRIPTION:', {ics_text(description)})",
+            q(f"ORGANIZER;CN=Syracuse University Compliance Matrix:mailto:{organizer}"),
+            f"concat('ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=FALSE:mailto:', {email})",
+            "'TRANSP:TRANSPARENT'", "'X-MICROSOFT-CDO-BUSYSTATUS:FREE'", "'X-MICROSOFT-CDO-ALLDAYEVENT:TRUE'",
+            "'BEGIN:VALARM'", "'ACTION:DISPLAY'", "'DESCRIPTION:Reminder'", q(f"TRIGGER:-PT{int(c['reminderMinutes'])}M"), "'END:VALARM'",
+            "'END:VEVENT'", "'END:VCALENDAR'", "''"]
+        return "concat(" + f", {CRLF}, ".join(lines) + ")"
+
+    def send(seq_expr):
+        return f.op("outlook", "SendEmailV2", {
+            "emailMessage/From": organizer, "emailMessage/To": f"@{{{email}}}", "emailMessage/Subject": f"@{{{subject}}}",
+            "emailMessage/Body": f"@{{{body}}}", "emailMessage/Importance": "Normal",
+            "emailMessage/Attachments": [{"Name": "@{concat(outputs('File_name'), '.ics')}",
+                                          "ContentBytes": f"@{{base64({invitation(seq_expr)})}}"}]})
 
     def check(name, cond, message):
         return name, when(f"and(empty({err}), {cond})", seq(("Set_" + name, set_var("Error", message))))
 
-    mine = "body('Invites_this_person')"
+    sent = first("Find_invite")
     usable = (f"and(equals(length({did}), 36), equals(length({due}), 10), "
               f"equals({count('Find_deadline')}, 1), equals({count('Find_function')}, 1), "
               f"not(equals({D}?['su_complete'], true)))")
+    invite_name = f"substring(concat({subject}, ' | ', {email}), 0, min(400, length(concat({subject}, ' | ', {email}))))"
+    record = {"su_duedatesent": f"@{{{due}}}", "su_email": f"@{{{email}}}", "su_senton": "@{utcNow()}"}
     per = seq(
         ("Find_deadline", f.list("su_compliancedeadlines",
                                  f"concat('su_compliancedeadlineid eq ', if(equals(length({did}), 36), {did}, {q(ZERO)}))",
@@ -922,17 +959,23 @@ def add_to_calendar(s: dict) -> dict:
                                  "su_compliancefunctionid,su_name,su_deadlinenarrative", 1)),
         ("Usable", when(usable, seq(
             ("Subject", compose(f"@substring({subject_full}, 0, min(255, length({subject_full})))")),
-            ("Find_event", outlook("V4CalendarGetItems", {"$filter": f"@{{concat('subject eq ', {odata(subject)})}}", "$top": 50})),
-            ("Invites_this_person", {"type": "Query", "inputs": {
-                "from": "@coalesce(body('Find_event')?['value'], json('[]'))",
-                "where": f"@contains(toLower(coalesce(item()?['requiredAttendees'], '')), toLower({email}))"}}),
-            ("New_or_existing", when(f"empty({mine})", seq(
-                ("Create_event", outlook("V4CalendarPostItem", {"item/" + k: v for k, v in event.items()})),
+            # the attachment's name: the subject without characters a file name cannot have
+            ("File_name", compose("@" + file_name(subject))),
+            ("Find_invite", f.list("su_calendarinvites",
+                                   f"concat('_su_deadline_value eq ', {did}, ' and _su_contact_value eq ', {contact})",
+                                   "su_calendarinviteid,su_duedatesent,su_sequence", 1)),
+            ("New_or_existing", when(f"equals({count('Find_invite')}, 0)", seq(
+                ("Send_invitation", send("0")),
+                ("Record_invitation", f.create("su_calendarinvites", {
+                    "su_name": "@" + invite_name, "su_sequence": 0, **record,
+                    "su_deadline@odata.bind": f"@{{concat('su_compliancedeadlines(', {did}, ')')}}",
+                    "su_contact@odata.bind": f"@{{concat('contacts(', {contact}, ')')}}"})),
                 ("Count_added", add_one("Added"))),
-                seq(("Same_date", when(f"contains(coalesce(first({mine})?['body'], ''), {marker})",
+                seq(("Same_date", when(f"equals(coalesce({sent}?['su_duedatesent'], ''), {due})",
                                        seq(("Count_already", add_one("Already"))),
-                                       seq(("Move_event", outlook("V4CalendarPatchItem", {
-                                           "id": f"@{{first({mine})?['id']}}", **{"item/" + k: v for k, v in event.items()}})),
+                                       seq(("Send_update", send(f"add(coalesce({sent}?['su_sequence'], 0), 1)")),
+                                           ("Record_update", f.update("su_calendarinvites", f"{sent}?['su_calendarinviteid']", {
+                                               "su_sequence": f"@add(coalesce({sent}?['su_sequence'], 0), 1)", **record})),
                                            ("Count_moved", add_one("Moved")))))))),
         ), seq(("Count_skipped", add_one("Skipped"))))))
 

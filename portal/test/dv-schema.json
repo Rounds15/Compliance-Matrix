@@ -149,6 +149,25 @@
   "choiceLabels": {},
   "cascadeDelete": {}
  },
+ "su_calendarinvite": {
+  "columns": {
+   "su_contact": "lookup:contact",
+   "su_deadline": "lookup:su_compliancedeadline",
+   "su_duedatesent": "String",
+   "su_email": "String",
+   "su_name": "String",
+   "su_senton": "DateTime",
+   "su_sequence": "Integer"
+  },
+  "id": "su_calendarinviteid",
+  "set": "su_calendarinvites",
+  "primaryName": "su_name",
+  "choiceLabels": {},
+  "cascadeDelete": {
+   "su_deadline": "Cascade",
+   "su_contact": "Cascade"
+  }
+ },
  "su_compliancedeadline": {
   "columns": {
    "su_cadence": "Choice",

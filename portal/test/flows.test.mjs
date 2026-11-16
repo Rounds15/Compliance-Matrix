@@ -501,10 +501,12 @@ test("directory sync: a write Dataverse refuses alerts the office and fails the 
 
 /* ---------------- CM - Add to calendar ---------------- */
 const PAGE = "https://compliance.syr.edu/compliance-matrix/#/deadlines";
-function calWorld({ calendars } = {}) {
+const GROUP = "SyracuseComplianceMatrix@groups.syr.edu";
+function calWorld({ sendAs } = {}) {
   const dv = dataverseTables();
-  dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === G(201)).su_deadlinenarrative = "Annually by October 1.\nPublished on the safety site.";
-  const outlook = outlookConnector(calendars ? { calendars } : undefined);
+  dv.su_compliancefunctions.find(f => f.su_compliancefunctionid === G(201)).su_deadlinenarrative = "Annually by October 1.\nPublished on the safety site; see the policy, too.";
+  dv.su_calendarinvites = [];
+  const outlook = outlookConnector(sendAs ? { sendAs } : undefined);
   let n = 0;
   const env = { dv, outlook, dataverse: dataverseConnector({ dv, schema: SCHEMA, contacts: [], roleRelationship: REL }), users: usersConnector([]) };
   /* what the page records through the CM Portal Action form: Requested By set by the server */
@@ -515,38 +517,64 @@ function calWorld({ calendars } = {}) {
     const r = runFlow(FLOWS["CM - Add to calendar"], { trigger: pageRequest(FLOWS["CM - Add to calendar"], { actionId: id }), ...env });
     return { ...r, reply: r.response && JSON.parse(r.response.body.result), row: dv.su_portalactions.find(x => x.su_portalactionid === id) };
   };
+  /* the invitations sent: the email and its calendar file, unfolded */
+  env.invites = () => outlook.sent.filter(m => m.attachments && m.attachments.length).map(m => {
+    const ics = m.attachments[0].text;
+    const get = k => { const line = ics.split("\r\n").find(l => l.startsWith(k + ":") || l.startsWith(k + ";")); return line ? line.slice(line.indexOf(":") + 1) : null; };
+    return { ...m, ics, get };
+  });
   return env;
 }
 const ASR = (due = "2026-10-01") => ({ id: G(401), due, title: "Publish Annual Security Report" });
 
-test("add to calendar: invites the signed-in person to an all-day event with the details and a link", () => {
+test("add to calendar: emails the signed-in person an all-day invitation from the group mailbox", () => {
   const env = calWorld();
   const r = env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
   assert.equal(r.status, "Succeeded");
   assert.deepEqual(r.reply, { ok: true, added: 1, moved: 0, already: 0, skipped: 0 });
-  const [e] = env.outlook.events;
-  assert.equal(e.subject, "Clery Act Annual Security Report: Publish Annual Security Report");
-  assert.deepEqual([e.start, e.end, e.timeZone, e.isAllDay], ["2026-10-01T00:00:00", "2026-10-02T00:00:00", "(UTC-05:00) Eastern Time (US & Canada)", true]);
-  assert.equal(e.requiredAttendees, "cruiz@syr.edu;", "the person the server says asked, from their directory row");
-  assert.deepEqual([e.isReminderOn, e.reminderMinutesBeforeStart, e.showAs], [true, 10080, "free"], "a reminder 7 days before; shown as free");
-  assert.match(e.body, /Due date: 2026-10-01/);
-  assert.match(e.body, /Annually by October 1\.<br>Published on the safety site\./);
-  assert.match(e.body, new RegExp('<a href="https://compliance\\.syr\\.edu/compliance-matrix/#/functions/' + G(201) + '">'));
+  const [m] = env.invites();
+  assert.deepEqual([m.from, m.to], [GROUP, "cruiz@syr.edu"], "to the person the server says asked, from their directory row");
+  assert.equal(m.subject, "Clery Act Annual Security Report: Publish Annual Security Report");
+  assert.match(m.body, /Due date: 2026-10-01/);
+  assert.match(m.body, /Annually by October 1\.<br>Published on the safety site; see the policy, too\./);
+  assert.match(m.body, new RegExp('<a href="https://compliance\\.syr\\.edu/compliance-matrix/#/functions/' + G(201) + '">'));
+  assert.equal(m.attachments[0].name, "Clery Act Annual Security Report- Publish Annual Security Report.ics");
+  assert.ok(m.ics.startsWith("BEGIN:VCALENDAR\r\nVERSION:2.0\r\n") && m.ics.endsWith("END:VCALENDAR\r\n"), "CRLF lines");
+  assert.equal(m.get("METHOD"), "REQUEST");
+  assert.deepEqual([m.get("DTSTART"), m.get("DTEND")], ["20261001", "20261002"], "all day, the end the day after");
+  assert.ok(m.ics.includes("DTSTART;VALUE=DATE:20261001"));
+  assert.equal(m.get("UID"), "cm-" + G(401) + "-" + G(901) + "@syr.edu");
+  assert.equal(m.get("SEQUENCE"), "0");
+  assert.equal(m.get("SUMMARY"), "Clery Act Annual Security Report: Publish Annual Security Report");
+  assert.equal(m.get("DESCRIPTION"), "Clery Act Annual Security Report\\nDue date: 2026-10-01\\n\\nAnnually by October 1.\\nPublished on the safety site\\; see the policy\\, too." +
+    "\\n\\nOpen this function in the Compliance Matrix: https://compliance.syr.edu/compliance-matrix/#/functions/" + G(201));
+  assert.equal(m.get("ORGANIZER"), "mailto:" + GROUP);
+  assert.equal(m.get("ATTENDEE"), "mailto:cruiz@syr.edu");
+  assert.deepEqual([m.get("TRANSP"), m.get("X-MICROSOFT-CDO-BUSYSTATUS"), m.get("TRIGGER")], ["TRANSPARENT", "FREE", "-PT10080M"], "free, a reminder 7 days before");
+  assert.match(m.get("DTSTAMP"), /^\d{8}T\d{6}Z$/);
+  const [inv] = env.dv.su_calendarinvites;
+  assert.deepEqual([inv._su_deadline_value, inv._su_contact_value, inv.su_duedatesent, inv.su_sequence, inv.su_email], [G(401), G(901), "2026-10-01", 0, "cruiz@syr.edu"]);
   assert.equal(r.row.su_status, 100000131);
   assert.equal(r.row.su_result, "Added 1, moved 0, already there 0, skipped 0");
+  assert.ok(!r.log.some(x => /^V4Calendar/.test(x.op)), "no calendar actions");
 });
 
-test("add to calendar: the same deadline again is skipped; a new date moves the event", () => {
+test("add to calendar: the same deadline again is skipped; a new date sends an update of the same event", () => {
   const env = calWorld();
   env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
   const again = env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
   assert.deepEqual(again.reply, { ok: true, added: 0, moved: 0, already: 1, skipped: 0 });
-  assert.equal(env.outlook.events.length, 1, "no duplicate");
+  assert.equal(env.invites().length, 1, "nothing sent twice");
   const moved = env.ask(G(901), { page: PAGE, deadlines: [ASR("2027-10-01")] });
   assert.deepEqual(moved.reply, { ok: true, added: 0, moved: 1, already: 0, skipped: 0 });
-  assert.equal(env.outlook.events.length, 1);
-  assert.deepEqual([env.outlook.events[0].start, env.outlook.events[0].end], ["2027-10-01T00:00:00", "2027-10-02T00:00:00"]);
-  assert.match(env.outlook.events[0].body, /Due date: 2027-10-01/);
+  const [first, update] = env.invites();
+  assert.equal(update.get("UID"), first.get("UID"), "the same event");
+  assert.deepEqual([update.get("SEQUENCE"), update.get("DTSTART"), update.get("DTEND")], ["1", "20271001", "20271002"]);
+  assert.match(update.body, /Due date: 2027-10-01/);
+  assert.equal(env.dv.su_calendarinvites.length, 1);
+  assert.deepEqual([env.dv.su_calendarinvites[0].su_duedatesent, env.dv.su_calendarinvites[0].su_sequence], ["2027-10-01", 1]);
+  env.ask(G(901), { page: PAGE, deadlines: [ASR("2028-10-01")] });
+  assert.equal(env.invites()[2].get("SEQUENCE"), "2");
 });
 
 test("add to calendar: another person gets their own invitation for the same deadline", () => {
@@ -554,7 +582,8 @@ test("add to calendar: another person gets their own invitation for the same dea
   env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
   const r = env.ask(G(903), { page: PAGE, deadlines: [ASR()] });
   assert.deepEqual(r.reply, { ok: true, added: 1, moved: 0, already: 0, skipped: 0 });
-  assert.deepEqual(env.outlook.events.map(e => e.requiredAttendees), ["cruiz@syr.edu;", "dferrell@syr.edu;"]);
+  assert.deepEqual(env.invites().map(m => m.to), ["cruiz@syr.edu", "dferrell@syr.edu"]);
+  assert.notEqual(env.invites()[0].get("UID"), env.invites()[1].get("UID"));
 });
 
 test("add to calendar: a month at once; unknown, completed and malformed deadlines are skipped", () => {
@@ -564,14 +593,16 @@ test("add to calendar: a month at once; unknown, completed and malformed deadlin
     { id: G(403), due: "2026-10-20", title: "Done already" }, { id: G(499), due: "2026-10-21", title: "Gone" },
     { id: "not-a-guid", due: "2026-10-22" }, { id: G(401), due: "next week" }] });
   assert.deepEqual(r.reply, { ok: true, added: 2, moved: 0, already: 0, skipped: 4 });
-  assert.deepEqual(env.outlook.events.map(e => e.subject), ["Clery Act Annual Security Report: Publish Annual Security Report",
+  assert.deepEqual(env.invites().map(m => m.subject), ["Clery Act Annual Security Report: Publish Annual Security Report",
     "Form I-9 Employment Verification: I-9 internal audit sample | 3/15/2026"]);
+  assert.equal(env.invites()[1].attachments[0].name, "Form I-9 Employment Verification- I-9 internal audit sample - 3-15-2026.ics", "a file name Windows takes");
 });
 
-test("add to calendar: a link that is not https is left out of the event", () => {
+test("add to calendar: a link that is not https is left out of the invitation", () => {
   const env = calWorld();
   env.ask(G(901), { page: "javascript:alert(1)//", deadlines: [ASR()] });
-  assert.doesNotMatch(env.outlook.events[0].body, /href/);
+  assert.doesNotMatch(env.invites()[0].body, /href/);
+  assert.doesNotMatch(env.invites()[0].ics, /javascript/);
 });
 
 test("add to calendar: refuses what it should not do, and says why", () => {
@@ -588,7 +619,8 @@ test("add to calendar: refuses what it should not do, and says why", () => {
     assert.equal(r.reply.ok, false);
     if (msg instanceof RegExp) assert.match(r.reply.error, msg); else assert.equal(r.reply.error, msg);
   }
-  assert.equal(env.outlook.events.length, 0);
+  assert.equal(env.invites().length, 0);
+  assert.equal(env.dv.su_calendarinvites.length, 0);
   assert.equal(cases[0][0].row.su_status, 100000132, "a refused request is recorded as Failed");
   assert.equal(cases[4][0].row.su_status, 100000131, "a processed one is left as it was");
   const noEmail = calWorld();
@@ -596,13 +628,20 @@ test("add to calendar: refuses what it should not do, and says why", () => {
   assert.match(noEmail.ask(G(901), { page: PAGE, deadlines: [ASR()] }).reply.error, /has no email/);
 });
 
-test("add to calendar: an Outlook failure tells the person and the office, and fails the run", () => {
-  const env = calWorld({ calendars: ["Some other calendar"] });
+test("add to calendar: without Send As on the group mailbox it tells the person and the office, and records nothing", () => {
+  const env = calWorld({ sendAs: ["someone.else@syr.edu"] });
   const r = env.ask(G(901), { page: PAGE, deadlines: [ASR()] });
   assert.equal(r.status, "Failed");
   assert.deepEqual(r.reply, { ok: false, error: "The deadlines could not be added to your calendar. The compliance office has been told." });
   assert.equal(r.row.su_status, 100000132);
+  assert.equal(env.dv.su_calendarinvites.length, 0, "so the next try sends it");
   assert.match(env.outlook.sent[0].subject, /CM - Add to calendar failed/);
+});
+
+test("add to calendar: the invitation comes from the group mailbox flows.yaml names", () => {
+  const def = JSON.stringify(FLOWS["CM - Add to calendar"]);
+  assert.equal((def.match(/"emailMessage\/From":"SyracuseComplianceMatrix@groups\.syr\.edu"/g) || []).length, 2, "the first invitation and the update");
+  assert.doesNotMatch(def, /V4Calendar|item\/timeZone/);
 });
 
 test("CM - Process portal action is called at its own HTTP URL and answers any origin", () => {
@@ -631,17 +670,6 @@ test("CM - Process portal action reads the request as text or as JSON; an empty 
     assert.equal(r.status, "Succeeded");
     assert.deepEqual(JSON.parse(r.response.body.result), { ok: false, error: "That action does not exist." });
   }
-});
-
-test("add to calendar: the event's time zone is an Outlook name, as Power Automate checks on save", () => {
-  const def = FLOWS["CM - Add to calendar"];
-  const zones = JSON.stringify(def).match(/"item\/timeZone":"[^"]*"/g);
-  assert.ok(zones && zones.length >= 2, "Create event and Move event both set it");
-  for (const z of zones) assert.equal(z, '"item/timeZone":"(UTC-05:00) Eastern Time (US & Canada)"');
-  // the emulator refuses the Windows name, as the connector does
-  const ol = outlookConnector();
-  assert.throws(() => ol("V4CalendarPostItem", { table: "Calendar", "item/subject": "x", "item/start": "2026-10-01T00:00:00", "item/end": "2026-10-02T00:00:00", "item/timeZone": "Eastern Standard Time" }),
-    /item\/timeZone must be one of the connector's time zones/);
 });
 
 /* ---------------- CM - Directory Auto-Create, called by the link flows ---------------- */

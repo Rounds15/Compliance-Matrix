@@ -6,6 +6,7 @@
   <EntityRelationship Name="business_unit_su_assessmentowner"/>
   <EntityRelationship Name="business_unit_su_assessmentresponse"/>
   <EntityRelationship Name="business_unit_su_assessmentschedule"/>
+  <EntityRelationship Name="business_unit_su_calendarinvite"/>
   <EntityRelationship Name="business_unit_su_compliancedeadline"/>
   <EntityRelationship Name="business_unit_su_compliancedirectory"/>
   <EntityRelationship Name="business_unit_su_compliancefunction"/>
@@ -29,6 +30,8 @@
   <EntityRelationship Name="lk_su_assessmentresponse_modifiedby"/>
   <EntityRelationship Name="lk_su_assessmentschedule_createdby"/>
   <EntityRelationship Name="lk_su_assessmentschedule_modifiedby"/>
+  <EntityRelationship Name="lk_su_calendarinvite_createdby"/>
+  <EntityRelationship Name="lk_su_calendarinvite_modifiedby"/>
   <EntityRelationship Name="lk_su_compliancedeadline_createdby"/>
   <EntityRelationship Name="lk_su_compliancedeadline_modifiedby"/>
   <EntityRelationship Name="lk_su_compliancedirectory_createdby"/>
@@ -57,6 +60,7 @@
   <EntityRelationship Name="owner_su_assessmentowner"/>
   <EntityRelationship Name="owner_su_assessmentresponse"/>
   <EntityRelationship Name="owner_su_assessmentschedule"/>
+  <EntityRelationship Name="owner_su_calendarinvite"/>
   <EntityRelationship Name="owner_su_compliancedeadline"/>
   <EntityRelationship Name="owner_su_compliancedirectory"/>
   <EntityRelationship Name="owner_su_compliancefunction"/>
@@ -75,6 +79,7 @@
   <EntityRelationship Name="su_changedby_su_compliancedeadline"/>
   <EntityRelationship Name="su_completedby_su_compliancedeadline"/>
   <EntityRelationship Name="su_compliancedeadline_owner"/>
+  <EntityRelationship Name="su_compliancedeadline_su_calendarinvite"/>
   <EntityRelationship Name="su_compliancedeadline_su_portalaction"/>
   <EntityRelationship Name="su_compliancedirectory_systemuser"/>
   <EntityRelationship Name="su_compliancefunction_complianceowner"/>
@@ -91,6 +96,7 @@
   <EntityRelationship Name="su_compliancegap_closedby"/>
   <EntityRelationship Name="su_compliancegap_owner"/>
   <EntityRelationship Name="su_compliancegap_su_portalaction"/>
+  <EntityRelationship Name="su_contact_su_calendarinvite"/>
   <EntityRelationship Name="su_contact_su_compliancedirectory"/>
   <EntityRelationship Name="su_counselassignment_attorney"/>
   <EntityRelationship Name="su_domain_owner"/>
@@ -112,6 +118,7 @@
   <EntityRelationship Name="team_su_assessmentowner"/>
   <EntityRelationship Name="team_su_assessmentresponse"/>
   <EntityRelationship Name="team_su_assessmentschedule"/>
+  <EntityRelationship Name="team_su_calendarinvite"/>
   <EntityRelationship Name="team_su_compliancedeadline"/>
   <EntityRelationship Name="team_su_compliancedirectory"/>
   <EntityRelationship Name="team_su_compliancefunction"/>
@@ -129,6 +136,7 @@
   <EntityRelationship Name="user_su_assessmentowner"/>
   <EntityRelationship Name="user_su_assessmentresponse"/>
   <EntityRelationship Name="user_su_assessmentschedule"/>
+  <EntityRelationship Name="user_su_calendarinvite"/>
   <EntityRelationship Name="user_su_compliancedeadline"/>
   <EntityRelationship Name="user_su_compliancedirectory"/>
   <EntityRelationship Name="user_su_compliancefunction"/>

@@ -46,16 +46,14 @@ directorySync:
 directoryAutoCreate:
   urlSetting: ComplianceMatrix/Flow/DirectoryCreate
 
-# CM - Add to calendar. Events are made on the CM - Office 365 Outlook
-# connection account's calendar (calendarId; "Calendar" is its default
-# calendar) with the person invited, all day in timeZone, with a reminder
-# reminderMinutes before (on the organizer's copy). At most maxDeadlines per
-# request. timeZone is the Outlook connector's display name for the zone,
-# not the Windows name the schedule above takes: Create event (V4) refuses
-# "Eastern Standard Time" when the flow is saved.
+# CM - Add to calendar. Each deadline is emailed to the person who asked,
+# from the group mailbox `from` (the CM - Office 365 Outlook connection's
+# account needs Send As on it), with an all-day calendar invitation attached:
+# shown as free, with a reminder reminderMinutes before. At most maxDeadlines
+# per request. The Outlook calendar actions cannot reach a group's calendar,
+# so the flow keeps what it sent in Calendar Invite rows.
 calendar:
-  calendarId: Calendar
-  timeZone: (UTC-05:00) Eastern Time (US & Canada)
+  from: SyracuseComplianceMatrix@groups.syr.edu
   reminderMinutes: 10080
   maxDeadlines: 50
 

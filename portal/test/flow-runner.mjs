@@ -208,7 +208,13 @@ const FUNCS = {
   },
   addProperty: (o, k, v) => { if (!o || typeof o !== "object" || k in o) throw new FlowError("addProperty() on " + JSON.stringify(o)); return { ...o, [k]: v }; },
   substring: (s, start, len) => { str(s); if (start < 0 || start + len > s.length) throw new FlowError(`substring(${JSON.stringify(s)}, ${start}, ${len}) is out of range`); return s.substr(start, len); },
-  utcNow: () => now().toISOString(),
+  utcNow: fmt => {
+    const iso = now().toISOString();
+    if (fmt === undefined) return iso;
+    if (fmt === "yyyyMMddTHHmmssZ") return iso.slice(0, 19).replace(/[-:]/g, "") + "Z";
+    throw new FlowError("utcNow() format not modelled: " + fmt);
+  },
+  base64: v => Buffer.from(str(v), "utf8").toString("base64"),
   convertFromUtc: (ts, tz, fmt) => { if (tz !== "Eastern Standard Time") throw new FlowError("time zone not modelled: " + tz); return fmtDate(easternParts(new Date(str(ts))), fmt); },
   formatDateTime: (ts, fmt) => {
     const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(str(ts)); if (!m) throw new FlowError("formatDateTime() of " + ts);
@@ -559,7 +565,8 @@ export function dataverseConnector({ dv, schema, contacts = [], roleRelationship
 
   return (operation, p) => {
     const t = tableOf(p.entityName);
-    const rows = dv[t.set];
+    /* a solution table with no rows yet starts empty, as after an import */
+    const rows = dv[t.set] || (dv[t.set] = []);
     switch (operation) {
       case "ListRecords": {
         for (const c of String(p.$select || "").split(",").filter(Boolean)) if (!knows(t, c)) throw new ConnectorError(400, `Could not find a property named '${c}' on ${t.set}`);
@@ -630,7 +637,7 @@ export function usersConnector(people) {
 /* Mail, and the connection account's calendar ("Calendar" or one named in
    calendars): events with subject, start, end, timeZone, isAllDay,
    requiredAttendees ("a@x;b@y;" as the connector returns them) and body. */
-export function outlookConnector({ calendars = ["Calendar"] } = {}) {
+export function outlookConnector({ calendars = ["Calendar"], sendAs = null } = {}) {
   const sent = [], events = [];
   let next = 1;
   /* item/timeZone is one of the connector's display names, as Power
@@ -658,7 +665,16 @@ export function outlookConnector({ calendars = ["Calendar"] } = {}) {
     switch (operation) {
       case "SendEmailV2":
         for (const k of ["emailMessage/To", "emailMessage/Subject", "emailMessage/Body"]) if (!p[k]) throw new ConnectorError(400, k + " is required");
-        sent.push({ to: p["emailMessage/To"], subject: p["emailMessage/Subject"], body: p["emailMessage/Body"] });
+        /* sendAs: the addresses the connection may send as (Send As on a group
+           mailbox); null allows any */
+        if (p["emailMessage/From"] && sendAs && !sendAs.includes(p["emailMessage/From"]))
+          throw new ConnectorError(403, "The user account which was used to submit this request does not have the right to send mail on behalf of the specified sending account.");
+        for (const a of p["emailMessage/Attachments"] || []) {
+          if (!a.Name || !/^[A-Za-z0-9+/]+={0,2}$/.test(String(a.ContentBytes || ""))) throw new ConnectorError(400, "an attachment needs Name and base64 ContentBytes");
+          if (/[\\/:*?"<>|]/.test(a.Name)) throw new ConnectorError(400, "attachment name has a character a file name cannot: " + a.Name);
+        }
+        sent.push({ to: p["emailMessage/To"], from: p["emailMessage/From"] || null, subject: p["emailMessage/Subject"], body: p["emailMessage/Body"],
+          attachments: (p["emailMessage/Attachments"] || []).map(a => ({ name: a.Name, text: Buffer.from(a.ContentBytes, "base64").toString("utf8") })) });
         return {};
       case "V4CalendarGetItems": {
         calendar(p);

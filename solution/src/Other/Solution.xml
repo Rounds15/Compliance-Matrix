@@ -88,6 +88,7 @@
       <RootComponent type="1" schemaName="su_assessmentowner" behavior="0"/>
       <RootComponent type="1" schemaName="su_assessmentresponse" behavior="0"/>
       <RootComponent type="1" schemaName="su_assessmentschedule" behavior="0"/>
+      <RootComponent type="1" schemaName="su_calendarinvite" behavior="0"/>
       <RootComponent type="1" schemaName="su_compliancedeadline" behavior="0"/>
       <RootComponent type="1" schemaName="su_compliancedirectory" behavior="0"/>
       <RootComponent type="1" schemaName="su_compliancefunction" behavior="0"/>
